@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 import AdminLayout from "@/components/AdminLayout";
+import DashboardLayout from "@/components/DashboardLayout";
 import HomePage from "./pages/HomePage";
 import CalculatorsHub from "./pages/CalculatorsHub";
 import WasteCalculator from "./pages/WasteCalculator";
@@ -23,6 +24,8 @@ import IntakePage from "./pages/IntakePage";
 import IntakeSuccessPage from "./pages/IntakeSuccessPage";
 import MixSelectionPage from "./pages/MixSelectionPage";
 import MyCasesPage from "./pages/MyCasesPage";
+import DashboardHome from "./pages/dashboard/DashboardHome";
+import DashboardStatus from "./pages/dashboard/DashboardStatus";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCasesList from "./pages/admin/AdminCasesList";
 import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
@@ -40,6 +43,12 @@ const App = () => (
           {/* Auth */}
           <Route path="/auth" element={<AuthPage />} />
           
+          {/* Dashboard — protected via DashboardLayout */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="status" element={<DashboardStatus />} />
+          </Route>
+
           {/* Client area */}
           <Route path="/my-cases" element={<MyCasesPage />} />
 

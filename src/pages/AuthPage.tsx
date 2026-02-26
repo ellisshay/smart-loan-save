@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, Chrome } from "lucide-react";
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -20,6 +22,13 @@ export default function AuthPage() {
     lastName: "",
     phone: "",
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate("/dashboard");
+    });
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +42,7 @@ export default function AuthPage() {
         });
         if (error) throw error;
         toast({ title: "התחברת בהצלחה! 🎉" });
-        navigate("/intake");
+        navigate("/dashboard");
       } else {
         const { error } = await supabase.auth.signUp({
           email: form.email,
@@ -48,7 +57,7 @@ export default function AuthPage() {
         });
         if (error) throw error;
         toast({ title: "נרשמת בהצלחה! 🎉" });
-        navigate("/intake");
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -176,6 +185,36 @@ export default function AuthPage() {
                 הירשם
               </>
             )}
+          </Button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-card px-3 text-muted-foreground">או</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            size="lg"
+            disabled={googleLoading}
+            onClick={async () => {
+              setGoogleLoading(true);
+              const { error } = await lovable.auth.signInWithOAuth("google", {
+                redirect_uri: window.location.origin,
+              });
+              if (error) {
+                toast({ title: "שגיאה בהתחברות Google", variant: "destructive" });
+                setGoogleLoading(false);
+              }
+            }}
+          >
+            <Chrome size={18} />
+            {googleLoading ? "מתחבר..." : "התחבר עם Google"}
           </Button>
 
           <div className="text-center pt-2">
