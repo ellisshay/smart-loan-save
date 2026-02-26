@@ -20,7 +20,7 @@ const plans = [
   },
   {
     name: "תיק פרימיום 48 שעות",
-    price: "₪3,500",
+    price: "₪3,800",
     desc: "דוח מקצועי + שליחה לבנקים",
     features: [
       "כל הכלול בבדיקה חינמית",
@@ -34,6 +34,24 @@ const plans = [
     cta: "התחל עכשיו",
     href: "/checkout",
     featured: true,
+  },
+  {
+    name: "ליווי מלא",
+    price: "₪7,000",
+    originalPrice: "₪8,500",
+    desc: "ליווי אישי מקצה לקצה עד חתימה",
+    features: [
+      "כל הכלול בתיק פרימיום",
+      "יועץ משכנתאות אישי",
+      "משא ומתן מול הבנקים",
+      "ליווי עד חתימת הסכם",
+      "בדיקת מסמכים משפטית",
+      "תמיכה טלפונית ללא הגבלה",
+      "עדכונים שוטפים בזמן אמת",
+    ],
+    cta: "בחר ליווי מלא",
+    href: "/checkout?plan=full",
+    featured: false,
   },
 ];
 
@@ -54,7 +72,7 @@ export default function PricingPage() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -77,6 +95,9 @@ export default function PricingPage() {
 
               <div className="font-display text-4xl font-black text-foreground mb-6">
                 {plan.price}
+                {plan.originalPrice && (
+                  <span className="text-lg line-through text-muted-foreground mr-2">{plan.originalPrice}</span>
+                )}
                 {plan.price !== "₪0" && <span className="text-sm font-normal text-muted-foreground mr-1">חד-פעמי</span>}
               </div>
 
