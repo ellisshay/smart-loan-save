@@ -57,21 +57,22 @@ export default function SavingsCalculator() {
   const [rate, setRate] = useState("");
   const [goal, setGoal] = useState("");
   const [result, setResult] = useState<{
-    currentTotalCost: number;
-    optimisticTotalCost: number;
-    pessimisticTotalCost: number;
-    savings10y: number;
-    savingsLow: number;
-    savingsHigh: number;
     currentMonthly: number;
-    optimisticMonthly: number;
-    pessimisticMonthly: number;
+    improvedMonthly: number;
+    stressMonthly: number;
+    displaySavingsMain: number;
+    displaySavingsLow: number;
+    displaySavingsHigh: number;
     wasteScore: number;
     usedRate: number;
+    improvedRate: number;
+    stressRate: number;
+    urgencyRateSensitive: boolean;
+    stressDelta: number;
   } | null>(null);
   const [showResult, setShowResult] = useState(false);
 
-  const animatedSavings = useCountUp(result?.savings10y || 0, 2000, showResult);
+  const animatedSavings = useCountUp(result?.displaySavingsMain || 0, 2000, showResult);
   const animatedScore = useCountUp(result?.wasteScore || 0, 1500, showResult);
 
   const calculate = () => {
@@ -82,71 +83,85 @@ export default function SavingsCalculator() {
 
     if (!bal || !mp || !yl) return;
 
-    const months = yl * 12;
-    const months10y = Math.min(months, 120);
+    const monthsLeft = yl * 12;
 
-    // Current scenario
-    const currentTotalCost = mp * months;
+    // שלב 1 – מצב נוכחי (משתמשים בהחזר שהוזן)
+    const currentMonthly = mp;
 
-    // Optimistic: rate - 0.9%
-    const optRate = Math.max(r - 0.9, 0.5);
-    const optMonthlyRate = optRate / 100 / 12;
-    const optMonthly = bal * (optMonthlyRate * Math.pow(1 + optMonthlyRate, months)) / (Math.pow(1 + optMonthlyRate, months) - 1);
-    const optimisticTotalCost = optMonthly * months;
+    // שלב 2 – תרחיש שיפור אגרסיבי
+    const rateReduction = r < 4 ? 0.7 : 1.1;
+    const improvedRate = Math.max(r - rateReduction, 0.5);
+    const improvedMonthlyRate = improvedRate / 100 / 12;
+    const improvedMonthly = bal * (improvedMonthlyRate * Math.pow(1 + improvedMonthlyRate, monthsLeft)) / (Math.pow(1 + improvedMonthlyRate, monthsLeft) - 1);
 
-    // Pessimistic: rate + 1%
-    const pessRate = r + 1;
-    const pessMonthlyRate = pessRate / 100 / 12;
-    const pessMonthly = bal * (pessMonthlyRate * Math.pow(1 + pessMonthlyRate, months)) / (Math.pow(1 + pessMonthlyRate, months) - 1);
-    const pessimisticTotalCost = pessMonthly * months;
+    // שלב 3 – תרחיש ריבית עולה
+    const stressRate = r + 1;
+    const stressMonthlyRate = stressRate / 100 / 12;
+    const stressMonthly = bal * (stressMonthlyRate * Math.pow(1 + stressMonthlyRate, monthsLeft)) / (Math.pow(1 + stressMonthlyRate, monthsLeft) - 1);
 
-    // 10-year gap between current and optimistic
-    const gap10y = (mp - optMonthly) * months10y;
-    const gapLow = gap10y * 0.7;
-    const gapHigh = gap10y * 1.2;
+    // שלב 4 – פער ל-10 שנים
+    const yearsProjection = Math.min(10, yl);
+    const monthsProjection = yearsProjection * 12;
+    const costCurrent10 = currentMonthly * monthsProjection;
+    const costImproved10 = improvedMonthly * monthsProjection;
+    const potentialSavings10 = costCurrent10 - costImproved10;
 
-    // Waste score: min(100, (gap / balance) * 120)
-    const wasteScore = Math.min(100, Math.round((gap10y / bal) * 120));
+    // שלב 5 – הגדלת אפקט פסיכולוגי
+    const displaySavingsLow = Math.round(potentialSavings10 * 0.9);
+    const displaySavingsHigh = Math.round(potentialSavings10 * 1.25);
+    const displaySavingsMain = Math.round(potentialSavings10 * 1.15);
+
+    // שלב 6 – מדד בזבוז אגרסיבי
+    const wasteRatio = potentialSavings10 / bal;
+    let riskScore = Math.round(wasteRatio * 140);
+    if (riskScore > 100) riskScore = 100;
+    if (riskScore < 20) riskScore = 22;
+
+    // בונוס דחיפות
+    const stressDelta = Math.round(stressMonthly - currentMonthly);
+    const urgencyRateSensitive = riskScore > 70;
 
     setResult({
-      currentTotalCost,
-      optimisticTotalCost,
-      pessimisticTotalCost,
-      savings10y: Math.round(gap10y),
-      savingsLow: Math.round(gapLow),
-      savingsHigh: Math.round(gapHigh),
-      currentMonthly: mp,
-      optimisticMonthly: Math.round(optMonthly),
-      pessimisticMonthly: Math.round(pessMonthly),
-      wasteScore: Math.max(0, wasteScore),
+      currentMonthly,
+      improvedMonthly: Math.round(improvedMonthly),
+      stressMonthly: Math.round(stressMonthly),
+      displaySavingsMain,
+      displaySavingsLow,
+      displaySavingsHigh,
+      wasteScore: riskScore,
       usedRate: r,
+      improvedRate,
+      stressRate,
+      urgencyRateSensitive,
+      stressDelta,
     });
     setShowResult(true);
   };
 
+  // צבעים למדד: 0-40 ירוק, 40-65 צהוב, 65-100 טורקיז זוהר
   const getScoreColor = (score: number) => {
-    if (score >= 70) return "text-red-400";
+    if (score >= 65) return "text-gold";
     if (score >= 40) return "text-warning";
     return "text-success";
   };
 
   const getScoreBg = (score: number) => {
-    if (score >= 70) return "from-red-500/20 to-red-600/20 border-red-500/30";
+    if (score >= 65) return "from-gold/20 to-gold-dark/20 border-gold/30";
     if (score >= 40) return "from-amber-500/20 to-orange-500/20 border-amber-500/30";
     return "from-emerald-500/20 to-teal-500/20 border-emerald-500/30";
   };
 
   const getScoreLabel = (score: number) => {
     if (score >= 80) return "בזבוז קריטי";
-    if (score >= 60) return "בזבוז משמעותי";
+    if (score >= 65) return "בזבוז משמעותי";
     if (score >= 40) return "יש פוטנציאל לשיפור";
     return "המשכנתא שלך סבירה";
   };
 
   const chartData = result ? [
     { name: "המצב שלך", value: Math.round(result.currentMonthly), fill: "hsl(0, 72%, 55%)" },
-    { name: "תמהיל משופר", value: result.optimisticMonthly, fill: "hsl(185, 70%, 50%)" },
-    { name: "ריבית עולה", value: result.pessimisticMonthly, fill: "hsl(38, 92%, 50%)" },
+    { name: "תמהיל משופר", value: result.improvedMonthly, fill: "hsl(185, 70%, 50%)" },
+    { name: "ריבית עולה", value: result.stressMonthly, fill: "hsl(38, 92%, 50%)" },
   ] : [];
 
   const goals = [
@@ -268,26 +283,50 @@ export default function SavingsCalculator() {
                 <p className="text-lg md:text-xl text-foreground mb-2">
                   לפי הנתונים שלך, אתה עלול לשלם כ-
                 </p>
-                <div className="font-display text-4xl md:text-6xl font-black text-red-400 mb-2">
+                <div className="font-display text-4xl md:text-6xl font-black text-destructive mb-2">
                   ₪{animatedSavings.toLocaleString()}
                 </div>
                 <p className="text-lg text-foreground mb-3">יותר בעשור הקרוב</p>
                 <p className="text-sm text-muted-foreground">
                   טווח: בין{" "}
-                  <span className="font-bold text-foreground">₪{result.savingsLow.toLocaleString()}</span>
+                  <span className="font-bold text-foreground">₪{result.displaySavingsLow.toLocaleString()}</span>
                   {" "}ל-
-                  <span className="font-bold text-foreground">₪{result.savingsHigh.toLocaleString()}</span>
+                  <span className="font-bold text-foreground">₪{result.displaySavingsHigh.toLocaleString()}</span>
                 </p>
               </div>
+
+              {/* Urgency bonuses */}
+              {result.urgencyRateSensitive && (
+                <motion.div
+                  className="bg-gradient-to-br from-destructive/10 to-warning/10 rounded-xl p-4 border border-destructive/20 text-center"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <p className="text-sm font-semibold text-destructive">
+                    🔴 זוהתה רגישות גבוהה לשינויי ריבית
+                  </p>
+                </motion.div>
+              )}
+              {result.stressDelta > 800 && (
+                <motion.div
+                  className="bg-gradient-to-br from-warning/10 to-destructive/10 rounded-xl p-4 border border-warning/20 text-center"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <p className="text-sm font-semibold text-warning">
+                    ⚠️ עלייה של 1% בריבית עלולה להעלות לך את ההחזר ביותר מ-₪{result.stressDelta.toLocaleString()} לחודש
+                  </p>
+                </motion.div>
+              )}
 
               {/* 3-column details */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-card rounded-xl p-5 border border-border text-center">
                   <div className="text-sm text-muted-foreground mb-2">✔ החזר בתמהיל משופר</div>
                   <div className="font-display font-black text-2xl text-gold">
-                    ₪{result.optimisticMonthly.toLocaleString()}
+                    ₪{result.improvedMonthly.toLocaleString()}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">ריבית {(result.usedRate - 0.9).toFixed(1)}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">ריבית {result.improvedRate.toFixed(1)}%</div>
                 </div>
                 <div className="bg-card rounded-xl p-5 border border-border text-center">
                   <div className="text-sm text-muted-foreground mb-2">✔ ההחזר הנוכחי שלך</div>
@@ -299,9 +338,9 @@ export default function SavingsCalculator() {
                 <div className="bg-card rounded-xl p-5 border border-border text-center">
                   <div className="text-sm text-muted-foreground mb-2">✔ אם הריבית תעלה ב-1%</div>
                   <div className="font-display font-black text-2xl text-warning">
-                    ₪{result.pessimisticMonthly.toLocaleString()}
+                    ₪{result.stressMonthly.toLocaleString()}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">ריבית {(result.usedRate + 1).toFixed(1)}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">ריבית {result.stressRate.toFixed(1)}%</div>
                 </div>
               </div>
 
