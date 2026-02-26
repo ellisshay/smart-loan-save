@@ -23,7 +23,7 @@ export default function AdminCasesList() {
   }, [search, statusFilter]);
 
   const getSLAClass = (createdAt: string, status: CaseStatus) => {
-    if (status === "completed" || status === "offer_received") return "";
+    if (status === "ClosedWon" || status === "ClosedLost" || status === "BankOfferReceived") return "";
     const hours = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60);
     if (hours > 48) return "text-destructive font-bold";
     if (hours > 36) return "text-warning font-bold";

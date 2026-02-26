@@ -358,7 +358,7 @@ function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label:
 
 function SLAIndicator({ createdAt, status }: { createdAt: string; status: CaseStatus }) {
   const hours = Math.round((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60));
-  const isCompleted = status === "completed" || status === "offer_received";
+  const isCompleted = status === "ClosedWon" || status === "ClosedLost" || status === "BankOfferReceived";
   const pct = isCompleted ? 100 : Math.min(100, (hours / 48) * 100);
 
   const barColor = isCompleted
