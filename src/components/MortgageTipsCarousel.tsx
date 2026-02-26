@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
+import { Lightbulb, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 const tips = [
   "לפני שאתה לוקח משכנתא — דע מה ההחזר המקסימלי שאתה יכול להרשות לעצמך (עד 30% מההכנסה נטו).",
@@ -37,16 +37,16 @@ const tips = [
 
 export default function MortgageTipsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    // RTL: scrollLeft is negative in RTL
     setCanScrollRight(Math.abs(el.scrollLeft) + el.clientWidth < el.scrollWidth - 10);
     setCanScrollLeft(Math.abs(el.scrollLeft) > 10);
-  };
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -54,17 +54,43 @@ export default function MortgageTipsCarousel() {
     checkScroll();
     el.addEventListener("scroll", checkScroll);
     return () => el.removeEventListener("scroll", checkScroll);
-  }, []);
+  }, [checkScroll]);
+
+  // Auto-scroll every 3 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      const currentScroll = Math.abs(el.scrollLeft);
+
+      if (currentScroll >= maxScroll - 10) {
+        // Reset to start
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        // Scroll one card (RTL: negative)
+        el.scrollBy({ left: -300, behavior: "smooth" });
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
-    const amount = dir === "left" ? 320 : -320; // RTL reversed
+    const amount = dir === "left" ? 320 : -320;
     el.scrollBy({ left: amount, behavior: "smooth" });
   };
 
   return (
-    <section className="py-16 md:py-20 bg-muted/50 overflow-hidden">
+    <section
+      className="py-16 md:py-20 bg-muted/50 overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="container">
         <motion.div
           className="flex items-center justify-between mb-8"
@@ -76,9 +102,16 @@ export default function MortgageTipsCarousel() {
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-1">
               💡 30 טיפים למשכנתא מנצחת
             </h2>
-            <p className="text-muted-foreground">גלול הצידה לעוד טיפים</p>
+            <p className="text-muted-foreground">הקרוסלה נעה אוטומטית — עצור עם העכבר</p>
           </div>
-          <div className="hidden sm:flex gap-2">
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className="w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center hover:bg-muted transition-colors"
+              title={isPaused ? "המשך" : "עצור"}
+            >
+              {isPaused ? <Play size={16} /> : <Pause size={16} />}
+            </button>
             <button
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
@@ -104,7 +137,7 @@ export default function MortgageTipsCarousel() {
           {tips.map((tip, i) => (
             <motion.div
               key={i}
-              className="min-w-[280px] max-w-[300px] bg-card rounded-2xl p-5 shadow-card border border-border flex-shrink-0"
+              className="min-w-[280px] max-w-[300px] bg-card rounded-2xl p-5 shadow-card border border-border hover:border-gold/20 transition-colors flex-shrink-0"
               style={{ scrollSnapAlign: "start" }}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -119,6 +152,13 @@ export default function MortgageTipsCarousel() {
               </div>
               <p className="text-sm text-foreground leading-relaxed">{tip}</p>
             </motion.div>
+          ))}
+        </div>
+
+        {/* Progress dots */}
+        <div className="flex justify-center gap-1 mt-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="w-2 h-2 rounded-full bg-gold/20" />
           ))}
         </div>
       </div>
