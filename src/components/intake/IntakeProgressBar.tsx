@@ -31,7 +31,7 @@ export default function IntakeProgressBar({ steps, currentStep, onStepClick }: P
               key={step.key}
               onClick={() => i <= currentStep && onStepClick(i)}
               className={`flex flex-col items-center gap-1 transition-colors ${
-                i <= currentStep ? "cursor-pointer" : "cursor-default opacity-40"
+                i <= currentStep ? "cursor-pointer" : "cursor-default opacity-50"
               }`}
             >
               <div
@@ -40,7 +40,7 @@ export default function IntakeProgressBar({ steps, currentStep, onStepClick }: P
                     ? "bg-gold text-accent-foreground"
                     : isCurrent
                     ? "bg-gold-gradient text-accent-foreground shadow-gold"
-                    : "bg-muted text-muted-foreground"
+                    : "bg-secondary text-foreground/60 border border-border"
                 }`}
               >
                 {isCompleted ? <Check size={14} /> : i + 1}
