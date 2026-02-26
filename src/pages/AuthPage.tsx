@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -71,11 +71,13 @@ export default function AuthPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        {/* Logo */}
+        {/* Logo — links home */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center mx-auto mb-3">
-            <span className="font-display font-black text-accent-foreground text-xl">EM</span>
-          </div>
+          <Link to="/" className="inline-block">
+            <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center mx-auto mb-3">
+              <span className="font-display font-black text-accent-foreground text-xl">EM</span>
+            </div>
+          </Link>
           <h1 className="font-display text-2xl font-black text-foreground">
             {isLogin ? "התחברות" : "הרשמה"}
           </h1>
