@@ -105,7 +105,7 @@ function HeroSection() {
           >
             גלה תוך דקה כמה כסף אתה מפסיד על המשכנתא שלך.
             <br />
-            קבל דוח מקצועי עם 3 תמהילים חכמים — 
+            קבל דוח מקצועי עם 3 תמהילים מותאמים אישית — 
             <AnimatePresence mode="wait">
               <motion.span
                 key={wordIdx}
@@ -434,7 +434,7 @@ function CalculatorsPreview() {
           viewport={{ once: true }}
         >
           <h2 className="font-display text-3xl md:text-5xl font-black text-foreground mb-4">
-            מחשבונים חכמים
+            מחשבונים מקצועיים
           </h2>
           <p className="text-lg text-muted-foreground">
             בדוק חינם — קבל מספרים אמיתיים
