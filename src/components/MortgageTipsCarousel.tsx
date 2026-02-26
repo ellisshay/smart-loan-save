@@ -102,7 +102,6 @@ export default function MortgageTipsCarousel() {
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-1">
               💡 30 טיפים למשכנתא מנצחת
             </h2>
-            <p className="text-muted-foreground">הקרוסלה נעה אוטומטית — עצור עם העכבר</p>
           </div>
           <div className="hidden sm:flex items-center gap-2">
             <button
@@ -144,13 +143,12 @@ export default function MortgageTipsCarousel() {
               viewport={{ once: true }}
               transition={{ delay: Math.min(i * 0.03, 0.3) }}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
-                  <span className="font-display font-black text-gold text-sm">{i + 1}</span>
+              <div className="flex flex-col items-center text-center">
+                <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center mb-3">
+                  <Lightbulb size={20} className="text-gold fill-gold/30" />
                 </div>
-                <Lightbulb size={16} className="text-gold" />
+                <p className="text-sm text-foreground leading-relaxed">{tip}</p>
               </div>
-              <p className="text-sm text-foreground leading-relaxed">{tip}</p>
             </motion.div>
           ))}
         </div>
