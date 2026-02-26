@@ -1,11 +1,16 @@
 export const CASE_STATUSES = {
-  payment_received: { label: "התקבל תשלום", color: "bg-blue-100 text-blue-800", order: 1 },
-  waiting_docs: { label: "ממתין למסמכים", color: "bg-warning/15 text-warning", order: 2 },
-  analyzing: { label: "בניתוח", color: "bg-gold/15 text-gold-dark", order: 3 },
-  mixes_ready: { label: "תמהילים מוכנים", color: "bg-success/15 text-success", order: 4 },
-  sent_to_banks: { label: "נשלח לבנקים", color: "bg-primary/10 text-primary", order: 5 },
-  offer_received: { label: "התקבלה הצעה", color: "bg-success/20 text-success", order: 6 },
-  completed: { label: "הושלם", color: "bg-muted text-muted-foreground", order: 7 },
+  Draft: { label: "טיוטה", color: "bg-muted text-muted-foreground", order: 0 },
+  WaitingForPayment: { label: "ממתין לתשלום", color: "bg-blue-100 text-blue-800", order: 1 },
+  PaymentSucceeded: { label: "תשלום התקבל", color: "bg-blue-200 text-blue-900", order: 2 },
+  WaitingForDocs: { label: "ממתין למסמכים", color: "bg-warning/15 text-warning", order: 3 },
+  InAnalysis: { label: "בניתוח", color: "bg-gold/15 text-gold-dark", order: 4 },
+  ReportGenerated: { label: "דוח הופק", color: "bg-success/10 text-success", order: 5 },
+  CustomerReview: { label: "בחירת תמהיל", color: "bg-primary/10 text-primary", order: 6 },
+  SentToBank: { label: "נשלח לבנקים", color: "bg-primary/15 text-primary", order: 7 },
+  BankOfferReceived: { label: "התקבלה הצעה", color: "bg-success/15 text-success", order: 8 },
+  Negotiation: { label: "במשא ומתן", color: "bg-gold/20 text-gold-dark", order: 9 },
+  ClosedWon: { label: "נסגר בהצלחה", color: "bg-success/20 text-success", order: 10 },
+  ClosedLost: { label: "נסגר ללא הצלחה", color: "bg-destructive/15 text-destructive", order: 11 },
 } as const;
 
 export type CaseStatus = keyof typeof CASE_STATUSES;

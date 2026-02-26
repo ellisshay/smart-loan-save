@@ -15,6 +15,10 @@ import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import LegalPage from "./pages/LegalPage";
+import AuthPage from "./pages/AuthPage";
+import IntakePage from "./pages/IntakePage";
+import IntakeSuccessPage from "./pages/IntakeSuccessPage";
+import MixSelectionPage from "./pages/MixSelectionPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCasesList from "./pages/admin/AdminCasesList";
 import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
@@ -29,7 +33,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Admin routes with AdminLayout */}
+          {/* Auth */}
+          <Route path="/auth" element={<AuthPage />} />
+          
+          {/* Intake flow */}
+          <Route path="/intake" element={<IntakePage />} />
+          <Route path="/intake/success" element={<IntakeSuccessPage />} />
+          <Route path="/mix-selection/:caseId" element={<MixSelectionPage />} />
+
+          {/* Admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="cases" element={<AdminCasesList />} />

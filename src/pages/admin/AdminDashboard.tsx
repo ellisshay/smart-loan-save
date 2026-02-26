@@ -21,11 +21,11 @@ export default function AdminDashboard() {
     const created = new Date(c.createdAt);
     const now = new Date();
     const hours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
-    return hours > 36 && c.status !== "completed" && c.status !== "offer_received";
+    return hours > 36 && c.status !== "ClosedWon" && c.status !== "ClosedLost" && c.status !== "BankOfferReceived";
   }).length;
 
-  const pendingDocs = statusCounts.waiting_docs || 0;
-  const readyToSend = statusCounts.mixes_ready || 0;
+  const pendingDocs = statusCounts.WaitingForDocs || 0;
+  const readyToSend = statusCounts.ReportGenerated || 0;
 
   const summaryCards = [
     { label: "סה״כ תיקים", value: totalCases, icon: Briefcase, color: "text-primary" },
