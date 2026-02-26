@@ -8,12 +8,14 @@ import AdminLayout from "@/components/AdminLayout";
 import HomePage from "./pages/HomePage";
 import CalculatorsHub from "./pages/CalculatorsHub";
 import WasteCalculator from "./pages/WasteCalculator";
+import NewMortgageCalculator from "./pages/NewMortgageCalculator";
 import RefinanceCalculator from "./pages/RefinanceCalculator";
 import MixCalculator from "./pages/MixCalculator";
 import PricingPage from "./pages/PricingPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
+import BlogPage from "./pages/BlogPage";
 import LegalPage from "./pages/LegalPage";
 import AuthPage from "./pages/AuthPage";
 import IntakePage from "./pages/IntakePage";
@@ -58,10 +60,12 @@ const App = () => (
           <Route path="/calculators/waste" element={<Layout><WasteCalculator /></Layout>} />
           <Route path="/calculators/refinance" element={<Layout><RefinanceCalculator /></Layout>} />
           <Route path="/calculators/mix" element={<Layout><MixCalculator /></Layout>} />
+          <Route path="/calculators/new-mortgage" element={<Layout><NewMortgageCalculator /></Layout>} />
           <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
           <Route path="/how-it-works" element={<Layout><HowItWorksPage /></Layout>} />
           <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+          <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
           <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>

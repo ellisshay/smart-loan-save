@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Calculator, TrendingDown, BarChart3, ArrowLeft } from "lucide-react";
+import { Calculator, TrendingDown, BarChart3, ArrowLeft, Home } from "lucide-react";
 
 const calculators = [
   {
@@ -27,6 +27,14 @@ const calculators = [
     emoji: "⚖️",
     color: "bg-gold/10 text-gold-dark",
   },
+  {
+    title: "מחשבון משכנתא חדשה",
+    desc: "חשב את ההחזר החודשי וגלה כמה תוכל ללוות לבית הראשון שלך.",
+    icon: Home,
+    href: "/calculators/new-mortgage",
+    emoji: "🏠",
+    color: "bg-violet-500/10 text-violet-400",
+  },
 ];
 
 export default function CalculatorsHub() {
@@ -39,7 +47,7 @@ export default function CalculatorsHub() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
-            מחשבוני משכנתא <span className="text-gradient-gold">חכמים</span>
+            מחשבוני משכנתא <span className="text-gradient-gold">מקצועיים</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto">
             בחר מחשבון, הזן את הנתונים שלך, וקבל תוצאה מיידית — בלי רישום ובלי שיחות.
