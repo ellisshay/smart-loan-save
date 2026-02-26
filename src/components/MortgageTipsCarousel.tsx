@@ -150,8 +150,8 @@ export default function MortgageTipsCarousel() {
               transition={{ delay: Math.min(i * 0.03, 0.3) }}
             >
               <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 rounded-full bg-yellow-500/15 flex items-center justify-center mb-3">
-                  <Lightbulb size={20} className="text-yellow-400 fill-yellow-400/40" />
+                <div className="w-10 h-10 rounded-full bg-yellow-500/15 flex items-center justify-center mb-3" style={{ boxShadow: '0 0 16px 4px rgba(250, 204, 21, 0.35), 0 0 6px 2px rgba(250, 204, 21, 0.2)' }}>
+                  <Lightbulb size={20} className="text-yellow-400 fill-yellow-400/40 drop-shadow-[0_0_6px_rgba(250,204,21,0.6)]" />
                 </div>
                 <p className="text-[15px] font-semibold text-foreground leading-relaxed font-body">{tip}</p>
               </div>
