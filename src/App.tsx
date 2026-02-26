@@ -26,6 +26,12 @@ import MixSelectionPage from "./pages/MixSelectionPage";
 import MyCasesPage from "./pages/MyCasesPage";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardStatus from "./pages/dashboard/DashboardStatus";
+import DashboardPersonal from "./pages/dashboard/DashboardPersonal";
+import DashboardProperty from "./pages/dashboard/DashboardProperty";
+import DashboardIncome from "./pages/dashboard/DashboardIncome";
+import DashboardLiabilities from "./pages/dashboard/DashboardLiabilities";
+import DashboardMortgage from "./pages/dashboard/DashboardMortgage";
+import DashboardDeclarations from "./pages/dashboard/DashboardDeclarations";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCasesList from "./pages/admin/AdminCasesList";
 import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
@@ -47,6 +53,12 @@ const App = () => (
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="status" element={<DashboardStatus />} />
+            <Route path="personal" element={<DashboardPersonal />} />
+            <Route path="property" element={<DashboardProperty />} />
+            <Route path="income" element={<DashboardIncome />} />
+            <Route path="liabilities" element={<DashboardLiabilities />} />
+            <Route path="mortgage" element={<DashboardMortgage />} />
+            <Route path="declarations" element={<DashboardDeclarations />} />
           </Route>
 
           {/* Client area */}
