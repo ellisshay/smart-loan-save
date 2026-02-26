@@ -193,14 +193,17 @@ export default function SavingsCalculator() {
     const urgencyRateSensitive = riskScore > 70;
     const monthlyLoss = Math.round(displaySavingsMain / 120);
 
-    setResult({
+    const resultData = {
       currentMonthly, improvedMonthly: Math.round(improvedMonthly), stressMonthly: Math.round(stressMonthly),
       displaySavingsMain, displaySavingsLow, displaySavingsHigh,
       wasteScore: riskScore, usedRate: r, improvedRate, stressRate,
       urgencyRateSensitive, stressDelta, monthlyLoss,
-    });
+    };
+    setResult(resultData);
     setShowResult(true);
     setWebhookSent(false);
+    // Persist for pricing page dynamic ROI
+    sessionStorage.setItem("calc_savings", JSON.stringify(resultData));
   };
 
   const getScoreColor = (score: number) => {
