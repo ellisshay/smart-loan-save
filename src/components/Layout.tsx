@@ -1,13 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
+  { label: "איך זה עובד", href: "/how-it-works", icon: Lightbulb },
   { label: "מחשבונים", href: "/calculators", icon: Calculator },
   { label: "מחירים", href: "/pricing", icon: FileText },
+  { label: "אודות", href: "/about", icon: Info },
   { label: "צור קשר", href: "/contact", icon: Phone },
 ];
 

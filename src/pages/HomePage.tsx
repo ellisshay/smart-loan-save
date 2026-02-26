@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import MortgageTipsCarousel from "@/components/MortgageTipsCarousel";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,7 @@ export default function HomePage() {
       <HowItWorksSection />
       <BenefitsSection />
       <CalculatorsPreview />
+      <MortgageTipsCarousel />
       <TestimonialsSection />
       <FAQSection />
       <FinalCTA />
