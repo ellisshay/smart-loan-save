@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
   TrendingDown,
   Check,
   X,
-  AlertTriangle,
   Zap,
 } from "lucide-react";
 import {
@@ -26,6 +25,33 @@ interface CalcResult {
   displaySavingsMain: number;
   monthlyLoss: number;
   wasteScore: number;
+}
+
+const urgencyVariants = [
+  { opened: 6, remaining: 2 },
+  { opened: 8, remaining: 3 },
+  { opened: 5, remaining: 1 },
+  { opened: 7, remaining: 2 },
+  { opened: 9, remaining: 3 },
+  { opened: 4, remaining: 1 },
+  { opened: 6, remaining: 3 },
+  { opened: 8, remaining: 2 },
+];
+
+function UrgencyBadge() {
+  const variant = useMemo(() => {
+    const sixHourBlock = Math.floor(Date.now() / (6 * 60 * 60 * 1000));
+    return urgencyVariants[sixHourBlock % urgencyVariants.length];
+  }, []);
+
+  return (
+    <div className="bg-gradient-to-r from-destructive/10 to-destructive/5 border border-destructive/20 rounded-lg p-3 mb-4 text-center">
+      <p className="text-sm font-semibold text-destructive flex items-center justify-center gap-1.5">
+        <Zap size={14} />
+        נפתחו {variant.opened} תיקים להיום · נותרו {variant.remaining} מקומות לניתוח מהיר
+      </p>
+    </div>
+  );
 }
 
 export default function PricingPage() {
@@ -151,12 +177,7 @@ export default function PricingPage() {
                     <Star size={12} />
                     הכי פופולרי
                   </div>
-                  <div className="bg-gradient-to-r from-destructive/10 to-destructive/5 border border-destructive/20 rounded-lg p-3 mb-4 text-center">
-                    <p className="text-sm font-semibold text-destructive flex items-center justify-center gap-1.5">
-                      <Zap size={14} />
-                      נפתחו 6 תיקים להיום · נותרו 2 מקומות לניתוח מהיר
-                    </p>
-                  </div>
+                  <UrgencyBadge />
                 </>
               )}
 
