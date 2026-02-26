@@ -91,7 +91,7 @@ function HeroSection() {
 
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={1}>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6">
-              <span className="text-white">הדרך הכי חכמה</span>
+              <span className="text-white">משכנתא חכמה</span>
               <br />
               <span className="text-white">לבית ה</span>
               <span className="text-gradient-gold">חלומות</span>
