@@ -6,7 +6,7 @@ import { useIntakeForm } from "@/hooks/useIntakeForm";
 import {
   NEW_CASE_STEPS, REFI_CASE_STEPS, SERVICE_GOALS,
   REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI,
-  type CaseType,
+  type CaseType, type CaseTypeSelection,
 } from "@/types/intake";
 import IntakeProgressBar from "@/components/intake/IntakeProgressBar";
 import StepPersonal from "@/components/intake/StepPersonal";
@@ -21,14 +21,18 @@ import StepRefiGoal from "@/components/intake/StepRefiGoal";
 import StepCurrentMortgage from "@/components/intake/StepCurrentMortgage";
 import StepRefiProperty from "@/components/intake/StepRefiProperty";
 import StepRefiPreferences from "@/components/intake/StepRefiPreferences";
-import { Home, RefreshCw, Save } from "lucide-react";
+import { Home, RefreshCw, TrendingUp, Save } from "lucide-react";
 
 export default function IntakePage() {
   const navigate = useNavigate();
   const [, setUser] = useState<any>(null);
-  const [caseType, setCaseType] = useState<CaseType | null>(null);
+  const [caseTypeSelection, setCaseTypeSelection] = useState<CaseTypeSelection | null>(null);
   const [goal, setGoal] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState<any[]>([]);
+
+  // Derive DB case type and pre-set increase flag
+  const caseType: CaseType | null = caseTypeSelection === "new" ? "new" : caseTypeSelection ? "refi" : null;
+  const presetIncrease = caseTypeSelection === "refi_plus";
 
   // Check auth
   useEffect(() => {
@@ -49,20 +53,27 @@ export default function IntakePage() {
           </motion.div>
 
           {/* Case Type */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <TypeCard
               icon={Home}
-              title="תיק חדש"
-              subtitle="משכנתא לרכישה"
-              selected={caseType === "new"}
-              onClick={() => setCaseType("new")}
+              title="משכנתא חדשה"
+              subtitle="רכישת נכס חדש"
+              selected={caseTypeSelection === "new"}
+              onClick={() => setCaseTypeSelection("new")}
             />
             <TypeCard
               icon={RefreshCw}
-              title="תיק מיחזור"
+              title="מיחזור"
               subtitle="משכנתא קיימת"
-              selected={caseType === "refi"}
-              onClick={() => setCaseType("refi")}
+              selected={caseTypeSelection === "refi"}
+              onClick={() => setCaseTypeSelection("refi")}
+            />
+            <TypeCard
+              icon={TrendingUp}
+              title="מיחזור + הגדלה"
+              subtitle="מיחזור עם סכום נוסף"
+              selected={caseTypeSelection === "refi_plus"}
+              onClick={() => setCaseTypeSelection("refi_plus")}
             />
           </div>
 
@@ -90,7 +101,15 @@ export default function IntakePage() {
     );
   }
 
-  return <IntakeFormFlow caseType={caseType} goal={goal} uploadedDocs={uploadedDocs} setUploadedDocs={setUploadedDocs} />;
+  return (
+    <IntakeFormFlow
+      caseType={caseType}
+      goal={goal}
+      uploadedDocs={uploadedDocs}
+      setUploadedDocs={setUploadedDocs}
+      presetIncrease={presetIncrease}
+    />
+  );
 }
 
 function IntakeFormFlow({
@@ -98,11 +117,13 @@ function IntakeFormFlow({
   goal,
   uploadedDocs,
   setUploadedDocs,
+  presetIncrease,
 }: {
   caseType: CaseType;
   goal: string;
   uploadedDocs: any[];
   setUploadedDocs: (docs: any[]) => void;
+  presetIncrease: boolean;
 }) {
   const navigate = useNavigate();
   const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase } =
@@ -115,8 +136,21 @@ function IntakeFormFlow({
   const totalIncome =
     (intakeData.income?.monthlyNetIncome || 0) +
     (hasBorrower2 ? (intakeData.income?.b2MonthlyNetIncome || 0) : 0) +
-    (intakeData.income?.hasAdditionalIncome === "yes" ? (intakeData.income?.additionalIncomeAmount || 0) : 0);
+    (intakeData.income?.hasAdditionalIncome === "yes" ? (
+      (intakeData.income?.rentalIncome || 0) +
+      (intakeData.income?.benefitsIncome || 0) +
+      (intakeData.income?.alimonyIncome || 0) +
+      (intakeData.income?.investmentIncome || 0) +
+      (intakeData.income?.otherIncome || 0)
+    ) : 0);
   const totalBalance = intakeData.current_mortgage?.totalBalance || 0;
+
+  // Pre-set increase flag for refi_plus
+  useEffect(() => {
+    if (presetIncrease && caseType === "refi" && intakeData.refi_goal && !intakeData.refi_goal.wantsIncrease) {
+      // Will be set when user reaches refi_goal step
+    }
+  }, [presetIncrease, caseType, intakeData]);
 
   const handleSubmit = async () => {
     await submitCase(goal);
@@ -137,11 +171,16 @@ function IntakeFormFlow({
         case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
+        // New steps (equity, mortgage_request, declarations) - pass through for now
+        default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }
     } else {
       switch (stepKey) {
         case "personal": return <StepPersonal defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} saving={saving} />;
-        case "refi_goal": return <StepRefiGoal defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
+        case "refi_goal": {
+          const refiDefaults = presetIncrease ? { ...defaults, wantsIncrease: defaults.wantsIncrease || "yes" } : defaults;
+          return <StepRefiGoal defaultValues={refiDefaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
+        }
         case "current_mortgage": return <StepCurrentMortgage defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "refi_property": return <StepRefiProperty defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalBalance={totalBalance} />;
         case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
@@ -150,6 +189,7 @@ function IntakeFormFlow({
         case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
+        default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }
     }
   };
@@ -165,7 +205,6 @@ function IntakeFormFlow({
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-3xl py-8">
-        {/* Saving indicator */}
         {saving && (
           <div className="fixed top-4 left-4 z-50 flex items-center gap-2 bg-card px-3 py-2 rounded-lg shadow-lg border border-border text-xs text-muted-foreground">
             <Save size={12} className="animate-spin" />
@@ -182,6 +221,20 @@ function IntakeFormFlow({
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+// Placeholder for steps not yet built
+function PlaceholderStep({ stepKey, onNext, onBack }: { stepKey: string; onNext: () => void; onBack: () => void }) {
+  return (
+    <motion.div className="space-y-6 py-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <h2 className="font-display text-xl font-bold text-foreground">שלב: {stepKey}</h2>
+      <p className="text-muted-foreground">שלב זה ייבנה בהמשך</p>
+      <div className="flex gap-3">
+        <button onClick={onBack} className="px-4 py-2 rounded-lg border border-border text-sm">← חזרה</button>
+        <button onClick={onNext} className="px-4 py-2 rounded-lg bg-gold-gradient text-accent-foreground text-sm font-bold">המשך →</button>
+      </div>
+    </motion.div>
   );
 }
 
