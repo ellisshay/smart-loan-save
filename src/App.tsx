@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
+import AdminLayout from "@/components/AdminLayout";
 import HomePage from "./pages/HomePage";
 import CalculatorsHub from "./pages/CalculatorsHub";
 import WasteCalculator from "./pages/WasteCalculator";
@@ -12,6 +13,9 @@ import MixCalculator from "./pages/MixCalculator";
 import PricingPage from "./pages/PricingPage";
 import ContactPage from "./pages/ContactPage";
 import LegalPage from "./pages/LegalPage";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminCasesList from "./pages/admin/AdminCasesList";
+import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,19 +26,25 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/calculators" element={<CalculatorsHub />} />
-            <Route path="/calculators/waste" element={<WasteCalculator />} />
-            <Route path="/calculators/refinance" element={<RefinanceCalculator />} />
-            <Route path="/calculators/mix" element={<MixCalculator />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/legal/:page" element={<LegalPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Admin routes with AdminLayout */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="cases" element={<AdminCasesList />} />
+            <Route path="cases/:id" element={<AdminCaseDetail />} />
+          </Route>
+
+          {/* Public routes */}
+          <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/calculators" element={<Layout><CalculatorsHub /></Layout>} />
+          <Route path="/calculators/waste" element={<Layout><WasteCalculator /></Layout>} />
+          <Route path="/calculators/refinance" element={<Layout><RefinanceCalculator /></Layout>} />
+          <Route path="/calculators/mix" element={<Layout><MixCalculator /></Layout>} />
+          <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
+          <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+          <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
+          <Route path="*" element={<Layout><NotFound /></Layout>} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
