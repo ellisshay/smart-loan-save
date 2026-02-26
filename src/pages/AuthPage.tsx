@@ -47,10 +47,8 @@ export default function AuthPage() {
           },
         });
         if (error) throw error;
-        toast({
-          title: "נרשמת בהצלחה! 📧",
-          description: "בדוק את האימייל שלך לאימות החשבון.",
-        });
+        toast({ title: "נרשמת בהצלחה! 🎉" });
+        navigate("/intake");
       }
     } catch (error: any) {
       toast({
