@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { declarationsSchema } from "@/types/intake";
 import { z } from "zod";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
+import { showCompletionToast } from "@/lib/completionToast";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,11 +13,20 @@ import { Loader2, Shield, AlertTriangle } from "lucide-react";
 type DeclarationsData = z.infer<typeof declarationsSchema>;
 
 export default function DashboardDeclarations() {
-  const { intakeData, loading, saving, saveStepAndNavigate } = useDashboardCase();
+  const { intakeData, loading, saving, saveStep } = useDashboardCase();
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
-  return <DeclarationsForm defaults={intakeData.declarations || {}} saving={saving} onSubmit={(data) => saveStepAndNavigate("declarations", data, "/dashboard")} />;
+  const handleSubmit = async (data: DeclarationsData) => {
+    await saveStep("declarations", data);
+    const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
+    const updated = { ...intakeData, declarations: data };
+    const done = keys.filter(k => updated[k] && Object.keys(updated[k]).length > 0).length;
+    showCompletionToast(Math.round((done / keys.length) * 100), "הצהרות");
+    window.location.href = "/dashboard/documents";
+  };
+
+  return <DeclarationsForm defaults={intakeData.declarations || {}} saving={saving} onSubmit={handleSubmit} />;
 }
 
 function DeclarationsForm({ defaults, saving, onSubmit }: { defaults: Partial<DeclarationsData>; saving: boolean; onSubmit: (d: DeclarationsData) => void }) {
@@ -90,7 +100,7 @@ function DeclarationsForm({ defaults, saving, onSubmit }: { defaults: Partial<De
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה</Button>
-        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "שמור וחזור לדשבורד ✓"}</Button>
+        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "סיים תיק וקבל תוצאה ✓"}</Button>
       </div>
     </motion.form>
   );

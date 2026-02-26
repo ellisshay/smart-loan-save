@@ -220,7 +220,7 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={onBack}>← חזרה</Button>
-        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "שמור והמשך →"}</Button>
+        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "סיים שלב וקבל תוצאה →"}</Button>
       </div>
     </motion.form>
   );
