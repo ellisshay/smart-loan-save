@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import heroHomesImg from "@/assets/hero-homes.jpg";
 import luxuryBuildingImg from "@/assets/luxury-building.jpg";
 import digitalEfficiencyBg from "@/assets/digital-efficiency-bg.jpg";
+import calculationsBg from "@/assets/calculations-bg.jpg";
 import {
   Calculator,
   Shield,
@@ -420,27 +421,45 @@ function CalculatorsPreview() {
       desc: "גלה כמה כסף אתה מבזבז כל חודש על המשכנתא שלך",
       href: "/calculators/waste",
       icon: BarChart3,
-      gradient: "from-red-500/10 to-orange-500/10",
+      color: "from-red-500/20 to-orange-500/20",
+      iconColor: "text-red-400",
     },
     {
       title: "סימולטור מיחזור",
       desc: "בדוק אם כדאי לך לבצע מיחזור משכנתא ומה החיסכון הצפוי",
       href: "/calculators/refinance",
       icon: PiggyBank,
-      gradient: "from-green-500/10 to-emerald-500/10",
+      color: "from-emerald-500/20 to-teal-500/20",
+      iconColor: "text-emerald-400",
     },
     {
       title: "השוואת תמהילים",
       desc: "קבל 3 תמהילים — שמרני, מאוזן ואגרסיבי — מותאמים אישית",
       href: "/calculators/mix",
       icon: Calculator,
-      gradient: "from-blue-500/10 to-indigo-500/10",
+      color: "from-sky-500/20 to-blue-500/20",
+      iconColor: "text-sky-400",
+    },
+    {
+      title: "מחשבון משכנתא חדשה",
+      desc: "חשב את ההחזר החודשי וגלה כמה תוכל ללוות לבית הראשון שלך",
+      href: "/calculators/new-mortgage",
+      icon: Home,
+      color: "from-violet-500/20 to-purple-500/20",
+      iconColor: "text-violet-400",
     },
   ];
 
   return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container">
+    <section
+      className="py-20 md:py-28 relative overflow-hidden"
+      style={{
+        backgroundImage: `linear-gradient(135deg, hsl(210 55% 8% / 0.88) 0%, hsl(210 45% 14% / 0.85) 50%, hsl(210 40% 18% / 0.88) 100%), url(${calculationsBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="container relative">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
@@ -455,7 +474,7 @@ function CalculatorsPreview() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {calcs.map((calc, i) => (
             <motion.div
               key={calc.title}
@@ -466,10 +485,10 @@ function CalculatorsPreview() {
             >
               <Link
                 to={calc.href}
-                className={`block bg-card rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-transparent hover:border-gold/20 bg-gradient-to-br ${calc.gradient}`}
+                className="block bg-card/80 backdrop-blur-sm rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-white/10 hover:border-gold/20 text-center h-full"
               >
-                <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 transition-colors">
-                  <calc.icon className="text-gold" size={24} />
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${calc.color} flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform`}>
+                  <calc.icon className={calc.iconColor} size={28} />
                 </div>
                 <h3 className="font-display font-bold text-xl text-foreground mb-2 group-hover:text-gold transition-colors">
                   {calc.title}
