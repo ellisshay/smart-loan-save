@@ -34,7 +34,7 @@ const MIXES: Mix[] = [
   {
     name: "שמרני",
     icon: Shield,
-    color: "text-blue-500",
+    color: "text-primary",
     description: "יציבות מקסימלית, רוב המסלולים בריבית קבועה",
     tracks: [
       { type: "fixed_unlinked", label: "קבועה לא צמודה", percentage: 40, rate: "4.2%" },
