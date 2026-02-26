@@ -47,6 +47,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            <Link to="/my-cases">
+              <Button variant="outline" size="sm">האזור שלי</Button>
+            </Link>
             <Link to="/calculators">
               <Button variant="cta" size="default">בדוק את המשכנתא שלך</Button>
             </Link>

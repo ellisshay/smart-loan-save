@@ -19,6 +19,7 @@ import AuthPage from "./pages/AuthPage";
 import IntakePage from "./pages/IntakePage";
 import IntakeSuccessPage from "./pages/IntakeSuccessPage";
 import MixSelectionPage from "./pages/MixSelectionPage";
+import MyCasesPage from "./pages/MyCasesPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCasesList from "./pages/admin/AdminCasesList";
 import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
@@ -36,6 +37,9 @@ const App = () => (
           {/* Auth */}
           <Route path="/auth" element={<AuthPage />} />
           
+          {/* Client area */}
+          <Route path="/my-cases" element={<MyCasesPage />} />
+
           {/* Intake flow */}
           <Route path="/intake" element={<IntakePage />} />
           <Route path="/intake/success" element={<IntakeSuccessPage />} />
