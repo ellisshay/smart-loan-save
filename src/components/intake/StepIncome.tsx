@@ -23,21 +23,31 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
     defaultValues: defaultValues as any,
   });
 
+  const employmentStatus = watch("employmentStatus");
   const hasAdditional = watch("hasAdditionalIncome");
   const b2HasAdditional = watch("b2HasAdditionalIncome");
-  const income1 = watch("monthlyNetIncome") || 0;
-  const income2 = hasBorrower2 ? (watch("b2MonthlyNetIncome") || 0) : 0;
-  const additionalIncome = hasAdditional === "yes" ? (watch("additionalIncomeAmount") || 0) : 0;
-  const b2AdditionalIncome = b2HasAdditional === "yes" ? (watch("b2AdditionalIncomeAmount") || 0) : 0;
-  const totalIncome = income1 + income2 + additionalIncome + b2AdditionalIncome;
+  const income1 = Number(watch("monthlyNetIncome")) || 0;
+  const income2 = hasBorrower2 ? (Number(watch("b2MonthlyNetIncome")) || 0) : 0;
+  
+  // Sum all additional income sources
+  const rentalIncome = hasAdditional === "yes" ? (Number(watch("rentalIncome")) || 0) : 0;
+  const benefitsIncome = hasAdditional === "yes" ? (Number(watch("benefitsIncome")) || 0) : 0;
+  const alimonyIncome = hasAdditional === "yes" ? (Number(watch("alimonyIncome")) || 0) : 0;
+  const investmentIncome = hasAdditional === "yes" ? (Number(watch("investmentIncome")) || 0) : 0;
+  const otherIncome = hasAdditional === "yes" ? (Number(watch("otherIncome")) || 0) : 0;
+  const b2AdditionalIncome = b2HasAdditional === "yes" ? (Number(watch("b2AdditionalIncomeAmount")) || 0) : 0;
+  const totalIncome = income1 + income2 + rentalIncome + benefitsIncome + alimonyIncome + investmentIncome + otherIncome + b2AdditionalIncome;
 
   const employmentOptions = [
     { value: "salaried", label: "שכיר/ה" },
     { value: "self_employed", label: "עצמאי/ת" },
-    { value: "both", label: "גם וגם" },
-    { value: "maternity", label: "חל״ת" },
+    { value: "company_owner", label: "בעל שליטה" },
+    { value: "pensioner", label: "פנסיונר/ית" },
     { value: "unemployed", label: "לא עובד/ת" },
   ];
+
+  const isSalaried = employmentStatus === "salaried" || employmentStatus === "company_owner";
+  const isSelfEmployed = employmentStatus === "self_employed" || employmentStatus === "company_owner";
 
   return (
     <motion.form onSubmit={handleSubmit(onNext)} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -50,39 +60,111 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
       <div className="space-y-4">
         <h3 className="font-display font-bold text-foreground text-lg">לווה 1</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="סטטוס תעסוקה *" error={errors.employmentStatus?.message}>
+          <Field label="סוג עיסוק *" error={errors.employmentStatus?.message}>
             <select {...register("employmentStatus")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
               <option value="">בחר...</option>
               {employmentOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <Field label="הכנסה נטו חודשית (₪) *" error={errors.monthlyNetIncome?.message}>
-            <Input {...register("monthlyNetIncome", { valueAsNumber: true })} type="number" dir="ltr" placeholder="15,000" />
-          </Field>
-          <Field label="ותק (חודשים) *" error={errors.workSeniority?.message}>
-            <Input {...register("workSeniority", { valueAsNumber: true })} type="number" dir="ltr" placeholder="36" />
-          </Field>
           <Field label="תחום עיסוק *" error={errors.occupation?.message}>
             <Input {...register("occupation")} placeholder="הנדסת תוכנה" />
           </Field>
-          <Field label="הכנסות נוספות? *" error={errors.hasAdditionalIncome?.message}>
-            <select {...register("hasAdditionalIncome")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
-              <option value="">בחר...</option>
-              <option value="no">לא</option>
-              <option value="yes">כן</option>
-            </select>
-          </Field>
-          {hasAdditional === "yes" && (
-            <>
-              <Field label="מקור">
-                <Input {...register("additionalIncomeSource")} placeholder="שכירות, קצבאות..." />
-              </Field>
-              <Field label="סכום חודשי (₪)">
-                <Input {...register("additionalIncomeAmount", { valueAsNumber: true })} type="number" dir="ltr" />
-              </Field>
-            </>
-          )}
         </div>
+
+        {/* Salaried fields */}
+        {isSalaried && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="מקום עבודה">
+              <Input {...register("employer")} placeholder="שם מעסיק" />
+            </Field>
+            <Field label="ותק (חודשים)">
+              <Input {...register("workSeniority", { valueAsNumber: true })} type="number" dir="ltr" placeholder="36" />
+            </Field>
+            <Field label="סוג חוזה">
+              <select {...register("contractType")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                <option value="">בחר...</option>
+                <option value="permanent">קבוע</option>
+                <option value="temporary">זמני</option>
+              </select>
+            </Field>
+            <Field label="שכר ברוטו (₪)">
+              <Input {...register("grossSalary", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="שכר נטו ממוצע 3 חודשים (₪)">
+              <Input {...register("averageNet3Months", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="בונוסים ממוצעים (₪)">
+              <Input {...register("averageBonuses", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="רכב ליסינג?">
+              <select {...register("hasLeasingCar")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                <option value="">בחר...</option>
+                <option value="no">לא</option>
+                <option value="yes">כן</option>
+              </select>
+            </Field>
+          </div>
+        )}
+
+        {/* Self-employed fields */}
+        {isSelfEmployed && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="תחום פעילות">
+              <Input {...register("businessField")} placeholder="ייעוץ עסקי" />
+            </Field>
+            <Field label="ותק עסק (חודשים)">
+              <Input {...register("businessSeniority", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="הכנסה שנתית אחרונה (₪)">
+              <Input {...register("annualIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="הכנסה ממוצעת חודשית (₪)">
+              <Input {...register("monthlyAvgSelfEmployed", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="חובות מס פתוחים?">
+              <select {...register("hasOpenTaxDebts")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                <option value="">בחר...</option>
+                <option value="no">לא</option>
+                <option value="yes">כן</option>
+              </select>
+            </Field>
+          </div>
+        )}
+
+        <Field label="הכנסה נטו חודשית כוללת (₪) *" error={errors.monthlyNetIncome?.message}>
+          <Input {...register("monthlyNetIncome", { valueAsNumber: true })} type="number" dir="ltr" placeholder="15,000" />
+        </Field>
+
+        {/* Additional income */}
+        <Field label="הכנסות נוספות? *" error={errors.hasAdditionalIncome?.message}>
+          <select {...register("hasAdditionalIncome")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+            <option value="">בחר...</option>
+            <option value="no">לא</option>
+            <option value="yes">כן</option>
+          </select>
+        </Field>
+        {hasAdditional === "yes" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 rounded-lg p-4">
+            <Field label="שכירות (₪)">
+              <Input {...register("rentalIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="קצבאות (₪)">
+              <Input {...register("benefitsIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="מזונות (₪)">
+              <Input {...register("alimonyIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="השקעות (₪)">
+              <Input {...register("investmentIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="אחר (₪)">
+              <Input {...register("otherIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+            </Field>
+            <Field label="פרט מקור">
+              <Input {...register("otherIncomeSource")} placeholder="תיאור מקור" />
+            </Field>
+          </div>
+        )}
       </div>
 
       {/* Borrower 2 */}
@@ -90,20 +172,23 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
         <motion.div className="space-y-4 pt-4 border-t-2 border-gold/30" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <h3 className="font-display font-bold text-foreground text-lg">לווה 2</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="סטטוס תעסוקה">
+            <Field label="סוג עיסוק">
               <select {...register("b2EmploymentStatus")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
                 <option value="">בחר...</option>
                 {employmentOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
+            </Field>
+            <Field label="תחום עיסוק">
+              <Input {...register("b2Occupation")} />
+            </Field>
+            <Field label="מקום עבודה">
+              <Input {...register("b2Employer")} />
             </Field>
             <Field label="הכנסה נטו חודשית (₪)">
               <Input {...register("b2MonthlyNetIncome", { valueAsNumber: true })} type="number" dir="ltr" />
             </Field>
             <Field label="ותק (חודשים)">
               <Input {...register("b2WorkSeniority", { valueAsNumber: true })} type="number" dir="ltr" />
-            </Field>
-            <Field label="תחום עיסוק">
-              <Input {...register("b2Occupation")} />
             </Field>
             <Field label="הכנסות נוספות?">
               <select {...register("b2HasAdditionalIncome")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
@@ -128,8 +213,9 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
 
       {/* Summary */}
       <div className="bg-muted rounded-lg p-4">
-        <span className="text-sm font-semibold text-foreground">סיכום הכנסות משק בית:</span>
+        <span className="text-sm font-semibold text-foreground">סה״כ הכנסה נטו משק בית:</span>
         <span className="font-display text-2xl font-black text-gold mr-3">₪{totalIncome.toLocaleString()}</span>
+        <span className="text-xs text-muted-foreground mr-2">(מחושב אוטומטית)</span>
       </div>
 
       <div className="flex gap-3 pt-4">
