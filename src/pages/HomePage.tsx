@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import MortgageTipsCarousel from "@/components/MortgageTipsCarousel";
+import SavingsCalculator from "@/pages/SavingsCalculator";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import heroHomesImg from "@/assets/hero-homes.jpg";
@@ -37,6 +38,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <SavingsCalculator />
       <MortgageTipsCarousel />
       <TrustBar />
       <HowItWorksSection />
