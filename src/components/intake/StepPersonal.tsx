@@ -87,7 +87,7 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
 
       <div className="flex justify-start pt-4">
         <Button type="submit" variant="cta" size="lg" disabled={saving}>
-          {saving ? "שומר..." : "שמור והמשך →"}
+          {saving ? "שומר..." : "עוד דקה ואתה מסיים →"}
         </Button>
       </div>
     </motion.form>

@@ -32,6 +32,8 @@ import DashboardIncome from "./pages/dashboard/DashboardIncome";
 import DashboardLiabilities from "./pages/dashboard/DashboardLiabilities";
 import DashboardMortgage from "./pages/dashboard/DashboardMortgage";
 import DashboardDeclarations from "./pages/dashboard/DashboardDeclarations";
+import DashboardDocuments from "./pages/dashboard/DashboardDocuments";
+import DashboardPayment from "./pages/dashboard/DashboardPayment";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCasesList from "./pages/admin/AdminCasesList";
 import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
@@ -59,6 +61,8 @@ const App = () => (
             <Route path="liabilities" element={<DashboardLiabilities />} />
             <Route path="mortgage" element={<DashboardMortgage />} />
             <Route path="declarations" element={<DashboardDeclarations />} />
+            <Route path="documents" element={<DashboardDocuments />} />
+            <Route path="payment" element={<DashboardPayment />} />
           </Route>
 
           {/* Client area */}
