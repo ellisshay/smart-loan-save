@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import MortgageTipsCarousel from "@/components/MortgageTipsCarousel";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import heroHomesImg from "@/assets/hero-homes.jpg";
+import luxuryBuildingImg from "@/assets/luxury-building.jpg";
 import {
   Calculator,
   Shield,
@@ -13,15 +15,18 @@ import {
   FileText,
   Users,
   Zap,
+  Home,
+  BarChart3,
+  PiggyBank,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
+    transition: { delay: i * 0.12, duration: 0.6, ease: "easeOut" as const },
   }),
 };
 
@@ -31,6 +36,7 @@ export default function HomePage() {
       <HeroSection />
       <TrustBar />
       <HowItWorksSection />
+      <SavingsGraphSection />
       <BenefitsSection />
       <CalculatorsPreview />
       <MortgageTipsCarousel />
@@ -42,48 +48,85 @@ export default function HomePage() {
 }
 
 function HeroSection() {
+  const words = ["יותר מדי", "הון תועפות", "עשרות אלפים"];
+  const [wordIdx, setWordIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIdx((prev) => (prev + 1) % words.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="bg-hero relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsla(42,85%,55%,0.08)_0%,_transparent_60%)]" />
-      <div className="container relative py-20 md:py-32">
-        <div className="max-w-3xl">
+    <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <img
+          src={heroHomesImg}
+          alt="שכונת יוקרה"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-navy-dark/95 via-navy-dark/80 to-navy-dark/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent" />
+      </div>
+
+      {/* Animated particles/glow */}
+      <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-20 right-1/4 w-72 h-72 bg-gold/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
+
+      <div className="container relative py-24 md:py-36">
+        <div className="text-center max-w-4xl mx-auto">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-6">
+            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold/15 backdrop-blur-sm text-gold text-sm font-semibold mb-8 border border-gold/20">
               <Zap size={14} />
-              תוצאות תוך 48 שעות
+              תוצאות תוך 48 שעות — ללא שיחת מכירה
             </span>
           </motion.div>
 
-          <motion.h1
-            className="font-display text-4xl md:text-6xl lg:text-7xl font-black text-primary-foreground leading-tight mb-6"
-            initial="hidden" animate="visible" variants={fadeUp} custom={1}
-          >
-            המשכנתא שלך עולה לך
-            <br />
-            <span className="text-gradient-gold">יותר מדי</span>
-          </motion.h1>
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={1}>
+            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6">
+              <span className="text-white">הדרך הכי חכמה</span>
+              <br />
+              <span className="text-white">לבית ה</span>
+              <span className="text-gradient-gold">חלומות</span>
+              <span className="text-white"> שלך</span>
+            </h1>
+          </motion.div>
 
           <motion.p
-            className="text-lg md:text-xl text-primary-foreground/70 leading-relaxed mb-8 max-w-xl"
+            className="text-lg md:text-xl text-white/70 leading-relaxed mb-10 max-w-2xl mx-auto"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            גלה תוך דקה כמה כסף אתה מבזבז על המשכנתא שלך.
+            גלה תוך דקה כמה כסף אתה מפסיד על המשכנתא שלך.
             <br />
-            קבל דוח מקצועי עם 3 תמהילים חכמים — וחסוך עשרות אלפי שקלים.
+            קבל דוח מקצועי עם 3 תמהילים חכמים — 
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={wordIdx}
+                className="inline-block text-gold font-bold mx-1"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                וחסוך {words[wordIdx]}
+              </motion.span>
+            </AnimatePresence>
           </motion.p>
 
           <motion.div
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-4 justify-center"
             initial="hidden" animate="visible" variants={fadeUp} custom={3}
           >
             <Link to="/calculators">
-              <Button variant="hero" size="xl">
-                <Calculator size={20} />
+              <Button variant="hero" size="xl" className="shadow-gold text-lg px-8">
+                <Home size={20} />
                 בדוק עכשיו — חינם
               </Button>
             </Link>
-            <Link to="/pricing">
-              <Button variant="outline-light" size="xl">
+            <Link to="/how-it-works">
+              <Button variant="outline-light" size="xl" className="text-lg px-8">
                 איך זה עובד?
                 <ArrowLeft size={18} />
               </Button>
@@ -91,7 +134,7 @@ function HeroSection() {
           </motion.div>
 
           <motion.div
-            className="flex items-center gap-6 mt-10 text-sm text-primary-foreground/50"
+            className="flex items-center justify-center gap-8 mt-12 text-sm text-white/50"
             initial="hidden" animate="visible" variants={fadeUp} custom={4}
           >
             <div className="flex items-center gap-2">
@@ -109,35 +152,117 @@ function HeroSection() {
           </motion.div>
         </div>
       </div>
+
+      {/* Bottom wave */}
+      <div className="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 60" className="w-full h-auto" preserveAspectRatio="none">
+          <path
+            d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,20 1440,30 L1440,60 L0,60 Z"
+            className="fill-background"
+          />
+        </svg>
+      </div>
     </section>
   );
 }
 
 function TrustBar() {
   const stats = [
-    { value: "₪847K", label: "חיסכון ממוצע ללקוח" },
-    { value: "4,200+", label: "לקוחות מרוצים" },
-    { value: "48 שעות", label: "זמן טיפול מלא" },
-    { value: "98%", label: "שביעות רצון" },
+    { value: "₪847K", label: "חיסכון ממוצע ללקוח", icon: PiggyBank },
+    { value: "4,200+", label: "לקוחות מרוצים", icon: Users },
+    { value: "48 שעות", label: "זמן טיפול מלא", icon: Clock },
+    { value: "98%", label: "שביעות רצון", icon: Star },
   ];
 
   return (
-    <section className="border-b border-border bg-card">
-      <div className="container py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <section className="bg-card border-b border-border relative -mt-1">
+      <div className="container py-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
+              <stat.icon className="mx-auto mb-2 text-gold" size={24} />
               <div className="text-2xl md:text-3xl font-display font-black text-foreground">{stat.value}</div>
               <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
             </motion.div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SavingsGraphSection() {
+  const months = ["חודש 1", "חודש 6", "שנה", "שנתיים", "5 שנים", "10 שנים"];
+  const savings = [1400, 8400, 16800, 33600, 84000, 168000];
+  const maxVal = Math.max(...savings);
+
+  return (
+    <section className="py-20 md:py-28 bg-muted/30 relative overflow-hidden">
+      {/* Subtle background image */}
+      <div className="absolute inset-0 opacity-[0.03]">
+        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover" />
+      </div>
+
+      <div className="container relative">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="font-display text-3xl md:text-5xl font-black text-foreground mb-4">
+            כמה כסף אתה <span className="text-gradient-gold">חוסך</span> לאורך זמן?
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            חיסכון ממוצע של ₪1,400 בחודש מצטבר לסכומים מדהימים
+          </p>
+        </motion.div>
+
+        <div className="max-w-3xl mx-auto bg-card rounded-2xl p-8 shadow-card border border-border">
+          <div className="flex items-center gap-3 mb-8">
+            <BarChart3 className="text-gold" size={24} />
+            <h3 className="font-display font-bold text-lg text-foreground">חיסכון מצטבר — דוגמה</h3>
+          </div>
+
+          <div className="space-y-4">
+            {months.map((month, i) => (
+              <motion.div
+                key={month}
+                className="flex items-center gap-4"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <span className="text-sm text-muted-foreground w-20 text-left shrink-0">{month}</span>
+                <div className="flex-1 h-10 bg-muted/50 rounded-lg overflow-hidden relative">
+                  <motion.div
+                    className="h-full rounded-lg bg-gradient-to-l from-gold to-gold-light"
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${(savings[i] / maxVal) * 100}%` }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 + 0.3, duration: 0.8, ease: "easeOut" }}
+                  />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-foreground">
+                    ₪{savings[i].toLocaleString()}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-8 p-4 bg-gold/5 rounded-xl border border-gold/10 text-center">
+            <p className="text-sm text-muted-foreground">
+              * על בסיס חיסכון ממוצע של <span className="font-bold text-gold">₪1,400</span> בחודש
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -187,17 +312,17 @@ function HowItWorksSection() {
           {steps.map((step, i) => (
             <motion.div
               key={step.num}
-              className="relative bg-card rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-shadow duration-300"
+              className="relative bg-card rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-transparent hover:border-gold/20"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center">
-                  <step.icon className="text-gold" size={22} />
+                <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                  <step.icon className="text-gold" size={24} />
                 </div>
-                <span className="text-4xl font-display font-black text-muted-foreground/20">{step.num}</span>
+                <span className="text-5xl font-display font-black text-muted-foreground/10">{step.num}</span>
               </div>
               <h3 className="font-display text-xl font-bold text-foreground mb-3">{step.title}</h3>
               <p className="text-muted-foreground leading-relaxed">{step.desc}</p>
@@ -218,35 +343,41 @@ function BenefitsSection() {
   ];
 
   return (
-    <section className="py-20 md:py-28 bg-muted/50">
-      <div className="container">
+    <section className="py-20 md:py-28 relative overflow-hidden">
+      {/* Background with building image */}
+      <div className="absolute inset-0">
+        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-navy-dark/92" />
+      </div>
+
+      <div className="container relative">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-display text-3xl md:text-5xl font-black text-foreground mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-black text-white mb-4">
             למה <span className="text-gradient-gold">EasyMorte</span>?
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {benefits.map((b, i) => (
             <motion.div
               key={b.title}
-              className="flex gap-5 bg-card rounded-2xl p-6 shadow-card"
+              className="flex gap-5 bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-gold/30 transition-colors"
               initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <b.icon className="text-primary" size={22} />
+              <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center shrink-0">
+                <b.icon className="text-gold" size={22} />
               </div>
               <div>
-                <h3 className="font-display font-bold text-lg text-foreground mb-1">{b.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{b.desc}</p>
+                <h3 className="font-display font-bold text-lg text-white mb-1">{b.title}</h3>
+                <p className="text-white/60 text-sm leading-relaxed">{b.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -262,19 +393,22 @@ function CalculatorsPreview() {
       title: "מדד בזבוז משכנתא",
       desc: "גלה כמה כסף אתה מבזבז כל חודש על המשכנתא שלך",
       href: "/calculators/waste",
-      icon: "📊",
+      icon: BarChart3,
+      gradient: "from-red-500/10 to-orange-500/10",
     },
     {
       title: "סימולטור מיחזור",
       desc: "בדוק אם כדאי לך לבצע מיחזור משכנתא ומה החיסכון הצפוי",
       href: "/calculators/refinance",
-      icon: "💰",
+      icon: PiggyBank,
+      gradient: "from-green-500/10 to-emerald-500/10",
     },
     {
       title: "השוואת תמהילים",
       desc: "קבל 3 תמהילים — שמרני, מאוזן ואגרסיבי — מותאמים אישית",
       href: "/calculators/mix",
-      icon: "⚖️",
+      icon: Calculator,
+      gradient: "from-blue-500/10 to-indigo-500/10",
     },
   ];
 
@@ -306,9 +440,11 @@ function CalculatorsPreview() {
             >
               <Link
                 to={calc.href}
-                className="block bg-card rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-transparent hover:border-gold/20"
+                className={`block bg-card rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-transparent hover:border-gold/20 bg-gradient-to-br ${calc.gradient}`}
               >
-                <div className="text-4xl mb-4">{calc.icon}</div>
+                <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 transition-colors">
+                  <calc.icon className="text-gold" size={24} />
+                </div>
                 <h3 className="font-display font-bold text-xl text-foreground mb-2 group-hover:text-gold transition-colors">
                   {calc.title}
                 </h3>
@@ -363,7 +499,7 @@ function TestimonialsSection() {
           {testimonials.map((t, i) => (
             <motion.div
               key={t.name}
-              className="bg-card rounded-2xl p-8 shadow-card"
+              className="bg-card rounded-2xl p-8 shadow-card border border-border hover:border-gold/20 transition-colors"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -431,7 +567,7 @@ function FAQSection() {
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
-              className="bg-card rounded-xl border border-border overflow-hidden"
+              className="bg-card rounded-xl border border-border overflow-hidden hover:border-gold/20 transition-colors"
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -473,21 +609,26 @@ function FAQSection() {
 
 function FinalCTA() {
   return (
-    <section className="bg-hero py-20 md:py-28">
-      <div className="container text-center">
+    <section className="relative overflow-hidden py-24 md:py-32">
+      <div className="absolute inset-0">
+        <img src={heroHomesImg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-navy-dark/90" />
+      </div>
+      <div className="container relative text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-display text-3xl md:text-5xl font-black text-primary-foreground mb-4">
-            מוכן לגלות כמה אתה חוסך?
+          <Home className="mx-auto text-gold mb-6" size={48} />
+          <h2 className="font-display text-3xl md:text-5xl font-black text-white mb-4">
+            הבית שלך מחכה לך
           </h2>
-          <p className="text-lg text-primary-foreground/70 mb-8 max-w-xl mx-auto">
+          <p className="text-lg text-white/70 mb-10 max-w-xl mx-auto">
             בדיקה חינמית תוך דקה. בלי התחייבות, בלי שיחות מכירה.
           </p>
           <Link to="/calculators">
-            <Button variant="hero" size="xl">
+            <Button variant="hero" size="xl" className="shadow-gold text-lg px-10">
               <Calculator size={20} />
               בדוק עכשיו — חינם
             </Button>
@@ -497,5 +638,3 @@ function FinalCTA() {
     </section>
   );
 }
-
-
