@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import CalculatorsHub from "./pages/CalculatorsHub";
 import WasteCalculator from "./pages/WasteCalculator";
 import NewMortgageCalculator from "./pages/NewMortgageCalculator";
+import SavingsCalculator from "./pages/SavingsCalculator";
 import RefinanceCalculator from "./pages/RefinanceCalculator";
 import MixCalculator from "./pages/MixCalculator";
 import PricingPage from "./pages/PricingPage";
@@ -61,6 +62,7 @@ const App = () => (
           <Route path="/calculators/refinance" element={<Layout><RefinanceCalculator /></Layout>} />
           <Route path="/calculators/mix" element={<Layout><MixCalculator /></Layout>} />
           <Route path="/calculators/new-mortgage" element={<Layout><NewMortgageCalculator /></Layout>} />
+          <Route path="/calculators/savings" element={<Layout><SavingsCalculator /></Layout>} />
           <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
           <Route path="/how-it-works" element={<Layout><HowItWorksPage /></Layout>} />
