@@ -3,6 +3,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import AccessibilityWidget from "@/components/AccessibilityWidget";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
@@ -19,8 +21,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Skip to content - accessibility */}
+      <a href="#main-content" className="skip-to-content">דלג לתוכן הראשי</a>
+
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
+      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border" role="banner">
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-gold-gradient flex items-center justify-center">
@@ -101,10 +106,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main */}
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1" role="main">{children}</main>
+
+      {/* Floating widgets */}
+      <FloatingWhatsApp />
+      <AccessibilityWidget />
 
       {/* Footer */}
-      <footer className="bg-primary text-primary-foreground">
+      <footer className="bg-primary text-primary-foreground" role="contentinfo">
         <div className="container py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
