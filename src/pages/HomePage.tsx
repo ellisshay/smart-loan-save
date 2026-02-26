@@ -19,7 +19,8 @@ import {
   BarChart3,
   PiggyBank,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useScroll, useTransform } from "framer-motion";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -50,6 +51,10 @@ export default function HomePage() {
 function HeroSection() {
   const words = ["יותר מדי", "הון תועפות", "עשרות אלפים"];
   const [wordIdx, setWordIdx] = useState(0);
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -59,17 +64,17 @@ function HeroSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Background image */}
-      <div className="absolute inset-0">
+    <section ref={ref} className="relative overflow-hidden min-h-[90vh] flex items-center">
+      {/* Parallax background image */}
+      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
         <img
           src={heroHomesImg}
           alt="שכונת יוקרה"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-navy-dark/95 via-navy-dark/80 to-navy-dark/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent" />
-      </div>
+      </motion.div>
+      <div className="absolute inset-0 bg-gradient-to-l from-navy-dark/95 via-navy-dark/80 to-navy-dark/60" />
+      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent" />
 
       {/* Animated particles/glow */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
@@ -198,17 +203,21 @@ function TrustBar() {
   );
 }
 
+
 function SavingsGraphSection() {
   const months = ["חודש 1", "חודש 6", "שנה", "שנתיים", "5 שנים", "10 שנים"];
   const savings = [1400, 8400, 16800, 33600, 84000, 168000];
   const maxVal = Math.max(...savings);
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
 
   return (
-    <section className="py-20 md:py-28 bg-muted/30 relative overflow-hidden">
-      {/* Subtle background image */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover" />
-      </div>
+    <section ref={ref} className="py-20 md:py-28 bg-muted/30 relative overflow-hidden">
+      {/* Parallax subtle background image */}
+      <motion.div className="absolute inset-0 opacity-[0.03]" style={{ y: bgY }}>
+        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover scale-125" />
+      </motion.div>
 
       <div className="container relative">
         <motion.div
@@ -341,14 +350,17 @@ function BenefitsSection() {
     { icon: Clock, title: "48 שעות בלבד", desc: "מהרגע שאתה משלם, תוך 48 שעות יש לך דוח מלא." },
     { icon: Users, title: "אנשי מקצוע אמיתיים", desc: "צוות יועצי משכנתאות עם ניסיון של 15+ שנה." },
   ];
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
 
   return (
-    <section className="py-20 md:py-28 relative overflow-hidden">
-      {/* Background with building image */}
-      <div className="absolute inset-0">
-        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-navy-dark/92" />
-      </div>
+    <section ref={ref} className="py-20 md:py-28 relative overflow-hidden">
+      {/* Parallax background with building image */}
+      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover scale-130" />
+      </motion.div>
+      <div className="absolute inset-0 bg-navy-dark/92" />
 
       <div className="container relative">
         <motion.div
@@ -608,12 +620,16 @@ function FAQSection() {
 }
 
 function FinalCTA() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
-      <div className="absolute inset-0">
-        <img src={heroHomesImg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-navy-dark/90" />
-      </div>
+    <section ref={ref} className="relative overflow-hidden py-24 md:py-32">
+      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+        <img src={heroHomesImg} alt="" className="w-full h-full object-cover scale-125" />
+      </motion.div>
+      <div className="absolute inset-0 bg-navy-dark/90" />
       <div className="container relative text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
