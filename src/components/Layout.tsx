@@ -8,10 +8,10 @@ import AccessibilityWidget from "@/components/AccessibilityWidget";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
+  { label: "אודות", href: "/about", icon: Info },
   { label: "איך זה עובד", href: "/how-it-works", icon: Lightbulb },
   { label: "מחשבונים", href: "/calculators", icon: Calculator },
   { label: "מחירים", href: "/pricing", icon: FileText },
-  { label: "אודות", href: "/about", icon: Info },
   { label: "צור קשר", href: "/contact", icon: Phone },
 ];
 
