@@ -35,12 +35,12 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <MortgageTipsCarousel />
       <TrustBar />
       <HowItWorksSection />
       <SavingsGraphSection />
       <BenefitsSection />
       <CalculatorsPreview />
-      <MortgageTipsCarousel />
       <TestimonialsSection />
       <FAQSection />
       <FinalCTA />
