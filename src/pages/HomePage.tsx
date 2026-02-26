@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import heroHomesImg from "@/assets/hero-homes.jpg";
 import luxuryBuildingImg from "@/assets/luxury-building.jpg";
+import digitalEfficiencyBg from "@/assets/digital-efficiency-bg.jpg";
 import {
   Calculator,
   Shield,
@@ -85,7 +86,7 @@ function HeroSection() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
             <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold/15 backdrop-blur-sm text-gold text-sm font-semibold mb-8 border border-gold/20">
               <Zap size={14} />
-              תוצאות תוך 48 שעות — ללא שיחת מכירה
+              אפשרות למשכנתא מאושרת תוך 48 שעות · ללא פגישה · ללא שיחות מיותרות · תהליך דיגיטלי מלא
             </span>
           </motion.div>
 
@@ -285,24 +286,37 @@ function HowItWorksSection() {
       title: "בדוק את המשכנתא שלך",
       desc: "הזן את פרטי המשכנתא הנוכחית שלך במחשבון החינמי שלנו וקבל ציון מיידי.",
       icon: Calculator,
+      color: "from-emerald-500/20 to-teal-500/20",
+      iconColor: "text-emerald-400",
     },
     {
       num: "02",
       title: "קבל דוח מקצועי",
       desc: "שלם פעם אחת וקבל דוח עם 3 תמהילים מותאמים אישית — שמרני, מאוזן ואגרסיבי.",
       icon: FileText,
+      color: "from-sky-500/20 to-blue-500/20",
+      iconColor: "text-sky-400",
     },
     {
       num: "03",
       title: "חסוך עשרות אלפים",
       desc: "אנחנו שולחים את ההצעה ישירות לבנקים ומלווים אותך עד לחתימה.",
       icon: TrendingDown,
+      color: "from-amber-500/20 to-yellow-500/20",
+      iconColor: "text-amber-400",
     },
   ];
 
   return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container">
+    <section
+      className="py-20 md:py-28 relative overflow-hidden"
+      style={{
+        backgroundImage: `linear-gradient(135deg, hsl(210 55% 8% / 0.88) 0%, hsl(210 45% 14% / 0.85) 50%, hsl(210 40% 18% / 0.88) 100%), url(${digitalEfficiencyBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="container relative">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
@@ -317,19 +331,19 @@ function HowItWorksSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {steps.map((step, i) => (
             <motion.div
               key={step.num}
-              className="relative bg-card rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-transparent hover:border-gold/20"
+              className="relative bg-card/80 backdrop-blur-sm rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-white/10 hover:border-gold/20 text-center"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
             >
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                  <step.icon className="text-gold" size={24} />
+              <div className="flex flex-col items-center mb-5">
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center group-hover:scale-110 transition-transform mb-3`}>
+                  <step.icon className={step.iconColor} size={28} />
                 </div>
                 <span className="text-5xl font-display font-black text-muted-foreground/10">{step.num}</span>
               </div>
