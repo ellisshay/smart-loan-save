@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import pricingBg from "@/assets/pricing-bg.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -140,8 +141,13 @@ export default function PricingPage() {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-background">
-      <div className="container max-w-5xl">
+    <section className="py-16 md:py-24 relative">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${pricingBg})` }}
+      />
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+      <div className="container max-w-5xl relative z-10">
         {/* Header */}
         <motion.div
           className="text-center mb-14"
@@ -181,13 +187,13 @@ export default function PricingPage() {
                 </>
               )}
 
-              <h2 className="font-display text-xl font-bold text-foreground mb-1">
+              <h2 className="font-display text-2xl font-bold text-foreground mb-1">
                 {plan.name}
               </h2>
-              <p className="text-sm text-muted-foreground mb-4">{plan.desc}</p>
+              <p className="text-base text-muted-foreground mb-4">{plan.desc}</p>
 
               {/* Price */}
-              <div className="font-display text-4xl font-black text-foreground mb-2">
+              <div className="font-display text-5xl font-black text-foreground mb-2">
                 {plan.price}
                 {plan.originalPrice && (
                   <span className="text-lg line-through text-muted-foreground mr-2">
@@ -204,13 +210,13 @@ export default function PricingPage() {
               {/* ROI under 3,800 */}
               {plan.featured && (
                 <div className="bg-gradient-to-r from-gold/10 to-gold-dark/10 border border-gold/20 rounded-lg p-3 mb-4">
-                  <p className="text-sm text-foreground">
+                  <p className="text-base text-foreground">
                     אם החיסכון שלך הוא{" "}
                     <span className="font-bold text-gold">
                       {savings.toLocaleString()} ₪
                     </span>
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     השירות עולה פחות מ-
                     <span className="font-bold text-gold">{roiPercent}%</span>{" "}
                     מהחיסכון
@@ -239,9 +245,9 @@ export default function PricingPage() {
                 {plan.features.map((f) => (
                   <li
                     key={f}
-                    className="flex items-center gap-2 text-sm text-foreground"
+                    className="flex items-center gap-2 text-base text-foreground"
                   >
-                    <CheckCircle2 size={16} className="text-gold shrink-0" />
+                    <CheckCircle2 size={18} className="text-gold shrink-0" />
                     {f}
                   </li>
                 ))}
@@ -249,7 +255,7 @@ export default function PricingPage() {
 
               {/* Guarantee - premium */}
               {plan.featured && (
-                <div className="border border-gold/20 rounded-lg p-3 mb-4 text-xs text-muted-foreground flex items-start gap-2">
+                <div className="border border-gold/20 rounded-lg p-3 mb-4 text-sm text-muted-foreground flex items-start gap-2">
                   <Shield size={16} className="text-gold shrink-0 mt-0.5" />
                   <span>
                     אם לא תזוהה הזדמנות חיסכון אמיתית, תקבל דוח מפורט ללא
