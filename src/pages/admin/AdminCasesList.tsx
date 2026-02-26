@@ -1,49 +1,64 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { MOCK_CASES } from "@/data/mockCases";
+import { useAdminCases } from "@/hooks/useAdminCases";
 import { CASE_STATUSES, CaseStatus, STATUS_OPTIONS } from "@/types/admin";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Filter, ChevronLeft } from "lucide-react";
 
 export default function AdminCasesList() {
+  const { cases, loading } = useAdminCases();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">("all");
 
   const filtered = useMemo(() => {
-    return MOCK_CASES.filter((c) => {
+    return cases.filter((c) => {
       const matchSearch =
         !search ||
-        c.clientName.includes(search) ||
-        c.id.includes(search) ||
-        c.email.includes(search) ||
-        c.phone.includes(search);
+        c.client_name.includes(search) ||
+        c.case_number.includes(search) ||
+        (c.client_email || "").includes(search) ||
+        (c.client_phone || "").includes(search);
       const matchStatus = statusFilter === "all" || c.status === statusFilter;
       return matchSearch && matchStatus;
     });
-  }, [search, statusFilter]);
+  }, [cases, search, statusFilter]);
 
-  const getSLAClass = (createdAt: string, status: CaseStatus) => {
-    if (status === "ClosedWon" || status === "ClosedLost" || status === "BankOfferReceived") return "";
-    const hours = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60);
+  const getSLAClass = (c: typeof cases[0]) => {
+    if (c.status === "ClosedWon" || c.status === "ClosedLost") return "";
+    if (c.sla_due_at) {
+      return new Date(c.sla_due_at) < new Date() ? "text-destructive font-bold" : "text-muted-foreground";
+    }
+    const hours = (Date.now() - new Date(c.created_at).getTime()) / (1000 * 60 * 60);
     if (hours > 48) return "text-destructive font-bold";
     if (hours > 36) return "text-warning font-bold";
     return "text-muted-foreground";
   };
 
-  const getHoursAgo = (createdAt: string) => {
-    const hours = Math.round((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60));
+  const getTimeLabel = (c: typeof cases[0]) => {
+    const ref = c.sla_started_at || c.created_at;
+    const hours = Math.round((Date.now() - new Date(ref).getTime()) / (1000 * 60 * 60));
     if (hours < 1) return "פחות משעה";
     if (hours < 24) return `${hours} שעות`;
-    const days = Math.floor(hours / 24);
-    return `${days} ימים`;
+    return `${Math.floor(hours / 24)} ימים`;
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 md:p-8 space-y-4">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-display text-3xl font-black text-foreground mb-2">ניהול תיקים</h1>
         <p className="text-muted-foreground mb-6">
-          {MOCK_CASES.length} תיקים | SLA: 48 שעות
+          {cases.length} תיקים | SLA: 48 שעות
         </p>
       </motion.div>
 
@@ -88,7 +103,7 @@ export default function AdminCasesList() {
               <tr className="border-b border-border bg-muted/50">
                 <th className="text-right px-4 py-3 font-semibold text-muted-foreground">מזהה</th>
                 <th className="text-right px-4 py-3 font-semibold text-muted-foreground">שם לקוח</th>
-                <th className="text-right px-4 py-3 font-semibold text-muted-foreground">סכום</th>
+                <th className="text-right px-4 py-3 font-semibold text-muted-foreground">סוג</th>
                 <th className="text-right px-4 py-3 font-semibold text-muted-foreground">סטטוס</th>
                 <th className="text-right px-4 py-3 font-semibold text-muted-foreground">SLA</th>
                 <th className="text-right px-4 py-3 font-semibold text-muted-foreground">מסמכים</th>
@@ -98,33 +113,33 @@ export default function AdminCasesList() {
             <tbody>
               {filtered.map((c) => {
                 const status = CASE_STATUSES[c.status];
-                const docsUploaded = c.documents.filter((d) => d.uploaded).length;
-                const totalDocs = c.documents.length;
                 return (
                   <tr key={c.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{c.id}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{c.case_number}</td>
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-foreground">{c.clientName}</div>
-                      <div className="text-xs text-muted-foreground">{c.email}</div>
+                      <div className="font-semibold text-foreground">{c.client_name}</div>
+                      <div className="text-xs text-muted-foreground">{c.client_email}</div>
                     </td>
-                    <td className="px-4 py-3 font-semibold text-foreground">₪{c.mortgageAmount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {c.case_type === "refi" ? "מיחזור" : "חדשה"}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${status.color}`}>
                         {status.label}
                       </span>
                     </td>
-                    <td className={`px-4 py-3 text-xs ${getSLAClass(c.createdAt, c.status)}`}>
-                      {getHoursAgo(c.createdAt)}
+                    <td className={`px-4 py-3 text-xs ${getSLAClass(c)}`}>
+                      {getTimeLabel(c)}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gold-gradient rounded-full"
-                            style={{ width: `${(docsUploaded / totalDocs) * 100}%` }}
+                            style={{ width: `${c.docs_total > 0 ? (c.docs_uploaded / c.docs_total) * 100 : 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-muted-foreground">{docsUploaded}/{totalDocs}</span>
+                        <span className="text-xs text-muted-foreground">{c.docs_uploaded}/{c.docs_total}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -147,8 +162,6 @@ export default function AdminCasesList() {
         <div className="md:hidden divide-y divide-border">
           {filtered.map((c) => {
             const status = CASE_STATUSES[c.status];
-            const docsUploaded = c.documents.filter((d) => d.uploaded).length;
-            const totalDocs = c.documents.length;
             return (
               <Link
                 key={c.id}
@@ -156,16 +169,15 @@ export default function AdminCasesList() {
                 className="block p-4 hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-foreground">{c.clientName}</span>
+                  <span className="font-semibold text-foreground">{c.client_name}</span>
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${status.color}`}>
                     {status.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>{c.id}</span>
-                  <span>₪{c.mortgageAmount.toLocaleString()}</span>
-                  <span className={getSLAClass(c.createdAt, c.status)}>{getHoursAgo(c.createdAt)}</span>
-                  <span>מסמכים: {docsUploaded}/{totalDocs}</span>
+                  <span>{c.case_number}</span>
+                  <span className={getSLAClass(c)}>{getTimeLabel(c)}</span>
+                  <span>מסמכים: {c.docs_uploaded}/{c.docs_total}</span>
                 </div>
               </Link>
             );

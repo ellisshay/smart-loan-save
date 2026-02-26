@@ -1,26 +1,31 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { MOCK_CASES } from "@/data/mockCases";
+import { useAdminCases } from "@/hooks/useAdminCases";
 import { CASE_STATUSES, CaseStatus } from "@/types/admin";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Briefcase,
   Clock,
   AlertTriangle,
   CheckCircle2,
-  TrendingUp,
 } from "lucide-react";
 
 export default function AdminDashboard() {
+  const { cases, loading } = useAdminCases();
+
   const statusCounts = Object.keys(CASE_STATUSES).reduce((acc, key) => {
-    acc[key as CaseStatus] = MOCK_CASES.filter((c) => c.status === key).length;
+    acc[key as CaseStatus] = cases.filter((c) => c.status === key).length;
     return acc;
   }, {} as Record<CaseStatus, number>);
 
-  const totalCases = MOCK_CASES.length;
-  const urgentCases = MOCK_CASES.filter((c) => {
-    const created = new Date(c.createdAt);
-    const now = new Date();
-    const hours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+  const totalCases = cases.length;
+
+  const urgentCases = cases.filter((c) => {
+    if (c.sla_due_at) {
+      return new Date(c.sla_due_at) < new Date() && c.status !== "ClosedWon" && c.status !== "ClosedLost";
+    }
+    const created = new Date(c.created_at);
+    const hours = (Date.now() - created.getTime()) / (1000 * 60 * 60);
     return hours > 36 && c.status !== "ClosedWon" && c.status !== "ClosedLost" && c.status !== "BankOfferReceived";
   }).length;
 
@@ -33,6 +38,18 @@ export default function AdminDashboard() {
     { label: "ממתינים למסמכים", value: pendingDocs, icon: Clock, color: "text-warning" },
     { label: "מוכנים לשליחה", value: readyToSend, icon: CheckCircle2, color: "text-success" },
   ];
+
+  if (loading) {
+    return (
+      <div className="p-6 md:p-8 space-y-6">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-48 rounded-xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8">
@@ -95,28 +112,33 @@ export default function AdminDashboard() {
             צפה בכולם ←
           </Link>
         </div>
-        <div className="space-y-3">
-          {MOCK_CASES.slice(0, 4).map((c) => {
-            const status = CASE_STATUSES[c.status];
-            return (
-              <Link
-                key={c.id}
-                to={`/admin/cases/${c.id}`}
-                className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <div className="flex items-center gap-4">
+        {cases.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">אין תיקים עדיין</p>
+        ) : (
+          <div className="space-y-3">
+            {cases.slice(0, 5).map((c) => {
+              const status = CASE_STATUSES[c.status];
+              return (
+                <Link
+                  key={c.id}
+                  to={`/admin/cases/${c.id}`}
+                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                >
                   <div>
-                    <div className="font-semibold text-foreground">{c.clientName}</div>
-                    <div className="text-xs text-muted-foreground">{c.id} • ₪{c.mortgageAmount.toLocaleString()}</div>
+                    <div className="font-semibold text-foreground">{c.client_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {c.case_number} • {c.case_type === "refi" ? "מיחזור" : "חדשה"}
+                      {c.goal && ` • ${c.goal}`}
+                    </div>
                   </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.color}`}>
-                  {status.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.color}`}>
+                    {status.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </motion.div>
     </div>
   );
