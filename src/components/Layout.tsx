@@ -53,7 +53,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <Link to="/my-cases">
               <Button variant="outline" size="sm">האזור שלי</Button>
             </Link>
