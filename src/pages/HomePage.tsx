@@ -35,11 +35,13 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <StatsSection />
+      <TrustBar />
       <PainSection />
       <HowItWorksSection />
       <ComparisonSection />
       <SavingsCalculator />
-      <TestimonialsSection />
+      <EnhancedTestimonials />
       <FAQSection />
       <FinalCTA />
     </>
