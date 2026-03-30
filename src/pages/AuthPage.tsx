@@ -13,8 +13,20 @@ type UserType = "client" | "advisor";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
-  const [userType, setUserType] = useState<UserType>("client");
+  const [userType, setUserType] = useState<UserType>(() => {
+    const role = searchParams.get("role");
+    if (role === "advisor") return "advisor";
+    return "client";
+  });
+
+  // Auto-switch to signup when coming from advisor CTA
+  useEffect(() => {
+    if (searchParams.get("role") === "advisor") {
+      setIsLogin(false);
+    }
+  }, [searchParams]);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
