@@ -38,6 +38,7 @@ export default function HomePage() {
       <HeroSection />
       <StatsSection />
       <TrustBar />
+      <BankLogosSection />
       <PainSection />
       <HowItWorksSection />
       <ComparisonSection />
