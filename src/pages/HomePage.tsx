@@ -353,8 +353,8 @@ function BenefitsSection() {
 
   return (
     <section ref={ref} className="py-20 md:py-28 relative overflow-hidden">
-      {/* Abstract gradient background */}
-      <div className="absolute inset-0 bg-hero" />
+      {/* Dark background for contrast */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_10%)] via-[hsl(215_40%_16%)] to-[hsl(215_35%_20%)]" />
 
       <div className="container relative">
         <motion.div
