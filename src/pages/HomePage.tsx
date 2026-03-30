@@ -47,12 +47,12 @@ export default function HomePage() {
       <HeroSection />
       <StatsSection />
       <TrustBar />
-      <BankLogosSection />
+      <LazySection><BankLogosSection /></LazySection>
       <PainSection />
       <HowItWorksSection />
       <ComparisonSection />
-      <SavingsCalculator />
-      <EnhancedTestimonials />
+      <LazySection><SavingsCalculator /></LazySection>
+      <LazySection><EnhancedTestimonials /></LazySection>
       <FAQSection />
       <FinalCTA />
     </>
