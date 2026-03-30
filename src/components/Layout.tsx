@@ -97,8 +97,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {link.label}
                   </Link>
                 ))}
-                <div className="pt-2">
-                  <Link to="/calculators" onClick={() => setMobileOpen(false)}>
+                <div className="pt-2 flex items-center gap-2">
+                  <ThemeToggle />
+                  <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
                     <Button variant="cta" className="w-full">בדוק את המשכנתא שלך</Button>
                   </Link>
                 </div>
