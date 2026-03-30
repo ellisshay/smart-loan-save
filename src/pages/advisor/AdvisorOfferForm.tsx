@@ -63,6 +63,26 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
         validity_date: form.validity_date || null,
       });
       if (error) throw error;
+
+      // Fire webhook for new offer
+      const { data: leadData } = await supabase.from("leads").select("case_id").eq("id", leadId).single();
+      if (leadData?.case_id) {
+        await supabase.functions.invoke("webhook-handler", {
+          body: {
+            event_name: "offer_submitted",
+            case_id: leadData.case_id,
+            payload: {
+              bank_name: form.bank_name,
+              interest_rate: form.interest_rate,
+              monthly_payment: form.monthly_payment,
+              track_type: form.track_type,
+              loan_period: form.loan_period,
+              advisor_id: advisorId,
+            },
+          },
+        });
+      }
+
       toast({ title: "ההצעה הוגשה בהצלחה! 🎉" });
       onSuccess();
     } catch (err: any) {
