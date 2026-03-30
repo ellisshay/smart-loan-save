@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
@@ -14,6 +14,7 @@ const navLinks = [
   { label: "מחשבונים", href: "/calculators", icon: Calculator },
   { label: "משכנתאפדיה", href: "/blog", icon: BookOpen },
   { label: "מחירים", href: "/pricing", icon: FileText },
+  { label: "ליועצים", href: "/for-advisors", icon: Briefcase },
   { label: "צור קשר", href: "/contact", icon: Phone },
 ];
 

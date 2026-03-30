@@ -20,6 +20,7 @@ import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import BlogPage from "./pages/BlogPage";
 import LegalPage from "./pages/LegalPage";
+import ForAdvisorsPage from "./pages/ForAdvisorsPage";
 import AuthPage from "./pages/AuthPage";
 import IntakePage from "./pages/IntakePage";
 import IntakeSuccessPage from "./pages/IntakeSuccessPage";
@@ -102,6 +103,7 @@ const App = () => (
           <Route path="/how-it-works" element={<Layout><HowItWorksPage /></Layout>} />
           <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
           <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
+          <Route path="/for-advisors" element={<Layout><ForAdvisorsPage /></Layout>} />
           <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
