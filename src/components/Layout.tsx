@@ -5,6 +5,7 @@ import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen }
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
