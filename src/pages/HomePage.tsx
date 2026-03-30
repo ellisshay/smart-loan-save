@@ -17,7 +17,7 @@ import {
   Brain,
   Gift,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import StatsSection from "@/components/home/StatsSection";
 import TrustBar from "@/components/home/TrustBar";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
