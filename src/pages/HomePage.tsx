@@ -411,9 +411,19 @@ function FAQSection() {
 }
 
 function FinalCTA() {
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]" />
+    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32">
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]"
+        style={{ y: bgY, scale: 1.3 }}
+      />
       <div className="container relative text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
