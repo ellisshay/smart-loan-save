@@ -119,6 +119,7 @@ const App = () => (
           <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
