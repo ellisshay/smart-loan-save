@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, User, Home as HomeIcon, DollarSign, FileText,
-  CreditCard, Shield, Upload, LogOut, ArrowRight, CreditCard as PayIcon
+  CreditCard, Shield, Upload, LogOut, ArrowRight, CreditCard as PayIcon, Gift
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 import ExitIntentModal from "@/components/ExitIntentModal";
@@ -19,6 +19,7 @@ const sideLinks = [
   { label: "הצהרות", href: "/dashboard/declarations", icon: Shield },
   { label: "מסמכים", href: "/dashboard/documents", icon: Upload },
   { label: "תשלום", href: "/dashboard/payment", icon: PayIcon },
+  { label: "הצעות", href: "/dashboard/offers", icon: Gift },
 ];
 
 export default function DashboardLayout() {
