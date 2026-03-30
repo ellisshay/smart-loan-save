@@ -633,7 +633,7 @@ function FinalCTA() {
 
   return (
     <section ref={ref} className="relative overflow-hidden py-24 md:py-32">
-      <div className="absolute inset-0 bg-hero" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_10%)] via-[hsl(215_40%_16%)] to-[hsl(215_35%_20%)]" />
       <div className="container relative text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
