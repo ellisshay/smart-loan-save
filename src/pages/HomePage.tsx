@@ -3,15 +3,9 @@ import SavingsCalculator from "@/pages/SavingsCalculator";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  Calculator,
-  Shield,
-  Clock,
   ChevronDown,
-  Star,
   ArrowLeft,
   FileText,
-  Users,
-  Zap,
   CalendarDays,
   FileStack,
   Wallet,
@@ -23,7 +17,10 @@ import {
   Brain,
   Gift,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState } from "react";
+import StatsSection from "@/components/home/StatsSection";
+import TrustBar from "@/components/home/TrustBar";
+import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
