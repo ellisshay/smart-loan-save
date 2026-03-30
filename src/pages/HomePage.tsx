@@ -3,10 +3,6 @@ import MortgageTipsCarousel from "@/components/MortgageTipsCarousel";
 import SavingsCalculator from "@/pages/SavingsCalculator";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import heroHomesImg from "@/assets/hero-homes.jpg";
-import luxuryBuildingImg from "@/assets/luxury-building.jpg";
-import digitalEfficiencyBg from "@/assets/digital-efficiency-bg.jpg";
-import calculationsBg from "@/assets/calculations-bg.jpg";
 import {
   Calculator,
   Shield,
@@ -69,16 +65,9 @@ function HeroSection() {
 
   return (
     <section ref={ref} className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Parallax background image */}
-      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
-        <img
-          src={heroHomesImg}
-          alt="שכונת יוקרה"
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
-      <div className="absolute inset-0 bg-gradient-to-l from-navy-dark/95 via-navy-dark/80 to-navy-dark/60" />
-      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent" />
+      {/* Abstract gradient background */}
+      <div className="absolute inset-0 bg-hero" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
 
       {/* Animated particles/glow */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
@@ -218,10 +207,6 @@ function SavingsGraphSection() {
 
   return (
     <section ref={ref} className="py-20 md:py-28 bg-muted/30 relative overflow-hidden">
-      {/* Parallax subtle background image */}
-      <motion.div className="absolute inset-0 opacity-[0.03]" style={{ y: bgY }}>
-        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover scale-125" />
-      </motion.div>
 
       <div className="container relative">
         <motion.div
@@ -312,12 +297,7 @@ function HowItWorksSection() {
 
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden"
-      style={{
-        backgroundImage: `linear-gradient(135deg, hsl(210 55% 8% / 0.88) 0%, hsl(210 45% 14% / 0.85) 50%, hsl(210 40% 18% / 0.88) 100%), url(${digitalEfficiencyBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="py-20 md:py-28 relative overflow-hidden bg-muted/20"
     >
       <div className="container relative">
         <motion.div
@@ -373,11 +353,8 @@ function BenefitsSection() {
 
   return (
     <section ref={ref} className="py-20 md:py-28 relative overflow-hidden">
-      {/* Parallax background with building image */}
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
-        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover scale-130" />
-      </motion.div>
-      <div className="absolute inset-0 bg-navy-dark/92" />
+      {/* Abstract gradient background */}
+      <div className="absolute inset-0 bg-hero" />
 
       <div className="container relative">
         <motion.div
@@ -454,12 +431,7 @@ function CalculatorsPreview() {
 
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden"
-      style={{
-        backgroundImage: `linear-gradient(135deg, hsl(210 55% 8% / 0.88) 0%, hsl(210 45% 14% / 0.85) 50%, hsl(210 40% 18% / 0.88) 100%), url(${calculationsBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="py-20 md:py-28 relative overflow-hidden bg-muted/20"
     >
       <div className="container relative">
         <motion.div
@@ -661,10 +633,7 @@ function FinalCTA() {
 
   return (
     <section ref={ref} className="relative overflow-hidden py-24 md:py-32">
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
-        <img src={heroHomesImg} alt="" className="w-full h-full object-cover scale-125" />
-      </motion.div>
-      <div className="absolute inset-0 bg-navy-dark/90" />
+      <div className="absolute inset-0 bg-hero" />
       <div className="container relative text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

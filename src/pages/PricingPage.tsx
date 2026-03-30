@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import pricingBg from "@/assets/pricing-bg.jpg";
+
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -142,11 +142,7 @@ export default function PricingPage() {
 
   return (
     <section className="py-16 md:py-24 relative">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${pricingBg})` }}
-      />
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-hero" />
       <div className="container max-w-5xl relative z-10">
         {/* Header */}
         <motion.div

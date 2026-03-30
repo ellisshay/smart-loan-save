@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Lightbulb, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import tipsBg from "@/assets/tips-bg-graphs.jpg";
+
 
 const tips = [
   "לפני שאתה לוקח משכנתא — דע מה ההחזר המקסימלי שאתה יכול להרשות לעצמך (עד 30% מההכנסה נטו).",
@@ -88,12 +88,7 @@ export default function MortgageTipsCarousel() {
 
   return (
     <section
-      className="py-16 md:py-20 overflow-hidden relative"
-      style={{
-        backgroundImage: `linear-gradient(135deg, hsl(210 55% 8% / 0.82) 0%, hsl(210 45% 14% / 0.78) 50%, hsl(210 40% 18% / 0.82) 100%), url(${tipsBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="py-16 md:py-20 overflow-hidden relative bg-muted/30"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
