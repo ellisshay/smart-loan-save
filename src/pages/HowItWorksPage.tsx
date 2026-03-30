@@ -97,10 +97,10 @@ export default function HowItWorksPage() {
               <Clock size={14} />
               תהליך מלא תוך 48 שעות
             </span>
-            <h1 className="font-display text-4xl md:text-5xl font-black text-primary-foreground mb-4">
+            <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
               איך זה <span className="text-gradient-gold">עובד?</span>
             </h1>
-            <p className="text-lg text-primary-foreground/70 leading-relaxed max-w-xl mx-auto">
+            <p className="text-lg text-foreground/70 leading-relaxed max-w-xl mx-auto">
               טופס דיגיטלי קצר, העלאת מסמכים, ותוך 48 שעות יש לך דוח מקצועי עם 3 תמהילים
               + הצעה מהבנק. בלי פגישות, בלי שיחות מכירה, בלי לחכות.
             </p>
@@ -203,10 +203,10 @@ export default function HowItWorksPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-display text-3xl md:text-4xl font-black text-primary-foreground mb-4">
+            <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
               מוכן להתחיל?
             </h2>
-            <p className="text-primary-foreground/70 mb-8 max-w-md mx-auto">
+            <p className="text-foreground/70 mb-8 max-w-md mx-auto">
               בדיקה חינמית תוך דקה. דוח מקצועי תוך 48 שעות.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

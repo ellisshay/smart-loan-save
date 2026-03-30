@@ -65,9 +65,9 @@ function HeroSection() {
 
   return (
     <section ref={ref} className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Abstract gradient background */}
-      <div className="absolute inset-0 bg-hero" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+      {/* Dark hero background for contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(215_50%_10%)] via-[hsl(215_40%_16%)] to-[hsl(215_35%_20%)]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[hsl(215_50%_10%)/70%] via-transparent to-transparent" />
 
       {/* Animated particles/glow */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
@@ -353,8 +353,8 @@ function BenefitsSection() {
 
   return (
     <section ref={ref} className="py-20 md:py-28 relative overflow-hidden">
-      {/* Abstract gradient background */}
-      <div className="absolute inset-0 bg-hero" />
+      {/* Dark background for contrast */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_10%)] via-[hsl(215_40%_16%)] to-[hsl(215_35%_20%)]" />
 
       <div className="container relative">
         <motion.div
@@ -633,7 +633,7 @@ function FinalCTA() {
 
   return (
     <section ref={ref} className="relative overflow-hidden py-24 md:py-32">
-      <div className="absolute inset-0 bg-hero" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_10%)] via-[hsl(215_40%_16%)] to-[hsl(215_35%_20%)]" />
       <div className="container relative text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

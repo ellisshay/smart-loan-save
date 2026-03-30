@@ -69,10 +69,10 @@ export default function BlogPage() {
             <div className="w-16 h-16 rounded-2xl bg-gold/15 flex items-center justify-center mx-auto mb-6">
               <BookOpen className="text-gold" size={28} />
             </div>
-            <h1 className="font-display text-4xl md:text-5xl font-black text-primary-foreground mb-4">
+            <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
               משכנתא<span className="text-gradient-gold">פדיה</span>
             </h1>
-            <p className="text-lg text-primary-foreground/70 leading-relaxed max-w-xl mx-auto">
+            <p className="text-lg text-foreground/70 leading-relaxed max-w-xl mx-auto">
               מאמרים, מדריכים וטיפים מקצועיים שיעזרו לך לקבל את ההחלטות הנכונות בנושא משכנתא.
             </p>
           </motion.div>
