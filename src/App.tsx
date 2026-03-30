@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,41 +9,49 @@ import AdminLayout from "@/components/AdminLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import AdvisorLayout from "@/components/AdvisorLayout";
 import HomePage from "./pages/HomePage";
-import CalculatorsHub from "./pages/CalculatorsHub";
-import WasteCalculator from "./pages/WasteCalculator";
-import NewMortgageCalculator from "./pages/NewMortgageCalculator";
-import SavingsCalculator from "./pages/SavingsCalculator";
-import RefinanceCalculator from "./pages/RefinanceCalculator";
-import MixCalculator from "./pages/MixCalculator";
-import PricingPage from "./pages/PricingPage";
-import ContactPage from "./pages/ContactPage";
-import AboutPage from "./pages/AboutPage";
-import HowItWorksPage from "./pages/HowItWorksPage";
-import BlogPage from "./pages/BlogPage";
-import LegalPage from "./pages/LegalPage";
-import ForAdvisorsPage from "./pages/ForAdvisorsPage";
-import ArticlePage from "./pages/ArticlePage";
-import AuthPage from "./pages/AuthPage";
-import IntakePage from "./pages/IntakePage";
-import IntakeSuccessPage from "./pages/IntakeSuccessPage";
-import MixSelectionPage from "./pages/MixSelectionPage";
-import MyCasesPage from "./pages/MyCasesPage";
-import DashboardHome from "./pages/dashboard/DashboardHome";
-import DashboardStatus from "./pages/dashboard/DashboardStatus";
-import DashboardPersonal from "./pages/dashboard/DashboardPersonal";
-import DashboardProperty from "./pages/dashboard/DashboardProperty";
-import DashboardIncome from "./pages/dashboard/DashboardIncome";
-import DashboardLiabilities from "./pages/dashboard/DashboardLiabilities";
-import DashboardMortgage from "./pages/dashboard/DashboardMortgage";
-import DashboardDeclarations from "./pages/dashboard/DashboardDeclarations";
-import DashboardDocuments from "./pages/dashboard/DashboardDocuments";
-import DashboardPayment from "./pages/dashboard/DashboardPayment";
-import DashboardOffers from "./pages/dashboard/DashboardOffers";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminCasesList from "./pages/admin/AdminCasesList";
-import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
-import AdvisorDashboard from "./pages/advisor/AdvisorDashboard";
-import NotFound from "./pages/NotFound";
+
+// Lazy-loaded pages
+const CalculatorsHub = lazy(() => import("./pages/CalculatorsHub"));
+const WasteCalculator = lazy(() => import("./pages/WasteCalculator"));
+const NewMortgageCalculator = lazy(() => import("./pages/NewMortgageCalculator"));
+const SavingsCalculator = lazy(() => import("./pages/SavingsCalculator"));
+const RefinanceCalculator = lazy(() => import("./pages/RefinanceCalculator"));
+const MixCalculator = lazy(() => import("./pages/MixCalculator"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const HowItWorksPage = lazy(() => import("./pages/HowItWorksPage"));
+const BlogPage = lazy(() => import("./pages/BlogPage"));
+const LegalPage = lazy(() => import("./pages/LegalPage"));
+const ForAdvisorsPage = lazy(() => import("./pages/ForAdvisorsPage"));
+const ArticlePage = lazy(() => import("./pages/ArticlePage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const IntakePage = lazy(() => import("./pages/IntakePage"));
+const IntakeSuccessPage = lazy(() => import("./pages/IntakeSuccessPage"));
+const MixSelectionPage = lazy(() => import("./pages/MixSelectionPage"));
+const MyCasesPage = lazy(() => import("./pages/MyCasesPage"));
+const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
+const DashboardStatus = lazy(() => import("./pages/dashboard/DashboardStatus"));
+const DashboardPersonal = lazy(() => import("./pages/dashboard/DashboardPersonal"));
+const DashboardProperty = lazy(() => import("./pages/dashboard/DashboardProperty"));
+const DashboardIncome = lazy(() => import("./pages/dashboard/DashboardIncome"));
+const DashboardLiabilities = lazy(() => import("./pages/dashboard/DashboardLiabilities"));
+const DashboardMortgage = lazy(() => import("./pages/dashboard/DashboardMortgage"));
+const DashboardDeclarations = lazy(() => import("./pages/dashboard/DashboardDeclarations"));
+const DashboardDocuments = lazy(() => import("./pages/dashboard/DashboardDocuments"));
+const DashboardPayment = lazy(() => import("./pages/dashboard/DashboardPayment"));
+const DashboardOffers = lazy(() => import("./pages/dashboard/DashboardOffers"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminCasesList = lazy(() => import("./pages/admin/AdminCasesList"));
+const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
+const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const PageLoader = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="w-10 h-10 border-3 border-gold/30 border-t-gold rounded-full animate-spin" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -52,6 +61,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Auth */}
           <Route path="/auth" element={<AuthPage />} />
@@ -109,6 +119,7 @@ const App = () => (
           <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
