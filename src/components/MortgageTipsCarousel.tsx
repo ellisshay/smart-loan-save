@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Lightbulb, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import tipsBg from "@/assets/tips-bg-graphs.jpg";
+
 
 const tips = [
   "לפני שאתה לוקח משכנתא — דע מה ההחזר המקסימלי שאתה יכול להרשות לעצמך (עד 30% מההכנסה נטו).",
