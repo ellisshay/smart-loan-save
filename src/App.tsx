@@ -20,6 +20,7 @@ import AboutPage from "./pages/AboutPage";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import BlogPage from "./pages/BlogPage";
 import LegalPage from "./pages/LegalPage";
+import ForAdvisorsPage from "./pages/ForAdvisorsPage";
 import AuthPage from "./pages/AuthPage";
 import IntakePage from "./pages/IntakePage";
 import IntakeSuccessPage from "./pages/IntakeSuccessPage";
