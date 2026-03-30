@@ -21,6 +21,7 @@ import { useState, useRef } from "react";
 import StatsSection from "@/components/home/StatsSection";
 import TrustBar from "@/components/home/TrustBar";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
+import BankLogosSection from "@/components/home/BankLogosSection";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -37,6 +38,7 @@ export default function HomePage() {
       <HeroSection />
       <StatsSection />
       <TrustBar />
+      <BankLogosSection />
       <PainSection />
       <HowItWorksSection />
       <ComparisonSection />
