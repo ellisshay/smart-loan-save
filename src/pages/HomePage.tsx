@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import SavingsCalculator from "@/pages/SavingsCalculator";
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +20,17 @@ import {
 import { useState, useRef } from "react";
 import StatsSection from "@/components/home/StatsSection";
 import TrustBar from "@/components/home/TrustBar";
-import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
-import BankLogosSection from "@/components/home/BankLogosSection";
+
+// Lazy-load below-fold sections
+const BankLogosSection = lazy(() => import("@/components/home/BankLogosSection"));
+const EnhancedTestimonials = lazy(() => import("@/components/home/EnhancedTestimonials"));
+const SavingsCalculator = lazy(() => import("@/pages/SavingsCalculator"));
+
+const LazySection = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="py-20 flex justify-center"><div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" /></div>}>
+    {children}
+  </Suspense>
+);
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
