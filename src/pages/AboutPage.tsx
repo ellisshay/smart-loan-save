@@ -60,10 +60,10 @@ export default function AboutPage() {
       <section className="bg-hero py-20 md:py-28">
         <div className="container max-w-3xl text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="font-display text-4xl md:text-5xl font-black text-primary-foreground mb-4">
+            <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
               אנחנו <span className="text-gradient-gold">EasyMorte</span>
             </h1>
-            <p className="text-lg text-primary-foreground/70 leading-relaxed max-w-xl mx-auto">
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
               הקמנו את EasyMorte כי נמאס לנו לראות ישראלים משלמים יותר מדי על המשכנתא שלהם.
               אנחנו מאמינים שכל אדם ראוי לדעת בדיוק כמה הוא יכול לחסוך — בלי שיחות מכירה,
               בלי לחץ, ובלי קונפליקט אינטרסים.
