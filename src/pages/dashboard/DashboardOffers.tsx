@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Star, MessageCircle, Check, FileText, Clock } from "lucide-react";
+import { MessageCircle, Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardOffers() {
