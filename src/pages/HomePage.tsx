@@ -207,10 +207,6 @@ function SavingsGraphSection() {
 
   return (
     <section ref={ref} className="py-20 md:py-28 bg-muted/30 relative overflow-hidden">
-      {/* Parallax subtle background image */}
-      <motion.div className="absolute inset-0 opacity-[0.03]" style={{ y: bgY }}>
-        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover scale-125" />
-      </motion.div>
 
       <div className="container relative">
         <motion.div
