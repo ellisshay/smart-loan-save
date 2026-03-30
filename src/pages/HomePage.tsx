@@ -210,9 +210,19 @@ function HowItWorksSection() {
     { num: "04", title: "מקבלים ובוחרים", desc: "תוך 48 שעות מגיעות הצעות, משווים בלחיצה ובוחרים", icon: Gift },
   ];
 
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+
   return (
-    <section className="py-20 md:py-28 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]" />
+    <section ref={sectionRef} className="py-20 md:py-28 relative overflow-hidden">
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]"
+        style={{ y: bgY, scale: 1.15 }}
+      />
 
       <div className="container relative">
         <motion.div
