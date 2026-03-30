@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 import AdminLayout from "@/components/AdminLayout";
 import DashboardLayout from "@/components/DashboardLayout";
+import AdvisorLayout from "@/components/AdvisorLayout";
 import HomePage from "./pages/HomePage";
 import CalculatorsHub from "./pages/CalculatorsHub";
 import WasteCalculator from "./pages/WasteCalculator";
@@ -34,9 +35,11 @@ import DashboardMortgage from "./pages/dashboard/DashboardMortgage";
 import DashboardDeclarations from "./pages/dashboard/DashboardDeclarations";
 import DashboardDocuments from "./pages/dashboard/DashboardDocuments";
 import DashboardPayment from "./pages/dashboard/DashboardPayment";
+import DashboardOffers from "./pages/dashboard/DashboardOffers";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCasesList from "./pages/admin/AdminCasesList";
 import AdminCaseDetail from "./pages/admin/AdminCaseDetail";
+import AdvisorDashboard from "./pages/advisor/AdvisorDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +66,12 @@ const App = () => (
             <Route path="declarations" element={<DashboardDeclarations />} />
             <Route path="documents" element={<DashboardDocuments />} />
             <Route path="payment" element={<DashboardPayment />} />
+            <Route path="offers" element={<DashboardOffers />} />
+          </Route>
+
+          {/* Advisor routes */}
+          <Route path="/advisor" element={<AdvisorLayout />}>
+            <Route index element={<AdvisorDashboard />} />
           </Route>
 
           {/* Client area */}
