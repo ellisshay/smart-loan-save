@@ -5,6 +5,7 @@ import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen }
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
@@ -52,7 +53,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             <Link to="/my-cases">
               <Button variant="outline" size="sm">האזור שלי</Button>
             </Link>
@@ -95,8 +97,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {link.label}
                   </Link>
                 ))}
-                <div className="pt-2">
-                  <Link to="/calculators" onClick={() => setMobileOpen(false)}>
+                <div className="pt-2 flex items-center gap-2">
+                  <ThemeToggle />
+                  <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
                     <Button variant="cta" className="w-full">בדוק את המשכנתא שלך</Button>
                   </Link>
                 </div>
