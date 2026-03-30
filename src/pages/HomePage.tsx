@@ -3,10 +3,6 @@ import MortgageTipsCarousel from "@/components/MortgageTipsCarousel";
 import SavingsCalculator from "@/pages/SavingsCalculator";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import heroHomesImg from "@/assets/hero-homes.jpg";
-import luxuryBuildingImg from "@/assets/luxury-building.jpg";
-import digitalEfficiencyBg from "@/assets/digital-efficiency-bg.jpg";
-import calculationsBg from "@/assets/calculations-bg.jpg";
 import {
   Calculator,
   Shield,
