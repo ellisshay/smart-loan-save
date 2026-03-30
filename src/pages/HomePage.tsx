@@ -65,16 +65,9 @@ function HeroSection() {
 
   return (
     <section ref={ref} className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Parallax background image */}
-      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
-        <img
-          src={heroHomesImg}
-          alt="שכונת יוקרה"
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
-      <div className="absolute inset-0 bg-gradient-to-l from-navy-dark/95 via-navy-dark/80 to-navy-dark/60" />
-      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent" />
+      {/* Abstract gradient background */}
+      <div className="absolute inset-0 bg-hero" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
 
       {/* Animated particles/glow */}
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
