@@ -3,15 +3,9 @@ import SavingsCalculator from "@/pages/SavingsCalculator";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  Calculator,
-  Shield,
-  Clock,
   ChevronDown,
-  Star,
   ArrowLeft,
   FileText,
-  Users,
-  Zap,
   CalendarDays,
   FileStack,
   Wallet,
@@ -23,7 +17,10 @@ import {
   Brain,
   Gift,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState } from "react";
+import StatsSection from "@/components/home/StatsSection";
+import TrustBar from "@/components/home/TrustBar";
+import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -38,11 +35,13 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <StatsSection />
+      <TrustBar />
       <PainSection />
       <HowItWorksSection />
       <ComparisonSection />
       <SavingsCalculator />
-      <TestimonialsSection />
+      <EnhancedTestimonials />
       <FAQSection />
       <FinalCTA />
     </>
@@ -313,78 +312,6 @@ function ComparisonSection() {
   );
 }
 
-function TestimonialsSection() {
-  const testimonials = [
-    {
-      name: "דנה ורועי כהן",
-      city: "ראשון לציון",
-      savings: "₪22,000",
-      text: "קיבלנו 3 הצעות תוך יומיים. חסכנו ₪22,000 על הריבית.",
-      initials: "דר",
-    },
-    {
-      name: "משה לוי",
-      city: "תל אביב",
-      savings: "₪18,500",
-      text: "הייתי בטוח שצריך יועץ יקר. יצא לי הרבה יותר טוב.",
-      initials: "מל",
-    },
-    {
-      name: "תמר מזרחי",
-      city: "חיפה",
-      savings: "₪31,000",
-      text: "כעצמאית קיבלתי הצעה שלא ציפיתי לה כלל.",
-      initials: "תמ",
-    },
-  ];
-
-  return (
-    <section className="py-20 md:py-28 bg-background">
-      <div className="container">
-        <motion.h2
-          className="font-display text-3xl md:text-5xl font-black text-foreground text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          אלפי משפחות כבר חסכו
-        </motion.h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.name}
-              className="bg-card rounded-2xl p-8 shadow-card border border-border hover:border-gold/20 transition-colors"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.12 }}
-            >
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} size={16} className="fill-gold text-gold" />
-                ))}
-              </div>
-              <p className="text-foreground leading-relaxed mb-6">"{t.text}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center font-display font-bold text-gold text-sm">
-                  {t.initials}
-                </div>
-                <div>
-                  <div className="font-display font-bold text-foreground">{t.name}</div>
-                  <div className="text-sm text-muted-foreground">{t.city}</div>
-                </div>
-                <span className="mr-auto bg-gold/10 text-gold text-xs font-bold px-3 py-1 rounded-full">
-                  חסכו {t.savings}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function FAQSection() {
   const faqs = [
