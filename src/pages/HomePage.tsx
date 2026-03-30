@@ -353,11 +353,8 @@ function BenefitsSection() {
 
   return (
     <section ref={ref} className="py-20 md:py-28 relative overflow-hidden">
-      {/* Parallax background with building image */}
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
-        <img src={luxuryBuildingImg} alt="" className="w-full h-full object-cover scale-130" />
-      </motion.div>
-      <div className="absolute inset-0 bg-navy-dark/92" />
+      {/* Abstract gradient background */}
+      <div className="absolute inset-0 bg-hero" />
 
       <div className="container relative">
         <motion.div
