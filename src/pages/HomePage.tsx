@@ -49,13 +49,37 @@ export default function HomePage() {
 }
 
 function HeroSection() {
-  return (
-    <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]" />
-      <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-20 right-1/4 w-72 h-72 bg-gold/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
 
-      <div className="container relative py-24 md:py-36">
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const orbOneY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const orbTwoY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  return (
+    <section ref={sectionRef} className="relative overflow-hidden min-h-[90vh] flex items-center">
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-b from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]"
+        style={{ y: bgY }}
+      />
+      <motion.div
+        className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse"
+        style={{ y: orbOneY }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-1/4 w-72 h-72 bg-gold/5 rounded-full blur-[100px] animate-pulse"
+        style={{ animationDelay: "1s", y: orbTwoY }}
+      />
+
+      <motion.div
+        className="container relative py-24 md:py-36"
+        style={{ y: contentY, opacity: contentOpacity }}
+      >
         <div className="text-center max-w-4xl mx-auto">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
             <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/15 backdrop-blur-sm text-gold text-sm font-semibold mb-8 border border-gold/20">
@@ -116,7 +140,7 @@ function HeroSection() {
             </div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="absolute bottom-0 left-0 right-0">
         <svg viewBox="0 0 1440 60" className="w-full h-auto" preserveAspectRatio="none">
