@@ -9,9 +9,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, LogIn, UserPlus, Chrome } from "lucide-react";
 
+type UserType = "client" | "advisor";
+
 export default function AuthPage() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [userType, setUserType] = useState<UserType>("client");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -21,9 +24,10 @@ export default function AuthPage() {
     firstName: "",
     lastName: "",
     phone: "",
+    company: "",
+    licenseNumber: "",
   });
 
-  // Redirect if already logged in
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) navigate("/dashboard");
@@ -41,10 +45,18 @@ export default function AuthPage() {
           password: form.password,
         });
         if (error) throw error;
+
+        // Check if advisor
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", (await supabase.auth.getUser()).data.user?.id || "");
+
+        const isAdvisor = roles?.some((r) => r.role === "advisor");
         toast({ title: "התחברת בהצלחה! 🎉" });
-        navigate("/dashboard");
+        navigate(isAdvisor ? "/advisor" : "/dashboard");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
           options: {
@@ -56,8 +68,21 @@ export default function AuthPage() {
           },
         });
         if (error) throw error;
+
+        const userId = data.user?.id;
+        if (userId && userType === "advisor") {
+          // Assign advisor role
+          await supabase.from("user_roles").insert({ user_id: userId, role: "advisor" as any });
+          // Create advisor profile
+          await supabase.from("advisor_profiles" as any).insert({
+            user_id: userId,
+            company: form.company,
+            license_number: form.licenseNumber,
+          });
+        }
+
         toast({ title: "נרשמת בהצלחה! 🎉" });
-        navigate("/dashboard");
+        navigate(userType === "advisor" ? "/advisor" : "/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -80,7 +105,6 @@ export default function AuthPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        {/* Logo — links home */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
             <div className="w-14 h-14 rounded-xl bg-gold-gradient flex items-center justify-center mx-auto mb-3">
@@ -91,126 +115,100 @@ export default function AuthPage() {
             {isLogin ? "התחברות" : "הרשמה"}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isLogin ? "היכנס לחשבון שלך" : "צור חשבון חדש לפתיחת תיק"}
+            {isLogin ? "היכנס לחשבון שלך" : "צור חשבון חדש"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-6 shadow-card border border-border space-y-4">
+          {/* Tab switcher for signup */}
           {!isLogin && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="firstName">שם פרטי</Label>
-                <Input
-                  id="firstName"
-                  value={form.firstName}
-                  onChange={(e) => updateField("firstName", e.target.value)}
-                  required={!isLogin}
-                  placeholder="דני"
-                />
-              </div>
-              <div>
-                <Label htmlFor="lastName">שם משפחה</Label>
-                <Input
-                  id="lastName"
-                  value={form.lastName}
-                  onChange={(e) => updateField("lastName", e.target.value)}
-                  required={!isLogin}
-                  placeholder="כהן"
-                />
-              </div>
+            <div className="flex rounded-xl bg-muted p-1 mb-2">
+              <button
+                type="button"
+                onClick={() => setUserType("client")}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  userType === "client"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                לקוח
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType("advisor")}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  userType === "advisor"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                יועץ משכנתאות
+              </button>
             </div>
           )}
 
           {!isLogin && (
-            <div>
-              <Label htmlFor="phone">טלפון</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={form.phone}
-                onChange={(e) => updateField("phone", e.target.value)}
-                placeholder="050-1234567"
-                dir="ltr"
-              />
-            </div>
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="firstName">שם פרטי</Label>
+                  <Input id="firstName" value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} required placeholder="דני" />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">שם משפחה</Label>
+                  <Input id="lastName" value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} required placeholder="כהן" />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="phone">טלפון</Label>
+                <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="050-1234567" dir="ltr" />
+              </div>
+              {userType === "advisor" && (
+                <>
+                  <div>
+                    <Label htmlFor="company">שם חברה</Label>
+                    <Input id="company" value={form.company} onChange={(e) => updateField("company", e.target.value)} placeholder="שם החברה שלך" />
+                  </div>
+                  <div>
+                    <Label htmlFor="licenseNumber">מספר רישיון</Label>
+                    <Input id="licenseNumber" value={form.licenseNumber} onChange={(e) => updateField("licenseNumber", e.target.value)} required placeholder="מספר רישיון בנק ישראל" dir="ltr" />
+                  </div>
+                </>
+              )}
+            </>
           )}
 
           <div>
             <Label htmlFor="email">אימייל</Label>
-            <Input
-              id="email"
-              type="email"
-              value={form.email}
-              onChange={(e) => updateField("email", e.target.value)}
-              required
-              placeholder="example@email.com"
-              dir="ltr"
-            />
+            <Input id="email" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} required placeholder="example@email.com" dir="ltr" />
           </div>
 
           <div>
             <Label htmlFor="password">סיסמה</Label>
             <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={form.password}
-                onChange={(e) => updateField("password", e.target.value)}
-                required
-                minLength={6}
-                placeholder="לפחות 6 תווים"
-                dir="ltr"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
+              <Input id="password" type={showPassword ? "text" : "password"} value={form.password} onChange={(e) => updateField("password", e.target.value)} required minLength={6} placeholder="לפחות 6 תווים" dir="ltr" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
           <Button type="submit" variant="cta" className="w-full" size="lg" disabled={loading}>
-            {loading ? (
-              <span className="animate-pulse">מעבד...</span>
-            ) : isLogin ? (
-              <>
-                <LogIn size={18} />
-                התחבר
-              </>
-            ) : (
-              <>
-                <UserPlus size={18} />
-                הירשם
-              </>
-            )}
+            {loading ? <span className="animate-pulse">מעבד...</span> : isLogin ? (<><LogIn size={18} />התחבר</>) : (<><UserPlus size={18} />הירשם {userType === "advisor" ? "כיועץ" : ""}</>)}
           </Button>
 
           <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-3 text-muted-foreground">או</span>
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-card px-3 text-muted-foreground">או</span></div>
           </div>
 
           <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            size="lg"
-            disabled={googleLoading}
+            type="button" variant="outline" className="w-full" size="lg" disabled={googleLoading}
             onClick={async () => {
               setGoogleLoading(true);
-              const { error } = await lovable.auth.signInWithOAuth("google", {
-                redirect_uri: window.location.origin,
-              });
-              if (error) {
-                toast({ title: "שגיאה בהתחברות Google", variant: "destructive" });
-                setGoogleLoading(false);
-              }
+              const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+              if (error) { toast({ title: "שגיאה בהתחברות Google", variant: "destructive" }); setGoogleLoading(false); }
             }}
           >
             <Chrome size={18} />
@@ -218,11 +216,7 @@ export default function AuthPage() {
           </Button>
 
           <div className="text-center pt-2">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-gold font-semibold hover:underline"
-            >
+            <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-sm text-gold font-semibold hover:underline">
               {isLogin ? "אין לך חשבון? הירשם כאן" : "כבר יש לך חשבון? התחבר"}
             </button>
           </div>

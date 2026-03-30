@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisor_profiles: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          lead_credits: number | null
+          license_number: string
+          rating: number | null
+          subscription_tier: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          lead_credits?: number | null
+          license_number: string
+          rating?: number | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          lead_credits?: number | null
+          license_number?: string
+          rating?: number | null
+          subscription_tier?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       case_documents: {
         Row: {
           case_id: string
@@ -188,6 +221,144 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_purchases: {
+        Row: {
+          advisor_id: string
+          amount: number
+          id: string
+          lead_id: string
+          purchased_at: string | null
+        }
+        Insert: {
+          advisor_id: string
+          amount?: number
+          id?: string
+          lead_id: string
+          purchased_at?: string | null
+        }
+        Update: {
+          advisor_id?: string
+          amount?: number
+          id?: string
+          lead_id?: string
+          purchased_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_purchases_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          case_id: string | null
+          client_id: string
+          created_at: string | null
+          equity_range: string | null
+          id: string
+          income_range: string | null
+          property_area: string | null
+          property_price_range: string | null
+          purpose: string | null
+          status: string
+        }
+        Insert: {
+          case_id?: string | null
+          client_id: string
+          created_at?: string | null
+          equity_range?: string | null
+          id?: string
+          income_range?: string | null
+          property_area?: string | null
+          property_price_range?: string | null
+          purpose?: string | null
+          status?: string
+        }
+        Update: {
+          case_id?: string | null
+          client_id?: string
+          created_at?: string | null
+          equity_range?: string | null
+          id?: string
+          income_range?: string | null
+          property_area?: string | null
+          property_price_range?: string | null
+          purpose?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          advisor_fee: number | null
+          advisor_id: string
+          bank_name: string
+          created_at: string | null
+          id: string
+          interest_rate: number
+          lead_id: string
+          loan_period: number | null
+          monthly_payment: number
+          notes: string | null
+          status: string
+          total_cost: number | null
+          track_type: string
+          validity_date: string | null
+        }
+        Insert: {
+          advisor_fee?: number | null
+          advisor_id: string
+          bank_name: string
+          created_at?: string | null
+          id?: string
+          interest_rate: number
+          lead_id: string
+          loan_period?: number | null
+          monthly_payment: number
+          notes?: string | null
+          status?: string
+          total_cost?: number | null
+          track_type: string
+          validity_date?: string | null
+        }
+        Update: {
+          advisor_fee?: number | null
+          advisor_id?: string
+          bank_name?: string
+          created_at?: string | null
+          id?: string
+          interest_rate?: number
+          lead_id?: string
+          loan_period?: number | null
+          monthly_payment?: number
+          notes?: string | null
+          status?: string
+          total_cost?: number | null
+          track_type?: string
+          validity_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -244,6 +415,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_purchased_lead: {
+        Args: { _advisor_id: string; _lead_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -254,7 +429,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "advisor"
       case_status:
         | "Draft"
         | "WaitingForPayment"
@@ -396,7 +571,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "advisor"],
       case_status: [
         "Draft",
         "WaitingForPayment",
