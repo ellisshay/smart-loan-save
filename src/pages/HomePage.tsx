@@ -431,12 +431,7 @@ function CalculatorsPreview() {
 
   return (
     <section
-      className="py-20 md:py-28 relative overflow-hidden"
-      style={{
-        backgroundImage: `linear-gradient(135deg, hsl(210 55% 8% / 0.88) 0%, hsl(210 45% 14% / 0.85) 50%, hsl(210 40% 18% / 0.88) 100%), url(${calculationsBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="py-20 md:py-28 relative overflow-hidden bg-muted/20"
     >
       <div className="container relative">
         <motion.div
