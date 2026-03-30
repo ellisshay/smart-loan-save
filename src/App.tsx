@@ -61,6 +61,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Auth */}
           <Route path="/auth" element={<AuthPage />} />
