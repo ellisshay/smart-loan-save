@@ -185,10 +185,10 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-display text-3xl md:text-4xl font-black text-primary-foreground mb-4">
+            <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
               מוכן לחסוך על המשכנתא?
             </h2>
-            <p className="text-primary-foreground/70 mb-8 max-w-md mx-auto">
+            <p className="text-foreground/70 mb-8 max-w-md mx-auto">
               בדיקה חינמית תוך דקה. בלי התחייבות.
             </p>
             <Link to="/calculators">
