@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import SavingsCalculator from "@/pages/SavingsCalculator";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
