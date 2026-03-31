@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingCart, FileText, Star, CreditCard, MapPin, Home, Wallet, TrendingUp } from "lucide-react";
-import AdvisorOfferForm from "./AdvisorOfferForm";
 
 export default function AdvisorDashboard() {
   const queryClient = useQueryClient();
-  const [selectedLead, setSelectedLead] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Get current user
   const { data: user } = useQuery({
@@ -112,20 +111,6 @@ export default function AdvisorDashboard() {
     accepted: "נבחר",
     rejected: "נדחה",
   };
-
-  if (selectedLead) {
-    return (
-      <AdvisorOfferForm
-        leadId={selectedLead}
-        advisorId={user?.id || ""}
-        onBack={() => setSelectedLead(null)}
-        onSuccess={() => {
-          setSelectedLead(null);
-          queryClient.invalidateQueries({ queryKey: ["my-offers"] });
-        }}
-      />
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -232,7 +217,7 @@ export default function AdvisorDashboard() {
                     <p className="text-muted-foreground">מטרה: {p.leads?.purpose || "—"}</p>
                     <p className="text-muted-foreground">נרכש: {new Date(p.purchased_at).toLocaleDateString("he-IL")}</p>
                   </div>
-                  <Button variant="cta" size="sm" onClick={() => setSelectedLead(p.lead_id)}>
+                  <Button variant="cta" size="sm" onClick={() => navigate(`/advisor/offer/${p.lead_id}`)}>
                     <FileText size={14} /> הגש הצעה
                   </Button>
                 </div>

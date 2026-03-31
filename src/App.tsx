@@ -45,6 +45,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminCasesList = lazy(() => import("./pages/admin/AdminCasesList"));
 const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
 const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
+const AdvisorOfferPage = lazy(() => import("./pages/advisor/AdvisorOfferPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const PageLoader = () => (
@@ -84,6 +85,7 @@ const App = () => (
           {/* Advisor routes */}
           <Route path="/advisor" element={<AdvisorLayout />}>
             <Route index element={<AdvisorDashboard />} />
+            <Route path="offer/:leadId" element={<AdvisorOfferPage />} />
           </Route>
 
           {/* Client area */}
