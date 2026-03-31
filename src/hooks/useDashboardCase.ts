@@ -44,7 +44,7 @@ export function useDashboardCase() {
     try {
       const updated = { ...intakeData, [stepKey]: stepData };
       setIntakeData(updated);
-      await supabase.from("cases").update({ intake_data: updated }).eq("id", caseId);
+      await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
 
       // Fire webhook
       await supabase.functions.invoke("webhook-handler", {
