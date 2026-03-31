@@ -94,10 +94,7 @@ export default function MixSelectionPage() {
     if (!caseId) return;
     setLoading(true);
     try {
-      await supabase
-        .from("cases")
-        .update({ selected_mix: mixName, status: "SentToBank" as any })
-        .eq("id", caseId);
+      await supabase.rpc("update_case_safe", { _case_id: caseId, _selected_mix: mixName });
 
       await supabase.functions.invoke("webhook-handler", {
         body: { event_name: "mix_selected", case_id: caseId, payload: { mix: mixName } },
