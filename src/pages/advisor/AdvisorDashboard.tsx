@@ -112,20 +112,6 @@ export default function AdvisorDashboard() {
     rejected: "נדחה",
   };
 
-  if (selectedLead) {
-    return (
-      <AdvisorOfferForm
-        leadId={selectedLead}
-        advisorId={user?.id || ""}
-        onBack={() => setSelectedLead(null)}
-        onSuccess={() => {
-          setSelectedLead(null);
-          queryClient.invalidateQueries({ queryKey: ["my-offers"] });
-        }}
-      />
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
