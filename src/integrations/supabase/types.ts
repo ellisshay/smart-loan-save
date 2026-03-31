@@ -427,6 +427,17 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      update_case_safe: {
+        Args: {
+          _case_id: string
+          _case_type?: Database["public"]["Enums"]["case_type"]
+          _current_step?: number
+          _goal?: string
+          _intake_data?: Json
+          _selected_mix?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "advisor"
