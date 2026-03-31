@@ -85,6 +85,7 @@ const App = () => (
           {/* Advisor routes */}
           <Route path="/advisor" element={<AdvisorLayout />}>
             <Route index element={<AdvisorDashboard />} />
+            <Route path="offer/:leadId" element={<AdvisorOfferPage />} />
           </Route>
 
           {/* Client area */}

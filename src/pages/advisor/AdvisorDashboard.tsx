@@ -217,7 +217,7 @@ export default function AdvisorDashboard() {
                     <p className="text-muted-foreground">מטרה: {p.leads?.purpose || "—"}</p>
                     <p className="text-muted-foreground">נרכש: {new Date(p.purchased_at).toLocaleDateString("he-IL")}</p>
                   </div>
-                  <Button variant="cta" size="sm" onClick={() => setSelectedLead(p.lead_id)}>
+                  <Button variant="cta" size="sm" onClick={() => navigate(`/advisor/offer/${p.lead_id}`)}>
                     <FileText size={14} /> הגש הצעה
                   </Button>
                 </div>
