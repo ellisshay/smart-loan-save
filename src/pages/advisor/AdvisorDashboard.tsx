@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingCart, FileText, Star, CreditCard, MapPin, Home, Wallet, TrendingUp } from "lucide-react";
-import AdvisorOfferForm from "./AdvisorOfferForm";
 
 export default function AdvisorDashboard() {
   const queryClient = useQueryClient();
-  const [selectedLead, setSelectedLead] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Get current user
   const { data: user } = useQuery({
