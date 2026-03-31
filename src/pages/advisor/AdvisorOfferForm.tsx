@@ -66,6 +66,20 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
 
       // Fire webhook for new offer
       const { data: leadData } = await supabase.from("leads").select("case_id").eq("id", leadId).single();
+      
+      // Notify client via email
+      await supabase.functions.invoke("notify-client-offer", {
+        body: {
+          offer_id: "new",
+          lead_id: leadId,
+          bank_name: form.bank_name,
+          interest_rate: form.interest_rate,
+          monthly_payment: form.monthly_payment,
+          track_type: form.track_type,
+          loan_period: form.loan_period,
+        },
+      });
+
       if (leadData?.case_id) {
         await supabase.functions.invoke("webhook-handler", {
           body: {

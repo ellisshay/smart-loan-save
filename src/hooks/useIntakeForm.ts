@@ -108,13 +108,16 @@ export function useIntakeForm(caseType: CaseType) {
         })
         .eq("id", caseId);
 
-      // Fire webhooks for submission + lead creation (trigger creates lead automatically)
+      // Fire webhooks for submission + lead creation + Make.com notification
       await Promise.all([
         fireWebhook("case_submitted", caseId, {}),
         fireWebhook("lead_created", caseId, {
           property_area: intakeData.property?.area || intakeData.property_area || "",
           purpose: goal || caseType,
           income_range: intakeData.income?.monthly_income || intakeData.monthly_income || "",
+        }),
+        supabase.functions.invoke("notify-on-intake-complete", {
+          body: { case_id: caseId },
         }),
       ]);
 
