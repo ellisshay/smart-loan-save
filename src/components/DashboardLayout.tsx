@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 import ExitIntentModal from "@/components/ExitIntentModal";
+import AIMortgageChat from "@/components/AIMortgageChat";
 
 const sideLinks = [
   { label: "סקירה כללית", href: "/dashboard", icon: LayoutDashboard },
@@ -125,6 +126,7 @@ export default function DashboardLayout() {
 
         {/* Exit intent modal */}
         <ExitIntentModal progress={progress} enabled={progress > 0 && progress < 85} />
+        <AIMortgageChat />
       </div>
     </AuthGuard>
   );

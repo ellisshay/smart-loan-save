@@ -227,6 +227,41 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          case_id: string | null
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          case_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          case_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_purchases: {
         Row: {
           advisor_id: string
@@ -305,6 +340,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      market_rates: {
+        Row: {
+          cpi: number
+          fixed_linked: number
+          fixed_not_linked: number
+          id: string
+          prime: number
+          source: string | null
+          updated_at: string | null
+          updated_by: string | null
+          variable_1: number
+          variable_5: number
+        }
+        Insert: {
+          cpi?: number
+          fixed_linked?: number
+          fixed_not_linked?: number
+          id?: string
+          prime?: number
+          source?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          variable_1?: number
+          variable_5?: number
+        }
+        Update: {
+          cpi?: number
+          fixed_linked?: number
+          fixed_not_linked?: number
+          id?: string
+          prime?: number
+          source?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          variable_1?: number
+          variable_5?: number
+        }
+        Relationships: []
       }
       offers: {
         Row: {

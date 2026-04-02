@@ -7,6 +7,66 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const FINANCIAL_SCORE_PROMPT = `אתה מנתח פיננסי המחשב זכאות למשכנתא בישראל.
+קיבלת את הפרופיל הבא. החזר JSON בלבד – ללא טקסט נוסף.
+
+פרטי הלקוח:
+{client_profile_json}
+
+נתוני מסמכים שנותחו:
+{documents_analysis_json}
+
+ריביות שוק נוכחיות:
+- פריים: {prime_rate}%
+- קבועה לא צמודה: {fixed_not_linked_rate}%
+- קבועה צמודה: {fixed_linked_rate}%
+- משתנה כל 5: {variable_5_rate}%
+
+החזר את ה-JSON הבא:
+{
+  "score": number (0-100),
+  "score_breakdown": {
+    "income_stability": number (0-25),
+    "ltv_ratio": number (0-20),
+    "dti_ratio": number (0-25),
+    "credit_history": number (0-15),
+    "equity_quality": number (0-15)
+  },
+  "ltv": number (loan_to_value %),
+  "dti": number (debt_to_income %),
+  "max_loan_amount": number,
+  "recommended_monthly_payment": number,
+  "strengths": [string, string, string],
+  "risks": [string],
+  "recommended_mix": [
+    {
+      "track": string,
+      "percentage": number,
+      "rate": number,
+      "monthly_payment": number,
+      "reason": string
+    }
+  ],
+  "alternative_mixes": [
+    {
+      "name": string,
+      "description": string,
+      "for_who": string,
+      "total_cost": number
+    }
+  ],
+  "summary_for_advisor": string,
+  "red_flags": [string],
+  "recommended_banks": [string]
+}
+
+חישובים:
+- LTV = (מחיר נכס - הון עצמי) / מחיר נכס × 100
+- DTI = (החזר חודשי מוצע + הלוואות קיימות) / הכנסה חודשית × 100
+- בנקים בישראל מאשרים עד LTV 75% (דירה ראשונה), 50% (השקעה)
+- DTI מקסימלי מומלץ: 35-40%
+- Score: 90-100 מצוין, 70-89 טוב, 50-69 בינוני, מתחת ל-50 בעייתי`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -29,70 +89,61 @@ serve(async (req) => {
       );
     }
 
-    // 1. Read client profile
+    // 1. Gather all data
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
       .eq("user_id", user_id)
       .single();
 
-    // Read case data
     const { data: caseData } = await supabase
       .from("cases")
       .select("*")
       .eq("id", case_id)
       .single();
 
-    // Read all document AI extractions
     const { data: docs } = await supabase
       .from("case_documents")
       .select("doc_type, file_name, ai_extracted_data")
       .eq("case_id", case_id)
       .not("ai_extracted_data", "is", null);
 
-    // Read existing case tracks (current mortgage data for refi)
     const { data: tracks } = await supabase
       .from("case_tracks")
       .select("*")
       .eq("case_id", case_id);
 
-    // 2. Build prompt with all data
-    const contextData = {
-      profile: {
-        name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim(),
-        email: profile?.email,
-        phone: profile?.phone,
-      },
+    // Get current market rates
+    const { data: rates } = await supabase
+      .from("market_rates")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    // 2. Build prompt with real data
+    const clientProfile = {
+      name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim(),
+      email: profile?.email,
+      phone: profile?.phone,
       case_type: caseData?.case_type,
       goal: caseData?.goal,
       intake_data: caseData?.intake_data,
       existing_tracks: tracks,
-      document_extractions: docs?.map((d: any) => ({
-        type: d.doc_type,
-        data: d.ai_extracted_data,
-      })),
     };
 
-    const systemPrompt = `You are a senior Israeli mortgage financial analyst. Based on the client data and AI-extracted document analysis provided, calculate a comprehensive mortgage eligibility assessment. Return ONLY valid JSON:
-{
-  "score": number (0-100, overall eligibility score),
-  "ltv": number (loan-to-value ratio as percentage),
-  "dti": number (debt-to-income ratio as percentage),
-  "strengths": string[] (list of financial strengths in Hebrew),
-  "risks": string[] (list of financial risks in Hebrew),
-  "recommended_mix": [
-    {
-      "track": string (track type name in Hebrew, e.g. "פריים", "קבועה לא צמודה", "משתנה כל 5"),
-      "percentage": number (% of total loan),
-      "rate": number (estimated interest rate),
-      "reason": string (why this track, in Hebrew)
-    }
-  ],
-  "max_loan": number (maximum recommended loan amount in ILS),
-  "recommended_monthly": number (recommended monthly payment in ILS),
-  "summary": string (2-3 sentence summary in Hebrew)
-}
-Be conservative with estimates. If data is insufficient, note it in risks.`;
+    const documentsAnalysis = docs?.map((d: any) => ({
+      type: d.doc_type,
+      data: d.ai_extracted_data,
+    }));
+
+    const prompt = FINANCIAL_SCORE_PROMPT
+      .replace("{client_profile_json}", JSON.stringify(clientProfile, null, 2))
+      .replace("{documents_analysis_json}", JSON.stringify(documentsAnalysis, null, 2))
+      .replace("{prime_rate}", String(rates?.prime || 4.6))
+      .replace("{fixed_not_linked_rate}", String(rates?.fixed_not_linked || 5.1))
+      .replace("{fixed_linked_rate}", String(rates?.fixed_linked || 4.2))
+      .replace("{variable_5_rate}", String(rates?.variable_5 || 4.8));
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -103,8 +154,7 @@ Be conservative with estimates. If data is insufficient, note it in risks.`;
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze this client's mortgage eligibility:\n${JSON.stringify(contextData, null, 2)}` },
+          { role: "user", content: prompt },
         ],
       }),
     });
@@ -112,8 +162,16 @@ Be conservative with estimates. If data is insufficient, note it in risks.`;
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
       console.error("AI gateway error:", aiResponse.status, errText);
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded" }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted" }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
       return new Response(
-        JSON.stringify({ error: "AI analysis failed", status: aiResponse.status }),
+        JSON.stringify({ error: "AI analysis failed" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -130,17 +188,15 @@ Be conservative with estimates. If data is insufficient, note it in risks.`;
       analysis = { raw_response: content, score: 0 };
     }
 
-    // 3. Save to cases.ai_analysis (using service role, bypasses RLS)
+    // 3. Save to cases.ai_analysis
     const { error: updateError } = await supabase
       .from("cases")
       .update({ ai_analysis: analysis })
       .eq("id", case_id);
 
-    if (updateError) {
-      console.error("DB update error:", updateError);
-    }
+    if (updateError) console.error("DB update error:", updateError);
 
-    // 4. Trigger webhook to notify client
+    // 4. Trigger webhook notification
     const makeWebhookUrl = Deno.env.get("MAKE_WEBHOOK_URL");
     if (makeWebhookUrl) {
       try {
@@ -155,7 +211,8 @@ Be conservative with estimates. If data is insufficient, note it in risks.`;
             score: analysis?.score,
             client_name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim(),
             client_phone: profile?.phone,
-            summary: analysis?.summary,
+            summary: analysis?.summary_for_advisor,
+            recommended_banks: analysis?.recommended_banks,
           }),
         });
       } catch (webhookErr) {
