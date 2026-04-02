@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 import ExitIntentModal from "@/components/ExitIntentModal";
+import AIMortgageChat from "@/components/AIMortgageChat";
 
 const sideLinks = [
   { label: "סקירה כללית", href: "/dashboard", icon: LayoutDashboard },
