@@ -27,7 +27,15 @@ export default function PublicChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userMessageCount, setUserMessageCount] = useState(0);
+  const [showPulse, setShowPulse] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!open) setShowPulse(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -140,8 +148,8 @@ export default function PublicChatWidget() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full px-5 py-3 text-white shadow-lg hover:shadow-xl transition-shadow"
+            onClick={() => { setOpen(true); setShowPulse(false); }}
+            className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full px-5 py-3 text-white shadow-lg hover:shadow-xl transition-shadow ${showPulse ? "animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]" : ""}`}
             style={{ backgroundColor: "#1A56DB" }}
           >
             <MessageCircle size={20} />
