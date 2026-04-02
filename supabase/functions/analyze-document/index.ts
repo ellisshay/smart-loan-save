@@ -7,6 +7,49 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const DOCUMENT_ANALYSIS_PROMPT = `אתה מנתח מסמכים פיננסיים ישראליים.
+נותחו את המסמך המצורף והחזר JSON בלבד – ללא טקסט נוסף, ללא \`\`\`json, ללא הסברים.
+
+סוג המסמך: {document_type}
+(אפשרויות: תלוש_שכר / דף_חשבון / ת"ז / חוזה)
+
+אם תלוש שכר – חלץ:
+{
+  "document_type": "תלוש_שכר",
+  "income_gross": number,
+  "income_net": number,
+  "employer_name": string,
+  "employment_type": "שכיר" | "עצמאי",
+  "month_year": "MM/YYYY",
+  "pension_deduction": number,
+  "tax_deduction": number,
+  "other_deductions": number,
+  "confidence": number
+}
+
+אם דף חשבון – חלץ:
+{
+  "document_type": "דף_חשבון",
+  "bank_name": string,
+  "account_number": "XXXX (4 ספרות אחרונות)",
+  "period": "MM/YYYY",
+  "opening_balance": number,
+  "closing_balance": number,
+  "avg_balance": number,
+  "total_credits": number,
+  "total_debits": number,
+  "regular_income_detected": boolean,
+  "regular_payments": [{"description": string, "amount": number}],
+  "overdraft_days": number,
+  "confidence": number
+}
+
+חשוב:
+- כל סכומים בשקלים
+- אם שדה לא ברור – החזר null
+- confidence: 0.0–1.0 (כמה בטוח בניתוח)
+- אל תמציא נתונים – רק מה שרואים במסמך`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -50,7 +93,6 @@ serve(async (req) => {
     }
     const base64 = btoa(binary);
 
-    // Determine mime type
     const ext = document_url.split(".").pop()?.toLowerCase() || "";
     const mimeMap: Record<string, string> = {
       pdf: "application/pdf",
@@ -60,36 +102,25 @@ serve(async (req) => {
     };
     const mimeType = mimeMap[ext] || "application/octet-stream";
 
-    // 3. Send to AI for analysis
-    const systemPrompt = `You are a financial analyst specializing in Israeli financial documents. Analyze the provided document (${document_type}) and extract financial data. Return ONLY valid JSON with no additional text:
-{
-  "income_net": number or null (monthly net income in ILS),
-  "employer": string or null,
-  "employment_type": "שכיר" or "עצמאי" or null,
-  "employment_years": number or null,
-  "avg_monthly_balance": number or null,
-  "fixed_expenses": number or null,
-  "confidence": number between 0 and 1
-}
-If you cannot extract a field, use null.`;
+    // 3. Send to AI with detailed Hebrew prompt
+    const systemPrompt = DOCUMENT_ANALYSIS_PROMPT.replace("{document_type}", document_type);
 
     const messages: any[] = [
       { role: "system", content: systemPrompt },
     ];
 
-    // Use vision for images, text description for PDFs
     if (mimeType.startsWith("image/")) {
       messages.push({
         role: "user",
         content: [
-          { type: "text", text: `Analyze this Israeli ${document_type} document and extract financial data.` },
+          { type: "text", text: `נתח את המסמך הישראלי הזה (${document_type}) וחלץ נתונים פיננסיים.` },
           { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
         ],
       });
     } else {
       messages.push({
         role: "user",
-        content: `Analyze this Israeli ${document_type} document (base64 encoded, mime: ${mimeType}). Extract financial data. Document base64: ${base64.substring(0, 5000)}...`,
+        content: `נתח את המסמך הישראלי הזה (${document_type}). Base64: ${base64.substring(0, 8000)}`,
       });
     }
 
@@ -108,6 +139,14 @@ If you cannot extract a field, use null.`;
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
       console.error("AI gateway error:", aiResponse.status, errText);
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded, try again later" }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted" }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
       return new Response(
         JSON.stringify({ error: "AI analysis failed", status: aiResponse.status }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -117,7 +156,6 @@ If you cannot extract a field, use null.`;
     const aiResult = await aiResponse.json();
     const content = aiResult.choices?.[0]?.message?.content || "";
 
-    // Parse JSON from AI response
     let extractedData: any;
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -133,12 +171,9 @@ If you cannot extract a field, use null.`;
       .update({ ai_extracted_data: extractedData })
       .eq("file_path", document_url);
 
-    if (updateError) {
-      console.error("DB update error:", updateError);
-    }
+    if (updateError) console.error("DB update error:", updateError);
 
-    // 5. Check if all required docs are analyzed, then trigger score generation
-    // Find the case for this user's document
+    // 5. Check if all required docs analyzed → trigger score generation
     const { data: docRecord } = await supabase
       .from("case_documents")
       .select("case_id")
@@ -156,7 +191,6 @@ If you cannot extract a field, use null.`;
       const totalRequired = allDocs?.length || 0;
 
       if (analyzedCount >= totalRequired && totalRequired >= 1) {
-        // Trigger financial score generation
         try {
           await fetch(`${supabaseUrl}/functions/v1/generate-financial-score`, {
             method: "POST",
