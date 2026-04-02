@@ -126,6 +126,7 @@ export default function DashboardLayout() {
 
         {/* Exit intent modal */}
         <ExitIntentModal progress={progress} enabled={progress > 0 && progress < 85} />
+        <AIMortgageChat />
       </div>
     </AuthGuard>
   );
