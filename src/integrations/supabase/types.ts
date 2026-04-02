@@ -49,6 +49,7 @@ export type Database = {
       }
       case_documents: {
         Row: {
+          ai_extracted_data: Json | null
           case_id: string
           doc_type: string
           file_name: string
@@ -58,6 +59,7 @@ export type Database = {
           uploaded_at: string
         }
         Insert: {
+          ai_extracted_data?: Json | null
           case_id: string
           doc_type: string
           file_name: string
@@ -67,6 +69,7 @@ export type Database = {
           uploaded_at?: string
         }
         Update: {
+          ai_extracted_data?: Json | null
           case_id?: string
           doc_type?: string
           file_name?: string
@@ -169,6 +172,7 @@ export type Database = {
       }
       cases: {
         Row: {
+          ai_analysis: Json | null
           case_number: string
           case_type: Database["public"]["Enums"]["case_type"]
           created_at: string
@@ -186,6 +190,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_analysis?: Json | null
           case_number?: string
           case_type?: Database["public"]["Enums"]["case_type"]
           created_at?: string
@@ -203,6 +208,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_analysis?: Json | null
           case_number?: string
           case_type?: Database["public"]["Enums"]["case_type"]
           created_at?: string
