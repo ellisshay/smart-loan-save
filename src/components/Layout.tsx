@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import ThemeToggle from "@/components/ThemeToggle";
+import PublicChatWidget from "@/components/PublicChatWidget";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
@@ -161,6 +162,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      <PublicChatWidget />
     </div>
   );
 }
