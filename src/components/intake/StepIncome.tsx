@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
 
 type IncomeData = z.infer<typeof incomeSchema>;
 
