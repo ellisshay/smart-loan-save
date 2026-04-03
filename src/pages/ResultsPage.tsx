@@ -232,6 +232,9 @@ export default function ResultsPage() {
           </section>
         )}
 
+        {/* Personalized Insights */}
+        <PersonalizedInsights intakeData={intakeData} score={displayScore} />
+
         {/* Recommended Mix */}
         {analysis?.recommended_mix?.length ? (
           <section className="space-y-3">
