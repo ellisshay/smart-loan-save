@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
 
 type IncomeData = z.infer<typeof incomeSchema>;
 
@@ -108,26 +109,64 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
 
         {/* Self-employed fields */}
         {isSelfEmployed && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="תחום פעילות">
-              <Input {...register("businessField")} placeholder="ייעוץ עסקי" />
-            </Field>
-            <Field label="ותק עסק (חודשים)">
-              <Input {...register("businessSeniority", { valueAsNumber: true })} type="number" dir="ltr" />
-            </Field>
-            <Field label="הכנסה שנתית אחרונה (₪)">
-              <Input {...register("annualIncome", { valueAsNumber: true })} type="number" dir="ltr" />
-            </Field>
-            <Field label="הכנסה ממוצעת חודשית (₪)">
-              <Input {...register("monthlyAvgSelfEmployed", { valueAsNumber: true })} type="number" dir="ltr" />
-            </Field>
-            <Field label="חובות מס פתוחים?">
-              <select {...register("hasOpenTaxDebts")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
-                <option value="">בחר...</option>
-                <option value="no">לא</option>
-                <option value="yes">כן</option>
-              </select>
-            </Field>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="תחום פעילות">
+                <Input {...register("businessField")} placeholder="ייעוץ עסקי" />
+              </Field>
+              <Field label="ותק עסק (חודשים)">
+                <Input {...register("businessSeniority", { valueAsNumber: true })} type="number" dir="ltr" />
+              </Field>
+              <Field label="הכנסה שנתית אחרונה (₪)">
+                <Input {...register("annualIncome", { valueAsNumber: true })} type="number" dir="ltr" />
+              </Field>
+              <Field label="הכנסה ממוצעת חודשית (₪)">
+                <Input {...register("monthlyAvgSelfEmployed", { valueAsNumber: true })} type="number" dir="ltr" />
+              </Field>
+              <Field label="חובות מס פתוחים?">
+                <select {...register("hasOpenTaxDebts")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                  <option value="">בחר...</option>
+                  <option value="no">לא</option>
+                  <option value="yes">כן</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* Smart warnings for self-employed */}
+            {(Number(watch("businessSeniority")) || 0) > 0 && (Number(watch("businessSeniority")) || 0) < 24 && (
+              <motion.div
+                className="flex items-start gap-3 bg-[hsl(var(--warning))]/10 rounded-lg p-4"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              >
+                <AlertTriangle size={18} className="text-[hsl(var(--warning))] shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <strong className="text-[hsl(var(--warning))]">ותק עסקי נמוך</strong>
+                  <p className="text-muted-foreground">פחות מ-2 שנים כעצמאי עלול לגרום לדחייה בבנקים. בנקים דורשים לפחות 2 שנות דוחות.</p>
+                </div>
+              </motion.div>
+            )}
+
+            {(Number(watch("annualIncome")) || 0) > 0 && (Number(watch("monthlyAvgSelfEmployed")) || 0) > 0 && (() => {
+              const annual = Number(watch("annualIncome")) || 0;
+              const monthlyAvg = Number(watch("monthlyAvgSelfEmployed")) || 0;
+              const impliedAnnual = monthlyAvg * 12;
+              const variance = Math.abs(annual - impliedAnnual) / Math.max(annual, impliedAnnual) * 100;
+              if (variance > 20) {
+                return (
+                  <motion.div
+                    className="flex items-start gap-3 bg-[hsl(var(--warning))]/10 rounded-lg p-4"
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  >
+                    <AlertTriangle size={18} className="text-[hsl(var(--warning))] shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                      <strong className="text-[hsl(var(--warning))]">שונות בהכנסה בין השנים</strong>
+                      <p className="text-muted-foreground">הפרש משמעותי בין הכנסה שנתית לממוצע חודשי עלול לדרוש נימוק מול הבנק. יש לנו טכניקות להציג את זה נכון.</p>
+                    </div>
+                  </motion.div>
+                );
+              }
+              return null;
+            })()}
           </div>
         )}
 

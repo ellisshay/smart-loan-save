@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
+import NudgeBanner from "@/components/results/NudgeBanner";
 import AdminLayout from "@/components/AdminLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import AdvisorLayout from "@/components/AdvisorLayout";
@@ -63,6 +64,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <NudgeBanner />
         <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Auth */}

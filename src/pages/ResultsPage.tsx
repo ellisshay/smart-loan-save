@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertTriangle, Download, ArrowLeft, MessageCircle, Shield, TrendingUp, Home, Percent, Clock, Users } from "lucide-react";
+import AnalysisLoadingScreen from "@/components/results/AnalysisLoadingScreen";
+import PersonalizedInsights from "@/components/results/PersonalizedInsights";
 
 interface ScoreBreakdown {
   income_stability: number;
@@ -103,10 +105,13 @@ const breakdownLabels: Record<string, { label: string; icon: React.ElementType; 
 
 export default function ResultsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [clientName, setClientName] = useState("");
   const [quickScore, setQuickScore] = useState<number | null>(null);
+  const [intakeData, setIntakeData] = useState<Record<string, any>>({});
+  const [showLoading, setShowLoading] = useState(searchParams.get("fresh") === "1");
 
   useEffect(() => {
     const load = async () => {
@@ -135,14 +140,22 @@ export default function ResultsPage() {
 
       if (caseData?.ai_analysis) {
         setAnalysis(caseData.ai_analysis as unknown as AIAnalysis);
-      } else if (caseData?.intake_data) {
+      }
+      if (caseData?.intake_data) {
         const intake = caseData.intake_data as Record<string, any>;
-        if (intake.quick_score) setQuickScore(intake.quick_score);
+        setIntakeData(intake);
+        if (!caseData.ai_analysis && intake.quick_score) setQuickScore(intake.quick_score);
       }
       setLoading(false);
     };
     load();
   }, [navigate]);
+
+  const handleLoadingComplete = useCallback(() => setShowLoading(false), []);
+
+  if (showLoading) {
+    return <AnalysisLoadingScreen onComplete={handleLoadingComplete} />;
+  }
 
   if (loading) {
     return (
@@ -218,6 +231,9 @@ export default function ResultsPage() {
             })}
           </section>
         )}
+
+        {/* Personalized Insights */}
+        <PersonalizedInsights intakeData={intakeData} score={displayScore} />
 
         {/* Recommended Mix */}
         {analysis?.recommended_mix?.length ? (
