@@ -1,0 +1,1 @@
+DROP POLICY "Service role can insert nudge logs" ON public.nudge_log;
