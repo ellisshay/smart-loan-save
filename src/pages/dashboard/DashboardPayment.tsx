@@ -85,7 +85,7 @@ export default function DashboardPayment() {
               <span className="text-3xl font-display font-black text-foreground">₪3,800</span>
               <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · תשלום חד פעמי</span>
             </div>
-            <Button variant="cta" size="lg" className="w-full text-base">
+            <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3800&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank")}>
               <Zap size={18} />
               פתח ניתוח תוך 48 שעות
             </Button>
