@@ -105,10 +105,13 @@ const breakdownLabels: Record<string, { label: string; icon: React.ElementType; 
 
 export default function ResultsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [clientName, setClientName] = useState("");
   const [quickScore, setQuickScore] = useState<number | null>(null);
+  const [intakeData, setIntakeData] = useState<Record<string, any>>({});
+  const [showLoading, setShowLoading] = useState(searchParams.get("fresh") === "1");
 
   useEffect(() => {
     const load = async () => {
