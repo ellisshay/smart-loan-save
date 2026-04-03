@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertTriangle, Download, ArrowLeft, MessageCircle, Shield, TrendingUp, Home, Percent, Clock, Users } from "lucide-react";
+import AnalysisLoadingScreen from "@/components/results/AnalysisLoadingScreen";
+import PersonalizedInsights from "@/components/results/PersonalizedInsights";
 
 interface ScoreBreakdown {
   income_stability: number;
