@@ -39,8 +39,8 @@ interface AIAnalysis {
 const WHATSAPP_NUMBER = "972501234567";
 
 function ScoreCircle({ score }: { score: number }) {
-  const color = score >= 70 ? "text-emerald-500" : score >= 50 ? "text-amber-500" : "text-red-500";
-  const bgRing = score >= 70 ? "stroke-emerald-500" : score >= 50 ? "stroke-amber-500" : "stroke-red-500";
+  const color = score >= 70 ? "text-[hsl(var(--success))]" : score >= 50 ? "text-[hsl(var(--warning))]" : "text-destructive";
+  const bgRing = score >= 70 ? "stroke-[hsl(var(--success))]" : score >= 50 ? "stroke-[hsl(var(--warning))]" : "stroke-destructive";
   const circumference = 2 * Math.PI * 54;
   const offset = circumference - (score / 100) * circumference;
 
