@@ -226,7 +226,7 @@ export default function HomePage() {
       if (data?.lead_id) localStorage.setItem("easymort_lead_id", data.lead_id);
       localStorage.setItem("easymort_score", String(score));
       localStorage.setItem("easymort_reg_time", new Date().toISOString());
-      navigate("/results");
+      navigate("/results?fresh=1");
     } catch (err) {
       console.error("Registration failed:", err);
     } finally {
