@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,14 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Check, CheckCircle, AlertTriangle,
-  Upload, Sparkles, MessageCircle, Clock, X,
+  Sparkles, X,
   Calendar, FileText, DollarSign, Timer,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
 import BankLogosSection from "@/components/home/BankLogosSection";
+import SmartAssessment from "@/components/home/SmartAssessment";
+import { QuizData } from "@/types/quiz";
 
 // ─── Mortgage calculation helpers ───
 function calcMonthlyPayment(principal: number, annualRate: number, years: number) {
@@ -38,107 +40,12 @@ function calcApprovalChance(propertyPrice: number, income: number, purpose: stri
   return "low";
 }
 
-const WHATSAPP_NUMBER = "972501234567";
-
-// ─── Score Circle Component ───
-function AnimatedScoreCircle({ score, size = 180 }: { score: number; size?: number }) {
-  const [displayed, setDisplayed] = useState(0);
-  useEffect(() => {
-    let frame: number;
-    const start = performance.now();
-    const duration = 1500;
-    const animate = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      setDisplayed(Math.round(progress * score));
-      if (progress < 1) frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [score]);
-
-  const color = score >= 70 ? "hsl(var(--success))" : score >= 50 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
-  const r = size / 2 - 12;
-  const circumference = 2 * Math.PI * r;
-  const offset = circumference - (displayed / 100) * circumference;
-
-  return (
-    <div className="relative mx-auto" style={{ width: size, height: size }}>
-      <svg className="w-full h-full -rotate-90" viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth="10" className="stroke-muted" />
-        <circle
-          cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth="10"
-          stroke={color}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-100"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-black" style={{ color }}>{displayed}</span>
-        <span className="text-xs text-muted-foreground">מתוך 100</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Quiz question type ───
-interface QuizQuestion {
-  id: string;
-  question: string;
-  options: { label: string; value: string }[];
-}
-
-const quizQuestions: QuizQuestion[] = [
-  {
-    id: "age", question: "מה הגיל שלך?",
-    options: [
-      { label: "18–25", value: "18-25" },
-      { label: "26–35", value: "26-35" },
-      { label: "36–50", value: "36-50" },
-      { label: "50+", value: "50+" },
-    ],
-  },
-  {
-    id: "marital", question: "מצב משפחתי?",
-    options: [
-      { label: "רווק/ה", value: "single" },
-      { label: "נשוי/אה", value: "married" },
-      { label: "גרוש/ה", value: "divorced" },
-    ],
-  },
-  {
-    id: "employment", question: "סוג תעסוקה?",
-    options: [
-      { label: "שכיר/ה", value: "employee" },
-      { label: "עצמאי/ת", value: "self_employed" },
-      { label: "שניהם", value: "both" },
-    ],
-  },
-  {
-    id: "equity", question: "הון עצמי זמין?",
-    options: [
-      { label: "עד ₪100,000", value: "0-100k" },
-      { label: "₪100K–₪300K", value: "100k-300k" },
-      { label: "₪300K–₪700K", value: "300k-700k" },
-      { label: "₪700K+", value: "700k+" },
-    ],
-  },
-  {
-    id: "existing_offer", question: "האם כבר יש לך הצעה מבנק?",
-    options: [
-      { label: "כן", value: "yes" },
-      { label: "לא", value: "no" },
-    ],
-  },
-];
-
 // ─── Pain Cards Data ───
 const painCards = [
-  { icon: Calendar, emoji: "📅", title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
-  { icon: FileText, emoji: "📄", title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
-  { icon: DollarSign, emoji: "💸", title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
-  { icon: Timer, emoji: "⏳", title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
+  { emoji: "📅", title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
+  { emoji: "📄", title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
+  { emoji: "💸", title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
+  { emoji: "⏳", title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
 ];
 
 // ─── FAQ Data ───
@@ -157,27 +64,22 @@ export default function HomePage() {
   // Urgency counter (random 8-19 on mount)
   const [urgencyCount] = useState(() => Math.floor(Math.random() * 12) + 8);
 
-  // Stage 0 state
+  // Hero calculator state
   const [propertyPrice, setPropertyPrice] = useState(1500000);
   const [monthlyIncome, setMonthlyIncome] = useState(18000);
   const [purpose, setPurpose] = useState<"first" | "upgrade" | "refi">("first");
 
-  // Stage 1 state
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [quizStep, setQuizStep] = useState(0);
-  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
-  const [uploadedOffer, setUploadedOffer] = useState<File | null>(null);
+  // Assessment visibility
+  const [showAssessment, setShowAssessment] = useState(false);
 
-  // Stage 2 state
-  const [showScore, setShowScore] = useState(false);
-
-  // Stage 3 state
+  // Registration modal
   const [showRegModal, setShowRegModal] = useState(false);
   const [regForm, setRegForm] = useState({ name: "", phone: "", email: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [completedScore, setCompletedScore] = useState(0);
+  const [completedData, setCompletedData] = useState<QuizData>({});
 
-  const quizRef = useRef<HTMLDivElement>(null);
-  const scoreRef = useRef<HTMLDivElement>(null);
+  const assessmentRef = useRef<HTMLDivElement>(null);
 
   // Derived calculations
   const ltvPct = purpose === "first" ? 75 : purpose === "upgrade" ? 70 : 50;
@@ -186,50 +88,18 @@ export default function HomePage() {
   const monthlyPayment = Math.round(calcMonthlyPayment(loanAmount, 4.8, 25));
   const approvalChance = calcApprovalChance(propertyPrice, monthlyIncome, purpose);
 
-  // Fake score based on inputs
-  const computedScore = useCallback(() => {
-    let s = 55;
-    if (approvalChance === "high") s += 20;
-    else if (approvalChance === "medium") s += 10;
-    if (quizAnswers.employment === "employee") s += 5;
-    if (quizAnswers.equity === "300k-700k") s += 5;
-    if (quizAnswers.equity === "700k+") s += 8;
-    if (quizAnswers.age === "26-35" || quizAnswers.age === "36-50") s += 3;
-    if (quizAnswers.marital === "married") s += 2;
-    return Math.min(s, 95);
-  }, [approvalChance, quizAnswers]);
-
-  const score = computedScore();
-
-  // Mortgage track suggestions
-  const tracks = [
-    { name: "פריים", rate: 4.6, pct: 33 },
-    { name: "קבועה לא צמודה", rate: 5.1, pct: 34 },
-    { name: "משתנה כל 5", rate: 4.8, pct: 33 },
-  ];
-
   const handleCTAClick = () => {
-    setShowQuiz(true);
+    setShowAssessment(true);
     setTimeout(() => {
-      quizRef.current?.scrollIntoView({ behavior: "smooth" });
+      assessmentRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
-  const handleQuizAnswer = (value: string) => {
-    const currentQ = quizQuestions[quizStep];
-    const updated = { ...quizAnswers, [currentQ.id]: value };
-    setQuizAnswers(updated);
-    localStorage.setItem("easymort_quiz", JSON.stringify(updated));
-
-    if (quizStep < quizQuestions.length - 1) {
-      setQuizStep(quizStep + 1);
-    } else {
-      setShowScore(true);
-      setTimeout(() => {
-        scoreRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    }
-  };
+  const handleAssessmentComplete = useCallback((score: number, data: QuizData) => {
+    setCompletedScore(score);
+    setCompletedData(data);
+    setShowRegModal(true);
+  }, []);
 
   const handleRegistration = async () => {
     if (!regForm.name.trim() || !regForm.phone.trim()) return;
@@ -240,16 +110,16 @@ export default function HomePage() {
           name: regForm.name.trim(),
           phone: regForm.phone.trim(),
           email: regForm.email.trim() || null,
-          quiz_answers: quizAnswers,
-          property_price: propertyPrice,
-          monthly_income: monthlyIncome,
-          purpose,
-          score,
+          quiz_answers: completedData,
+          property_price: completedData.property_price || propertyPrice,
+          monthly_income: completedData.salary_net || monthlyIncome,
+          purpose: completedData.purpose || purpose,
+          score: completedScore,
         },
       });
       if (error) throw error;
       if (data?.lead_id) localStorage.setItem("easymort_lead_id", data.lead_id);
-      localStorage.setItem("easymort_score", String(score));
+      localStorage.setItem("easymort_score", String(completedScore));
       localStorage.setItem("easymort_reg_time", new Date().toISOString());
       navigate("/results?fresh=1");
     } catch (err) {
@@ -258,12 +128,6 @@ export default function HomePage() {
       setSubmitting(false);
     }
   };
-
-  // BOI rate decision date (14 days from now)
-  const boiDate = new Date();
-  boiDate.setDate(boiDate.getDate() + 14);
-  const boiDateStr = boiDate.toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" });
-  const rateImpact = Math.round(loanAmount * 0.0025 / 12);
 
   return (
     <div dir="rtl">
@@ -451,180 +315,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ STAGE 1 – Quick Quiz ═══════ */}
+      {/* ═══════ Smart Assessment (replaces old quiz + score) ═══════ */}
       <AnimatePresence>
-        {showQuiz && !showScore && (
+        {showAssessment && (
           <motion.section
-            ref={quizRef}
+            ref={assessmentRef}
             className="py-16 md:py-24 bg-background"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           >
-            <div className="container max-w-xl mx-auto space-y-8">
-              {/* Progress bar */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>שאלה {quizStep + 1} מתוך {quizQuestions.length}</span>
-                  <span>{Math.round(((quizStep + 1) / quizQuestions.length) * 100)}%</span>
-                </div>
-                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-primary"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${((quizStep + 1) / quizQuestions.length) * 100}%` }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </div>
-              </div>
-
-              {/* Current Question */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={quizStep}
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -30 }}
-                  className="space-y-4"
-                >
-                  <h2 className="text-2xl font-bold text-foreground text-center">
-                    {quizQuestions[quizStep].question}
-                  </h2>
-                  <div className="grid gap-3">
-                    {quizQuestions[quizStep].options.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => handleQuizAnswer(opt.value)}
-                        className="w-full p-4 rounded-xl border-2 border-border bg-card text-foreground font-medium text-lg hover:border-primary hover:bg-primary/5 transition-all text-center"
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Q5 upload option */}
-                  {quizQuestions[quizStep].id === "existing_offer" && quizAnswers.existing_offer === "yes" && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      className="flex flex-col items-center gap-3 pt-4"
-                    >
-                      <label className="cursor-pointer flex items-center gap-2 px-6 py-3 rounded-xl bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-colors">
-                        <Upload size={18} />
-                        צלם את ההצעה ←
-                        <input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                              setUploadedOffer(e.target.files[0]);
-                              handleQuizAnswer("yes");
-                            }
-                          }}
-                        />
-                      </label>
-                      {uploadedOffer && (
-                        <span className="text-sm text-muted-foreground">✓ {uploadedOffer.name}</span>
-                      )}
-                    </motion.div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </motion.section>
-        )}
-      </AnimatePresence>
-
-      {/* ═══════ STAGE 2 – Score Reveal ═══════ */}
-      <AnimatePresence>
-        {showScore && !showRegModal && (
-          <motion.section
-            ref={scoreRef}
-            className="py-16 md:py-24 bg-background"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          >
-            <div className="container max-w-2xl mx-auto space-y-8">
-              {/* Score */}
-              <div className="text-center space-y-4">
-                <h2 className="text-2xl font-bold text-foreground">הסיכוי שלך לקבלת משכנתא</h2>
-                <AnimatedScoreCircle score={score} />
-                <p className="text-lg font-semibold" style={{
-                  color: score >= 70 ? "hsl(var(--success))" : score >= 50 ? "hsl(var(--warning))" : "hsl(var(--destructive))"
-                }}>
-                  {score >= 70 ? "גבוה" : score >= 50 ? "בינוני" : "נמוך"}
-                </p>
-              </div>
-
-              {/* 3 Mortgage Tracks */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {tracks.map((track, i) => {
-                  const trackPayment = Math.round(calcMonthlyPayment(loanAmount * track.pct / 100, track.rate, 25));
-                  const isRecommended = i === 1;
-                  return (
-                    <Card key={track.name} className={`relative ${isRecommended ? "ring-2 ring-primary border-primary" : ""}`}>
-                      {isRecommended && (
-                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs px-3 py-0.5 rounded-full font-bold">
-                          המומלץ עבורך
-                        </span>
-                      )}
-                      <CardContent className="pt-5 pb-4 px-4 text-center space-y-1">
-                        <p className="font-bold text-sm">{track.name}</p>
-                        <p className="text-xs text-muted-foreground">{track.rate}%</p>
-                        <p className="text-lg font-black text-primary">₪{trackPayment.toLocaleString()}/חודש</p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-
-              {/* Urgency Block */}
-              <Card className="border-[hsl(var(--warning))]/30 bg-[hsl(var(--warning))]/5">
-                <CardContent className="py-4 px-5">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="h-5 w-5 text-[hsl(var(--warning))] shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <p className="font-bold text-sm">⚠️ ריבית בנק ישראל – החלטה ב-{boiDateStr}</p>
-                      <p className="text-sm text-muted-foreground">
-                        שינוי ריבית עלול להשפיע על ההחזר החודשי שלך ב-₪{rateImpact.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Uploaded offer comparison */}
-              {uploadedOffer && (
-                <Card className="border-destructive/30 bg-destructive/5">
-                  <CardContent className="py-4 px-5">
-                    <p className="font-bold text-sm text-destructive mb-2">השוואת ההצעה שלך לשוק</p>
-                    <div className="grid grid-cols-3 gap-4 text-center text-sm">
-                      <div>
-                        <p className="text-muted-foreground text-xs">ההצעה שלך</p>
-                        <p className="font-bold text-destructive">5.4%</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground text-xs">ממוצע שוק</p>
-                        <p className="font-bold text-[hsl(var(--success))]">4.8%</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground text-xs">הפרש</p>
-                        <p className="font-bold text-destructive">₪347/חודש</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* CTA */}
-              <div className="text-center">
-                <Button
-                  variant="hero" size="xl"
-                  className="shadow-gold text-lg px-10"
-                  onClick={() => setShowRegModal(true)}
-                >
-                  קבל את הניתוח המלא שלך חינם ←
-                  <ArrowLeft size={18} />
-                </Button>
-              </div>
+            <div className="container max-w-2xl mx-auto">
+              <SmartAssessment onComplete={handleAssessmentComplete} />
             </div>
           </motion.section>
         )}
@@ -713,7 +413,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ STAGE 3 – Registration Modal ═══════ */}
+      {/* ═══════ Registration Modal ═══════ */}
       <AnimatePresence>
         {showRegModal && (
           <motion.div
@@ -728,7 +428,7 @@ export default function HomePage() {
               dir="rtl"
             >
               <div className="text-center space-y-2">
-                <h2 className="text-xl font-bold text-foreground">הניתוח המלא שלך מוכן!</h2>
+                <h2 className="text-xl font-bold text-foreground">הציון שלך: {completedScore} – הניתוח מוכן!</h2>
                 <p className="text-sm text-muted-foreground">רק שם וטלפון כדי לשלוח לך את הדוח</p>
               </div>
 
