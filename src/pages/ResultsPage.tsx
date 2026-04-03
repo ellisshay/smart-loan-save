@@ -151,6 +151,12 @@ export default function ResultsPage() {
     load();
   }, [navigate]);
 
+  const handleLoadingComplete = useCallback(() => setShowLoading(false), []);
+
+  if (showLoading) {
+    return <AnalysisLoadingScreen onComplete={handleLoadingComplete} />;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
