@@ -380,6 +380,36 @@ export type Database = {
         }
         Relationships: []
       }
+      nudge_log: {
+        Row: {
+          channel: string
+          error_message: string | null
+          id: string
+          nudge_type: string
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          error_message?: string | null
+          id?: string
+          nudge_type: string
+          sent_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          error_message?: string | null
+          id?: string
+          nudge_type?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           advisor_fee: number | null
