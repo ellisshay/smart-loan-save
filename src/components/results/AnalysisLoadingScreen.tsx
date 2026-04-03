@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { CheckCircle, Loader2 } from "lucide-react";
 
 const STEPS = [
-  { label: "מנתח פרופיל תעסוקתי", duration: 1200 },
-  { label: "מחשב LTV ו-DTI", duration: 1000 },
-  { label: "בודק התאמה לתנאי שוק נוכחיים", duration: 1300 },
-  { label: "מכין המלצות מסלול אישיות", duration: 1500 },
+  { label: "מנתח פרופיל תעסוקתי", duration: 800 },
+  { label: "מחשב יחס החזר להכנסה", duration: 800 },
+  { label: "בודק LTV ויחס הון עצמי", duration: 800 },
+  { label: "משווה לתנאי שוק אפריל 2026", duration: 800 },
+  { label: "בונה תמהילים מותאמים אישית", duration: 800 },
 ];
 
 interface Props {
@@ -68,7 +69,7 @@ export default function AnalysisLoadingScreen({ onComplete }: Props) {
                 transition={{ delay: i * 0.1 }}
               >
                 {isComplete ? (
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-[hsl(var(--success))] shrink-0" />
                 ) : isActive ? (
                   <Loader2 className="h-5 w-5 text-primary shrink-0 animate-spin" />
                 ) : (
@@ -83,7 +84,6 @@ export default function AnalysisLoadingScreen({ onComplete }: Props) {
           })}
         </div>
 
-        {/* Progress bar */}
         <div className="h-2 rounded-full bg-muted overflow-hidden">
           <motion.div
             className="h-full rounded-full bg-primary"

@@ -344,39 +344,69 @@ export type Database = {
       market_rates: {
         Row: {
           cpi: number
+          cpi_annual: number | null
           fixed_linked: number
           fixed_not_linked: number
           id: string
+          kalatz: number | null
+          kalatz_long: number | null
+          katz: number | null
+          next_committee: string | null
           prime: number
+          prime_minus: number | null
           source: string | null
           updated_at: string | null
           updated_by: string | null
           variable_1: number
+          variable_2_linked: number | null
           variable_5: number
+          variable_5_kalatz: number | null
+          variable_5_linked: number | null
+          zakaut: number | null
         }
         Insert: {
           cpi?: number
+          cpi_annual?: number | null
           fixed_linked?: number
           fixed_not_linked?: number
           id?: string
+          kalatz?: number | null
+          kalatz_long?: number | null
+          katz?: number | null
+          next_committee?: string | null
           prime?: number
+          prime_minus?: number | null
           source?: string | null
           updated_at?: string | null
           updated_by?: string | null
           variable_1?: number
+          variable_2_linked?: number | null
           variable_5?: number
+          variable_5_kalatz?: number | null
+          variable_5_linked?: number | null
+          zakaut?: number | null
         }
         Update: {
           cpi?: number
+          cpi_annual?: number | null
           fixed_linked?: number
           fixed_not_linked?: number
           id?: string
+          kalatz?: number | null
+          kalatz_long?: number | null
+          katz?: number | null
+          next_committee?: string | null
           prime?: number
+          prime_minus?: number | null
           source?: string | null
           updated_at?: string | null
           updated_by?: string | null
           variable_1?: number
+          variable_2_linked?: number | null
           variable_5?: number
+          variable_5_kalatz?: number | null
+          variable_5_linked?: number | null
+          zakaut?: number | null
         }
         Relationships: []
       }
