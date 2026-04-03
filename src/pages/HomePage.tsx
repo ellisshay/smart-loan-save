@@ -9,9 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowLeft, Check, CheckCircle, AlertTriangle,
+  ArrowLeft, Check, CheckCircle,
   Sparkles, X,
-  Calendar, FileText, DollarSign, Timer,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
