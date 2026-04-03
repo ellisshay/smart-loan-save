@@ -46,6 +46,7 @@ const AdminCasesList = lazy(() => import("./pages/admin/AdminCasesList"));
 const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
 const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
 const AdvisorOfferPage = lazy(() => import("./pages/advisor/AdvisorOfferPage"));
+const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const PageLoader = () => (
@@ -93,6 +94,7 @@ const App = () => (
 
           {/* Intake flow */}
           <Route path="/intake" element={<IntakePage />} />
+          <Route path="/results" element={<ResultsPage />} />
           <Route path="/intake/success" element={<IntakeSuccessPage />} />
           <Route path="/mix-selection/:caseId" element={<MixSelectionPage />} />
 
