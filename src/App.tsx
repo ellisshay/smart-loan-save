@@ -46,6 +46,7 @@ const AdminCasesList = lazy(() => import("./pages/admin/AdminCasesList"));
 const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
 const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
 const AdvisorOfferPage = lazy(() => import("./pages/advisor/AdvisorOfferPage"));
+const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const PageLoader = () => (
