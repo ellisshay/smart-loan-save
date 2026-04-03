@@ -1,14 +1,21 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Check, CheckCircle, AlertTriangle,
-  Upload, Sparkles, MessageCircle, Clock,
+  Upload, Sparkles, MessageCircle, Clock, X,
+  Calendar, FileText, DollarSign, Timer,
 } from "lucide-react";
+import StatsSection from "@/components/home/StatsSection";
+import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
+import BankLogosSection from "@/components/home/BankLogosSection";
 
 // ─── Mortgage calculation helpers ───
 function calcMonthlyPayment(principal: number, annualRate: number, years: number) {
@@ -126,9 +133,29 @@ const quizQuestions: QuizQuestion[] = [
   },
 ];
 
+// ─── Pain Cards Data ───
+const painCards = [
+  { icon: Calendar, emoji: "📅", title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
+  { icon: FileText, emoji: "📄", title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
+  { icon: DollarSign, emoji: "💸", title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
+  { icon: Timer, emoji: "⏳", title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
+];
+
+// ─── FAQ Data ───
+const faqItems = [
+  { q: "האם השירות באמת חינם?", a: "כן, הניתוח AI חינמי לחלוטין. EasyMorte גובה מהיועצים בלבד." },
+  { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
+  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – בדרך כלל 48 שעות. בשיא עד 72 שעות." },
+  { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל יועץ או לא לבחור. ללא מחויבות." },
+  { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte היא פלטפורמת חיבור. אנחנו מביאים לך 3 הצעות תחרותיות במקום הצעה אחת." },
+];
+
 // ─── Main Component ───
 export default function HomePage() {
   const navigate = useNavigate();
+
+  // Urgency counter (random 8-19 on mount)
+  const [urgencyCount] = useState(() => Math.floor(Math.random() * 12) + 8);
 
   // Stage 0 state
   const [propertyPrice, setPropertyPrice] = useState(1500000);
@@ -197,7 +224,6 @@ export default function HomePage() {
     if (quizStep < quizQuestions.length - 1) {
       setQuizStep(quizStep + 1);
     } else {
-      // Quiz complete → show score
       setShowScore(true);
       setTimeout(() => {
         scoreRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -222,7 +248,6 @@ export default function HomePage() {
         },
       });
       if (error) throw error;
-      // Store lead_id for dashboard
       if (data?.lead_id) localStorage.setItem("easymort_lead_id", data.lead_id);
       localStorage.setItem("easymort_score", String(score));
       localStorage.setItem("easymort_reg_time", new Date().toISOString());
@@ -242,6 +267,13 @@ export default function HomePage() {
 
   return (
     <div dir="rtl">
+      <Helmet>
+        <title>EasyMorte – ניתוח משכנתא AI חינמי | 3 הצעות תוך 48 שעות</title>
+        <meta name="description" content="פלטפורמת AI לניתוח משכנתאות. מקבלים ציון זכאות, מסלולים מותאמים ו-3 הצעות אמיתיות מבנקים תוך 48 שעות. חינם לחלוטין." />
+        <meta property="og:title" content="EasyMorte – 3 הצעות משכנתא תוך 48 שעות" />
+        <meta property="og:description" content="AI מנתח את הפרופיל שלך ומביא הצעות תחרותיות מ-3 בנקים. חינם." />
+      </Helmet>
+
       {/* ═══════ STAGE 0 – Hero Calculator ═══════ */}
       <section className="relative overflow-hidden min-h-[90vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-b from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]" />
@@ -258,20 +290,28 @@ export default function HomePage() {
               className="font-display text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-4 text-white"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             >
-              בדוק אם תקבל משכנתא — עכשיו
+              קבל 3 הצעות משכנתא אמיתיות תוך 48 שעות
             </motion.h1>
             <motion.p
-              className="text-lg text-white/60 mb-8"
+              className="text-lg text-white/60 mb-4"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             >
-              הזז את הסליידרים ותראה תוצאות מיידיות
+              AI מנתח את הפרופיל שלך, יועצים מתחרים על הלקוח שלך — אתה בוחר וחוסך.
             </motion.p>
+
+            {/* Urgency counter pill */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white/80 text-sm border border-white/10"
+            >
+              🔴 היום נרשמו {urgencyCount} אנשים
+            </motion.div>
           </div>
 
           {/* Calculator Card */}
           <motion.div
             className="max-w-2xl mx-auto bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 md:p-8 space-y-6"
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
           >
             {/* Property Price Slider */}
             <div className="space-y-2">
@@ -375,6 +415,39 @@ export default function HomePage() {
           <svg viewBox="0 0 1440 60" className="w-full h-auto" preserveAspectRatio="none">
             <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,20 1440,30 L1440,60 L0,60 Z" className="fill-background" />
           </svg>
+        </div>
+      </section>
+
+      {/* ═══════ Stats Section ═══════ */}
+      <StatsSection />
+
+      {/* ═══════ Pain Section ═══════ */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container max-w-4xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">
+            ככה נראה התהליך <span className="text-destructive">בלי</span> EasyMorte
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {painCards.map((card, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="bg-red-950/30 border-red-800/30">
+                  <CardContent className="p-5 flex items-start gap-4">
+                    <span className="text-2xl">{card.emoji}</span>
+                    <div>
+                      <p className="font-bold text-sm text-foreground">{card.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -556,6 +629,89 @@ export default function HomePage() {
           </motion.section>
         )}
       </AnimatePresence>
+
+      {/* ═══════ Enhanced Testimonials ═══════ */}
+      <EnhancedTestimonials />
+
+      {/* ═══════ Bank Logos ═══════ */}
+      <BankLogosSection />
+
+      {/* ═══════ Comparison Section ═══════ */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container max-w-4xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">
+            EasyMorte מול השיטה הישנה
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Old way */}
+            <Card className="bg-red-950/20 border-red-800/30">
+              <CardContent className="p-6 space-y-4">
+                <Badge variant="destructive" className="mb-2">שיטה ישנה</Badge>
+                {[
+                  "5+ פגישות פיזיות",
+                  "ניירת כפולה לכל בנק",
+                  "₪5,000–8,000 ליועץ",
+                  "3–6 שבועות המתנה",
+                  "הצעה אחת בלבד",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <X size={16} className="text-destructive shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* EasyMorte way */}
+            <Card className="bg-green-950/20 border-green-700/30 border-2">
+              <CardContent className="p-6 space-y-4">
+                <Badge className="mb-2 bg-[hsl(var(--success))] text-white">EasyMorte ✦</Badge>
+                {[
+                  "פרופיל אחד, הכל דיגיטלי",
+                  "מסמכים פעם אחת בלבד",
+                  "חינם לחלוטין ללקוח",
+                  "הצעות תוך 48 שעות",
+                  "3 הצעות במקביל",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-foreground">
+                    <CheckCircle size={16} className="text-[hsl(var(--success))] shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ FAQ Section ═══════ */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container max-w-2xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">שאלות נפוצות</h2>
+          <Accordion type="single" collapsible className="space-y-2">
+            {faqItems.map((item, i) => (
+              <AccordionItem key={i} value={`faq-${i}`} className="border rounded-xl px-4">
+                <AccordionTrigger className="text-sm font-semibold text-right">{item.q}</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">{item.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* ═══════ Final CTA ═══════ */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container text-center">
+          <Button
+            variant="hero" size="xl"
+            className="shadow-gold text-lg px-10"
+            onClick={handleCTAClick}
+          >
+            בדוק את הסיכוי שלך עכשיו ←
+            <ArrowLeft size={18} />
+          </Button>
+        </div>
+      </section>
 
       {/* ═══════ STAGE 3 – Registration Modal ═══════ */}
       <AnimatePresence>
