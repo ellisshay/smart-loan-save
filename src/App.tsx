@@ -64,6 +64,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <NudgeBanner />
         <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Auth */}
