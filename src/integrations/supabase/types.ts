@@ -502,6 +502,45 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          current_step: number | null
+          id: string
+          purpose: string | null
+          quiz_data: Json
+          score_estimate: number | null
+          session_token: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          current_step?: number | null
+          id?: string
+          purpose?: string | null
+          quiz_data?: Json
+          score_estimate?: number | null
+          session_token?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          current_step?: number | null
+          id?: string
+          purpose?: string | null
+          quiz_data?: Json
+          score_estimate?: number | null
+          session_token?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
