@@ -94,6 +94,7 @@ const App = () => (
 
           {/* Intake flow */}
           <Route path="/intake" element={<IntakePage />} />
+          <Route path="/results" element={<ResultsPage />} />
           <Route path="/intake/success" element={<IntakeSuccessPage />} />
           <Route path="/mix-selection/:caseId" element={<MixSelectionPage />} />
 
