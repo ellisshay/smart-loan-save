@@ -140,9 +140,11 @@ export default function ResultsPage() {
 
       if (caseData?.ai_analysis) {
         setAnalysis(caseData.ai_analysis as unknown as AIAnalysis);
-      } else if (caseData?.intake_data) {
+      }
+      if (caseData?.intake_data) {
         const intake = caseData.intake_data as Record<string, any>;
-        if (intake.quick_score) setQuickScore(intake.quick_score);
+        setIntakeData(intake);
+        if (!caseData.ai_analysis && intake.quick_score) setQuickScore(intake.quick_score);
       }
       setLoading(false);
     };
