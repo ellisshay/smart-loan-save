@@ -116,6 +116,7 @@ const App = () => (
           <Route path="/calculators/mix" element={<Layout><MixCalculator /></Layout>} />
           <Route path="/calculators/new-mortgage" element={<Layout><NewMortgageCalculator /></Layout>} />
           <Route path="/calculators/savings" element={<Layout><SavingsCalculator /></Layout>} />
+          <Route path="/calculators/affordability" element={<Layout><AffordabilityCalculator /></Layout>} />
           <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
           <Route path="/how-it-works" element={<Layout><HowItWorksPage /></Layout>} />
