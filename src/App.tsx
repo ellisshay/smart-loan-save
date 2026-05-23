@@ -18,6 +18,7 @@ const NewMortgageCalculator = lazy(() => import("./pages/NewMortgageCalculator")
 const SavingsCalculator = lazy(() => import("./pages/SavingsCalculator"));
 const RefinanceCalculator = lazy(() => import("./pages/RefinanceCalculator"));
 const MixCalculator = lazy(() => import("./pages/MixCalculator"));
+const AffordabilityCalculator = lazy(() => import("./pages/AffordabilityCalculator"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -115,6 +116,7 @@ const App = () => (
           <Route path="/calculators/mix" element={<Layout><MixCalculator /></Layout>} />
           <Route path="/calculators/new-mortgage" element={<Layout><NewMortgageCalculator /></Layout>} />
           <Route path="/calculators/savings" element={<Layout><SavingsCalculator /></Layout>} />
+          <Route path="/calculators/affordability" element={<Layout><AffordabilityCalculator /></Layout>} />
           <Route path="/pricing" element={<Layout><PricingPage /></Layout>} />
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
           <Route path="/how-it-works" element={<Layout><HowItWorksPage /></Layout>} />
