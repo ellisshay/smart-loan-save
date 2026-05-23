@@ -18,6 +18,7 @@ const NewMortgageCalculator = lazy(() => import("./pages/NewMortgageCalculator")
 const SavingsCalculator = lazy(() => import("./pages/SavingsCalculator"));
 const RefinanceCalculator = lazy(() => import("./pages/RefinanceCalculator"));
 const MixCalculator = lazy(() => import("./pages/MixCalculator"));
+const AffordabilityCalculator = lazy(() => import("./pages/AffordabilityCalculator"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
