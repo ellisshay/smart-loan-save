@@ -7,8 +7,8 @@ import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import ThemeToggle from "@/components/ThemeToggle";
 import PublicChatWidget from "@/components/PublicChatWidget";
-import speedMarketLogo from "@/assets/credits/speedmarket.png.asset.json";
-import aboutDigitalLogo from "@/assets/credits/aboutdigital.png.asset.json";
+import speedMarketLogo from "@/assets/credits/speedmarket.png";
+import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
