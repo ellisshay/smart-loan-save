@@ -173,8 +173,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <img
                   src={speedMarketLogo}
                   alt="ספיד מרקט"
-                  style={{ mixBlendMode: "screen" }}
-                  className="h-5 w-auto opacity-80 group-hover:opacity-100 transition-all duration-300"
+                  className="h-5 w-auto opacity-70 brightness-0 invert group-hover:opacity-100 transition-all duration-300"
                 />
                 <span className="group-hover:tracking-wide transition-all duration-300">האתר נבנה על ידי ספיד מרקט</span>
               </a>
@@ -187,8 +186,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <img
                   src={aboutDigitalLogo}
                   alt="About Digital"
-                  style={{ mixBlendMode: "screen" }}
-                  className="h-5 w-auto opacity-80 group-hover:opacity-100 transition-all duration-300"
+                  className="h-5 w-auto opacity-70 brightness-0 invert group-hover:opacity-100 transition-all duration-300"
                 />
                 <span className="group-hover:tracking-wide transition-all duration-300">האתר מקודם בגוגל ומנועי החיפוש על ידי About Digital</span>
               </a>
