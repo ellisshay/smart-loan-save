@@ -157,8 +157,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-          <div className="border-t border-primary-foreground/10 mt-8 pt-6 text-center text-xs text-primary-foreground/50">
-            © {new Date().getFullYear()} EasyMorte. כל הזכויות שמורות.
+          <div className="border-t border-primary-foreground/10 mt-8 pt-6 space-y-2 text-center">
+            <p className="text-xs text-primary-foreground/50">
+              © {new Date().getFullYear()} EasyMorte. כל הזכויות שמורות.
+            </p>
+            <div className="flex flex-col items-center gap-1 pt-1">
+              <a
+                href="https://www.aboutdigital.co.il"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-300 hover:tracking-wide"
+              >
+                האתר מקודם בגוגל על ידי About Digital
+              </a>
+              <a
+                href="https://www.speedmarket.co.il"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary-foreground/40 hover:text-primary-foreground/70 transition-colors duration-300"
+              >
+                www.speedmarket.co.il
+              </a>
+            </div>
           </div>
         </div>
       </footer>
