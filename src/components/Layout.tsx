@@ -7,6 +7,8 @@ import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import ThemeToggle from "@/components/ThemeToggle";
 import PublicChatWidget from "@/components/PublicChatWidget";
+import speedMarketLogo from "@/assets/credits/speedmarket.png";
+import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
@@ -157,26 +159,42 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-          <div className="border-t border-primary-foreground/10 mt-8 pt-6 space-y-2 text-center">
+          <div className="border-t border-primary-foreground/10 mt-8 pt-6 space-y-3 text-center">
             <p className="text-xs text-primary-foreground/50">
               © {new Date().getFullYear()} EasyMorte. כל הזכויות שמורות.
             </p>
-            <div className="flex flex-col items-center gap-1 pt-1">
-              <a
-                href="https://www.aboutdigital.co.il"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-300 hover:tracking-wide"
-              >
-                האתר מקודם בגוגל על ידי About Digital
-              </a>
+            <div className="flex flex-col items-center gap-2.5 pt-1">
               <a
                 href="https://www.speedmarket.co.il"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-primary-foreground/40 hover:text-primary-foreground/70 transition-colors duration-300"
+                className="group inline-flex items-center gap-2 text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-300"
               >
-                www.speedmarket.co.il
+                <span className="inline-flex items-center justify-center h-6 px-1.5 rounded-md bg-black/40 group-hover:bg-black/60 transition-colors duration-300">
+                  <img
+                    src={speedMarketLogo}
+                    alt="ספיד מרקט"
+                    style={{ mixBlendMode: "screen" }}
+                    className="h-4 w-auto transition-all duration-300"
+                  />
+                </span>
+                <span className="group-hover:tracking-wide transition-all duration-300">האתר נבנה על ידי ספיד מרקט</span>
+              </a>
+              <a
+                href="https://www.aboutdigital.co.il"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-300"
+              >
+                <span className="inline-flex items-center justify-center h-6 px-1.5 rounded-md bg-black/40 group-hover:bg-black/60 transition-colors duration-300">
+                  <img
+                    src={aboutDigitalLogo}
+                    alt="About Digital"
+                    style={{ mixBlendMode: "screen" }}
+                    className="h-4 w-auto transition-all duration-300"
+                  />
+                </span>
+                <span className="group-hover:tracking-wide transition-all duration-300">האתר מקודם בגוגל ומנועי החיפוש על ידי About Digital</span>
               </a>
             </div>
           </div>
