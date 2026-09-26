@@ -171,7 +171,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 className="group inline-flex items-center gap-2 text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-300"
               >
                 <img
-                  src={speedMarketLogo.url}
+                  src={speedMarketLogo}
                   alt="ספיד מרקט"
                   style={{ mixBlendMode: "screen" }}
                   className="h-5 w-auto opacity-80 group-hover:opacity-100 transition-all duration-300"
@@ -185,7 +185,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 className="group inline-flex items-center gap-2 text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors duration-300"
               >
                 <img
-                  src={aboutDigitalLogo.url}
+                  src={aboutDigitalLogo}
                   alt="About Digital"
                   style={{ mixBlendMode: "screen" }}
                   className="h-5 w-auto opacity-80 group-hover:opacity-100 transition-all duration-300"
