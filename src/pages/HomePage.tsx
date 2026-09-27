@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Check, CheckCircle, X, ChevronLeft,
   Coins, Zap, Building2, ShieldCheck, Landmark,
-  FileText, Upload, Handshake, TrendingDown, Home,
+  FileText, Upload, Handshake, TrendingDown, Home, Calendar, Hourglass,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
@@ -46,10 +46,10 @@ const sampleOffers = [
 
 // ─── Pain Cards Data ───
 const painCards = [
-  { emoji: "📅", title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
-  { emoji: "📄", title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
-  { emoji: "💸", title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
-  { emoji: "⏳", title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
+  { icon: Calendar, title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
+  { icon: FileText, title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
+  { icon: Coins, title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
+  { icon: Hourglass, title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
 ];
 
 // ─── FAQ Data ───
@@ -333,7 +333,9 @@ export default function HomePage() {
               >
                 <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
                   <CardContent className="p-5 flex items-start gap-4">
-                    <span className="text-2xl">{card.emoji}</span>
+                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                      <card.icon size={18} className="text-destructive" />
+                    </div>
                     <div>
                       <p className="font-bold text-sm text-foreground">{card.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
