@@ -25,6 +25,15 @@ export default function DashboardPayment() {
 
   // Tranzila redirects back with ?paid=1 (success) or ?paid=0 (failure)
   const paidParam = searchParams.get("paid");
+  const [showPayFrame, setShowPayFrame] = useState(false);
+  const payUrl = `https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
+
+  // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
+  useEffect(() => {
+    if (paidParam && window.self !== window.top) {
+      try { window.top!.location.href = window.location.href; } catch { /* cross-origin guard */ }
+    }
+  }, [paidParam]);
 
   // Fetch the case's payment status
   useEffect(() => {
@@ -145,7 +154,7 @@ export default function DashboardPayment() {
             size="lg"
             className="w-full"
             disabled={!fileComplete}
-            onClick={() => window.open(`https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframed.php?sum=3450&currency=1&cred_type=1&u1=${caseId}&success_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`, "_blank")}
+            onClick={() => { setShowPayFrame(true); navigate("/dashboard/payment"); }}
           >
             <Zap size={18} />
             נסה שוב לשלם ₪3,450
@@ -238,10 +247,19 @@ export default function DashboardPayment() {
             </div>
             {fileComplete ? (
               <>
-                <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open(`https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframed.php?sum=3450&currency=1&cred_type=1&u1=${caseId}&success_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`, "_blank")}>
-                  <Zap size={18} />
-                  פתח ניתוח תוך 72 שעות
-                </Button>
+                {showPayFrame ? (
+                  <iframe
+                    title="טופס תשלום מאובטח"
+                    src={payUrl}
+                    className="w-full h-[640px] rounded-xl border border-border bg-background"
+                    allow="payment"
+                  />
+                ) : (
+                  <Button variant="cta" size="lg" className="w-full text-base" onClick={() => setShowPayFrame(true)}>
+                    <Zap size={18} />
+                    פתח ניתוח תוך 72 שעות
+                  </Button>
+                )}
                 <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
               </>
             ) : (
