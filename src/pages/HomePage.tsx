@@ -191,11 +191,11 @@ export default function HomePage() {
             </div>
             {/* Floating badge */}
             <motion.div
-              className="absolute -bottom-5 right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex items-center gap-3"
+              className="absolute -bottom-5 right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex flex-col items-center text-center gap-2"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             >
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <TrendingDown size={20} className="text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
+                <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
@@ -205,11 +205,11 @@ export default function HomePage() {
           </motion.div>
           {/* Desktop: floating badge over the background house */}
           <motion.div
-            className="hidden lg:flex absolute bottom-10 left-16 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 items-center gap-3"
+            className="hidden lg:flex absolute bottom-10 left-16 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex-col items-center text-center gap-2"
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           >
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <TrendingDown size={20} className="text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
+              <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
