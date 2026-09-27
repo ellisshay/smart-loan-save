@@ -156,7 +156,9 @@ export default function DashboardDocuments() {
   const totalRequired = requiredDocs.filter(d => d.required).length;
   const uploadedRequired = requiredDocs.filter(d => d.required && uploadedTypes.includes(d.type)).length;
   const verifiedRequired = requiredDocs.filter(d => d.required && uploadedDocs.some(u => u.doc_type === d.type && isDocSettled(u.ai_extracted_data))).length;
-  const pct = totalRequired ? Math.round((verifiedRequired / totalRequired) * 100) : 0;
+  const deferredRequired = requiredDocs.filter(d => d.required && !uploadedTypes.includes(d.type) && deferredDocs.includes(d.type)).length;
+  const settledRequired = verifiedRequired + deferredRequired;
+  const pct = totalRequired ? Math.round((settledRequired / totalRequired) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -172,14 +174,14 @@ export default function DashboardDocuments() {
             <span className="font-mono text-primary font-bold">{pct}%</span>
           </div>
           <Progress value={pct} className="h-2.5" />
-          <p className="text-xs text-muted-foreground">{verifiedRequired} מתוך {totalRequired} מסמכי חובה התקבלו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה סבירה לנתונים שמסרת. פערים קטנים בשם, במעסיק או בשכר הם נורמליים ועוברים בדיקה של מומחה, בלי לעכב אותך.</p>
+          <p className="text-xs text-muted-foreground">{settledRequired} מתוך {totalRequired} מסמכי חובה טופלו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה סבירה לנתונים שמסרת. פערים קטנים בשם, במעסיק או בשכר הם נורמליים ועוברים בדיקה של מומחה, בלי לעכב אותך. מסמך שאין לך כרגע? סמן "אשלח במועד אחר" והמשך לתשלום.</p>
         </CardContent>
       </Card>
 
       {/* Progress badge */}
       <div className="flex items-center gap-3">
-        <Badge className={`text-xs ${uploadedRequired === totalRequired ? "bg-primary/10 text-primary border-primary/20" : "bg-warning/10 text-warning border-warning/20"}`}>
-          {uploadedRequired === totalRequired ? "כל מסמכי החובה הועלו" : `חסרים ${totalRequired - uploadedRequired} מסמכי חובה`}
+        <Badge className={`text-xs ${settledRequired === totalRequired ? "bg-primary/10 text-primary border-primary/20" : "bg-warning/10 text-warning border-warning/20"}`}>
+          {settledRequired === totalRequired ? "כל מסמכי החובה טופלו — אפשר להמשיך לתשלום" : `חסרים ${totalRequired - settledRequired} מסמכי חובה`}
         </Badge>
       </div>
 
@@ -206,6 +208,8 @@ export default function DashboardDocuments() {
                       uploaded={uploadedDocs.find(u => u.doc_type === doc.type)}
                       uploading={uploading === doc.type}
                       verifying={verifying}
+                      deferred={deferredDocs.includes(doc.type)}
+                      onToggleDeferred={toggleDeferred}
                       onVerify={verifyDoc}
                       onReplace={replaceDoc}
                       onUpload={(file) => handleUpload(doc.type, doc.label, file)}
@@ -224,6 +228,8 @@ export default function DashboardDocuments() {
                             uploaded={uploadedDocs.find(u => u.doc_type === doc.type)}
                             uploading={uploading === doc.type}
                             verifying={verifying}
+                            deferred={deferredDocs.includes(doc.type)}
+                            onToggleDeferred={toggleDeferred}
                             onVerify={verifyDoc}
                             onReplace={replaceDoc}
                             onUpload={(file) => handleUpload(doc.type, doc.label, file)}
@@ -241,7 +247,7 @@ export default function DashboardDocuments() {
 
       <div className="flex gap-3 pt-2">
         <Button variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה לדשבורד</Button>
-        {uploadedRequired === totalRequired && (
+        {settledRequired === totalRequired && (
           <Button variant="cta" size="lg" onClick={() => window.location.href = "/dashboard"}>
             סיים וחזור לדשבורד </Button>
         )}
