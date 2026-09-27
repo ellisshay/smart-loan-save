@@ -1,4 +1,5 @@
 import { openDocumentSecure, hasConsent, logAudit } from "@/lib/privacy";
+import { LEVEL_UI, MANUAL_DECISIONS, levelOf } from "@/lib/docValidation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link, useNavigate } from "react-router-dom";
