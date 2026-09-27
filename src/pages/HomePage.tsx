@@ -192,12 +192,12 @@ export default function HomePage() {
             </motion.div>
           </div>
 
-          {/* Image side */}
+          {/* Image side (mobile / tablet) */}
           <motion.div
-            className="relative"
+            className="relative lg:hidden"
             initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <div className="rounded-3xl overflow-hidden shadow-card-hover border border-border">
+            <div className="rounded-3xl overflow-hidden shadow-card-hover border border-border rotate-[-1.5deg]">
               <img
                 src={heroHouse}
                 alt="בית מודרני"
@@ -219,6 +219,19 @@ export default function HomePage() {
                 <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
               </div>
             </motion.div>
+          </motion.div>
+          {/* Desktop: floating badge over the background house */}
+          <motion.div
+            className="hidden lg:flex absolute bottom-10 left-16 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 items-center gap-3"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingDown size={20} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
+              <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
+            </div>
           </motion.div>
         </div>
 
