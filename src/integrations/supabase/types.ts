@@ -86,6 +86,30 @@ export type Database = {
         }
         Relationships: []
       }
+      banks: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          sort: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          sort?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          sort?: number
+        }
+        Relationships: []
+      }
       case_documents: {
         Row: {
           ai_extracted_data: Json | null
@@ -212,6 +236,7 @@ export type Database = {
       cases: {
         Row: {
           ai_analysis: Json | null
+          assigned_advisor_id: string | null
           case_number: string
           case_type: Database["public"]["Enums"]["case_type"]
           created_at: string
@@ -231,6 +256,7 @@ export type Database = {
         }
         Insert: {
           ai_analysis?: Json | null
+          assigned_advisor_id?: string | null
           case_number?: string
           case_type?: Database["public"]["Enums"]["case_type"]
           created_at?: string
@@ -250,6 +276,7 @@ export type Database = {
         }
         Update: {
           ai_analysis?: Json | null
+          assigned_advisor_id?: string | null
           case_number?: string
           case_type?: Database["public"]["Enums"]["case_type"]
           created_at?: string
@@ -763,6 +790,252 @@ export type Database = {
         }
         Relationships: []
       }
+      tender_banks: {
+        Row: {
+          approval_valid_until: string | null
+          approved_amount: number | null
+          approved_ltv: number | null
+          bank_id: string | null
+          banker_contact: string | null
+          created_at: string
+          id: string
+          internal_notes: string | null
+          slot: number
+          status: string
+          submitted_at: string | null
+          tender_id: string
+          updated_at: string
+        }
+        Insert: {
+          approval_valid_until?: string | null
+          approved_amount?: number | null
+          approved_ltv?: number | null
+          bank_id?: string | null
+          banker_contact?: string | null
+          created_at?: string
+          id?: string
+          internal_notes?: string | null
+          slot: number
+          status?: string
+          submitted_at?: string | null
+          tender_id: string
+          updated_at?: string
+        }
+        Update: {
+          approval_valid_until?: string | null
+          approved_amount?: number | null
+          approved_ltv?: number | null
+          bank_id?: string | null
+          banker_contact?: string | null
+          created_at?: string
+          id?: string
+          internal_notes?: string | null
+          slot?: number
+          status?: string
+          submitted_at?: string | null
+          tender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tender_banks_bank_id_fkey"
+            columns: ["bank_id"]
+            isOneToOne: false
+            referencedRelation: "banks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tender_banks_tender_id_fkey"
+            columns: ["tender_id"]
+            isOneToOne: false
+            referencedRelation: "tenders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tender_checklist: {
+        Row: {
+          done: boolean
+          done_at: string | null
+          done_by: string | null
+          id: string
+          sort: number
+          step_key: string
+          tender_id: string
+        }
+        Insert: {
+          done?: boolean
+          done_at?: string | null
+          done_by?: string | null
+          id?: string
+          sort: number
+          step_key: string
+          tender_id: string
+        }
+        Update: {
+          done?: boolean
+          done_at?: string | null
+          done_by?: string | null
+          id?: string
+          sort?: number
+          step_key?: string
+          tender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tender_checklist_tender_id_fkey"
+            columns: ["tender_id"]
+            isOneToOne: false
+            referencedRelation: "tenders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tender_client_actions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          message: string | null
+          offer_id: string | null
+          tender_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          offer_id?: string | null
+          tender_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          offer_id?: string | null
+          tender_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tender_client_actions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "tender_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tender_client_actions_tender_id_fkey"
+            columns: ["tender_id"]
+            isOneToOne: false
+            referencedRelation: "tenders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tender_offers: {
+        Row: {
+          advisor_explanation: string | null
+          client_visible: boolean
+          created_at: string
+          created_by: string | null
+          extra_costs: string | null
+          first_payment: number | null
+          id: string
+          kind: string
+          offer_date: string | null
+          tender_bank_id: string
+          total_amount: number | null
+          tracks: Json
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          advisor_explanation?: string | null
+          client_visible?: boolean
+          created_at?: string
+          created_by?: string | null
+          extra_costs?: string | null
+          first_payment?: number | null
+          id?: string
+          kind?: string
+          offer_date?: string | null
+          tender_bank_id: string
+          total_amount?: number | null
+          tracks?: Json
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          advisor_explanation?: string | null
+          client_visible?: boolean
+          created_at?: string
+          created_by?: string | null
+          extra_costs?: string | null
+          first_payment?: number | null
+          id?: string
+          kind?: string
+          offer_date?: string | null
+          tender_bank_id?: string
+          total_amount?: number | null
+          tracks?: Json
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tender_offers_tender_bank_id_fkey"
+            columns: ["tender_bank_id"]
+            isOneToOne: false
+            referencedRelation: "tender_banks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenders: {
+        Row: {
+          advisor_summary: string | null
+          case_id: string
+          created_at: string
+          id: string
+          opened_at: string
+          selected_offer_id: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          advisor_summary?: string | null
+          case_id: string
+          created_at?: string
+          id?: string
+          opened_at?: string
+          selected_offer_id?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          advisor_summary?: string | null
+          case_id?: string
+          created_at?: string
+          id?: string
+          opened_at?: string
+          selected_offer_id?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenders_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -831,6 +1104,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_case: { Args: { _case_id: string }; Returns: boolean }
+      client_tender_action: {
+        Args: { _action: string; _message?: string; _offer_id: string }
+        Returns: undefined
+      }
+      get_client_tender: { Args: { _case_id: string }; Returns: Json }
       has_purchased_lead: {
         Args: { _advisor_id: string; _lead_id: string }
         Returns: boolean
@@ -855,6 +1134,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      open_tender: { Args: { _case_id: string }; Returns: string }
       submit_case_safe: {
         Args: { _case_id: string; _goal?: string }
         Returns: undefined
