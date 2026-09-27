@@ -65,7 +65,6 @@ const faqItems = [
 export default function HomePage() {
   const navigate = useNavigate();
 
-  const [urgencyCount] = useState(() => Math.floor(Math.random() * 12) + 8);
   const [showAssessment, setShowAssessment] = useState(false);
   const [showRegModal, setShowRegModal] = useState(false);
   const [regForm, setRegForm] = useState({ name: "", phone: "", email: "" });
@@ -145,11 +144,6 @@ export default function HomePage() {
         <div className="container relative py-14 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
           {/* Text side */}
           <div className="max-w-xl">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs tracking-wide font-semibold mb-6 border border-primary/25">
-                <Zap size={14} /> מחיר קבוע · בלי פגישות · עד 72 שעות
-              </span>
-            </motion.div>
             <motion.h1
               className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] mb-5 text-foreground"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
@@ -178,12 +172,6 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-card text-muted-foreground text-sm border border-border mt-6"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> היום נרשמו {urgencyCount} אנשים
-            </motion.div>
           </div>
 
           {/* Image side (mobile / tablet) */}
