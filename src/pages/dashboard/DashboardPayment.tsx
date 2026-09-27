@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
 import { supabase } from "@/integrations/supabase/client";
-import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
+import { countMissingDocs } from "@/lib/docsComplete";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
