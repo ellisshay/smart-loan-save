@@ -129,7 +129,7 @@ const KnowledgeArticlePage = () => {
   const cluster = getCluster(article.clusterId);
   const related = getRelatedArticles(article as KnowledgeArticle);
   const image = article.imageKey ? knowledgeImages[article.imageKey] : undefined;
-  const canonicalUrl = `https://smart-loan-save.lovable.app/knowledge/${article.slug}`;
+  const canonicalUrl = `https://www.easymorte.co.il/knowledge/${article.slug}`;
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -154,7 +154,7 @@ const KnowledgeArticlePage = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "משכנתאפדיה", item: "https://smart-loan-save.lovable.app/knowledge" },
+      { "@type": "ListItem", position: 1, name: "משכנתאפדיה", item: "https://www.easymorte.co.il/knowledge" },
       { "@type": "ListItem", position: 2, name: article.title, item: canonicalUrl },
     ],
   };

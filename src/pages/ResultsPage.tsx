@@ -578,7 +578,7 @@ export default function ResultsPage() {
             <div className="grid grid-cols-3 gap-2 text-center bg-white/10 rounded-lg py-3">
               <div>
                 <p className="text-xs opacity-60">עלות</p>
-                <p className="font-bold">₪3,500</p>
+                <p className="font-bold">₪3,450</p>
               </div>
               <div>
                 <p className="text-xs opacity-60">ממוצע חיסכון</p>
@@ -591,7 +591,7 @@ export default function ResultsPage() {
             </div>
 
             <div className="text-center space-y-1">
-              <p className="text-3xl font-black">₪3,500</p>
+              <p className="text-3xl font-black">₪3,450</p>
               <p className="text-sm line-through opacity-50">₪5,000</p>
             </div>
 
@@ -606,7 +606,7 @@ export default function ResultsPage() {
                 window.open(`https://secure.tranzila.com/ttxellisshay/iframed.php?sum=3450&currency=1&cred_type=1&success_url=${encodeURIComponent(window.location.origin + "/dashboard")}`, "_blank");
               }}
             >
-              אני רוצה את ההצעה הטובה ביותר, ₪3,500 ←
+              אני רוצה את ההצעה הטובה ביותר, ₪3,450 ←
             </Button>
 
             <div className="text-center">

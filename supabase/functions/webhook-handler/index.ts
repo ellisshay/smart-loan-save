@@ -38,7 +38,7 @@ function buildNotifications(
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">סוג</td><td style="padding:8px;border-bottom:1px solid #eee;">${caseType}</td></tr>
               </table>
               <p>השלם/י את השאלון כדי לקבל הצעות מיועצים מובילים.</p>
-              <a href="https://smart-loan-save.lovable.app/intake" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">המשך לשאלון →</a>
+              <a href="https://www.easymorte.co.il/intake" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">המשך לשאלון →</a>
             </div>`,
         },
       };
@@ -61,7 +61,7 @@ function buildNotifications(
                 <li>העלאת מסמכים נדרשים</li>
                 <li>ניתוח מקצועי תוך 48 שעות</li>
               </ol>
-              <a href="https://smart-loan-save.lovable.app/dashboard" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">עבור לדשבורד →</a>
+              <a href="https://www.easymorte.co.il/dashboard" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">עבור לדשבורד →</a>
             </div>`,
         },
       };
@@ -79,7 +79,7 @@ function buildNotifications(
               <p>שלום ${name},</p>
               <p>המסמך <strong>${data.payload?.file_name || "מסמך"}</strong> (${data.payload?.doc_type || ""}) הועלה בהצלחה לתיק ${caseNumber}.</p>
               ${data.missing_docs_count ? `<p style="color:#e67e22;">נותרו <strong>${data.missing_docs_count}</strong> מסמכים להעלאה.</p>` : '<p style="color:#27ae60;font-weight:bold;">כל המסמכים הועלו! ✅</p>'}
-              <a href="https://smart-loan-save.lovable.app/dashboard/documents" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">נהל מסמכים →</a>
+              <a href="https://www.easymorte.co.il/dashboard/documents" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">נהל מסמכים →</a>
             </div>`,
         },
       };
@@ -99,7 +99,7 @@ function buildNotifications(
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">מטרה</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.purpose || caseType}</td></tr>
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">הכנסה</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.income_range || "לא צוין"}</td></tr>
               </table>
-              <a href="https://smart-loan-save.lovable.app/advisor" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">רכוש ליד →</a>
+              <a href="https://www.easymorte.co.il/advisor" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">רכוש ליד →</a>
             </div>`,
         },
       };
@@ -122,7 +122,7 @@ function buildNotifications(
                 <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">החזר חודשי</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">₪${data.payload?.monthly_payment || ""}</td></tr>
                 <tr><td style="padding:12px;color:#666;">תקופה</td><td style="padding:12px;">${data.payload?.loan_period || "—"} שנים</td></tr>
               </table>
-              <a href="https://smart-loan-save.lovable.app/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">השוואת הצעות →</a>
+              <a href="https://www.easymorte.co.il/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">השוואת הצעות →</a>
             </div>`,
         },
       };
@@ -140,7 +140,7 @@ function buildNotifications(
               <p>שלום ${name},</p>
               <p>התשלום עבור תיק <strong>${caseNumber}</strong> התקבל.</p>
               <p>הצוות שלנו מתחיל בניתוח המקצועי. תקבל/י תוצאות תוך <strong>48 שעות</strong>.</p>
-              <a href="https://smart-loan-save.lovable.app/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">מעקב סטטוס →</a>
+              <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">מעקב סטטוס →</a>
             </div>`,
         },
       };
@@ -157,7 +157,7 @@ function buildNotifications(
               <h2 style="color:#1a1a2e;">עדכון סטטוס 🔔</h2>
               <p>שלום ${name},</p>
               <p>סטטוס תיק <strong>${caseNumber}</strong> עודכן ל: <strong>${data.new_status || data.status || ""}</strong></p>
-              <a href="https://smart-loan-save.lovable.app/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפייה בתיק →</a>
+              <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפייה בתיק →</a>
             </div>`,
         },
       };
