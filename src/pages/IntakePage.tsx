@@ -232,7 +232,7 @@ function PlaceholderStep({ stepKey, onNext, onBack }: { stepKey: string; onNext:
       <p className="text-muted-foreground">שלב זה ייבנה בהמשך</p>
       <div className="flex gap-3">
         <button onClick={onBack} className="px-4 py-2 rounded-lg border border-border text-sm">← חזרה</button>
-        <button onClick={onNext} className="px-4 py-2 rounded-lg bg-gold-gradient text-accent-foreground text-sm font-bold">המשך →</button>
+        <button onClick={onNext} className="px-4 py-2 rounded-lg bg-gold-gradient text-accent-foreground text-sm font-bold">המשך ←</button>
       </div>
     </motion.div>
   );

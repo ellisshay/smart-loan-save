@@ -157,7 +157,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={onBack}>← חזרה</Button>
         <Button type="button" variant="cta" size="lg" onClick={onNext}>
-          {requiredUploaded ? "שמור והמשך →" : "אעלה מאוחר יותר, המשך →"}
+          {requiredUploaded ? "שמור והמשך ←" : "אעלה מאוחר יותר, המשך ←"}
         </Button>
       </div>
     </motion.div>

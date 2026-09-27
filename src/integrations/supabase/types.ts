@@ -177,6 +177,7 @@ export type Database = {
           case_type: Database["public"]["Enums"]["case_type"]
           created_at: string
           current_step: number
+          emails_sent: Json
           goal: string | null
           id: string
           intake_complete: boolean
@@ -195,6 +196,7 @@ export type Database = {
           case_type?: Database["public"]["Enums"]["case_type"]
           created_at?: string
           current_step?: number
+          emails_sent?: Json
           goal?: string | null
           id?: string
           intake_complete?: boolean
@@ -213,6 +215,7 @@ export type Database = {
           case_type?: Database["public"]["Enums"]["case_type"]
           created_at?: string
           current_step?: number
+          emails_sent?: Json
           goal?: string | null
           id?: string
           intake_complete?: boolean
@@ -407,6 +410,87 @@ export type Database = {
           variable_5_kalatz?: number | null
           variable_5_linked?: number | null
           zakaut?: number | null
+        }
+        Relationships: []
+      }
+      market_rates_history: {
+        Row: {
+          captured_on: string
+          created_at: string
+          data: Json
+          id: string
+          source: string | null
+        }
+        Insert: {
+          captured_on?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          source?: string | null
+        }
+        Update: {
+          captured_on?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
+      mortgage_profiles: {
+        Row: {
+          age_range: string | null
+          borrower_count: number | null
+          case_id: string | null
+          case_type: string | null
+          created_at: string
+          dti: number | null
+          id: string
+          income_range: string | null
+          loan_amount: number | null
+          ltv: number | null
+          offered_rate: number | null
+          property_area: string | null
+          property_value: number | null
+          selected_mix: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          borrower_count?: number | null
+          case_id?: string | null
+          case_type?: string | null
+          created_at?: string
+          dti?: number | null
+          id?: string
+          income_range?: string | null
+          loan_amount?: number | null
+          ltv?: number | null
+          offered_rate?: number | null
+          property_area?: string | null
+          property_value?: number | null
+          selected_mix?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          borrower_count?: number | null
+          case_id?: string | null
+          case_type?: string | null
+          created_at?: string
+          dti?: number | null
+          id?: string
+          income_range?: string | null
+          loan_amount?: number | null
+          ltv?: number | null
+          offered_rate?: number | null
+          property_area?: string | null
+          property_value?: number | null
+          selected_mix?: string | null
+          source?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -606,6 +690,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      submit_case_safe: {
+        Args: { _case_id: string; _goal?: string }
+        Returns: undefined
+      }
       update_case_safe: {
         Args: {
           _case_id: string

@@ -88,7 +88,7 @@ export default function StepRefiGoal({ defaultValues, onNext, onBack, saving }: 
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={onBack}>← חזרה</Button>
-        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "שמור והמשך →"}</Button>
+        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "שמור והמשך ←"}</Button>
       </div>
     </motion.form>
   );

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, ArrowRight, AlertTriangle, CheckCircle,
+  ArrowLeft, AlertTriangle, CheckCircle,
   Home, RefreshCw, TrendingUp, Building2, GraduationCap, Umbrella,
   Briefcase,
 } from "lucide-react";
@@ -1074,7 +1074,7 @@ export default function SmartAssessment({
       <div className="flex gap-3">
         {currentStep > 0 && (
           <Button variant="outline" className="flex-1" onClick={() => goToStep(currentStep - 1)}>
-            <ArrowRight size={16} />
+            <ArrowLeft size={16} />
             חזרה
           </Button>
         )}

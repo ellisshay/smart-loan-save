@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, User, Home as HomeIcon, DollarSign, FileText,
-  CreditCard, Shield, Upload, LogOut, ArrowRight, CreditCard as PayIcon, Gift
+  CreditCard, Shield, Upload, LogOut, ArrowLeft, CreditCard as PayIcon, Gift
 } from "lucide-react";
+import Layout from "@/components/Layout";
 import AuthGuard from "@/components/AuthGuard";
 import ExitIntentModal from "@/components/ExitIntentModal";
 import AIMortgageChat from "@/components/AIMortgageChat";
@@ -59,24 +60,14 @@ export default function DashboardLayout() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-background flex flex-col">
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
-          <div className="container flex items-center justify-between h-14">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[var(--gold-gradient)] flex items-center justify-center">
-                <span className="font-display font-black text-accent-foreground text-xs">EM</span>
-              </div>
-              <span className="font-display font-bold text-lg text-foreground">EasyMorte</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              {userName && <span className="text-xs text-muted-foreground hidden sm:block">שלום, {userName}</span>}
-              <Link to="/"><Button variant="outline" size="sm" className="text-xs h-8"><ArrowRight className="h-3 w-3" />לאתר</Button></Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8"><LogOut className="h-3.5 w-3.5" /></Button>
-            </div>
+      <Layout>
+      <div className="bg-background flex flex-col">
+        <div className="border-b border-border bg-card/60">
+          <div className="container flex items-center justify-between h-11">
+            <span className="text-sm font-medium text-foreground">האזור האישי{userName ? `, שלום ${userName}` : ""}</span>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 text-xs gap-1"><LogOut className="h-3.5 w-3.5" />התנתקות</Button>
           </div>
-        </header>
-
+        </div>
         <div className="flex flex-1">
           {/* Sidebar */}
           <aside className="hidden md:flex flex-col w-52 border-l border-border bg-card/50 py-4 px-2 gap-0.5">
@@ -95,7 +86,7 @@ export default function DashboardLayout() {
           </aside>
 
           {/* Mobile nav */}
-          <div className="md:hidden sticky top-14 z-40 bg-card/80 backdrop-blur-xl border-b border-border overflow-x-auto scrollbar-hide">
+          <div className="md:hidden bg-card/80 backdrop-blur-xl border-b border-border overflow-x-auto scrollbar-hide">
             <div className="flex gap-0.5 p-1.5">
               {sideLinks.map((link) => {
                 const active = location.pathname === link.href;
@@ -117,7 +108,7 @@ export default function DashboardLayout() {
             {/* Micro-commitment banner on step pages */}
             {isDashboardStep && location.pathname !== "/dashboard/payment" && (
               <div className="mb-4 text-xs text-muted-foreground flex items-center gap-1.5 bg-muted/30 rounded-lg px-3 py-2">
-                ⏱ תוך 90 שניות מסיימים את השלב הזה
+                תוך 90 שניות מסיימים את השלב הזה
               </div>
             )}
             <Outlet />
@@ -128,6 +119,7 @@ export default function DashboardLayout() {
         <ExitIntentModal progress={progress} enabled={progress > 0 && progress < 85} />
         <AIMortgageChat />
       </div>
+      </Layout>
     </AuthGuard>
   );
 }

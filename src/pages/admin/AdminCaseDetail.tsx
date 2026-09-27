@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import {
-  ArrowRight,
+  ArrowLeft,
   FileText,
   Send,
   Download,
@@ -134,6 +134,7 @@ export default function AdminCaseDetail() {
       .from("cases")
       .update({ status: newStatus })
       .eq("id", caseData.id);
+    supabase.functions.invoke("case-email", { body: { case_id: caseData.id, event: "status_update" } }).catch(console.error);
 
     if (!error) {
       setCaseData(prev => prev ? { ...prev, status: newStatus } : prev);
@@ -179,7 +180,7 @@ export default function AdminCaseDetail() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <Link to="/admin/cases" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-          <ArrowRight size={16} />
+          <ArrowLeft size={16} />
           חזרה לרשימת תיקים
         </Link>
 

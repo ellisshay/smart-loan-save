@@ -49,6 +49,7 @@ export function useIntakeForm(caseType: CaseType) {
           
           // Fire webhook
           await fireWebhook("case_created", newCase.id, { case_type: caseType });
+          supabase.functions.invoke("case-email", { body: { case_id: newCase.id, event: "case_opened" } }).catch(console.error);
         }
       } catch (error: any) {
         console.error("Error initializing case:", error);
@@ -68,13 +69,10 @@ export function useIntakeForm(caseType: CaseType) {
       const updatedData = { ...intakeData, [stepKey]: stepData };
       setIntakeData(updatedData);
 
-      await supabase
-        .from("cases")
-        .update({
-          intake_data: updatedData,
-          current_step: currentStep,
-        })
-        .eq("id", caseId);
+      await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updatedData, _current_step: currentStep });
+      if (stepKey === "personal") {
+        supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "case_opened" } }).catch(console.error);
+      }
     } catch (error) {
       console.error("Error saving draft:", error);
     } finally {
@@ -98,15 +96,10 @@ export function useIntakeForm(caseType: CaseType) {
     if (!caseId) return;
     setLoading(true);
     try {
-      await supabase
-        .from("cases")
-        .update({
-          intake_data: intakeData,
-          intake_complete: true,
-          goal,
-          status: "WaitingForPayment",
-        })
-        .eq("id", caseId);
+      await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: intakeData });
+      const { error: submitErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId, _goal: goal });
+      if (submitErr) throw submitErr;
+      supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
 
       // Fire webhooks for submission + lead creation + Make.com notification
       await Promise.all([

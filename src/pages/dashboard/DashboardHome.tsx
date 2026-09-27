@@ -11,6 +11,7 @@ import {
   CheckCircle2, Clock, Lock, ArrowLeft, AlertTriangle, Loader2, Flame, TrendingDown,
   Trophy, Zap, Target, Sparkles
 } from "lucide-react";
+import ContactCard from "@/components/dashboard/ContactCard";
 import { CASE_STATUSES, type CaseStatus } from "@/types/admin";
 
 interface CaseData {
@@ -136,6 +137,7 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-6">
+      <ContactCard />
       {/* Risk-based urgency banner */}
       {riskScore > 75 && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl p-4">

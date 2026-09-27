@@ -46,7 +46,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <div className="font-semibold text-foreground">אימייל</div>
-                <div className="text-sm text-muted-foreground">info@easymortgage.co.il</div>
+                <div className="text-sm text-muted-foreground">easymorte.il@gmail.com</div>
               </div>
             </div>
             <div className="flex items-center gap-4">

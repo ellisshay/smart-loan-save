@@ -47,6 +47,18 @@ export function useDashboardCase() {
       const updated = { ...intakeData, [stepKey]: stepData };
       setIntakeData(updated);
       await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
+      if (stepKey === "personal") {
+        supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "case_opened" } }).catch(console.error);
+      }
+      const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
+      if (!intakeComplete && keys.every((k) => updated[k] && Object.keys(updated[k]).length > 0)) {
+        const { error: subErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId });
+        if (!subErr) {
+          setIntakeComplete(true);
+          supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
+          supabase.auth.getUser().then(({ data: { user } }) => user && supabase.functions.invoke("generate-financial-score", { body: { user_id: user.id, case_id: caseId } }));
+        }
+      }
 
       // Fire webhook
       await supabase.functions.invoke("webhook-handler", {
@@ -57,7 +69,7 @@ export function useDashboardCase() {
     } finally {
       setSaving(false);
     }
-  }, [caseId, intakeData]);
+  }, [caseId, intakeData, intakeComplete]);
 
   const saveStepAndNavigate = useCallback(async (stepKey: string, stepData: any, nextPath: string) => {
     await saveStep(stepKey, stepData);
