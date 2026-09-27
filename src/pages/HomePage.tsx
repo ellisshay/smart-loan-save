@@ -139,7 +139,7 @@ export default function HomePage() {
       </Helmet>
 
       {/* ═══════ STAGE 0 – Hero Calculator ═══════ */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+      <section className="relative overflow-hidden flex items-center">
         <div className="absolute inset-0 bg-hero" />
         <div className="absolute inset-0 bg-grain opacity-60" />
         
