@@ -150,7 +150,7 @@ export default function HomePage() {
 
         <div className="container relative py-14 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
           {/* Text side */}
-          <div className="max-w-xl lg:col-start-2">
+          <div className="max-w-xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs tracking-wide font-semibold mb-6 border border-primary/25">
                 <Zap size={14} /> מחיר קבוע · בלי פגישות · עד 72 שעות
