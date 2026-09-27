@@ -1,16 +1,39 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
+import { supabase } from "@/integrations/supabase/client";
+import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Clock, Shield, CheckCircle2, Loader2 } from "lucide-react";
+import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList } from "lucide-react";
 
 export default function DashboardPayment() {
   const navigate = useNavigate();
-  const { caseId, intakeData, loading } = useDashboardCase();
+  const { caseId, caseType, intakeData, intakeComplete, loading } = useDashboardCase();
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes
+  const [docsComplete, setDocsComplete] = useState(false);
+  const [missingDocs, setMissingDocs] = useState(0);
+
+  // Check required documents status
+  useEffect(() => {
+    if (!caseId) return;
+    const checkDocs = async () => {
+      const { data } = await supabase
+        .from("case_documents")
+        .select("doc_type")
+        .eq("case_id", caseId);
+      const uploadedTypes = (data || []).map((d) => d.doc_type);
+      const requiredDocs = (caseType === "refi" ? REQUIRED_DOCS_REFI : REQUIRED_DOCS_NEW).filter((d) => d.required);
+      const missing = requiredDocs.filter((d) => !uploadedTypes.includes(d.type)).length;
+      setMissingDocs(missing);
+      setDocsComplete(missing === 0);
+    };
+    checkDocs();
+  }, [caseId, caseType]);
+
+  const fileComplete = intakeComplete && docsComplete;
 
   useEffect(() => {
     const timer = setInterval(() => {
