@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import FloatingApplyButton from "@/components/FloatingApplyButton";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import ThemeToggle from "@/components/ThemeToggle";
 import MarketTicker from "@/components/MarketTicker";
@@ -117,6 +118,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <main id="main-content" className="flex-1" role="main">{children}</main>
+      <FloatingApplyButton />
 
       {/* Floating widgets */}
       <FloatingWhatsApp />
