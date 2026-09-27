@@ -37,7 +37,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <div className="font-semibold text-foreground">טלפון</div>
-                <div className="text-sm text-muted-foreground" dir="ltr">03-1234567</div>
+                <div className="text-sm text-muted-foreground" dir="ltr">055-996-1997</div>
               </div>
             </div>
             <div className="flex items-center gap-4">
