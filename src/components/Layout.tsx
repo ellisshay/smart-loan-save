@@ -33,15 +33,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     let active = true;
     const check = async () => {
       try {
-        console.log("[Layout] admin check start");
-        const { data: { user }, error: ue } = await supabase.auth.getUser();
-        console.log("[Layout] getUser", !!user, ue?.message);
-        if (!user) { if (active) setIsAdmin(false); return; }
-        const { data, error } = await supabase.rpc("is_admin");
-        console.log("[Layout] is_admin", data, error?.message);
-        if (active) setIsAdmin(!!data);
-      } catch (e) {
-        console.log("[Layout] admin check failed", e);
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token) { if (active) setIsAdmin(false); return; }
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/is_admin`,
+          {
+            method: "POST",
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: "{}",
+          }
+        );
+        const result = res.ok ? await res.json() : false;
+        if (active) setIsAdmin(result === true);
+      } catch {
+        if (active) setIsAdmin(false);
       }
     };
     check();
