@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { sendEmail, SITE_URL } from "../_shared/gmail.ts";
+import { sendEmail, wrapClient, SITE_URL, esc } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -66,20 +66,15 @@ serve(async (req) => {
 
     const clientName = profile.first_name || "לקוח/ה יקר/ה";
 
-    const htmlBody = `
-      <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
-        <h2 style="color:#1a1a2e;">יש לך הצעה חדשה מ-EasyMorte! 💰</h2>
-        <p>שלום ${clientName},</p>
-        <p>התקבלה הצעת משכנתא חדשה עבורך:</p>
-        <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f9fa;border-radius:8px;">
-          <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">בנק</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">${bank_name || ""}</td></tr>
-          <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">ריבית</td><td style="padding:12px;border-bottom:1px solid #eee;">${interest_rate || ""}%</td></tr>
-          <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">מסלול</td><td style="padding:12px;border-bottom:1px solid #eee;">${trackLabels[track_type] || track_type || ""}</td></tr>
-          <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">החזר חודשי</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">₪${monthly_payment || ""}</td></tr>
-          <tr><td style="padding:12px;color:#666;">תקופה</td><td style="padding:12px;">${loan_period || "—"} שנים</td></tr>
-        </table>
-        <a href="${SITE_URL}/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפה בהצעות →</a>
-      </div>`;
+    const htmlBody = wrapClient(`שלום ${clientName}, התקבלה הצעת משכנתא חדשה`, `
+        <p>ההצעה זמינה לצפייה באזור האישי שלך:</p>
+        <table role="presentation" style="width:100%;border-collapse:collapse;margin:16px 0;background:#f2f7f6;">
+          <tr><td style="padding:12px;border-bottom:1px solid #dceae7;">בנק</td><td style="padding:12px;border-bottom:1px solid #dceae7;font-weight:bold;">${esc(bank_name)}</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #dceae7;">ריבית</td><td style="padding:12px;border-bottom:1px solid #dceae7;">${esc(interest_rate)}%</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #dceae7;">מסלול</td><td style="padding:12px;border-bottom:1px solid #dceae7;">${esc(trackLabels[track_type] || track_type || "")}</td></tr>
+          <tr><td style="padding:12px;border-bottom:1px solid #dceae7;">החזר חודשי</td><td style="padding:12px;border-bottom:1px solid #dceae7;font-weight:bold;">₪${esc(monthly_payment)}</td></tr>
+          <tr><td style="padding:12px;">תקופה</td><td style="padding:12px;">${esc(loan_period || "—")} שנים</td></tr>
+        </table>`, "לצפייה בהצעות", `${SITE_URL}/dashboard/offers`);
 
     await sendEmail(profile.email, "יש לך הצעה חדשה מ-EasyMorte!", htmlBody);
 
