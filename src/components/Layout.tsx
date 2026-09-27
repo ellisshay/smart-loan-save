@@ -77,6 +77,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="hidden md:flex items-center gap-2">
             <ThemeToggle />
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="gap-1.5 border-primary/40 text-primary">
+                  <ShieldCheck size={15} />
+                  אזור מנהל
+                </Button>
+              </Link>
+            )}
             <Link to="/my-cases">
               <Button variant="outline" size="sm">האזור שלי</Button>
             </Link>
