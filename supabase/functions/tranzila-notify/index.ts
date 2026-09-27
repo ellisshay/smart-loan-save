@@ -102,6 +102,9 @@ serve(async (req) => {
         card_last4: last4,
       },
     });
+    if (evErr) console.error("case_events insert failed", evErr);
+
+
 
     // Notify the client and admin by email (best-effort)
     try {
