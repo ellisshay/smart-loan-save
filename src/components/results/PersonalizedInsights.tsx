@@ -66,14 +66,14 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
     if (isHighTech) {
       insights.push({
         icon: Briefcase,
-        title: "💻 פרופיל הייטק: יתרון משמעותי",
+        title: "פרופיל הייטק: יתרון משמעותי",
         body: `אופציות ובונוסים יכולים להיחשב כהכנסה נוספת. ${seniority > 24 ? `עם ${Math.round(seniority / 12)} שנות ניסיון בתחום, הפרופיל שלך נחשב יציב.` : "ותק מעל שנתיים ישפר את התנאים."}`,
         type: "positive",
       });
     } else if (seniority > 36) {
       insights.push({
         icon: CheckCircle,
-        title: "👔 יציבות תעסוקתית גבוהה",
+        title: "יציבות תעסוקתית גבוהה",
         body: `ותק של ${Math.round(seniority / 12)} שנים אצל אותו מעסיק, זה בונוס משמעותי מול הבנק.`,
         type: "positive",
       });
@@ -82,7 +82,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
     if (income.contractType === "temporary") {
       insights.push({
         icon: AlertTriangle,
-        title: "⚠️ חוזה זמני",
+        title: "️ חוזה זמני",
         body: "חוזה עבודה זמני עלול להערים קשיים. מומלץ להמציא אישור מהמעסיק על כוונה להעסקה ארוכת טווח.",
         type: "warning",
       });
@@ -97,7 +97,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
     if (bizSeniority < 24) {
       insights.push({
         icon: AlertTriangle,
-        title: "⚠️ עצמאי עם ותק נמוך",
+        title: "️ עצמאי עם ותק נמוך",
         body: `ותק עסקי של פחות מ-2 שנים מקשה על אישור משכנתא. בנקים דורשים לפחות 2 שנות דוחות.`,
         type: "warning",
       });
@@ -109,7 +109,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
       if (variance > 20) {
         insights.push({
           icon: TrendingDown,
-          title: "📊 שונות בהכנסה כעצמאי",
+          title: "שונות בהכנסה כעצמאי",
           body: `נראית שונות בהכנסות בין השנים. יש לנו 3 דרכים להציג את זה לטובתך מול הבנק.`,
           type: "warning",
         });
@@ -119,7 +119,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
     if (income.hasOpenTaxDebts === "yes") {
       insights.push({
         icon: AlertTriangle,
-        title: "🚨 חובות מס פתוחים",
+        title: "חובות מס פתוחים",
         body: "חובות מס פתוחים עלולים לעכב אישור. מומלץ להסדיר לפני הגשה.",
         type: "warning",
       });
@@ -134,14 +134,14 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
     if (ltv <= 60) {
       insights.push({
         icon: CheckCircle,
-        title: "🏠 LTV מצוין: " + ltv + "%",
+        title: "LTV מצוין: " + ltv + "%",
         body: "אחוז מימון נמוך מאוד, זה ייתן לך כוח מיקוח מול הבנקים.",
         type: "positive",
       });
     } else if (ltv > 75) {
       insights.push({
         icon: AlertTriangle,
-        title: "🏠 LTV גבוה: " + ltv + "%",
+        title: "LTV גבוה: " + ltv + "%",
         body: "אחוז מימון מעל 75% מגביל את אפשרויות המשכנתא ומייקר את הריבית.",
         type: "warning",
       });
@@ -157,7 +157,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
     if (dti > 40) {
       insights.push({
         icon: AlertTriangle,
-        title: `⚠️ יחס החזר גבוה: ${dti}%`,
+        title: `️ יחס החזר גבוה: ${dti}%`,
         body: "יחס החזר להכנסה מעל 40% מסכן את האישור. מומלץ לסגור הלוואות קיימות לפני הגשה.",
         type: "warning",
       });
@@ -168,7 +168,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
   if (liabilities.hasDelinquentDebt === "yes") {
     insights.push({
       icon: AlertTriangle,
-      title: "🚨 חובות בפיגור",
+      title: "חובות בפיגור",
       body: "חובות בפיגור הם דגל אדום מול הבנק. מומלץ להסדיר את כל החובות לפני הגשה.",
       type: "warning",
     });
@@ -178,7 +178,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
   if (score >= 80 && insights.filter(i => i.type === "warning").length === 0) {
     insights.push({
       icon: Lightbulb,
-      title: "🎯 פרופיל חזק, נצל את זה",
+      title: "פרופיל חזק, נצל את זה",
       body: "עם ציון גבוה כזה, כדאי להגיש ל-3 בנקים במקביל ולמקסם את כוח המיקוח.",
       type: "positive",
     });

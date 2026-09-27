@@ -77,7 +77,7 @@ export default function AnalysisLoadingScreen({ onComplete }: Props) {
                 )}
                 <span className={`text-sm font-medium ${isComplete ? "text-foreground" : "text-muted-foreground"}`}>
                   {step.label}
-                  {isComplete && " ✓"}
+                  {isComplete && " "}
                 </span>
               </motion.div>
             );

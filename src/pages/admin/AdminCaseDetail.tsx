@@ -150,7 +150,7 @@ export default function AdminCaseDetail() {
   const confirmSendToBank = () => {
     handleStatusChange("SentToBank");
     setShowEmailModal(false);
-    toast({ title: "נשלח לבנק בהצלחה! 📧", description: `המייל נשלח ל-${bankEmailTo}` });
+    toast({ title: "נשלח לבנק בהצלחה! ", description: `המייל נשלח ל-${bankEmailTo}` });
   };
 
   const mortgageAmount = intake.mortgageAmount || intake.propertyValue || 0;
@@ -378,7 +378,7 @@ function SLAIndicator({ startedAt, dueAt, createdAt, status }: { startedAt: stri
           <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
         </div>
         {!isCompleted && pct > 90 && (
-          <p className="text-xs text-destructive mt-2 font-semibold">⚠️ חריגה מ-SLA!</p>
+          <p className="text-xs text-destructive mt-2 font-semibold">️ חריגה מ-SLA!</p>
         )}
       </div>
     );

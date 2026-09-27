@@ -371,9 +371,9 @@ export default function ResultsPage() {
                                 <td className="text-center font-semibold">₪{track.monthly_payment?.toLocaleString()}</td>
                                 <td className="text-center">
                                   {track.early_repayment === "free" ? (
-                                    <span className="text-[hsl(var(--success))]" title="ניתן לפירעון ללא עמלה">✓</span>
+                                    <span className="text-[hsl(var(--success))]" title="ניתן לפירעון ללא עמלה"></span>
                                   ) : (
-                                    <span className="text-[hsl(var(--warning))]" title="יש עמלת פירעון">⚠️</span>
+                                    <span className="text-[hsl(var(--warning))]" title="יש עמלת פירעון">️</span>
                                   )}
                                 </td>
                               </tr>
@@ -522,7 +522,7 @@ export default function ResultsPage() {
               ) : (
                 <div className="flex items-center gap-2 text-sm text-[hsl(var(--success))]">
                   <CheckCircle className="h-4 w-4" />
-                  <span>פרופיל נקי, ללא נקודות בעייתיות ✓</span>
+                  <span>פרופיל נקי, ללא נקודות בעייתיות </span>
                 </div>
               )}
             </CardContent>
@@ -559,7 +559,7 @@ export default function ResultsPage() {
 
             <div className="flex items-center justify-center gap-2 text-sm bg-white/10 rounded-lg py-2 px-3">
               <Users className="h-4 w-4 text-destructive" />
-              <span>🔴 {socialProofCount} לקוחות עם ציון דומה הזמינו שירות מלא השבוע</span>
+              <span>{socialProofCount} לקוחות עם ציון דומה הזמינו שירות מלא השבוע</span>
             </div>
 
             <div className="space-y-2">

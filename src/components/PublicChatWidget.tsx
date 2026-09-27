@@ -18,7 +18,7 @@ const QUICK_REPLIES = [
 
 const WELCOME_MESSAGE: Msg = {
   role: "assistant",
-  content: "שלום! אני EasyBot 👋\nיש לך שאלות על משכנתאות? אני כאן.\nאפשר לשאול על תהליך, עלויות, או סתם להבין אם EasyMorte מתאים לך.",
+  content: "שלום! אני EasyBot \nיש לך שאלות על משכנתאות? אני כאן.\nאפשר לשאול על תהליך, עלויות, או סתם להבין אם EasyMorte מתאים לך.",
 };
 
 export default function PublicChatWidget() {
@@ -171,8 +171,7 @@ export default function PublicChatWidget() {
             <div className="flex items-center justify-between px-4 py-3 text-white" style={{ backgroundColor: "#1A56DB" }}>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
-                  🤖
-                </div>
+                  </div>
                 <div>
                   <h3 className="text-sm font-bold">EasyBot</h3>
                   <p className="text-[10px] opacity-80 flex items-center gap-1">

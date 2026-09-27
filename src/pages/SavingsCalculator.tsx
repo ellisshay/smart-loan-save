@@ -315,7 +315,7 @@ export default function SavingsCalculator() {
               <div className="bg-gradient-to-br from-destructive/10 to-warning/10 rounded-2xl p-6 md:p-8 border border-destructive/20 text-center">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <AlertTriangle className="text-destructive" size={24} />
-                  <span className="text-sm font-semibold text-destructive">⚠️ תוצאת הסימולציה</span>
+                  <span className="text-sm font-semibold text-destructive">️ תוצאת הסימולציה</span>
                 </div>
                 <p className="text-lg md:text-xl text-foreground mb-2">
                   לפי הנתונים שלך, אתה עלול לשלם כ-
@@ -340,7 +340,7 @@ export default function SavingsCalculator() {
                 transition={{ delay: 0.3 }}
               >
                 <p className="text-foreground">
-                  💸 כל חודש שאתה מחכה אתה עלול לשלם כ-
+                  כל חודש שאתה מחכה אתה עלול לשלם כ-
                   <span className="font-display font-black text-xl text-destructive mx-1">
                     ₪{result.monthlyLoss.toLocaleString()}
                   </span>
@@ -356,7 +356,7 @@ export default function SavingsCalculator() {
                   animate={{ opacity: 1, scale: 1 }}
                 >
                   <p className="text-sm font-semibold text-destructive">
-                    🔴 זוהתה רמת חשיפה גבוהה מהממוצע בשוק
+                    זוהתה רמת חשיפה גבוהה מהממוצע בשוק
                   </p>
                 </motion.div>
               )}
@@ -367,7 +367,7 @@ export default function SavingsCalculator() {
                   animate={{ opacity: 1, scale: 1 }}
                 >
                   <p className="text-sm font-semibold text-gold">
-                    💡 זוהתה הזדמנות חיסכון משמעותית
+                    זוהתה הזדמנות חיסכון משמעותית
                   </p>
                 </motion.div>
               )}
@@ -375,29 +375,29 @@ export default function SavingsCalculator() {
               {/* Urgency bonuses */}
               {result.urgencyRateSensitive && (
                 <motion.div className="bg-gradient-to-br from-destructive/10 to-warning/10 rounded-xl p-4 border border-destructive/20 text-center" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                  <p className="text-sm font-semibold text-destructive">🔴 זוהתה רגישות גבוהה לשינויי ריבית</p>
+                  <p className="text-sm font-semibold text-destructive">זוהתה רגישות גבוהה לשינויי ריבית</p>
                 </motion.div>
               )}
               {result.stressDelta > 800 && (
                 <motion.div className="bg-gradient-to-br from-warning/10 to-destructive/10 rounded-xl p-4 border border-warning/20 text-center" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                  <p className="text-sm font-semibold text-warning">⚠️ עלייה של 1% בריבית עלולה להעלות לך את ההחזר ביותר מ-₪{result.stressDelta.toLocaleString()} לחודש</p>
+                  <p className="text-sm font-semibold text-warning">️ עלייה של 1% בריבית עלולה להעלות לך את ההחזר ביותר מ-₪{result.stressDelta.toLocaleString()} לחודש</p>
                 </motion.div>
               )}
 
               {/* 3-column details */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-card rounded-xl p-5 border border-border text-center">
-                  <div className="text-sm text-muted-foreground mb-2">✔ החזר בתמהיל משופר</div>
+                  <div className="text-sm text-muted-foreground mb-2">החזר בתמהיל משופר</div>
                   <div className="font-display font-black text-2xl text-gold">₪{result.improvedMonthly.toLocaleString()}</div>
                   <div className="text-xs text-muted-foreground mt-1">ריבית {result.improvedRate.toFixed(1)}%</div>
                 </div>
                 <div className="bg-card rounded-xl p-5 border border-border text-center">
-                  <div className="text-sm text-muted-foreground mb-2">✔ ההחזר הנוכחי שלך</div>
+                  <div className="text-sm text-muted-foreground mb-2">ההחזר הנוכחי שלך</div>
                   <div className="font-display font-black text-2xl text-foreground">₪{result.currentMonthly.toLocaleString()}</div>
                   <div className="text-xs text-muted-foreground mt-1">ריבית {result.usedRate}%</div>
                 </div>
                 <div className="bg-card rounded-xl p-5 border border-border text-center">
-                  <div className="text-sm text-muted-foreground mb-2">✔ אם הריבית תעלה ב-1%</div>
+                  <div className="text-sm text-muted-foreground mb-2">אם הריבית תעלה ב-1%</div>
                   <div className="font-display font-black text-2xl text-warning">₪{result.stressMonthly.toLocaleString()}</div>
                   <div className="text-xs text-muted-foreground mt-1">ריבית {result.stressRate.toFixed(1)}%</div>
                 </div>

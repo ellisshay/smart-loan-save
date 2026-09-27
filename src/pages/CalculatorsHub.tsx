@@ -8,7 +8,7 @@ const calculators = [
     desc: "גלה האם המשכנתא שלך עולה לך יותר מדי. קבל ציון 1-100 והמלצות.",
     icon: BarChart3,
     href: "/calculators/waste",
-    emoji: "📊",
+    emoji: "",
     color: "bg-destructive/10 text-destructive",
   },
   {
@@ -16,7 +16,7 @@ const calculators = [
     desc: "בדוק אם מיחזור משכנתא ישתלם לך, ותוך כמה חודשים תגיע לנקודת איזון.",
     icon: TrendingDown,
     href: "/calculators/refinance",
-    emoji: "💰",
+    emoji: "",
     color: "bg-success/10 text-success",
   },
   {
@@ -24,7 +24,7 @@ const calculators = [
     desc: "קבל 3 תמהילים, שמרני, מאוזן ואגרסיבי, מותאמים לפרופיל הסיכון שלך.",
     icon: Calculator,
     href: "/calculators/mix",
-    emoji: "⚖️",
+    emoji: "️",
     color: "bg-gold/10 text-gold-dark",
   },
   {
@@ -32,7 +32,7 @@ const calculators = [
     desc: "חשב את ההחזר החודשי וגלה כמה תוכל ללוות לבית הראשון שלך.",
     icon: Home,
     href: "/calculators/new-mortgage",
-    emoji: "🏠",
+    emoji: "",
     color: "bg-violet-500/10 text-violet-400",
   },
 ];

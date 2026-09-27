@@ -62,7 +62,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
         body: { event_name: "docs_uploaded", case_id: caseId, payload: { doc_type: docType, file_name: file.name } },
       });
 
-      toast({ title: `${file.name} הועלה בהצלחה ✅` });
+      toast({ title: `${file.name} הועלה בהצלחה ` });
     } catch (error: any) {
       console.error("Upload error:", error);
       toast({ title: "שגיאה בהעלאה", description: error.message, variant: "destructive" });
@@ -116,7 +116,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
               </div>
 
               {uploaded ? (
-                <span className="text-xs text-success font-semibold">הועלה ✓</span>
+                <span className="text-xs text-success font-semibold">הועלה </span>
               ) : (
                 <label className="cursor-pointer">
                   <input

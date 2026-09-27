@@ -105,7 +105,7 @@ export default function WasteCalculator() {
           </Link>
 
           <h1 className="font-display text-3xl md:text-4xl font-black text-foreground mb-2">
-            📊 מדד בזבוז משכנתא
+            מדד בזבוז משכנתא
           </h1>
           <p className="text-muted-foreground mb-8">
             גלה כמה כסף אתה מבזבז כל חודש, וקבל ציון + המלצה.

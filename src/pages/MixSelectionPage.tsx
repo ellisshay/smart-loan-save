@@ -100,7 +100,7 @@ export default function MixSelectionPage() {
         body: { event_name: "mix_selected", case_id: caseId, payload: { mix: mixName } },
       });
 
-      toast({ title: `בחרת בתמהיל ${mixName}! 🎯` });
+      toast({ title: `בחרת בתמהיל ${mixName}! ` });
       navigate("/my-cases");
     } catch (error) {
       toast({ title: "שגיאה", variant: "destructive" });

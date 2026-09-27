@@ -66,7 +66,7 @@ export default function ContactPage() {
           >
             {sent ? (
               <div className="bg-success/10 rounded-2xl p-8 text-center">
-                <div className="text-4xl mb-3">✅</div>
+                <div className="text-4xl mb-3"></div>
                 <h3 className="font-display font-bold text-xl text-foreground mb-2">ההודעה נשלחה!</h3>
                 <p className="text-muted-foreground text-sm">ניצור איתך קשר בהקדם.</p>
               </div>

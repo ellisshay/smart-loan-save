@@ -65,7 +65,7 @@ export default function AuthPage() {
           .eq("user_id", (await supabase.auth.getUser()).data.user?.id || "");
 
         const isAdvisor = roles?.some((r) => r.role === "advisor");
-        toast({ title: "התחברת בהצלחה! 🎉" });
+        toast({ title: "התחברת בהצלחה! " });
         navigate(isAdvisor ? "/advisor" : "/dashboard");
       } else {
         const { data, error } = await supabase.auth.signUp({
@@ -93,7 +93,7 @@ export default function AuthPage() {
           });
         }
 
-        toast({ title: "נרשמת בהצלחה! 🎉" });
+        toast({ title: "נרשמת בהצלחה! " });
         navigate(userType === "advisor" ? "/advisor" : "/dashboard");
       }
     } catch (error: any) {

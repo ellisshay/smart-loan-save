@@ -47,7 +47,7 @@ export default function AIMortgageChat() {
     if (open && messages.length === 0) {
       setMessages([{
         role: "assistant",
-        content: `שלום ${userName || ""}! אני EasyBot 👋\nאני כאן לענות על כל שאלה לגבי המשכנתא שלך.\nמה תרצה לדעת?`,
+        content: `שלום ${userName || ""}! אני EasyBot \nאני כאן לענות על כל שאלה לגבי המשכנתא שלך.\nמה תרצה לדעת?`,
       }]);
     }
   }, [open, userName]);
@@ -199,8 +199,7 @@ export default function AIMortgageChat() {
             <div className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center text-sm font-bold">
-                  🤖
-                </div>
+                  </div>
                 <div>
                   <h3 className="text-sm font-bold">EasyBot</h3>
                   <p className="text-[10px] opacity-80 flex items-center gap-1">

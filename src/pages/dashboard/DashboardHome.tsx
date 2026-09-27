@@ -262,9 +262,9 @@ export default function DashboardHome() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-display font-bold text-foreground text-sm">{step.label}</h3>
                       <p className="text-[11px] text-muted-foreground truncate">
-                        {status === "done" ? "✔ הושלם" :
+                        {status === "done" ? "הושלם" :
                          status === "current" ? "⏳ בתהליך" :
-                         blockingStep ? `נפתח אחרי ${blockingStep.label}` : "🔒 נעול"}
+                         blockingStep ? `נפתח אחרי ${blockingStep.label}` : "נעול"}
                       </p>
                     </div>
                     {status !== "locked" && <ArrowLeft size={14} className="text-muted-foreground shrink-0" />}
@@ -294,7 +294,7 @@ export default function DashboardHome() {
                 ))}
               </div>
               {missingItems.length <= 3 && (
-                <p className="text-xs text-primary font-medium mt-3">🎯 כמעט שם! עוד מעט מסיימים</p>
+                <p className="text-xs text-primary font-medium mt-3">כמעט שם! עוד מעט מסיימים</p>
               )}
             </CardContent>
           </Card>
@@ -307,7 +307,7 @@ export default function DashboardHome() {
           <Card className="border-primary/30 shadow-[var(--shadow-gold)] bg-gradient-to-l from-card to-primary/5">
             <CardContent className="p-6 text-center">
               <Trophy size={28} className="text-primary mx-auto mb-2" />
-              <h3 className="font-display text-xl font-bold text-foreground mb-2">התיק מוכן לניתוח! 🎉</h3>
+              <h3 className="font-display text-xl font-bold text-foreground mb-2">התיק מוכן לניתוח! </h3>
               <p className="text-muted-foreground mb-4 text-sm">פתח ניתוח תוך 72 שעות</p>
               <Link to="/dashboard/payment">
                 <Button variant="cta" size="lg" className="text-base">

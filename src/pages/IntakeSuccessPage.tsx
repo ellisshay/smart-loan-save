@@ -16,8 +16,7 @@ export default function IntakeSuccessPage() {
         </div>
 
         <h1 className="font-display text-3xl font-black text-foreground mb-3">
-          התיק הוגש בהצלחה! 🎉
-        </h1>
+          התיק הוגש בהצלחה! </h1>
         <p className="text-muted-foreground mb-6 leading-relaxed">
           קיבלנו את כל הפרטים שלך. הצוות שלנו מתחיל לעבוד על התיק.
         </p>

@@ -95,7 +95,7 @@ export default function AdvisorDashboard() {
       if (creditErr) throw creditErr;
     },
     onSuccess: () => {
-      toast({ title: "הליד נרכש בהצלחה! 🎉" });
+      toast({ title: "הליד נרכש בהצלחה! " });
       queryClient.invalidateQueries({ queryKey: ["my-purchases"] });
       queryClient.invalidateQueries({ queryKey: ["advisor-profile"] });
       queryClient.invalidateQueries({ queryKey: ["open-leads"] });

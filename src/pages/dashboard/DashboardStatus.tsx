@@ -77,7 +77,7 @@ export default function DashboardStatus() {
                   <h3 className={`text-sm font-bold ${
                     isDone ? "text-primary" : isCurrent ? "text-gold" : "text-muted-foreground"
                   }`}>
-                    {isDone ? "✔ " : isCurrent ? "⏳ " : ""}{item.label}
+                    {isDone ? "" : isCurrent ? "⏳ " : ""}{item.label}
                   </h3>
                   <p className="text-xs text-muted-foreground">{item.description}</p>
                 </div>

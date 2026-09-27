@@ -76,7 +76,7 @@ export default function RefinanceCalculator() {
           </Link>
 
           <h1 className="font-display text-3xl md:text-4xl font-black text-foreground mb-2">
-            💰 סימולטור מיחזור וחיסכון
+            סימולטור מיחזור וחיסכון
           </h1>
           <p className="text-muted-foreground mb-8">
             בדוק אם מיחזור משכנתא ישתלם לך, ותוך כמה חודשים תחזיר את ההשקעה.

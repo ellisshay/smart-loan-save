@@ -396,7 +396,7 @@ export default function HomePage() {
 
             <Card className="bg-primary/5 border-primary/30 border-2 rounded-2xl">
               <CardContent className="p-6 space-y-4">
-                <Badge className="mb-2 bg-primary text-primary-foreground">EasyMorte ✦</Badge>
+                <Badge className="mb-2 bg-primary text-primary-foreground">EasyMorte </Badge>
                 {[
                   "פרופיל אחד, הכל דיגיטלי",
                   "מסמכים פעם אחת בלבד",
@@ -503,7 +503,7 @@ export default function HomePage() {
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                ✓ ללא ספאם &nbsp; ✓ לא נמכור את הפרטים שלך
+                ללא ספאם &nbsp; לא נמכור את הפרטים שלך
               </p>
 
               <button

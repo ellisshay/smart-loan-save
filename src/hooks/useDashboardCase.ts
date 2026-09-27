@@ -59,7 +59,7 @@ export function useDashboardCase() {
 
   const saveStepAndNavigate = useCallback(async (stepKey: string, stepData: any, nextPath: string) => {
     await saveStep(stepKey, stepData);
-    toast({ title: "נשמר בהצלחה ✓" });
+    toast({ title: "נשמר בהצלחה " });
     navigate(nextPath);
   }, [saveStep, navigate]);
 

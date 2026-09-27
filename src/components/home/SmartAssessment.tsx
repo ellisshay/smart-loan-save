@@ -785,9 +785,9 @@ function StepObligations({ data, update }: StepProps) {
         <p className="font-medium text-sm">היסטוריית אשראי</p>
         <div className="grid gap-2">
           {[
-            { v: "clean", emoji: "😊", l: "נקי לגמרי", d: "אף פעם לא פיגרתי בתשלום" },
-            { v: "minor_past", emoji: "😐", l: "בעיות קטנות בעבר", d: "היו כמה עיכובים, אבל הכל סגור" },
-            { v: "active_issues", emoji: "😟", l: "יש בעיות פעילות", d: "יש חובות / עיכובים פעילים" },
+            { v: "clean", emoji: "", l: "נקי לגמרי", d: "אף פעם לא פיגרתי בתשלום" },
+            { v: "minor_past", emoji: "", l: "בעיות קטנות בעבר", d: "היו כמה עיכובים, אבל הכל סגור" },
+            { v: "active_issues", emoji: "", l: "יש בעיות פעילות", d: "יש חובות / עיכובים פעילים" },
           ].map((o) => (
             <OptionCard key={o.v} selected={data.credit_history === o.v} onClick={() => update({ credit_history: o.v })}>
               <div className="flex items-center gap-3">
@@ -899,18 +899,18 @@ function StepExistingMortgage({ data, update }: StepProps) {
 
 function StepPreferences({ data, update }: StepProps) {
   const priorityOptions = [
-    { v: "low_monthly", emoji: "💰", l: "החזר חודשי נמוך", d: "אני רוצה לשלם כמה שפחות כל חודש" },
-    { v: "total_savings", emoji: "💎", l: "חיסכון כולל", d: "חשוב לי הסכום הכולל שאשלם" },
-    { v: "stability", emoji: "🔒", l: "יציבות וביטחון", d: "אני רוצה ריבית קבועה שלא תפתיע" },
-    { v: "flexibility", emoji: "🔓", l: "גמישות", d: "אולי ארצה לפרוע מוקדם" },
-    { v: "speed", emoji: "⚡", l: "מהירות אישור", d: "אני צריך אישור מהיר" },
+    { v: "low_monthly", emoji: "", l: "החזר חודשי נמוך", d: "אני רוצה לשלם כמה שפחות כל חודש" },
+    { v: "total_savings", emoji: "", l: "חיסכון כולל", d: "חשוב לי הסכום הכולל שאשלם" },
+    { v: "stability", emoji: "", l: "יציבות וביטחון", d: "אני רוצה ריבית קבועה שלא תפתיע" },
+    { v: "flexibility", emoji: "", l: "גמישות", d: "אולי ארצה לפרוע מוקדם" },
+    { v: "speed", emoji: "", l: "מהירות אישור", d: "אני צריך אישור מהיר" },
   ];
 
   const urgencyOptions = [
-    { v: "urgent_30", emoji: "🔥", l: "יש עסקה שצריך לסגור תוך 30 יום" },
-    { v: "medium_90", emoji: "📅", l: "יש עסקה בתוך 2-3 חודשים" },
-    { v: "planning", emoji: "🔍", l: "מחפש ומתכנן קדימה" },
-    { v: "refi_check", emoji: "🔄", l: "רוצה לבדוק מיחזור" },
+    { v: "urgent_30", emoji: "", l: "יש עסקה שצריך לסגור תוך 30 יום" },
+    { v: "medium_90", emoji: "", l: "יש עסקה בתוך 2-3 חודשים" },
+    { v: "planning", emoji: "", l: "מחפש ומתכנן קדימה" },
+    { v: "refi_check", emoji: "", l: "רוצה לבדוק מיחזור" },
   ];
 
   const priorities = data.priorities || [];

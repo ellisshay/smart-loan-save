@@ -101,7 +101,7 @@ export default function MortgageTipsCarousel() {
         >
           <div>
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-1">
-              💡 30 טיפים למשכנתא מנצחת
+              30 טיפים למשכנתא מנצחת
             </h2>
           </div>
           <div className="hidden sm:flex items-center gap-2">
