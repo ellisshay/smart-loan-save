@@ -127,11 +127,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {link.label}
                   </Link>
                 ))}
-                <div className="pt-2 flex items-center gap-2">
-                  <ThemeToggle />
-                  <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
-                    <Button variant="cta" className="w-full">בדוק את המשכנתא שלך</Button>
-                  </Link>
+                <div className="pt-2 space-y-2">
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-primary/10 text-primary">
+                      <ShieldCheck size={18} />
+                      אזור מנהל
+                    </Link>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
+                      <Button variant="cta" className="w-full">בדוק את המשכנתא שלך</Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </motion.div>
