@@ -8,6 +8,7 @@ export function useDashboardCase() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [caseType, setCaseType] = useState<"new" | "refi">("new");
   const [intakeData, setIntakeData] = useState<Record<string, any>>({});
+  const [intakeComplete, setIntakeComplete] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -19,7 +20,7 @@ export function useDashboardCase() {
 
       const { data } = await supabase
         .from("cases")
-        .select("id, case_type, intake_data, current_step")
+        .select("id, case_type, intake_data, current_step, intake_complete")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -29,6 +30,7 @@ export function useDashboardCase() {
         setCaseId(data.id);
         setCaseType(data.case_type as "new" | "refi");
         setIntakeData((data.intake_data as Record<string, any>) || {});
+        setIntakeComplete(!!data.intake_complete);
       } else {
         toast({ title: "אין תיק פעיל", description: "פתח תיק חדש כדי להתחיל", variant: "destructive" });
         navigate("/intake");
@@ -75,6 +77,7 @@ export function useDashboardCase() {
     caseId,
     caseType,
     intakeData,
+    intakeComplete,
     loading,
     saving,
     saveStep,
