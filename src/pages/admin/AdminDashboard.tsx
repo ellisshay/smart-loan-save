@@ -10,6 +10,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+const ACTIVE_STATUSES: CaseStatus[] = ["PaymentSucceeded", "WaitingForDocs", "InAnalysis", "ReportGenerated", "SentToBank", "BankOfferReceived", "Negotiation"];
+const IN_PROGRESS_STATUSES: CaseStatus[] = ["Draft", "WaitingForPayment", "CustomerReview"];
+const PAST_STATUSES: CaseStatus[] = ["ClosedWon", "ClosedLost"];
+
 export default function AdminDashboard() {
   const { cases, loading } = useAdminCases();
 
@@ -31,6 +35,16 @@ export default function AdminDashboard() {
 
   const pendingDocs = statusCounts.WaitingForDocs || 0;
   const readyToSend = statusCounts.ReportGenerated || 0;
+
+  const activeClients = cases.filter((c) => ACTIVE_STATUSES.includes(c.status));
+  const inProgressClients = cases.filter((c) => IN_PROGRESS_STATUSES.includes(c.status));
+  const pastClients = cases.filter((c) => PAST_STATUSES.includes(c.status));
+
+  const clientGroups = [
+    { label: "לקוחות פעילים", hint: "שולם, התיק בטיפול", list: activeClients, accent: "text-success" },
+    { label: "לקוחות בתהליך", hint: "ממלאים פרטים או טרם שילמו", list: inProgressClients, accent: "text-warning" },
+    { label: "לקוחות עבר", hint: "תיקים שנסגרו", list: pastClients, accent: "text-muted-foreground" },
+  ];
 
   const summaryCards = [
     { label: "סה״כ תיקים", value: totalCases, icon: Briefcase, color: "text-primary" },
