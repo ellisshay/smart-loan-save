@@ -54,8 +54,12 @@ export default function DashboardDocuments() {
     setVerifying(null);
     if (error || data?.error) toast({ title: "האימות לא הושלם", description: data?.error || "נסה שוב בעוד רגע", variant: "destructive" });
     else {
-      const o = data.result?.overall;
-      toast({ title: o === "verified" ? "המסמך אומת בהצלחה" : o === "review" ? "נמצאו פערים לבירור" : "נדרשת העלאה מחדש", description: data.result?.summary, variant: o === "rejected" ? "destructive" : undefined });
+      const l = levelOf(data.result);
+      toast({
+        title: l === "green" ? "המסמך אומת בהצלחה" : l === "yellow" ? "המסמך התקבל ועובר בדיקת מומחה" : "נדרשת סריקה חוזרת",
+        description: data.result?.summary,
+        variant: l === "red" ? "destructive" : undefined,
+      });
     }
     loadDocs();
   };
