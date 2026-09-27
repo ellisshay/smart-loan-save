@@ -27,6 +27,8 @@ const BlogPage = lazy(() => import("./pages/BlogPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const ForAdvisorsPage = lazy(() => import("./pages/ForAdvisorsPage"));
 const ArticlePage = lazy(() => import("./pages/ArticlePage"));
+const KnowledgeHub = lazy(() => import("./pages/KnowledgeHub"));
+const KnowledgeArticlePage = lazy(() => import("./pages/KnowledgeArticle"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const IntakePage = lazy(() => import("./pages/IntakePage"));
 const IntakeSuccessPage = lazy(() => import("./pages/IntakeSuccessPage"));
@@ -121,7 +123,9 @@ const App = () => (
           <Route path="/about" element={<Layout><AboutPage /></Layout>} />
           <Route path="/how-it-works" element={<Layout><HowItWorksPage /></Layout>} />
           <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
-          <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
+          <Route path="/knowledge" element={<Layout><KnowledgeHub /></Layout>} />
+          <Route path="/knowledge/:slug" element={<Layout><KnowledgeArticlePage /></Layout>} />
+          <Route path="/blog" element={<Layout><KnowledgeHub /></Layout>} />
           <Route path="/blog/:slug" element={<Layout><ArticlePage /></Layout>} />
           <Route path="/for-advisors" element={<Layout><ForAdvisorsPage /></Layout>} />
           <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
