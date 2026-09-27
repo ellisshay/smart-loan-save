@@ -117,7 +117,7 @@ export default function DashboardPayment() {
             </div>
             {fileComplete ? (
               <>
-                <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3800&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank")}>
+                <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open(`https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframed.php?sum=3450&currency=1&cred_type=1&u1=${caseId}&success_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`, "_blank")}>
                   <Zap size={18} />
                   פתח ניתוח תוך 72 שעות
                 </Button>
