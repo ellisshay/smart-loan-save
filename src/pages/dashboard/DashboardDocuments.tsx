@@ -258,11 +258,13 @@ export default function DashboardDocuments() {
 
 const LEVEL_ICON = { green: CheckCircle2, yellow: AlertTriangle, red: XCircle } as const;
 
-function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onReplace }: {
+function DocRow({ doc, uploaded, uploading, verifying, deferred, onToggleDeferred, onUpload, onVerify, onReplace }: {
   doc: { type: string; label: string; required: boolean };
   uploaded?: UploadedDoc;
   uploading: boolean;
   verifying: string | null;
+  deferred: boolean;
+  onToggleDeferred: (docType: string) => void;
   onUpload: (file: File) => void;
   onVerify: (id: string) => void;
   onReplace: (doc: UploadedDoc) => void;
@@ -276,7 +278,7 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
   const notes = (v?.cross_check ?? []).filter((c: any) => c.level === "yellow" || c.level === "red" || c.status === "mismatch");
 
   return (
-    <div className={`p-3 rounded-lg border transition-all ${st?.row ?? (uploaded ? "bg-primary/5 border-primary/20" : "bg-muted/20 border-border")}`}>
+    <div className={`p-3 rounded-lg border transition-all ${st?.row ?? (uploaded ? "bg-primary/5 border-primary/20" : deferred ? "bg-muted/40 border-border" : "bg-muted/20 border-border")}`}>
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-card border border-border">
           <Icon size={16} className={isScanning ? "text-primary animate-pulse" : st ? "" : uploaded ? "text-muted-foreground animate-spin" : "text-muted-foreground"} />
@@ -284,7 +286,8 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
         <div className="flex-1 min-w-0">
           <span className="text-sm font-medium text-foreground block">{doc.label}</span>
           {uploaded && <span className="text-[11px] text-muted-foreground truncate block">{uploaded.file_name}</span>}
-          {!uploaded && doc.required && <span className="text-[10px] text-destructive">חובה</span>}
+          {!uploaded && doc.required && !deferred && <span className="text-[10px] text-destructive">חובה</span>}
+          {!uploaded && deferred && <span className="text-[10px] text-primary font-medium">ישלח במועד אחר</span>}
         </div>
         {uploaded ? (
           <div className="flex items-center gap-2">
@@ -306,6 +309,17 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
           </label>
         )}
       </div>
+      {!uploaded && doc.required && (
+        <label className="mt-2 flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={deferred}
+            onChange={() => onToggleDeferred(doc.type)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          <span className="text-xs text-muted-foreground">אשלח במועד אחר — אפשר להמשיך לתשלום ולהשלים מאוחר יותר</span>
+        </label>
+      )}
       {v && !isScanning && (
         <div className="mt-3 pt-3 border-t border-border/60 space-y-2 text-xs">
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
