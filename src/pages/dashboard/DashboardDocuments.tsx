@@ -86,8 +86,10 @@ export default function DashboardDocuments() {
     if (!caseId) return;
     setUploading(docType);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("נדרשת התחברות מחדש");
       const safeName = file.name.replace(/[^\w.\-]/g, "_");
-      const filePath = `${caseId}/${docType}/${Date.now()}_${safeName}`;
+      const filePath = `${user.id}/${caseId}/${docType}/${Date.now()}_${safeName}`;
       const { error: uploadError } = await supabase.storage.from("case-documents").upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
 
