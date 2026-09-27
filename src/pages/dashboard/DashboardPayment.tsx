@@ -290,10 +290,74 @@ export default function DashboardPayment() {
                     </a>
                   </div>
                 ) : (
-                  <Button variant="cta" size="lg" className="w-full text-base" onClick={() => setShowPayFrame(true)}>
-                    <Zap size={18} />
-                    פתח ניתוח תוך 72 שעות
-                  </Button>
+                  <div className="space-y-4 text-right">
+                    {/* Billing details for the invoice */}
+                    <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                      <p className="text-sm font-bold text-foreground">פרטי חיוב לחשבונית</p>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={sameAsBorrower}
+                          onCheckedChange={(v) => setSameAsBorrower(v === true)}
+                        />
+                        <span className="text-sm text-muted-foreground">הפרטים זהים לפרטי הלווה מהשאלון</span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-first" className="text-xs">שם פרטי</Label>
+                          <Input
+                            id="bill-first"
+                            value={billing.firstName}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, firstName: e.target.value }))}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-last" className="text-xs">שם משפחה</Label>
+                          <Input
+                            id="bill-last"
+                            value={billing.lastName}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, lastName: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="bill-invoice" className="text-xs">שם לחשבונית</Label>
+                        <Input
+                          id="bill-invoice"
+                          value={billing.invoiceName}
+                          disabled={sameAsBorrower}
+                          onChange={(e) => setBilling((b) => ({ ...b, invoiceName: e.target.value }))}
+                          placeholder="שם מלא או שם חברה"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
+                        <Input
+                          id="bill-email"
+                          type="email"
+                          dir="ltr"
+                          className="text-left"
+                          value={billing.email}
+                          disabled={sameAsBorrower}
+                          onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      variant="cta"
+                      size="lg"
+                      className="w-full text-base"
+                      disabled={!billingValid}
+                      onClick={() => setShowPayFrame(true)}
+                    >
+                      <Zap size={18} />
+                      פתח ניתוח תוך 72 שעות
+                    </Button>
+                    {!billingValid && (
+                      <p className="text-xs text-warning text-center">יש למלא את כל פרטי החיוב לפני המעבר לתשלום</p>
+                    )}
+                  </div>
                 )}
                 <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
               </>
