@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, ArrowLeft, AlertTriangle, CheckCircle,
+  ArrowLeft, AlertTriangle, CheckCircle,
   Home, RefreshCw, TrendingUp, Building2, GraduationCap, Umbrella,
   Briefcase,
 } from "lucide-react";
