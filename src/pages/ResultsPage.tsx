@@ -603,7 +603,7 @@ export default function ResultsPage() {
               size="lg"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base"
               onClick={() => {
-                window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3500&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank");
+                window.open(`https://secure.tranzila.com/ttxellisshay/iframed.php?sum=3450&currency=1&cred_type=1&success_url=${encodeURIComponent(window.location.origin + "/dashboard")}`, "_blank");
               }}
             >
               אני רוצה את ההצעה הטובה ביותר, ₪3,500 ←

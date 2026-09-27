@@ -11,7 +11,7 @@ import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList 
 
 // Tranzila terminal name — provided by Tranzila when the merchant account is approved.
 // It appears in the public payment URL, so it is not a secret.
-const TRANZILA_TERMINAL = "YOUR_TERMINAL";
+const TRANZILA_TERMINAL = "ttxellisshay";
 
 export default function DashboardPayment() {
   const navigate = useNavigate();
