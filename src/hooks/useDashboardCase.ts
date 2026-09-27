@@ -30,6 +30,7 @@ export function useDashboardCase() {
         setCaseId(data.id);
         setCaseType(data.case_type as "new" | "refi");
         setIntakeData((data.intake_data as Record<string, any>) || {});
+        setIntakeComplete(!!data.intake_complete);
       } else {
         toast({ title: "אין תיק פעיל", description: "פתח תיק חדש כדי להתחיל", variant: "destructive" });
         navigate("/intake");
@@ -76,6 +77,7 @@ export function useDashboardCase() {
     caseId,
     caseType,
     intakeData,
+    intakeComplete,
     loading,
     saving,
     saveStep,
