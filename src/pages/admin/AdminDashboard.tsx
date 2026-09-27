@@ -10,6 +10,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+const ACTIVE_STATUSES: CaseStatus[] = ["PaymentSucceeded", "WaitingForDocs", "InAnalysis", "ReportGenerated", "SentToBank", "BankOfferReceived", "Negotiation"];
+const IN_PROGRESS_STATUSES: CaseStatus[] = ["Draft", "WaitingForPayment", "CustomerReview"];
+const PAST_STATUSES: CaseStatus[] = ["ClosedWon", "ClosedLost"];
+
 export default function AdminDashboard() {
   const { cases, loading } = useAdminCases();
 
@@ -31,6 +35,16 @@ export default function AdminDashboard() {
 
   const pendingDocs = statusCounts.WaitingForDocs || 0;
   const readyToSend = statusCounts.ReportGenerated || 0;
+
+  const activeClients = cases.filter((c) => ACTIVE_STATUSES.includes(c.status));
+  const inProgressClients = cases.filter((c) => IN_PROGRESS_STATUSES.includes(c.status));
+  const pastClients = cases.filter((c) => PAST_STATUSES.includes(c.status));
+
+  const clientGroups = [
+    { label: "לקוחות פעילים", hint: "שולם, התיק בטיפול", list: activeClients, accent: "text-success" },
+    { label: "לקוחות בתהליך", hint: "ממלאים פרטים או טרם שילמו", list: inProgressClients, accent: "text-warning" },
+    { label: "לקוחות עבר", hint: "תיקים שנסגרו", list: pastClients, accent: "text-muted-foreground" },
+  ];
 
   const summaryCards = [
     { label: "סה״כ תיקים", value: totalCases, icon: Briefcase, color: "text-primary" },
@@ -99,47 +113,50 @@ export default function AdminDashboard() {
         </div>
       </motion.div>
 
-      {/* Recent Cases */}
-      <motion.div
-        className="bg-card rounded-xl p-6 shadow-card border border-border"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-xl font-bold text-foreground">תיקים אחרונים</h2>
-          <Link to="/admin/cases" className="text-sm text-gold font-semibold hover:underline">
-            צפה בכולם ←
-          </Link>
-        </div>
-        {cases.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">אין תיקים עדיין</p>
-        ) : (
-          <div className="space-y-3">
-            {cases.slice(0, 5).map((c) => {
-              const status = CASE_STATUSES[c.status];
-              return (
-                <Link
-                  key={c.id}
-                  to={`/admin/cases/${c.id}`}
-                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <div>
-                    <div className="font-semibold text-foreground">{c.client_name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {c.case_number} • {c.case_type === "refi" ? "מיחזור" : "חדשה"}
-                      {c.goal && ` • ${c.goal}`}
-                    </div>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.color}`}>
-                    {status.label}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </motion.div>
+      {/* Client Groups */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {clientGroups.map((group, gi) => (
+          <motion.div
+            key={group.label}
+            className="bg-card rounded-xl p-5 shadow-card border border-border"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + gi * 0.1 }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="font-display text-lg font-bold text-foreground">{group.label}</h2>
+              <span className={`font-display text-2xl font-black ${group.accent}`}>{group.list.length}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">{group.hint}</p>
+            {group.list.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-6">אין לקוחות בקטגוריה זו</p>
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {group.list.map((c) => {
+                  const status = CASE_STATUSES[c.status];
+                  return (
+                    <Link
+                      key={c.id}
+                      to={`/admin/cases/${c.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-semibold text-foreground text-sm truncate">{c.client_name}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {c.case_number} • {c.case_type === "refi" ? "מיחזור" : "חדשה"}
+                        </div>
+                      </div>
+                      <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }

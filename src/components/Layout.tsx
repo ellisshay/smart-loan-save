@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase, ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import FloatingApplyButton from "@/components/FloatingApplyButton";
@@ -25,7 +26,21 @@ const navLinks = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { if (active) setIsAdmin(false); return; }
+      const { data } = await supabase.rpc("is_admin");
+      if (active) setIsAdmin(!!data);
+    };
+    check();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => check());
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -62,6 +77,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <div className="hidden md:flex items-center gap-2">
             <ThemeToggle />
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="gap-1.5 border-primary/40 text-primary">
+                  <ShieldCheck size={15} />
+                  אזור מנהל
+                </Button>
+              </Link>
+            )}
             <Link to="/my-cases">
               <Button variant="outline" size="sm">האזור שלי</Button>
             </Link>
@@ -104,11 +127,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {link.label}
                   </Link>
                 ))}
-                <div className="pt-2 flex items-center gap-2">
-                  <ThemeToggle />
-                  <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
-                    <Button variant="cta" className="w-full">בדוק את המשכנתא שלך</Button>
-                  </Link>
+                <div className="pt-2 space-y-2">
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-primary/10 text-primary">
+                      <ShieldCheck size={18} />
+                      אזור מנהל
+                    </Link>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
+                      <Button variant="cta" className="w-full">בדוק את המשכנתא שלך</Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </motion.div>
