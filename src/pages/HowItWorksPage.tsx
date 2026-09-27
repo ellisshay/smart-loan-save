@@ -64,7 +64,7 @@ const steps = [
     num: "05",
     icon: FileText,
     title: "קבל דוח PDF מקצועי",
-    desc: "תוך 48 שעות מרגע העלאת המסמכים, מקבל דוח מקצועי הכולל את כל הניתוח — טבלאות, גרפים, חיסכון צפוי, והמלצה מנומקת.",
+    desc: "תוך 72 שעות מרגע העלאת המסמכים, מקבל דוח מקצועי הכולל את כל הניתוח — טבלאות, גרפים, חיסכון צפוי, והמלצה מנומקת.",
     details: [
       "דוח בעברית עם עיצוב מקצועי",
       "3 תמהילים + טבלאות השוואה",
@@ -95,13 +95,13 @@ export default function HowItWorksPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-6">
               <Clock size={14} />
-              תהליך מלא תוך 48 שעות
+              תהליך מלא תוך 72 שעות
             </span>
             <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
               איך זה <span className="text-gradient-gold">עובד?</span>
             </h1>
             <p className="text-lg text-foreground/70 leading-relaxed max-w-xl mx-auto">
-              טופס דיגיטלי קצר, העלאת מסמכים, ותוך 48 שעות יש לך דוח מקצועי עם 3 תמהילים
+              טופס דיגיטלי קצר, העלאת מסמכים, ותוך 72 שעות יש לך דוח מקצועי עם 3 תמהילים
               + הצעה מהבנק. בלי פגישות, בלי שיחות מכירה, בלי לחכות.
             </p>
           </motion.div>
@@ -176,7 +176,7 @@ export default function HowItWorksPage() {
               <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-3">
                 <Clock className="text-gold" size={24} />
               </div>
-              <h3 className="font-display font-bold text-foreground mb-1">48 שעות</h3>
+              <h3 className="font-display font-bold text-foreground mb-1">72 שעות</h3>
               <p className="text-sm text-muted-foreground">מרגע התשלום והעלאת מסמכים עד לדוח מלא.</p>
             </motion.div>
             <motion.div
@@ -207,7 +207,7 @@ export default function HowItWorksPage() {
               מוכן להתחיל?
             </h2>
             <p className="text-foreground/70 mb-8 max-w-md mx-auto">
-              בדיקה חינמית תוך דקה. דוח מקצועי תוך 48 שעות.
+              בדיקה חינמית תוך דקה. דוח מקצועי תוך 72 שעות.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/calculators">

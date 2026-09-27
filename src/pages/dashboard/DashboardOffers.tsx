@@ -59,7 +59,7 @@ export default function DashboardOffers() {
         <Clock className="mx-auto mb-4 text-muted-foreground/40" size={56} />
         <h2 className="font-display text-xl font-bold text-foreground mb-2">ממתינים להצעות</h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          הפרופיל שלך נשלח ל-5 יועצים מורשים. בדרך כלל ההצעות מגיעות תוך 48 שעות.
+          הפרופיל שלך נשלח ל-5 יועצים מורשים. בדרך כלל ההצעות מגיעות תוך 72 שעות.
         </p>
       </div>
     );

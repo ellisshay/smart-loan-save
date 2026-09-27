@@ -126,7 +126,7 @@ export default function RefinanceCalculator() {
               <div className="pt-2">
                 <Link to="/pricing">
                   <Button variant="cta" size="lg" className="w-full">
-                    פתח תיק פרימיום תוך 48 שעות — ₪3,500
+                    פתח תיק פרימיום תוך 72 שעות — ₪3,500
                   </Button>
                 </Link>
               </div>

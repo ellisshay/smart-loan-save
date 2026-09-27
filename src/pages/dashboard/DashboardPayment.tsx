@@ -34,7 +34,7 @@ export default function DashboardPayment() {
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
           <Zap size={32} className="text-primary" />
         </div>
-        <h2 className="font-display text-2xl font-bold text-foreground">פתיחת תיק לניתוח תוך 48 שעות</h2>
+        <h2 className="font-display text-2xl font-bold text-foreground">פתיחת תיק לניתוח תוך 72 שעות</h2>
         <p className="text-sm text-muted-foreground mt-2">
           צוות המומחים שלנו יבנה עבורך תמהיל אופטימלי
         </p>
@@ -82,12 +82,12 @@ export default function DashboardPayment() {
         <Card className="border-primary/30 shadow-[var(--shadow-gold)]">
           <CardContent className="p-6 text-center">
             <div className="mb-4">
-              <span className="text-3xl font-display font-black text-foreground">₪3,800</span>
+              <span className="text-3xl font-display font-black text-foreground">₪3,450</span>
               <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · תשלום חד פעמי</span>
             </div>
             <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3800&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank")}>
               <Zap size={18} />
-              פתח ניתוח תוך 48 שעות
+              פתח ניתוח תוך 72 שעות
             </Button>
             <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
           </CardContent>

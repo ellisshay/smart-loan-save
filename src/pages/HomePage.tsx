@@ -51,7 +51,7 @@ const painCards = [
 const faqItems = [
   { q: "האם השירות באמת חינם?", a: "כן, הניתוח AI חינמי לחלוטין. EasyMorte גובה מהיועצים בלבד." },
   { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
-  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – בדרך כלל 48 שעות. בשיא עד 72 שעות." },
+  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – בדרך כלל 72 שעות. בשיא עד 72 שעות." },
   { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל יועץ או לא לבחור. ללא מחויבות." },
   { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte היא פלטפורמת חיבור. אנחנו מביאים לך 3 הצעות תחרותיות במקום הצעה אחת." },
 ];
@@ -131,9 +131,9 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EasyMorte – ניתוח משכנתא AI חינמי | 3 הצעות תוך 48 שעות</title>
-        <meta name="description" content="פלטפורמת AI לניתוח משכנתאות. מקבלים ציון זכאות, מסלולים מותאמים ו-3 הצעות אמיתיות מבנקים תוך 48 שעות. חינם לחלוטין." />
-        <meta property="og:title" content="EasyMorte – 3 הצעות משכנתא תוך 48 שעות" />
+        <title>EasyMorte – ניתוח משכנתא AI חינמי | 3 הצעות תוך 72 שעות</title>
+        <meta name="description" content="פלטפורמת AI לניתוח משכנתאות. מקבלים ציון זכאות, מסלולים מותאמים ו-3 הצעות אמיתיות מבנקים תוך 72 שעות. חינם לחלוטין." />
+        <meta property="og:title" content="EasyMorte – 3 הצעות משכנתא תוך 72 שעות" />
         <meta property="og:description" content="AI מנתח את הפרופיל שלך ומביא הצעות תחרותיות מ-3 בנקים. חינם." />
       </Helmet>
 
@@ -153,7 +153,7 @@ export default function HomePage() {
               className="font-display text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-4 text-white"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             >
-              קבל 3 הצעות משכנתא אמיתיות תוך 48 שעות
+              קבל 3 הצעות משכנתא אמיתיות תוך 72 שעות
             </motion.h1>
             <motion.p
               className="text-lg text-white/60 mb-4"
@@ -369,7 +369,7 @@ export default function HomePage() {
                   "פרופיל אחד, הכל דיגיטלי",
                   "מסמכים פעם אחת בלבד",
                   "חינם לחלוטין ללקוח",
-                  "הצעות תוך 48 שעות",
+                  "הצעות תוך 72 שעות",
                   "3 הצעות במקביל",
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-foreground">

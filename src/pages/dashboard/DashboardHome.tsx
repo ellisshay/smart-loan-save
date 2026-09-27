@@ -40,7 +40,7 @@ const DASHBOARD_STEPS = [
 const REWARD_MILESTONES = [
   { threshold: 25, icon: Sparkles, label: "תצוגת חיסכון משופרת", color: "text-primary" },
   { threshold: 50, icon: TrendingDown, label: 'סימולציה "אם ריבית עולה 1%"', color: "text-warning" },
-  { threshold: 85, icon: Zap, label: "תשלום + תיק נכנס ל-48 שעות", color: "text-success" },
+  { threshold: 85, icon: Zap, label: "תשלום + תיק נכנס ל-72 שעות", color: "text-success" },
 ];
 
 export default function DashboardHome() {
@@ -172,7 +172,7 @@ export default function DashboardHome() {
             </p>
             <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
               <Clock size={12} />
-              זמן ניתוח מובטח: <span className="text-primary font-semibold">48 שעות</span> מרגע שהתיק מלא
+              זמן ניתוח מובטח: <span className="text-primary font-semibold">72 שעות</span> מרגע שהתיק מלא
             </p>
           </CardContent>
         </Card>
@@ -308,10 +308,10 @@ export default function DashboardHome() {
             <CardContent className="p-6 text-center">
               <Trophy size={28} className="text-primary mx-auto mb-2" />
               <h3 className="font-display text-xl font-bold text-foreground mb-2">התיק מוכן לניתוח! 🎉</h3>
-              <p className="text-muted-foreground mb-4 text-sm">פתח ניתוח תוך 48 שעות</p>
+              <p className="text-muted-foreground mb-4 text-sm">פתח ניתוח תוך 72 שעות</p>
               <Link to="/dashboard/payment">
                 <Button variant="cta" size="lg" className="text-base">
-                  <Zap size={18} /> פתח ניתוח תוך 48 שעות – ₪3,800
+                  <Zap size={18} /> פתח ניתוח תוך 72 שעות – ₪3,450
                 </Button>
               </Link>
             </CardContent>

@@ -58,7 +58,7 @@ export default function AdminCasesList() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-display text-3xl font-black text-foreground mb-2">ניהול תיקים</h1>
         <p className="text-muted-foreground mb-6">
-          {cases.length} תיקים | SLA: 48 שעות
+          {cases.length} תיקים | SLA: 72 שעות
         </p>
       </motion.div>
 

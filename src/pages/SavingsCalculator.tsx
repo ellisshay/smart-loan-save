@@ -481,7 +481,7 @@ export default function SavingsCalculator() {
                     <Timer className="text-gold" size={18} />
                     <span className="text-sm font-semibold text-gold">חלון עדיפות לניתוח מהיר</span>
                   </div>
-                  <p className="text-muted-foreground text-sm mb-2">בדיקה מלאה ב-48 שעות — המחיר המוזל נשמר עבורך ל-</p>
+                  <p className="text-muted-foreground text-sm mb-2">בדיקה מלאה ב-72 שעות — המחיר המוזל נשמר עבורך ל-</p>
                   <div className="font-display text-3xl font-black text-gold">
                     {String(timer.minutes).padStart(2, "0")}:{String(timer.seconds).padStart(2, "0")}
                   </div>
@@ -491,7 +491,7 @@ export default function SavingsCalculator() {
               {/* 3️⃣ Price anchoring + CTA */}
               <div className="bg-gradient-to-br from-gold/10 to-gold-dark/10 rounded-2xl p-8 border border-gold/20 text-center">
                 <h3 className="font-display text-2xl md:text-3xl font-black text-foreground mb-3">
-                  רוצה בדיקה מלאה ומדויקת תוך 48 שעות?
+                  רוצה בדיקה מלאה ומדויקת תוך 72 שעות?
                 </h3>
                 <p className="text-muted-foreground mb-4">
                   דוח מקצועי עם 3 תמהילים מותאמים אישית — שמרני, מאוזן ואגרסיבי
@@ -520,7 +520,7 @@ export default function SavingsCalculator() {
                 {[
                   { icon: Users, value: "4,200+", label: "לקוחות" },
                   { icon: TrendingDown, value: "₪84,000", label: "חיסכון ממוצע" },
-                  { icon: Clock, value: "48 שעות", label: "זמן טיפול" },
+                  { icon: Clock, value: "72 שעות", label: "זמן טיפול" },
                   { icon: Star, value: "98%", label: "שביעות רצון" },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-card rounded-xl p-4 border border-border text-center">
