@@ -52,6 +52,7 @@ const DashboardTender = lazy(() => import("./pages/dashboard/DashboardTender"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminCasesList = lazy(() => import("./pages/admin/AdminCasesList"));
 const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
 const AdvisorOfferPage = lazy(() => import("./pages/advisor/AdvisorOfferPage"));
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
@@ -115,6 +116,7 @@ const App = () => (
             <Route path="cases" element={<AdminCasesList />} />
             <Route path="cases/:id" element={<AdminCaseDetail />} />
             <Route path="privacy" element={<AdminPrivacy />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
 
           {/* Public routes */}
