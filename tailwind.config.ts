@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Heebo", "sans-serif"],
-        body: ["Rubik", "sans-serif"],
+        display: ["Frank Ruhl Libre", "serif"],
+        body: ["IBM Plex Sans Hebrew", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

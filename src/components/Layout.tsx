@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import ThemeToggle from "@/components/ThemeToggle";
+import MarketTicker from "@/components/MarketTicker";
 import PublicChatWidget from "@/components/PublicChatWidget";
 import speedMarketLogo from "@/assets/credits/speedmarket.png";
 import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
@@ -31,11 +32,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <a href="#main-content" className="skip-to-content">דלג לתוכן הראשי</a>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border" role="banner">
+      <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-gold/20" role="banner">
+        <MarketTicker />
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-gold-gradient flex items-center justify-center">
-              <span className="font-display font-black text-accent-foreground text-sm">EM</span>
+            <div className="w-9 h-9 rounded-sm bg-primary ring-1 ring-gold/50 flex items-center justify-center">
+              <span className="font-display font-black text-gold-light text-sm">EM</span>
             </div>
             <span className="font-display font-bold text-xl text-foreground">EasyMorte</span>
           </Link>

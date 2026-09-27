@@ -1,3 +1,4 @@
+import Hero3D from "@/components/home/Hero3D";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -131,88 +132,90 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EasyMorte – ניתוח משכנתא AI חינמי | 3 הצעות תוך 72 שעות</title>
+        <title>EasyMorte – משכנתא דיגיטלית במחיר קבוע | בדיקת תיק תוך 72 שעות</title>
         <meta name="description" content="פלטפורמת AI לניתוח משכנתאות. מקבלים ציון זכאות, מסלולים מותאמים ו-3 הצעות אמיתיות מבנקים תוך 72 שעות. חינם לחלוטין." />
         <meta property="og:title" content="EasyMorte – 3 הצעות משכנתא תוך 72 שעות" />
         <meta property="og:description" content="AI מנתח את הפרופיל שלך ומביא הצעות תחרותיות מ-3 בנקים. חינם." />
       </Helmet>
 
       {/* ═══════ STAGE 0 – Hero Calculator ═══════ */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(215_50%_8%)] via-[hsl(215_45%_12%)] to-[hsl(215_40%_16%)]" />
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse" />
+      <section className="relative overflow-hidden flex items-center">
+        <div className="absolute inset-0 bg-hero" />
+        <div className="absolute inset-0 bg-grain opacity-60" />
+        
 
-        <div className="container relative py-16 md:py-24">
-          <div className="text-center max-w-4xl mx-auto mb-10">
+        <div className="container relative py-14 md:py-20 grid lg:grid-cols-[1.15fr_0.85fr] gap-10 items-center">
+          <div>
+          <div className="max-w-2xl mb-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/15 text-gold text-sm font-semibold mb-6 border border-gold/20">
-                <Sparkles size={14} /> בדוק את הסיכוי שלך תוך 30 שניות
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-sm bg-gold/10 text-gold text-xs tracking-wide font-semibold mb-6 border border-gold/30">
+                <Sparkles size={14} /> מחיר קבוע · בלי פגישות · עד 72 שעות
               </span>
             </motion.div>
             <motion.h1
-              className="font-display text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-4 text-white"
+              className="font-display text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] mb-5 text-foreground"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             >
-              קבל 3 הצעות משכנתא אמיתיות תוך 72 שעות
+              משכנתא בלי <span className="text-gradient-gold">כל הבלאגן.</span>
             </motion.h1>
             <motion.p
-              className="text-lg text-white/60 mb-4"
+              className="text-lg text-muted-foreground mb-4"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             >
-              AI מנתח את הפרופיל שלך, יועצים מתחרים על הלקוח שלך — אתה בוחר וחוסך.
+              מעלים הכול פעם אחת. אנחנו בודקים את התיק, בונים אסטרטגיה ומנהלים מכרז בנקים — ב־3,450 ₪ קבועים.
             </motion.p>
 
             {/* Urgency counter pill */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white/80 text-sm border border-white/10"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-card text-muted-foreground text-sm border border-border"
             >
-              🔴 היום נרשמו {urgencyCount} אנשים
+              <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" /> היום נרשמו {urgencyCount} אנשים
             </motion.div>
           </div>
 
           {/* Calculator Card */}
           <motion.div
-            className="max-w-2xl mx-auto bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6 md:p-8 space-y-6"
+            className="max-w-2xl bg-card/90 backdrop-blur-xl rounded-lg border border-gold/25 shadow-card-hover p-6 md:p-8 space-y-6"
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
           >
             {/* Property Price Slider */}
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-white/70">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>מחיר הנכס</span>
-                <span className="font-bold text-white">₪{propertyPrice.toLocaleString()}</span>
+                <span className="font-bold text-foreground">₪{propertyPrice.toLocaleString()}</span>
               </div>
               <input
                 type="range" min={500000} max={5000000} step={50000}
                 value={propertyPrice}
                 onChange={(e) => setPropertyPrice(Number(e.target.value))}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-white/20 accent-[hsl(var(--gold))]"
+                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-muted accent-[hsl(var(--gold))]"
               />
-              <div className="flex justify-between text-xs text-white/40">
+              <div className="flex justify-between text-xs text-muted-foreground">
                 <span>₪500K</span><span>₪5M</span>
               </div>
             </div>
 
             {/* Income Slider */}
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-white/70">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>הכנסה חודשית נטו</span>
-                <span className="font-bold text-white">₪{monthlyIncome.toLocaleString()}</span>
+                <span className="font-bold text-foreground">₪{monthlyIncome.toLocaleString()}</span>
               </div>
               <input
                 type="range" min={5000} max={50000} step={1000}
                 value={monthlyIncome}
                 onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-white/20 accent-[hsl(var(--gold))]"
+                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-muted accent-[hsl(var(--gold))]"
               />
-              <div className="flex justify-between text-xs text-white/40">
+              <div className="flex justify-between text-xs text-muted-foreground">
                 <span>₪5K</span><span>₪50K</span>
               </div>
             </div>
 
             {/* Purpose Pills */}
             <div className="space-y-2">
-              <span className="text-sm text-white/70">מטרה</span>
+              <span className="text-sm text-muted-foreground">מטרה</span>
               <div className="flex gap-2">
                 {([
                   { label: "דירה ראשונה", value: "first" as const },
@@ -222,10 +225,10 @@ export default function HomePage() {
                   <button
                     key={p.value}
                     onClick={() => setPurpose(p.value)}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    className={`flex-1 py-2.5 rounded-md text-sm font-medium transition-all ${
                       purpose === p.value
-                        ? "bg-gold text-white"
-                        : "bg-white/10 text-white/60 hover:bg-white/15"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-secondary"
                     }`}
                   >
                     {p.label}
@@ -236,8 +239,8 @@ export default function HomePage() {
 
             {/* Live Results */}
             <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="bg-white/10 rounded-xl p-3 text-center">
-                <p className="text-xs text-white/50 mb-1">סיכוי ראשוני</p>
+              <div className="bg-muted rounded-md p-3 text-center">
+                <p className="text-xs text-muted-foreground mb-1">סיכוי ראשוני</p>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
                   approvalChance === "high" ? "bg-[hsl(var(--success))]/20 text-[hsl(var(--success))]" :
                   approvalChance === "medium" ? "bg-[hsl(var(--warning))]/20 text-[hsl(var(--warning))]" :
@@ -246,13 +249,13 @@ export default function HomePage() {
                   {approvalChance === "high" ? "גבוה ✓" : approvalChance === "medium" ? "בינוני" : "נמוך"}
                 </span>
               </div>
-              <div className="bg-white/10 rounded-xl p-3 text-center">
-                <p className="text-xs text-white/50 mb-1">החזר חודשי משוער</p>
-                <p className="text-lg font-bold text-white">₪{monthlyPayment.toLocaleString()}</p>
+              <div className="bg-muted rounded-md p-3 text-center">
+                <p className="text-xs text-muted-foreground mb-1">החזר חודשי משוער</p>
+                <p className="text-lg font-bold text-foreground">₪{monthlyPayment.toLocaleString()}</p>
               </div>
-              <div className="bg-white/10 rounded-xl p-3 text-center">
-                <p className="text-xs text-white/50 mb-1">מקסימום הלוואה</p>
-                <p className="text-lg font-bold text-white">₪{maxLoan.toLocaleString()}</p>
+              <div className="bg-muted rounded-md p-3 text-center">
+                <p className="text-xs text-muted-foreground mb-1">מקסימום הלוואה</p>
+                <p className="text-lg font-bold text-foreground">₪{maxLoan.toLocaleString()}</p>
               </div>
             </div>
 
@@ -266,12 +269,14 @@ export default function HomePage() {
               <ArrowLeft size={18} />
             </Button>
 
-            <div className="flex items-center justify-center gap-4 text-xs text-white/40">
+            <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><Check size={12} className="text-gold" /> ללא הרשמה</span>
               <span className="flex items-center gap-1"><Check size={12} className="text-gold" /> 30 שניות</span>
               <span className="flex items-center gap-1"><Check size={12} className="text-gold" /> חינם לגמרי</span>
             </div>
           </motion.div>
+          </div>
+          <div className="hidden lg:block"><Hero3D /></div>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0">

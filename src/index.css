@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Rubik:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=IBM+Plex+Sans+Hebrew:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,121 +6,103 @@
 
 @layer base {
   :root {
-    /* Clean White + Turquoise/Teal Premium Theme */
-    --background: 0 0% 100%;
-    --foreground: 215 25% 15%;
-
-    --card: 210 20% 98%;
-    --card-foreground: 215 25% 15%;
-
+    /* Ivory + Black + Gold — authoritative private-banking theme */
+    --background: 40 30% 97%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
-
-    --primary: 185 70% 42%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 15% 93%;
-    --secondary-foreground: 215 25% 20%;
-
-    --muted: 210 12% 95%;
-    --muted-foreground: 215 10% 45%;
-
-    --accent: 185 70% 42%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 7%;
+    --primary-foreground: 43 70% 75%;
+    --secondary: 40 20% 92%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 40 18% 93%;
+    --muted-foreground: 30 6% 38%;
+    --accent: 43 54% 54%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 65% 48%;
     --destructive-foreground: 0 0% 100%;
+    --border: 38 18% 84%;
+    --input: 38 18% 86%;
+    --ring: 43 54% 54%;
+    --radius: 0.375rem;
 
-    --border: 210 15% 88%;
-    --input: 210 15% 90%;
-    --ring: 185 70% 42%;
-
-    --radius: 0.75rem;
-
-    /* Custom tokens — turquoise/teal */
-    --gold: 185 70% 42%;
-    --gold-light: 185 55% 55%;
-    --gold-dark: 185 75% 32%;
-    --navy: 215 45% 18%;
-    --navy-light: 215 35% 30%;
-    --navy-dark: 215 50% 10%;
-    --navy-muted: 215 20% 55%;
-    --success: 152 60% 42%;
+    --gold: 43 54% 46%;
+    --gold-light: 44 76% 75%;
+    --gold-dark: 40 60% 34%;
+    --navy: 0 0% 7%;
+    --navy-light: 0 0% 16%;
+    --navy-dark: 0 0% 4%;
+    --navy-muted: 30 6% 50%;
+    --success: 152 50% 36%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 38 92% 45%;
     --warning-foreground: 0 0% 100%;
-    --hero-gradient: linear-gradient(135deg, hsl(210 20% 97%) 0%, hsl(210 15% 94%) 50%, hsl(185 15% 95%) 100%);
-    --card-shine: linear-gradient(135deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(185 70% 42%) 0%, hsl(175 65% 38%) 100%);
-    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
-    --shadow-card-hover: 0 12px 40px -8px rgba(0, 0, 0, 0.12);
-    --shadow-gold: 0 4px 20px -4px hsla(185, 70%, 42%, 0.2);
+    --hero-gradient: radial-gradient(ellipse 80% 60% at 85% 0%, hsl(43 60% 85% / 0.55) 0%, transparent 60%), linear-gradient(180deg, hsl(40 33% 97%) 0%, hsl(40 22% 93%) 100%);
+    --card-shine: linear-gradient(135deg, transparent 0%, hsl(43 54% 54% / 0.06) 50%, transparent 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(40 60% 38%) 0%, hsl(43 54% 54%) 45%, hsl(44 76% 72%) 100%);
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.04), 0 8px 28px -12px hsl(30 20% 20% / 0.18);
+    --shadow-card-hover: 0 2px 4px hsl(0 0% 0% / 0.05), 0 22px 48px -16px hsl(30 30% 20% / 0.28);
+    --shadow-gold: 0 10px 30px -10px hsl(43 54% 45% / 0.45);
 
-    --sidebar-background: 210 20% 97%;
-    --sidebar-foreground: 215 25% 20%;
-    --sidebar-primary: 185 70% 42%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 15% 93%;
-    --sidebar-accent-foreground: 215 25% 20%;
-    --sidebar-border: 210 15% 88%;
-    --sidebar-ring: 185 70% 42%;
+    --sidebar-background: 40 25% 95%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 43 54% 46%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 40 20% 90%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 38 18% 84%;
+    --sidebar-ring: 43 54% 54%;
   }
 
   .dark {
-    --background: 215 28% 12%;
-    --foreground: 200 20% 95%;
-
-    --card: 215 30% 16%;
-    --card-foreground: 200 20% 95%;
-
-    --popover: 215 30% 16%;
-    --popover-foreground: 200 20% 95%;
-
-    --primary: 185 70% 50%;
-    --primary-foreground: 210 50% 8%;
-
-    --secondary: 215 28% 22%;
-    --secondary-foreground: 200 20% 92%;
-
-    --muted: 215 22% 20%;
-    --muted-foreground: 200 12% 60%;
-
-    --accent: 185 70% 50%;
-    --accent-foreground: 210 50% 8%;
-
-    --destructive: 0 72% 51%;
+    --background: 0 0% 5%;
+    --foreground: 40 25% 92%;
+    --card: 0 0% 9%;
+    --card-foreground: 40 25% 92%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 40 25% 92%;
+    --primary: 43 54% 54%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 38 8% 60%;
+    --accent: 43 54% 54%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
+    --border: 40 10% 18%;
+    --input: 40 10% 16%;
+    --ring: 43 54% 54%;
 
-    --border: 215 22% 24%;
-    --input: 215 22% 22%;
-    --ring: 185 70% 50%;
-
-    --gold: 185 70% 50%;
-    --gold-light: 185 65% 62%;
-    --gold-dark: 185 75% 38%;
-    --navy: 215 45% 18%;
-    --navy-light: 215 35% 30%;
-    --navy-dark: 215 50% 10%;
-    --navy-muted: 215 25% 48%;
-    --success: 152 60% 42%;
+    --gold: 43 54% 54%;
+    --gold-light: 44 76% 75%;
+    --gold-dark: 40 60% 40%;
+    --navy: 0 0% 7%;
+    --navy-light: 0 0% 16%;
+    --navy-dark: 0 0% 4%;
+    --navy-muted: 38 8% 50%;
+    --success: 152 50% 42%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --hero-gradient: linear-gradient(135deg, hsl(215 50% 8%) 0%, hsl(215 40% 14%) 50%, hsl(215 35% 20%) 100%);
-    --card-shine: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(185 70% 50%) 0%, hsl(175 65% 45%) 100%);
-    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
-    --shadow-card-hover: 0 12px 40px -8px rgba(0, 0, 0, 0.5);
-    --shadow-gold: 0 4px 20px -4px hsla(185, 70%, 50%, 0.35);
+    --hero-gradient: radial-gradient(ellipse 70% 55% at 85% 0%, hsl(43 54% 40% / 0.28) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 0% 100%, hsl(43 54% 40% / 0.12) 0%, transparent 60%), linear-gradient(180deg, hsl(0 0% 6%) 0%, hsl(0 0% 3%) 100%);
+    --card-shine: linear-gradient(135deg, transparent 0%, hsl(43 54% 60% / 0.07) 50%, transparent 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(40 60% 40%) 0%, hsl(43 54% 54%) 45%, hsl(44 76% 75%) 100%);
+    --shadow-card: 0 1px 0 hsl(43 54% 60% / 0.05) inset, 0 10px 30px -12px hsl(0 0% 0% / 0.7);
+    --shadow-card-hover: 0 1px 0 hsl(43 54% 60% / 0.1) inset, 0 24px 50px -16px hsl(0 0% 0% / 0.8);
+    --shadow-gold: 0 10px 34px -10px hsl(43 54% 50% / 0.5);
 
-    --sidebar-background: 215 30% 12%;
-    --sidebar-foreground: 200 20% 92%;
-    --sidebar-primary: 185 70% 50%;
-    --sidebar-primary-foreground: 210 50% 8%;
-    --sidebar-accent: 215 25% 20%;
-    --sidebar-accent-foreground: 200 20% 92%;
-    --sidebar-border: 215 22% 22%;
-    --sidebar-ring: 185 70% 50%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 43 54% 54%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 40 20% 90%;
+    --sidebar-border: 40 10% 18%;
+    --sidebar-ring: 43 54% 54%;
   }
 }
 
@@ -169,6 +151,18 @@
   .shadow-gold {
     box-shadow: var(--shadow-gold);
   }
+
+  .bg-grain {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .gold-rule {
+    background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.7), transparent);
+    height: 1px;
+  }
+  .font-ticker { font-family: 'IBM Plex Mono', monospace; }
+  .perspective-1000 { perspective: 1000px; }
+  .preserve-3d { transform-style: preserve-3d; }
 
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -220,3 +214,12 @@
 .skip-to-content:focus {
   top: 0;
 }
+
+@keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(50%); } }
+.animate-ticker { animation: ticker-scroll 45s linear infinite; }
+.animate-ticker:hover { animation-play-state: paused; }
+@keyframes float-3d { 0%,100% { transform: rotateX(14deg) rotateY(-18deg) translateY(0); } 50% { transform: rotateX(8deg) rotateY(-10deg) translateY(-14px); } }
+.animate-float-3d { animation: float-3d 7s ease-in-out infinite; }
+@keyframes spin-slow { to { transform: rotateY(360deg); } }
+.animate-spin-3d { animation: spin-slow 18s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .animate-ticker, .animate-float-3d, .animate-spin-3d { animation: none; } }
