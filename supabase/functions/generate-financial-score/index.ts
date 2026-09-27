@@ -22,6 +22,12 @@ const FINANCIAL_SCORE_PROMPT = `אתה מנתח פיננסי המחשב זכאו
 - קבועה צמודה: {fixed_linked_rate}%
 - משתנה כל 5: {variable_5_rate}%
 
+תאריך הניתוח: {today}. התאם את התמהיל לתנאי השוק של היום, השבוע והחודש (מגמת ריבית בנק ישראל, אינפלציה).
+כל ריביות השוק מהמערכת: {all_rates_json}
+היסטוריית ריביות אחרונה: {rates_history_json}
+מאגר פרופילים דומים (אנונימי, מלקוחות המערכת): {pool_json}
+השתמש במאגר כדי להעריך סכום משכנתא ותמהיל ריאליים לפרופיל, וציין זאת ב-summary_for_advisor.
+
 החזר את ה-JSON הבא:
 {
   "score": number (0-100),
@@ -121,6 +127,13 @@ serve(async (req) => {
       .limit(1)
       .single();
 
+    const intake = (caseData?.intake_data || {}) as any;
+    const { data: history } = await supabase.from("market_rates_history").select("captured_on, data").order("captured_on", { ascending: false }).limit(30);
+    const { data: poolRows } = await supabase.from("mortgage_profiles").select("case_type, borrower_count, income_range, property_area, property_value, loan_amount, ltv, dti, selected_mix, offered_rate").eq("case_type", caseData?.case_type || "new").limit(200);
+    const pool = poolRows || [];
+    const avg = (k: string) => { const v = pool.map((r: any) => Number(r[k])).filter((n) => n > 0); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null; };
+    const poolSummary = { count: pool.length, avg_loan: avg("loan_amount"), avg_property_value: avg("property_value"), avg_ltv: avg("ltv"), avg_dti: avg("dti"), sample: pool.slice(0, 20) };
+
     // 2. Build prompt with real data
     const clientProfile = {
       name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim(),
@@ -138,6 +151,10 @@ serve(async (req) => {
     }));
 
     const prompt = FINANCIAL_SCORE_PROMPT
+      .replace("{today}", new Date().toLocaleDateString("he-IL"))
+      .replace("{all_rates_json}", JSON.stringify(rates || {}))
+      .replace("{rates_history_json}", JSON.stringify(history || []))
+      .replace("{pool_json}", JSON.stringify(poolSummary))
       .replace("{client_profile_json}", JSON.stringify(clientProfile, null, 2))
       .replace("{documents_analysis_json}", JSON.stringify(documentsAnalysis, null, 2))
       .replace("{prime_rate}", String(rates?.prime || 4.6))
@@ -191,7 +208,7 @@ serve(async (req) => {
     // 3. Save to cases.ai_analysis
     const { error: updateError } = await supabase
       .from("cases")
-      .update({ ai_analysis: analysis })
+      .update({ ai_analysis: analysis ? { ...analysis, report_date: new Date().toISOString(), pool_size: pool.length, market_rates_used: rates } : analysis })
       .eq("id", case_id);
 
     if (updateError) console.error("DB update error:", updateError);
