@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ShoppingCart, FileText, User, LogOut, LayoutDashboard } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import Layout from "@/components/Layout";
+import BrandLogo from "@/components/BrandLogo";
 
 const navItems = [
   { label: "דשבורד", href: "/advisor", icon: LayoutDashboard },
@@ -48,11 +49,8 @@ export default function AdvisorLayout() {
       {/* Sidebar */}
       <aside className="w-64 bg-card border-l border-border flex flex-col shrink-0">
         <div className="p-5 border-b border-border">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
-              <span className="font-display font-black text-accent-foreground text-xs">EM</span>
-            </div>
-            <span className="font-display font-bold text-lg text-foreground">EASY MORTE</span>
+          <Link to="/" className="text-foreground" aria-label="EASY MORTE - לוקחים משכנתא בקלות">
+            <BrandLogo compact />
           </Link>
           <p className="text-xs text-gold font-semibold mt-1">פאנל יועץ</p>
         </div>

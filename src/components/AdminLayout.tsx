@@ -8,6 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Layout from "@/components/Layout";
+import BrandLogo from "@/components/BrandLogo";
 
 const sidebarLinks = [
   { label: "לוח בקרה", href: "/admin", icon: LayoutDashboard },
@@ -36,10 +37,7 @@ export default function AdminLayout() {
         <div className="h-16 flex items-center justify-between px-3 border-b border-border">
           {!collapsed && (
             <Link to="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
-                <span className="font-display font-black text-accent-foreground text-xs">EM</span>
-              </div>
-              <span className="font-display font-bold text-foreground">Admin</span>
+              <BrandLogo compact />
             </Link>
           )}
           <button
