@@ -32,12 +32,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <a href="#main-content" className="skip-to-content">דלג לתוכן הראשי</a>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-gold/20" role="banner">
+      <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border" role="banner">
         <MarketTicker />
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-sm bg-primary ring-1 ring-gold/50 flex items-center justify-center">
-              <span className="font-display font-black text-gold-light text-sm">EM</span>
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+              <Home size={18} className="text-primary-foreground" />
             </div>
             <span className="font-display font-bold text-xl text-foreground">EasyMorte</span>
           </Link>

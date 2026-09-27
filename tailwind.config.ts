@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Frank Ruhl Libre", "serif"],
+        display: ["Heebo", "IBM Plex Sans Hebrew", "sans-serif"],
         body: ["IBM Plex Sans Hebrew", "sans-serif"],
       },
       colors: {
