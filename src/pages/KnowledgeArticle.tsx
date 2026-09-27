@@ -162,7 +162,7 @@ const KnowledgeArticlePage = () => {
   return (
     <>
       <Helmet>
-        <title>{`${article.title} | משכנתאפדיה EasyMorte`}</title>
+        <title>{`${article.title} | משכנתאפדיה EASY MORTE`}</title>
         <meta name="description" content={article.metaDescription} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={article.title} />

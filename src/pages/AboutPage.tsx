@@ -61,10 +61,10 @@ export default function AboutPage() {
         <div className="container max-w-3xl text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
-              אנחנו <span className="text-gradient-gold">EasyMorte</span>
+              אנחנו <span className="text-gradient-gold">EASY MORTE</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
-              הקמנו את EasyMorte כי נמאס לנו לראות ישראלים משלמים יותר מדי על המשכנתא שלהם.
+              הקמנו את EASY MORTE כי נמאס לנו לראות ישראלים משלמים יותר מדי על המשכנתא שלהם.
               אנחנו מאמינים שכל אדם ראוי לדעת בדיוק כמה הוא יכול לחסוך, בלי שיחות מכירה,
               בלי לחץ, ובלי קונפליקט אינטרסים.
             </p>

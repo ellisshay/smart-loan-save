@@ -1,7 +1,7 @@
 import { MessageCircle } from "lucide-react";
 
 const WHATSAPP_NUMBER = "972501234567"; // Replace with actual number
-const WHATSAPP_MESSAGE = "שלום, אשמח לקבל מידע נוסף על שירותי EasyMorte";
+const WHATSAPP_MESSAGE = "שלום, אשמח לקבל מידע נוסף על שירותי EASY MORTE";
 
 export default function FloatingWhatsApp() {
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;

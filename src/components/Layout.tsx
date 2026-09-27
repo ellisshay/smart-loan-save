@@ -74,7 +74,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
               <Home size={18} className="text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-xl text-foreground">EasyMorte</span>
+            <span className="font-display font-bold text-xl text-foreground">EASY MORTE</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -184,7 +184,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
                   <span className="font-display font-black text-accent-foreground text-xs">EM</span>
                 </div>
-                <span className="font-display font-bold text-lg">EasyMorte</span>
+                <span className="font-display font-bold text-lg">EASY MORTE</span>
               </div>
               <p className="text-sm text-primary-foreground/70 leading-relaxed">
                 חוסכים לישראלים אלפי שקלים במשכנתא. ניתוח מקצועי, תמהילים חכמים, תוצאות מיידיות.
@@ -216,7 +216,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="border-t border-primary-foreground/10 mt-8 pt-6 space-y-3 text-center">
             <p className="text-xs text-primary-foreground/50">
-              © {new Date().getFullYear()} EasyMorte. כל הזכויות שמורות.
+              © {new Date().getFullYear()} EASY MORTE. כל הזכויות שמורות.
             </p>
             <div className="flex flex-col items-center gap-2.5 pt-1">
               <a

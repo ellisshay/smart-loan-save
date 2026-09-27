@@ -39,7 +39,7 @@ export default function ArticlePage() {
   return (
     <>
       <Helmet>
-        <title>{article.title} | משכנתאפדיה, EasyMorte</title>
+        <title>{article.title} | משכנתאפדיה, EASY MORTE</title>
         <meta name="description" content={article.metaDescription} />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.metaDescription} />
@@ -52,8 +52,8 @@ export default function ArticlePage() {
             headline: article.title,
             description: article.metaDescription,
             datePublished: article.publishDate,
-            author: { "@type": "Organization", name: "EasyMorte" },
-            publisher: { "@type": "Organization", name: "EasyMorte" },
+            author: { "@type": "Organization", name: "EASY MORTE" },
+            publisher: { "@type": "Organization", name: "EASY MORTE" },
           })}
         </script>
       </Helmet>

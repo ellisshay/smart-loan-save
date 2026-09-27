@@ -59,7 +59,7 @@ const faqItems = [
   { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
   { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל, עד 72 שעות לקבלת הצעות ראשונות." },
   { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל הצעה או לא לבחור. ללא מחויבות." },
-  { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
+  { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EASY MORTE מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
 ];
 
 // ─── Main Component ───
@@ -119,9 +119,9 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EasyMorte, משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
+        <title>EASY MORTE, משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
         <meta name="description" content="אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
-        <meta property="og:title" content="EasyMorte, משכנתא בלי כל הבלאגן" />
+        <meta property="og:title" content="EASY MORTE, משכנתא בלי כל הבלאגן" />
         <meta property="og:description" content="משווים הצעות מהבנקים ומנהלים משא ומתן בשבילך. עד 72 שעות להצעות ראשונות." />
       </Helmet>
 
@@ -334,7 +334,7 @@ export default function HomePage() {
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
           <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">
-            ככה נראה התהליך <span className="text-destructive">בלי</span> EasyMorte
+            ככה נראה התהליך <span className="text-destructive">בלי</span> EASY MORTE
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {painCards.map((card, i) => (
@@ -388,7 +388,7 @@ export default function HomePage() {
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
           <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">
-            EasyMorte מול השיטה הישנה
+            EASY MORTE מול השיטה הישנה
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
@@ -411,7 +411,7 @@ export default function HomePage() {
 
             <Card className="bg-primary/5 border-primary/30 border-2 rounded-2xl">
               <CardContent className="p-6 space-y-4">
-                <Badge className="mb-2 bg-primary text-primary-foreground">EasyMorte </Badge>
+                <Badge className="mb-2 bg-primary text-primary-foreground">EASY MORTE </Badge>
                 {[
                   "פרופיל אחד, הכל דיגיטלי",
                   "מסמכים פעם אחת בלבד",

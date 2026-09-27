@@ -35,5 +35,5 @@ export const BANK_EMAIL_TEMPLATE = `שלום רב,
 נשמח לקבל הצעה תחרותית.
 
 בברכה,
-צוות EasyMorte
+צוות EASY MORTE
 easymorte.il@gmail.com`;

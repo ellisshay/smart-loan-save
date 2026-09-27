@@ -50,7 +50,7 @@ export default function AffordabilityCalculator() {
   return (
     <div dir="rtl" className="min-h-screen bg-hero py-12 md:py-20 relative overflow-hidden">
       <Helmet>
-        <title>מחשבון יכולת רכישת דירה | EasyMorte</title>
+        <title>מחשבון יכולת רכישת דירה | EASY MORTE</title>
         <meta name="description" content="גלה תוך שניות כמה הון עצמי, משכורת והחזר חודשי תצטרך כדי לקנות את הדירה שאתה רוצה." />
       </Helmet>
 
