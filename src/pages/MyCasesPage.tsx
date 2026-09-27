@@ -126,7 +126,7 @@ export default function MyCasesPage() {
             <div className="w-9 h-9 rounded-lg bg-gold-gradient flex items-center justify-center">
               <span className="font-display font-black text-accent-foreground text-sm">EM</span>
             </div>
-            <span className="font-display font-bold text-xl text-foreground">EasyMorte</span>
+            <span className="font-display font-bold text-xl text-foreground">EASY MORTE</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/intake">

@@ -1053,7 +1053,7 @@ function CelebrationScreen({ score, onContinue }: { score: number; onContinue: (
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              משכנתא בלי
+              לוקחים משכנתא
             </motion.span>
             <motion.span
               className="block text-foreground"
@@ -1061,7 +1061,7 @@ function CelebrationScreen({ score, onContinue }: { score: number; onContinue: (
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.95, duration: 0.5 }}
             >
-              כאב ראש.
+              בקלות.
             </motion.span>
           </h1>
 

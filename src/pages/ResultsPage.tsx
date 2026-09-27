@@ -245,7 +245,7 @@ export default function ResultsPage() {
 
   const { score, score_label, approval_probability, ltv, dti, max_monthly, score_breakdown, mixes, insights, existing_offer_comparison, strengths, red_flags, urgency_note, advisor_summary, recommended_banks } = analysis;
 
-  const whatsappMsg = encodeURIComponent("שלום, סיימתי ניתוח AI ב-EasyMorte ורוצה לשמוע על שלב ההגשה");
+  const whatsappMsg = encodeURIComponent("שלום, סיימתי ניתוח AI ב-EASY MORTE ורוצה לשמוע על שלב ההגשה");
   const socialProofCount = 8 + (new Date().getDay() * 2) + Math.floor(new Date().getHours() / 6);
 
   return (

@@ -71,7 +71,7 @@ const KnowledgeHub = () => {
   const siteSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "משכנתאפדיה — מרכז הידע של EasyMorte",
+    name: "משכנתאפדיה — מרכז הידע של EASY MORTE",
     description: "מדריכי משכנתאות מקיפים בעברית: תמהילים, מחזור, אישור עקרוני, מסמכים, עצמאים ויועצים.",
     inLanguage: "he",
   };
@@ -79,12 +79,12 @@ const KnowledgeHub = () => {
   return (
     <>
       <Helmet>
-        <title>משכנתאפדיה — כל מה שצריך לדעת על משכנתא | EasyMorte</title>
+        <title>משכנתאפדיה — כל מה שצריך לדעת על משכנתא | EASY MORTE</title>
         <meta
           name="description"
-          content="מרכז הידע של EasyMorte: מדריכים מעמיקים על משכנתא ראשונה, מחזור, תמהילים, ריביות, אישור עקרוני, מסמכים, משכנתא לעצמאים ומכירות פומביות — בשפה שכל אחד מבין."
+          content="מרכז הידע של EASY MORTE: מדריכים מעמיקים על משכנתא ראשונה, מחזור, תמהילים, ריביות, אישור עקרוני, מסמכים, משכנתא לעצמאים ומכירות פומביות — בשפה שכל אחד מבין."
         />
-        <meta property="og:title" content="משכנתאפדיה — כל מה שצריך לדעת על משכנתא | EasyMorte" />
+        <meta property="og:title" content="משכנתאפדיה — כל מה שצריך לדעת על משכנתא | EASY MORTE" />
         <meta
           property="og:description"
           content="מדריכים מעמיקים על משכנתא ראשונה, מחזור, תמהילים, ריביות, אישור עקרוני, מסמכים ועצמאים — בשפה שכל אחד מבין."
@@ -98,7 +98,7 @@ const KnowledgeHub = () => {
         <div className="container max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 text-sm text-primary font-medium mb-4">
             <BookOpen size={16} />
-            מרכז הידע של EasyMorte
+            מרכז הידע של EASY MORTE
           </div>
           <h1 className="font-display font-bold text-3xl md:text-5xl text-foreground leading-tight mb-4">
             משכנתאפדיה

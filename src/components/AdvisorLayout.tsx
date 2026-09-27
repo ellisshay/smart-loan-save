@@ -52,7 +52,7 @@ export default function AdvisorLayout() {
             <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
               <span className="font-display font-black text-accent-foreground text-xs">EM</span>
             </div>
-            <span className="font-display font-bold text-lg text-foreground">EasyMorte</span>
+            <span className="font-display font-bold text-lg text-foreground">EASY MORTE</span>
           </Link>
           <p className="text-xs text-gold font-semibold mt-1">פאנל יועץ</p>
         </div>

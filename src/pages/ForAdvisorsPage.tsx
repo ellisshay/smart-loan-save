@@ -105,7 +105,7 @@ export default function ForAdvisorsPage() {
             className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto mb-10"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            לקוחות ב-EasyMorte משלימים KYC מלא, מעלים מסמכים ומשלמים, לפני שאתה בכלל רואה אותם.
+            לקוחות ב-EASY MORTE משלימים KYC מלא, מעלים מסמכים ומשלמים, לפני שאתה בכלל רואה אותם.
             כל שנשאר לך זה להגיש הצעה ולסגור.
           </motion.p>
           <motion.div
@@ -131,7 +131,7 @@ export default function ForAdvisorsPage() {
         <div className="container">
           <motion.div className="text-center mb-14" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
             <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
-              למה יועצים בוחרים ב-EasyMorte?
+              למה יועצים בוחרים ב-EASY MORTE?
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               הפלטפורמה שמחברת בין לקוחות מוכנים ליועצים מובילים
@@ -252,7 +252,7 @@ export default function ForAdvisorsPage() {
             className="text-lg text-primary-foreground/70 max-w-xl mx-auto mb-8"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
           >
-            הצטרף למאות יועצי משכנתאות שכבר סוגרים עסקאות דרך EasyMorte.
+            הצטרף למאות יועצי משכנתאות שכבר סוגרים עסקאות דרך EASY MORTE.
             אין התחייבות, בטל בכל עת.
           </motion.p>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}>

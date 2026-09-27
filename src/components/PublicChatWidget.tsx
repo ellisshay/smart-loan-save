@@ -18,7 +18,7 @@ const QUICK_REPLIES = [
 
 const WELCOME_MESSAGE: Msg = {
   role: "assistant",
-  content: "שלום! אני EasyBot \nיש לך שאלות על משכנתאות? אני כאן.\nאפשר לשאול על תהליך, עלויות, או סתם להבין אם EasyMorte מתאים לך.",
+  content: "שלום! אני EasyBot \nיש לך שאלות על משכנתאות? אני כאן.\nאפשר לשאול על תהליך, עלויות, או סתם להבין אם EASY MORTE מתאים לך.",
 };
 
 export default function PublicChatWidget() {

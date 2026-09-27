@@ -33,7 +33,7 @@ export default function StepConsent({ onNext, onBack }: Props) {
           checked={termsAccepted}
           onCheckedChange={setTermsAccepted}
           title="תקנון ותנאי שימוש"
-          description="אני מאשר/ת שקראתי והבנתי את תקנון ותנאי השימוש של EasyMorte."
+          description="אני מאשר/ת שקראתי והבנתי את תקנון ותנאי השימוש של EASY MORTE."
           link="/legal/terms"
         />
         <ConsentItem
