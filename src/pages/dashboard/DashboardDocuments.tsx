@@ -290,8 +290,12 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
             <span>אמינות: <b className="text-foreground">{v.authenticity?.status === "authentic" ? "תקין" : v.authenticity?.status === "suspicious" ? "חשד לעריכה" : "לא חד משמעי"}</b></span>
           </div>
           {v.summary && <p className="text-foreground">{v.summary}</p>}
-          {mismatches.map((m: any, i: number) => (
-            <p key={i} className="text-warning">{m.field}: הוצהר {m.declared}, במסמך זוהה {m.found}</p>
+          {lvl === "yellow" && <p className="text-warning">המסמך התקבל ונשמר בתיק. מומחה המשכנתאות שלנו יעבור על הפרטים, לא נדרשת ממך פעולה כרגע.</p>}
+          {notes.map((m: any, i: number) => (
+            <p key={i} className={m.level === "red" ? "text-destructive" : "text-warning"}>
+              {m.field}: נמסר {m.declared ?? "-"}, במסמך זוהה {m.extracted ?? m.found ?? "-"}
+              {m.reason ? ` · ${m.reason}` : ""}
+            </p>
           ))}
           {issues.slice(0, 3).map((t, i) => <p key={i} className="text-muted-foreground">• {t}</p>)}
           {v.detected_loans?.length > 0 && (
