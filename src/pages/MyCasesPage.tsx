@@ -240,7 +240,21 @@ export default function MyCasesPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Link to="/dashboard/personal">
+                            <Button variant="outline" size="sm">עדכון פרטים</Button>
+                          </Link>
+                          <Link to="/dashboard/documents">
+                            <Button variant="outline" size="sm">מסמכים</Button>
+                          </Link>
+                          {!c.payment_succeeded && (
+                            <Link to="/dashboard/payment">
+                              <Button variant="cta" size="sm">
+                                {c.intake_complete ? "לתשלום" : "המשך השלמת תיק"}
+                                <ArrowLeft className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          )}
                           {canDownloadReport(c.status) && (
                             <Button
                               variant="outline"
