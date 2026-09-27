@@ -1,5 +1,6 @@
 import DashboardPrivacy from "./pages/dashboard/DashboardPrivacy";
 import AdminPrivacy from "./pages/admin/AdminPrivacy";
+import ConsentGate from "@/components/privacy/ConsentGate";
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -101,7 +102,7 @@ const App = () => (
           <Route path="/my-cases" element={<MyCasesPage />} />
 
           {/* Intake flow */}
-          <Route path="/intake" element={<IntakePage />} />
+          <Route path="/intake" element={<ConsentGate><IntakePage /></ConsentGate>} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/intake/success" element={<IntakeSuccessPage />} />
           <Route path="/mix-selection/:caseId" element={<MixSelectionPage />} />
