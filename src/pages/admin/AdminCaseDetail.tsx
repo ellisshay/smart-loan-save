@@ -145,11 +145,27 @@ export default function AdminCaseDetail() {
     }
   };
 
-  const setDocDecision = async (doc: DocRow, overall: "verified" | "rejected") => {
-    const next = { ...(doc.ai_extracted_data || {}), overall, admin_override: true, summary: overall === "verified" ? "אושר ידנית על ידי מנהל התיק" : "נדחה על ידי מנהל התיק, נדרשת העלאה מחדש" };
+  const setDocDecision = async (doc: DocRow, decision: typeof MANUAL_DECISIONS[number]) => {
+    const prevData = doc.ai_extracted_data || {};
+    const autoResult = prevData.auto_result ?? { level: levelOf(prevData), overall: prevData.overall };
+    const next = {
+      ...prevData,
+      level: decision.level,
+      overall: decision.overall,
+      auto_result: autoResult,
+      manual_review: { decision: decision.key, label: decision.label, at: new Date().toISOString() },
+      summary: decision.label,
+    };
     const { error } = await supabase.from("case_documents").update({ ai_extracted_data: next }).eq("id", doc.id);
     if (error) return toast({ title: "שגיאה", description: error.message, variant: "destructive" });
+    await logAudit("document_manual_review", {
+      caseId: caseData?.id,
+      objectType: "case_document",
+      objectId: doc.id,
+      metadata: { decision: decision.key, label: decision.label, auto_result: autoResult },
+    });
     setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, ai_extracted_data: next } : d));
+    toast({ title: "ההחלטה נשמרה", description: `${doc.file_name}: ${decision.label}` });
   };
 
   const handleDownloadDoc = async (filePath: string) => {
