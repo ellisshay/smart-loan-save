@@ -100,7 +100,7 @@ export default function MixSelectionPage() {
         body: { event_name: "mix_selected", case_id: caseId, payload: { mix: mixName } },
       });
 
-      toast({ title: `בחרת בתמהיל ${mixName}! 🎯` });
+      toast({ title: `בחרת בתמהיל ${mixName}! ` });
       navigate("/my-cases");
     } catch (error) {
       toast({ title: "שגיאה", variant: "destructive" });
@@ -114,7 +114,7 @@ export default function MixSelectionPage() {
       <div className="container max-w-5xl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <h1 className="font-display text-3xl font-black text-foreground mb-2">בחירת תמהיל</h1>
-          <p className="text-muted-foreground">3 תמהילים מותאמים אישית — בחר את המתאים ביותר עבורך</p>
+          <p className="text-muted-foreground">3 תמהילים מותאמים אישית, בחר את המתאים ביותר עבורך</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

@@ -81,7 +81,7 @@ export default function DashboardDocuments() {
         body: { event_name: "doc_uploaded", case_id: caseId, payload: { doc_type: docType } },
       });
 
-      toast({ title: `✔ ${label} הועלה בהצלחה` });
+      toast({ title: `${label} הועלה בהצלחה` });
       loadDocs();
     } catch (e: any) {
       console.error("Upload error:", e);
@@ -122,7 +122,7 @@ export default function DashboardDocuments() {
       {/* Progress badge */}
       <div className="flex items-center gap-3">
         <Badge className={`text-xs ${uploadedRequired === totalRequired ? "bg-primary/10 text-primary border-primary/20" : "bg-warning/10 text-warning border-warning/20"}`}>
-          {uploadedRequired === totalRequired ? "✔ כל מסמכי החובה הועלו" : `חסרים ${totalRequired - uploadedRequired} מסמכי חובה`}
+          {uploadedRequired === totalRequired ? "כל מסמכי החובה הועלו" : `חסרים ${totalRequired - uploadedRequired} מסמכי חובה`}
         </Badge>
       </div>
 
@@ -180,8 +180,7 @@ export default function DashboardDocuments() {
         <Button variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה לדשבורד</Button>
         {uploadedRequired === totalRequired && (
           <Button variant="cta" size="lg" onClick={() => window.location.href = "/dashboard"}>
-            סיים וחזור לדשבורד ✓
-          </Button>
+            סיים וחזור לדשבורד </Button>
         )}
       </div>
     </div>
@@ -209,7 +208,7 @@ function DocRow({ doc, uploaded, uploading, onUpload }: {
         {!uploaded && doc.required && <span className="text-[10px] text-destructive">חובה</span>}
       </div>
       {uploaded ? (
-        <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">✔ הועלה</Badge>
+        <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">הועלה</Badge>
       ) : (
         <label className="cursor-pointer">
           <input

@@ -54,7 +54,7 @@ const VALUE_MAP: Record<string, Record<string, string>> = {
 };
 
 function formatValue(key: string, val: any): string {
-  if (val === undefined || val === null || val === "") return "—";
+  if (val === undefined || val === null || val === "") return "-";
   if (Array.isArray(val)) return val.join(", ");
   if (typeof val === "number") return val.toLocaleString();
   if (VALUE_MAP[key]?.[val]) return VALUE_MAP[key][val];

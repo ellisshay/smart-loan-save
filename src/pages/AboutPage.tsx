@@ -16,7 +16,7 @@ const values = [
   {
     icon: Target,
     title: "שקיפות מלאה",
-    desc: "אנחנו לא מסתירים כלום. כל מספר, כל חישוב, כל עמלה — שקוף לחלוטין.",
+    desc: "אנחנו לא מסתירים כלום. כל מספר, כל חישוב, כל עמלה, שקוף לחלוטין.",
   },
   {
     icon: TrendingDown,
@@ -26,7 +26,7 @@ const values = [
   {
     icon: Shield,
     title: "ללא קונפליקט אינטרסים",
-    desc: "אנחנו לא מקבלים עמלות מבנקים. האינטרס היחיד שלנו — החיסכון שלך.",
+    desc: "אנחנו לא מקבלים עמלות מבנקים. האינטרס היחיד שלנו, החיסכון שלך.",
   },
   {
     icon: Clock,
@@ -65,7 +65,7 @@ export default function AboutPage() {
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
               הקמנו את EasyMorte כי נמאס לנו לראות ישראלים משלמים יותר מדי על המשכנתא שלהם.
-              אנחנו מאמינים שכל אדם ראוי לדעת בדיוק כמה הוא יכול לחסוך — בלי שיחות מכירה,
+              אנחנו מאמינים שכל אדם ראוי לדעת בדיוק כמה הוא יכול לחסוך, בלי שיחות מכירה,
               בלי לחץ, ובלי קונפליקט אינטרסים.
             </p>
           </motion.div>
@@ -85,7 +85,7 @@ export default function AboutPage() {
               המשימה שלנו
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              לתת לכל ישראלי את הכלים לקבל את ההחלטה הפיננסית הכי חשובה בחייו — בצורה חכמה,
+              לתת לכל ישראלי את הכלים לקבל את ההחלטה הפיננסית הכי חשובה בחייו, בצורה חכמה,
               מבוססת נתונים, ושקופה. אנחנו לא יועצים שמקבלים עמלה מהבנק. אנחנו בצד שלך.
             </p>
           </motion.div>
@@ -151,7 +151,7 @@ export default function AboutPage() {
               הצוות שלנו
             </h2>
             <p className="text-lg text-muted-foreground">
-              אנשי מקצוע שמבינים משכנתאות — ודואגים שתחסוך.
+              אנשי מקצוע שמבינים משכנתאות, ודואגים שתחסוך.
             </p>
           </motion.div>
 
@@ -192,7 +192,7 @@ export default function AboutPage() {
               בדיקה חינמית תוך דקה. בלי התחייבות.
             </p>
             <Link to="/calculators">
-              <Button variant="hero" size="xl">בדוק עכשיו — חינם</Button>
+              <Button variant="hero" size="xl">בדוק עכשיו, חינם</Button>
             </Link>
           </motion.div>
         </div>

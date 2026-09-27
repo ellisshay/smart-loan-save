@@ -97,7 +97,7 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
         });
       }
 
-      toast({ title: "ההצעה הוגשה בהצלחה! 🎉" });
+      toast({ title: "ההצעה הוגשה בהצלחה! " });
       onSuccess();
     } catch (err: any) {
       toast({ title: "שגיאה", description: err.message, variant: "destructive" });

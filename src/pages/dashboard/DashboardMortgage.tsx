@@ -67,9 +67,9 @@ function MortgageForm({ defaults, saving, onSubmit }: { defaults: Partial<Mortga
         <Field label="רמת סיכון מועדפת">
           <select {...register("riskLevel")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
             <option value="">בחר...</option>
-            <option value="low">נמוכה – שמרנית</option>
+            <option value="low">נמוכה, שמרנית</option>
             <option value="medium">בינונית</option>
-            <option value="high">גבוהה – אגרסיבית</option>
+            <option value="high">גבוהה, אגרסיבית</option>
           </select>
         </Field>
       </div>

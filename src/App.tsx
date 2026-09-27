@@ -71,7 +71,7 @@ const App = () => (
           {/* Auth */}
           <Route path="/auth" element={<AuthPage />} />
           
-          {/* Dashboard — protected via DashboardLayout */}
+          {/* Dashboard, protected via DashboardLayout */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="status" element={<DashboardStatus />} />

@@ -25,7 +25,7 @@ const testimonials = [
     savings: "₪31,000",
     text: "כעצמאית חשבתי שיהיה לי קשה. הפתעתי כשקיבלתי הצעה מעולה תוך 72 שעות. ממליצה בחום!",
     initials: "תמ",
-    role: "עצמאית — דירה שנייה",
+    role: "עצמאית, דירה שנייה",
   },
   {
     name: "יוסי ומיכל אברהם",
@@ -63,7 +63,7 @@ export default function EnhancedTestimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          הלקוחות שלנו חוסכים בממוצע ₪24,000 על המשכנתא — בלי לצאת מהבית
+          הלקוחות שלנו חוסכים בממוצע ₪24,000 על המשכנתא, בלי לצאת מהבית
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">

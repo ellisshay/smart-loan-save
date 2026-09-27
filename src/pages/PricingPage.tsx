@@ -165,7 +165,7 @@ export default function PricingPage() {
             תמחור <span className="text-gradient-gold">פשוט ושקוף</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-6">
-            ללקוחות — חינם לחלוטין. ליועצים — מנוי חודשי או רכישה בודדת.
+            ללקוחות, חינם לחלוטין. ליועצים, מנוי חודשי או רכישה בודדת.
           </p>
 
           {/* Tab switcher */}
@@ -192,7 +192,7 @@ export default function PricingPage() {
             >
               <p className="text-sm text-muted-foreground mb-1">מעדיף לא להתחייב?</p>
               <p className="text-lg font-display font-bold text-foreground">
-                רכישת ליד בודד — <span className="text-gold">₪200</span> לליד
+                רכישת ליד בודד, <span className="text-gold">₪200</span> לליד
               </p>
               <p className="text-xs text-muted-foreground mt-1">Pay per lead · ללא מנוי</p>
             </motion.div>
@@ -266,7 +266,7 @@ export default function PricingPage() {
                 Featured Listing
               </h3>
               <p className="text-sm text-muted-foreground mb-2">
-                הופעה מועדפת בראש רשימת היועצים — נראות מקסימלית ללקוחות
+                הופעה מועדפת בראש רשימת היועצים, נראות מקסימלית ללקוחות
               </p>
               <p className="text-2xl font-display font-black text-gold">₪500<span className="text-sm font-normal text-muted-foreground mr-1"> / חודש</span></p>
             </motion.div>
@@ -400,7 +400,7 @@ export default function PricingPage() {
                 הלקוח לא משלם כלום
               </h3>
               <p className="text-sm text-muted-foreground">
-                מלא פרופיל, העלה מסמכים, וקבל עד 3 הצעות תחרותיות מיועצים מורשים — בחינם לחלוטין.
+                מלא פרופיל, העלה מסמכים, וקבל עד 3 הצעות תחרותיות מיועצים מורשים, בחינם לחלוטין.
               </p>
             </motion.div>
           </>

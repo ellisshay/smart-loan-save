@@ -52,7 +52,7 @@ function DeclarationsForm({ defaults, saving, onSubmit }: { defaults: Partial<De
           <Shield size={22} className="text-gold" />
           הצהרות בנקאיות
         </h2>
-        <p className="text-sm text-muted-foreground">יש להשיב בכנות – הנתונים משמשים לבדיקת התכנות</p>
+        <p className="text-sm text-muted-foreground">יש להשיב בכנות, הנתונים משמשים לבדיקת התכנות</p>
       </div>
 
       <div className="space-y-4">
@@ -100,7 +100,7 @@ function DeclarationsForm({ defaults, saving, onSubmit }: { defaults: Partial<De
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה</Button>
-        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "סיים תיק וקבל תוצאה ✓"}</Button>
+        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "סיים תיק וקבל תוצאה "}</Button>
       </div>
     </motion.form>
   );

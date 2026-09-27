@@ -46,17 +46,17 @@ const sampleOffers = [
 
 // ─── Pain Cards Data ───
 const painCards = [
-  { icon: Calendar, title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
+  { icon: Calendar, title: "5-8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
   { icon: FileText, title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
-  { icon: Coins, title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
-  { icon: Hourglass, title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
+  { icon: Coins, title: "₪5,000-8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
+  { icon: Hourglass, title: "3-6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
 ];
 
 // ─── FAQ Data ───
 const faqItems = [
-  { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים — בלי הפתעות." },
+  { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים, בלי הפתעות." },
   { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
-  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – עד 72 שעות לקבלת הצעות ראשונות." },
+  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל, עד 72 שעות לקבלת הצעות ראשונות." },
   { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל הצעה או לא לבחור. ללא מחויבות." },
   { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
 ];
@@ -119,9 +119,9 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EasyMorte – משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
-        <meta name="description" content="אנחנו עושים את כל העבודה בשבילך — משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
-        <meta property="og:title" content="EasyMorte – משכנתא בלי כל הבלאגן" />
+        <title>EasyMorte, משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
+        <meta name="description" content="אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
+        <meta property="og:title" content="EasyMorte, משכנתא בלי כל הבלאגן" />
         <meta property="og:description" content="משווים הצעות מהבנקים ומנהלים משא ומתן בשבילך. עד 72 שעות להצעות ראשונות." />
       </Helmet>
 
@@ -130,7 +130,25 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-hero" />
         <div className="absolute inset-0 bg-grain opacity-60" />
 
-        <div className="container relative py-14 md:py-20 grid lg:grid-cols-2 gap-10 items-center">
+        {/* House image bleeding off the left edge (desktop) */}
+        <motion.div
+          className="hidden lg:block absolute -left-24 top-1/2 -translate-y-1/2 w-[58%] h-[112%] rotate-[-2deg] pointer-events-none select-none"
+          initial={{ opacity: 0, x: -60, rotate: -4 }}
+          animate={{ opacity: 1, x: 0, rotate: -2 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        >
+          <img
+            src={heroHouse}
+            alt=""
+            aria-hidden
+            className="w-full h-full object-cover rounded-[2.5rem] shadow-card-hover"
+          />
+          {/* Fade into the page background toward the text */}
+          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-l from-background via-background/35 to-transparent" />
+          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-t from-background/60 via-transparent to-background/30" />
+        </motion.div>
+
+        <div className="container relative py-14 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
           {/* Text side */}
           <div className="max-w-xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -148,7 +166,7 @@ export default function HomePage() {
               className="text-lg text-muted-foreground mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             >
-              אנחנו עושים את כל העבודה בשבילך – משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף.
+              אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף.
             </motion.p>
 
             <motion.div
@@ -174,12 +192,12 @@ export default function HomePage() {
             </motion.div>
           </div>
 
-          {/* Image side */}
+          {/* Image side (mobile / tablet) */}
           <motion.div
-            className="relative"
+            className="relative lg:hidden"
             initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <div className="rounded-3xl overflow-hidden shadow-card-hover border border-border">
+            <div className="rounded-3xl overflow-hidden shadow-card-hover border border-border rotate-[-1.5deg]">
               <img
                 src={heroHouse}
                 alt="בית מודרני"
@@ -201,6 +219,19 @@ export default function HomePage() {
                 <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
               </div>
             </motion.div>
+          </motion.div>
+          {/* Desktop: floating badge over the background house */}
+          <motion.div
+            className="hidden lg:flex absolute bottom-10 left-16 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 items-center gap-3"
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingDown size={20} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
+              <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
+            </div>
           </motion.div>
         </div>
 
@@ -269,7 +300,7 @@ export default function HomePage() {
       <section className="py-14 md:py-20 bg-secondary/50">
         <div className="container max-w-5xl">
           <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">הצעות מהבנקים</h2>
-          <p className="text-center text-muted-foreground mb-10">ככה נראות ההצעות שתקבלו — השוואה אמיתית, שקופה ופשוטה</p>
+          <p className="text-center text-muted-foreground mb-10">ככה נראות ההצעות שתקבלו, השוואה אמיתית, שקופה ופשוטה</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {sampleOffers.map((offer, i) => (
@@ -382,8 +413,8 @@ export default function HomePage() {
                 {[
                   "5+ פגישות פיזיות",
                   "ניירת כפולה לכל בנק",
-                  "₪5,000–8,000 ליועץ",
-                  "3–6 שבועות המתנה",
+                  "₪5,000-8,000 ליועץ",
+                  "3-6 שבועות המתנה",
                   "הצעה אחת בלבד",
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -396,7 +427,7 @@ export default function HomePage() {
 
             <Card className="bg-primary/5 border-primary/30 border-2 rounded-2xl">
               <CardContent className="p-6 space-y-4">
-                <Badge className="mb-2 bg-primary text-primary-foreground">EasyMorte ✦</Badge>
+                <Badge className="mb-2 bg-primary text-primary-foreground">EasyMorte </Badge>
                 {[
                   "פרופיל אחד, הכל דיגיטלי",
                   "מסמכים פעם אחת בלבד",
@@ -464,7 +495,7 @@ export default function HomePage() {
               dir="rtl"
             >
               <div className="text-center space-y-2">
-                <h2 className="text-xl font-bold text-foreground">הציון שלך: {completedScore} – הניתוח מוכן!</h2>
+                <h2 className="text-xl font-bold text-foreground">הציון שלך: {completedScore}, הניתוח מוכן!</h2>
                 <p className="text-sm text-muted-foreground">רק שם וטלפון כדי לשלוח לך את הדוח</p>
               </div>
 
@@ -503,7 +534,7 @@ export default function HomePage() {
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                ✓ ללא ספאם &nbsp; ✓ לא נמכור את הפרטים שלך
+                ללא ספאם &nbsp; לא נמכור את הפרטים שלך
               </p>
 
               <button

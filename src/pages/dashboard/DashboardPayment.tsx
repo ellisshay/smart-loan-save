@@ -56,7 +56,7 @@ export default function DashboardPayment() {
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
-              {timerExpired ? "עדיין ניתן לשלם – הניתוח יתחיל בתור הרגיל" : "נשמר לך מקום בראש התור"}
+              {timerExpired ? "עדיין ניתן לשלם, הניתוח יתחיל בתור הרגיל" : "נשמר לך מקום בראש התור"}
             </p>
           </CardContent>
         </Card>

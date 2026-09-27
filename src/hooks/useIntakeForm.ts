@@ -121,7 +121,7 @@ export function useIntakeForm(caseType: CaseType) {
         }),
       ]);
 
-      toast({ title: "התיק הוגש בהצלחה! 🎉" });
+      toast({ title: "התיק הוגש בהצלחה! " });
     } catch (error) {
       console.error("Error submitting case:", error);
       toast({ title: "שגיאה בהגשה", variant: "destructive" });
