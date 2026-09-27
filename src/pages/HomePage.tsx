@@ -130,22 +130,16 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-hero" />
         <div className="absolute inset-0 bg-grain opacity-60" />
 
-        {/* House image bleeding off the left edge (desktop) */}
+        {/* House as a soft full-bleed atmospheric background */}
         <motion.div
-          className="hidden lg:block absolute -left-24 top-1/2 -translate-y-1/2 w-[58%] h-[112%] rotate-[-2deg] pointer-events-none select-none"
-          initial={{ opacity: 0, x: -60, rotate: -4 }}
-          animate={{ opacity: 1, x: 0, rotate: -2 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
+          className="absolute inset-0 pointer-events-none select-none"
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
         >
-          <img
-            src={heroHouse}
-            alt=""
-            aria-hidden
-            className="w-full h-full object-cover rounded-[2.5rem] shadow-card-hover"
-          />
-          {/* Fade into the page background toward the text */}
-          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-l from-background via-background/35 to-transparent" />
-          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-t from-background/60 via-transparent to-background/30" />
+          <img src={heroHouse} alt="" aria-hidden className="w-full h-full object-cover object-left" />
+          <div className="absolute inset-0 bg-gradient-to-l from-background via-background/85 to-background/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
         </motion.div>
 
         <div className="container relative py-14 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
