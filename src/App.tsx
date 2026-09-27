@@ -48,6 +48,7 @@ const DashboardDeclarations = lazy(() => import("./pages/dashboard/DashboardDecl
 const DashboardDocuments = lazy(() => import("./pages/dashboard/DashboardDocuments"));
 const DashboardPayment = lazy(() => import("./pages/dashboard/DashboardPayment"));
 const DashboardOffers = lazy(() => import("./pages/dashboard/DashboardOffers"));
+const DashboardTender = lazy(() => import("./pages/dashboard/DashboardTender"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminCasesList = lazy(() => import("./pages/admin/AdminCasesList"));
 const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="documents" element={<DashboardDocuments />} />
             <Route path="payment" element={<DashboardPayment />} />
             <Route path="offers" element={<DashboardOffers />} />
+            <Route path="tender" element={<DashboardTender />} />
             <Route path="privacy" element={<DashboardPrivacy />} />
           </Route>
 

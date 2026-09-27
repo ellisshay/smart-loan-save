@@ -1,3 +1,4 @@
+import { Gavel } from "lucide-react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ const sideLinks = [
   { label: "מסמכים", href: "/dashboard/documents", icon: Upload },
   { label: "תשלום", href: "/dashboard/payment", icon: PayIcon },
   { label: "הצעות", href: "/dashboard/offers", icon: Gift },
+  { label: "מכרז המשכנתא שלי", href: "/dashboard/tender", icon: Gavel },
   { label: "הפרטיות שלי", href: "/dashboard/privacy", icon: Shield },
 ];
 
