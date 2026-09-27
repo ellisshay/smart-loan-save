@@ -31,19 +31,20 @@ export default function DashboardPayment() {
   const [showPayFrame, setShowPayFrame] = useState(false);
 
   // Billing details for the invoice — prefillable from the borrower questionnaire
-  const borrower = (intakeData as any)?.borrower1 ?? {};
+  const personal = (intakeData as any)?.personal ?? {};
+  const borrower = personal.borrower1 ?? {};
   const [sameAsBorrower, setSameAsBorrower] = useState(true);
   const [billing, setBilling] = useState({ firstName: "", lastName: "", invoiceName: "", email: "" });
 
   useEffect(() => {
     if (!sameAsBorrower) return;
     setBilling({
-      firstName: borrower.first_name ?? "",
-      lastName: borrower.last_name ?? "",
-      invoiceName: [borrower.first_name, borrower.last_name].filter(Boolean).join(" "),
-      email: borrower.email ?? (intakeData as any)?.email ?? "",
+      firstName: borrower.firstName ?? "",
+      lastName: borrower.lastName ?? "",
+      invoiceName: [borrower.firstName, borrower.lastName].filter(Boolean).join(" "),
+      email: borrower.email ?? "",
     });
-  }, [sameAsBorrower, borrower.first_name, borrower.last_name, borrower.email, intakeData]);
+  }, [sameAsBorrower, borrower.firstName, borrower.lastName, borrower.email]);
 
   const billingValid =
     billing.firstName.trim().length > 0 &&
