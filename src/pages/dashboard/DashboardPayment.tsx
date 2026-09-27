@@ -8,6 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Tranzila terminal name — provided by Tranzila when the merchant account is approved.
 // It appears in the public payment URL, so it is not a secret.
@@ -26,7 +29,29 @@ export default function DashboardPayment() {
   // Tranzila redirects back with ?paid=1 (success) or ?paid=0 (failure)
   const paidParam = searchParams.get("paid");
   const [showPayFrame, setShowPayFrame] = useState(false);
-  const payUrl = `https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
+
+  // Billing details for the invoice — prefillable from the borrower questionnaire
+  const borrower = (intakeData as any)?.borrower1 ?? {};
+  const [sameAsBorrower, setSameAsBorrower] = useState(true);
+  const [billing, setBilling] = useState({ firstName: "", lastName: "", invoiceName: "", email: "" });
+
+  useEffect(() => {
+    if (!sameAsBorrower) return;
+    setBilling({
+      firstName: borrower.first_name ?? "",
+      lastName: borrower.last_name ?? "",
+      invoiceName: [borrower.first_name, borrower.last_name].filter(Boolean).join(" "),
+      email: borrower.email ?? (intakeData as any)?.email ?? "",
+    });
+  }, [sameAsBorrower, borrower.first_name, borrower.last_name, borrower.email, intakeData]);
+
+  const billingValid =
+    billing.firstName.trim().length > 0 &&
+    billing.lastName.trim().length > 0 &&
+    billing.invoiceName.trim().length > 0 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim());
+
+  const payUrl = `https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
 
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {
@@ -265,10 +290,74 @@ export default function DashboardPayment() {
                     </a>
                   </div>
                 ) : (
-                  <Button variant="cta" size="lg" className="w-full text-base" onClick={() => setShowPayFrame(true)}>
-                    <Zap size={18} />
-                    פתח ניתוח תוך 72 שעות
-                  </Button>
+                  <div className="space-y-4 text-right">
+                    {/* Billing details for the invoice */}
+                    <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                      <p className="text-sm font-bold text-foreground">פרטי חיוב לחשבונית</p>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={sameAsBorrower}
+                          onCheckedChange={(v) => setSameAsBorrower(v === true)}
+                        />
+                        <span className="text-sm text-muted-foreground">הפרטים זהים לפרטי הלווה מהשאלון</span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-first" className="text-xs">שם פרטי</Label>
+                          <Input
+                            id="bill-first"
+                            value={billing.firstName}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, firstName: e.target.value }))}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-last" className="text-xs">שם משפחה</Label>
+                          <Input
+                            id="bill-last"
+                            value={billing.lastName}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, lastName: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="bill-invoice" className="text-xs">שם לחשבונית</Label>
+                        <Input
+                          id="bill-invoice"
+                          value={billing.invoiceName}
+                          disabled={sameAsBorrower}
+                          onChange={(e) => setBilling((b) => ({ ...b, invoiceName: e.target.value }))}
+                          placeholder="שם מלא או שם חברה"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
+                        <Input
+                          id="bill-email"
+                          type="email"
+                          dir="ltr"
+                          className="text-left"
+                          value={billing.email}
+                          disabled={sameAsBorrower}
+                          onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      variant="cta"
+                      size="lg"
+                      className="w-full text-base"
+                      disabled={!billingValid}
+                      onClick={() => setShowPayFrame(true)}
+                    >
+                      <Zap size={18} />
+                      פתח ניתוח תוך 72 שעות
+                    </Button>
+                    {!billingValid && (
+                      <p className="text-xs text-warning text-center">יש למלא את כל פרטי החיוב לפני המעבר לתשלום</p>
+                    )}
+                  </div>
                 )}
                 <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
               </>
