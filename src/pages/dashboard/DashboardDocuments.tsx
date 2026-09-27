@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Upload, CheckCircle2, AlertTriangle, FileText, User, DollarSign, Home, Loader2, XCircle, ScanLine, ShieldCheck, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
+import { LEVEL_UI, levelOf, isDocSettled } from "@/lib/docValidation";
 
 interface UploadedDoc {
   id: string;
