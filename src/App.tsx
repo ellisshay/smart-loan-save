@@ -1,3 +1,5 @@
+import DashboardPrivacy from "./pages/dashboard/DashboardPrivacy";
+import AdminPrivacy from "./pages/admin/AdminPrivacy";
 import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -86,6 +88,7 @@ const App = () => (
             <Route path="documents" element={<DashboardDocuments />} />
             <Route path="payment" element={<DashboardPayment />} />
             <Route path="offers" element={<DashboardOffers />} />
+            <Route path="privacy" element={<DashboardPrivacy />} />
           </Route>
 
           {/* Advisor routes */}
@@ -108,6 +111,7 @@ const App = () => (
             <Route index element={<AdminDashboard />} />
             <Route path="cases" element={<AdminCasesList />} />
             <Route path="cases/:id" element={<AdminCaseDetail />} />
+            <Route path="privacy" element={<AdminPrivacy />} />
           </Route>
 
           {/* Public routes */}

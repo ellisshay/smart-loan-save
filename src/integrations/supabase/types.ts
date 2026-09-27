@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          action: string
+          case_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          object_id: string | null
+          object_type: string | null
+          role: string | null
+          success: boolean
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          object_id?: string | null
+          object_type?: string | null
+          role?: string | null
+          success?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          object_id?: string | null
+          object_type?: string | null
+          role?: string | null
+          success?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       case_documents: {
         Row: {
           ai_extracted_data: Json | null
@@ -264,6 +303,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      consents: {
+        Row: {
+          case_id: string | null
+          consent_type: string
+          consent_version: string
+          consented_at: string
+          id: string
+          revoked_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          case_id?: string | null
+          consent_type: string
+          consent_version: string
+          consented_at?: string
+          id?: string
+          revoked_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          case_id?: string | null
+          consent_type?: string
+          consent_version?: string
+          consented_at?: string
+          id?: string
+          revoked_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       lead_purchases: {
         Row: {
@@ -583,6 +655,42 @@ export type Database = {
           },
         ]
       }
+      privacy_requests: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          legal_hold: boolean
+          request_type: string
+          resolution_notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          legal_hold?: boolean
+          request_type: string
+          resolution_notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          legal_hold?: boolean
+          request_type?: string
+          resolution_notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -673,6 +781,51 @@ export type Database = {
         }
         Relationships: []
       }
+      vendors: {
+        Row: {
+          created_at: string
+          data_categories: string | null
+          dpa_signed: boolean
+          id: string
+          last_reviewed: string | null
+          purpose: string | null
+          region: string | null
+          retention: string | null
+          security_notes: string | null
+          service: string | null
+          subprocessors: string | null
+          vendor_name: string
+        }
+        Insert: {
+          created_at?: string
+          data_categories?: string | null
+          dpa_signed?: boolean
+          id?: string
+          last_reviewed?: string | null
+          purpose?: string | null
+          region?: string | null
+          retention?: string | null
+          security_notes?: string | null
+          service?: string | null
+          subprocessors?: string | null
+          vendor_name: string
+        }
+        Update: {
+          created_at?: string
+          data_categories?: string | null
+          dpa_signed?: boolean
+          id?: string
+          last_reviewed?: string | null
+          purpose?: string | null
+          region?: string | null
+          retention?: string | null
+          security_notes?: string | null
+          service?: string | null
+          subprocessors?: string | null
+          vendor_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -690,6 +843,18 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_privacy_viewer: { Args: never; Returns: boolean }
+      log_audit: {
+        Args: {
+          _action: string
+          _case_id?: string
+          _metadata?: Json
+          _object_id?: string
+          _object_type?: string
+          _success?: boolean
+        }
+        Returns: undefined
+      }
       submit_case_safe: {
         Args: { _case_id: string; _goal?: string }
         Returns: undefined
@@ -707,7 +872,16 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "advisor"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "advisor"
+        | "operations"
+        | "mortgage_advisor"
+        | "supervisor"
+        | "privacy_auditor"
+        | "customer"
       case_status:
         | "Draft"
         | "WaitingForPayment"
@@ -849,7 +1023,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "advisor"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "advisor",
+        "operations",
+        "mortgage_advisor",
+        "supervisor",
+        "privacy_auditor",
+        "customer",
+      ],
       case_status: [
         "Draft",
         "WaitingForPayment",

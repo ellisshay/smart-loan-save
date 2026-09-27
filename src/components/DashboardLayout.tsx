@@ -10,6 +10,7 @@ import Layout from "@/components/Layout";
 import AuthGuard from "@/components/AuthGuard";
 import ExitIntentModal from "@/components/ExitIntentModal";
 import AIMortgageChat from "@/components/AIMortgageChat";
+import ConsentGate from "@/components/privacy/ConsentGate";
 
 const sideLinks = [
   { label: "סקירה כללית", href: "/dashboard", icon: LayoutDashboard },
@@ -22,6 +23,7 @@ const sideLinks = [
   { label: "מסמכים", href: "/dashboard/documents", icon: Upload },
   { label: "תשלום", href: "/dashboard/payment", icon: PayIcon },
   { label: "הצעות", href: "/dashboard/offers", icon: Gift },
+  { label: "הפרטיות שלי", href: "/dashboard/privacy", icon: Shield },
 ];
 
 export default function DashboardLayout() {
@@ -111,7 +113,7 @@ export default function DashboardLayout() {
                 תוך 90 שניות מסיימים את השלב הזה
               </div>
             )}
-            <Outlet />
+            {location.pathname === "/dashboard/privacy" ? <Outlet /> : <ConsentGate><Outlet /></ConsentGate>}
           </main>
         </div>
 

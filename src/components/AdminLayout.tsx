@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ChevronLeft,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import BrandLogo from "@/components/BrandLogo";
@@ -13,6 +14,7 @@ import BrandLogo from "@/components/BrandLogo";
 const sidebarLinks = [
   { label: "לוח בקרה", href: "/admin", icon: LayoutDashboard },
   { label: "ניהול תיקים", href: "/admin/cases", icon: Briefcase },
+  { label: "פרטיות ואבטחה", href: "/admin/privacy", icon: ShieldCheck },
 ];
 
 export default function AdminLayout() {

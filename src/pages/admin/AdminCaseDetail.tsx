@@ -1,3 +1,4 @@
+import { openDocumentSecure, hasConsent, logAudit } from "@/lib/privacy";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link, useNavigate } from "react-router-dom";
@@ -150,13 +151,16 @@ export default function AdminCaseDetail() {
   };
 
   const handleDownloadDoc = async (filePath: string) => {
-    const { data } = await supabase.storage
-      .from("case-documents")
-      .createSignedUrl(filePath, 3600);
-    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+    await openDocumentSecure(filePath, caseData?.id);
   };
 
-  const confirmSendToBank = () => {
+  const confirmSendToBank = async () => {
+    if (!caseData || !(await hasConsent(caseData.user_id, "bank_data_transfer"))) {
+      toast({ title: "אין הסכמה להעברה לבנקים", description: "הלקוח טרם אישר העברת מידע לגופים פיננסיים באזור האישי.", variant: "destructive" });
+      await logAudit("share_with_bank", { caseId: caseData?.id, success: false, metadata: { reason: "no_consent" } });
+      return;
+    }
+    await logAudit("share_with_bank", { caseId: caseData.id, objectType: "case", objectId: caseData.id });
     handleStatusChange("SentToBank");
     setShowEmailModal(false);
     toast({ title: "נשלח לבנק בהצלחה! ", description: `המייל נשלח ל-${bankEmailTo}` });
