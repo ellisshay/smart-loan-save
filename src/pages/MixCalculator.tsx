@@ -245,7 +245,7 @@ export default function MixCalculator() {
               <div className="mt-8 text-center">
                 <Link to="/pricing">
                   <Button variant="cta" size="xl">
-                    פתח תיק פרימיום תוך 72 שעות, ₪3,500
+                    פתח תיק פרימיום תוך 72 שעות, ₪3,450
                   </Button>
                 </Link>
                 <p className="text-xs text-muted-foreground mt-2">

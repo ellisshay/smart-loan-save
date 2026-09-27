@@ -254,7 +254,7 @@ function ResultCard({ result }: { result: WasteResult }) {
       <div className="pt-2">
         <Link to="/pricing">
           <Button variant="cta" size="lg" className="w-full">
-            פתח תיק פרימיום תוך 72 שעות, ₪3,500
+            פתח תיק פרימיום תוך 72 שעות, ₪3,450
           </Button>
         </Link>
         <p className="text-xs text-muted-foreground text-center mt-2">
