@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ShoppingCart, FileText, User, LogOut, LayoutDashboard } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import Layout from "@/components/Layout";
 
 const navItems = [
   { label: "דשבורד", href: "/advisor", icon: LayoutDashboard },
@@ -42,6 +43,7 @@ export default function AdvisorLayout() {
   }
 
   return (
+    <Layout>
     <div className="min-h-screen bg-background flex" dir="rtl">
       {/* Sidebar */}
       <aside className="w-64 bg-card border-l border-border flex flex-col shrink-0">
@@ -99,5 +101,6 @@ export default function AdvisorLayout() {
         <Outlet />
       </main>
     </div>
+    </Layout>
   );
 }

@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   LogOut,
 } from "lucide-react";
+import Layout from "@/components/Layout";
 
 const sidebarLinks = [
   { label: "לוח בקרה", href: "/admin", icon: LayoutDashboard },
@@ -23,6 +24,7 @@ export default function AdminLayout() {
       : location.pathname.startsWith(href);
 
   return (
+    <Layout>
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside
@@ -85,5 +87,6 @@ export default function AdminLayout() {
         <Outlet />
       </main>
     </div>
+    </Layout>
   );
 }
