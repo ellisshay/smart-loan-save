@@ -153,8 +153,16 @@ function IntakeFormFlow({
   }, [presetIncrease, caseType, intakeData]);
 
   const handleSubmit = async () => {
+    if (!caseId) return;
+    const missing = await countMissingDocs(caseId, caseType);
+    if (missing > 0) {
+      toast({ title: "לא ניתן להגיש עדיין", description: `חסרים ${missing} מסמכי חובה מאומתים. התיק נשמר ותוכל להמשיך בכל עת.`, variant: "destructive" });
+      const idx = steps.findIndex((s) => s.key === "documents");
+      if (idx >= 0) goToStep(idx);
+      return;
+    }
     await submitCase(goal);
-    navigate("/intake/success");
+    navigate("/dashboard/payment");
   };
 
   const renderStep = () => {
