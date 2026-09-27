@@ -130,9 +130,27 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-hero" />
         <div className="absolute inset-0 bg-grain opacity-60" />
 
-        <div className="container relative py-14 md:py-20 grid lg:grid-cols-2 gap-10 items-center">
+        {/* House image bleeding off the left edge (desktop) */}
+        <motion.div
+          className="hidden lg:block absolute -left-24 top-1/2 -translate-y-1/2 w-[58%] h-[112%] rotate-[-2deg] pointer-events-none select-none"
+          initial={{ opacity: 0, x: -60, rotate: -4 }}
+          animate={{ opacity: 1, x: 0, rotate: -2 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        >
+          <img
+            src={heroHouse}
+            alt=""
+            aria-hidden
+            className="w-full h-full object-cover rounded-[2.5rem] shadow-card-hover"
+          />
+          {/* Fade into the page background toward the text */}
+          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-l from-background via-background/35 to-transparent" />
+          <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-t from-background/60 via-transparent to-background/30" />
+        </motion.div>
+
+        <div className="container relative py-14 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
           {/* Text side */}
-          <div className="max-w-xl">
+          <div className="max-w-xl lg:col-start-2">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs tracking-wide font-semibold mb-6 border border-primary/25">
                 <Zap size={14} /> מחיר קבוע · בלי פגישות · עד 72 שעות
