@@ -6,28 +6,95 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 const DOC_GUIDE: Record<string, string> = {
-  id_card: "תעודת זהות ישראלית כולל ספח. בדוק סימני זיוף: פונטים לא אחידים, תמונה מודבקת, ספרת ביקורת של מספר ת.ז., התאמת שם ותאריך לידה להצהרה, עריכה דיגיטלית.",
-  id_card_b2: "תעודת זהות של לווה שני. אותן בדיקות זיוף כמו ת.ז.",
-  payslips: "תלושי שכר. חלץ ברוטו, נטו, שם מעסיק, חודש. בדוק שהחישובים (ברוטו פחות ניכויים = נטו) הגיוניים, שקיים מספר תיק ניכויים, ושאין סימני עריכה.",
-  bank_statements: "דפי עו״ש. זהה הפקדות משכורת קבועות (האם תואמות להכנסה המוצהרת), החזרי הלוואות קבועים, חריגות מסגרת, החזרות צ׳קים.",
+  id_card: "תעודת זהות ישראלית כולל ספח. חלץ שם מלא, מספר ת.ז ותאריך לידה. בדוק סימני זיוף מובהקים בלבד: פונטים לא אחידים, תמונה מודבקת, עריכה דיגיטלית, ספרת ביקורת שגויה.",
+  id_card_b2: "תעודת זהות של לווה שני. אותן בדיקות.",
+  payslips: "תלוש שכר. חלץ ברוטו, נטו, שם מעסיק, מספר ת.ז של העובד וחודש. שים לב שרכיבי שכר משתנים (שעות נוספות, בונוס, עמלות, הבראה, החזר הוצאות) גורמים לשונות חודשית לגיטימית.",
+  bank_statements: "דף עובר ושב. זהה הפקדות שכר קבועות, החזרי הלוואות קבועים, חריגות מסגרת והחזרות צקים.",
 };
 
-const SYSTEM = `אתה מערכת אימות מסמכים פיננסיים עבור תיק משכנתא בישראל.
-בצע שתי בדיקות:
-1. איכות סריקה: קריאות, חדות, חיתוך, תאורה, האם כל המסמך בפריים.
-2. מהות ואמינות: האם המסמך הוא אכן מהסוג המבוקש, סימני זיוף או עריכה, והתאמה לנתונים שהלקוח הצהיר בשאלון.
-אל תמציא נתונים. החזר JSON בלבד במבנה:
+const SYSTEM = `אתה מנוע אימות מסמכים פיננסיים לתיק משכנתא בישראל, ופועל כמערכת תומכת החלטה.
+העיקרון המנחה: "האם המסמך תומך באופן סביר במידע שהלקוח מסר?" ולא "האם שתי המחרוזות זהות בדיוק".
+
+כללי השוואה מחייבים:
+1. אל תשווה טקסט בהשוואה מדויקת. נרמל ערכים לפני השוואה: הסר רווחים כפולים, פיסוק, גרשיים, תארים וסיומות.
+2. שמות פרטיים: שמות חיבה מקובלים הם התאמה (דני/דניאל, יוסי/יוסף, אבי/אברהם, משה/מוישה, רפי/רפאל, חני/חנה). שינויי איות קלים אינם אי התאמה.
+3. מספר תעודת זהות זהה גובר על כל הבדל באיות השם. במקרה כזה הרמה היא green או לכל היותר yellow, לעולם לא red. מספר תעודת זהות שונה הוא red.
+4. מעסיקים: הסר סיומות תאגידיות לפני השוואה (בע"מ, בעמ, Ltd, Limited, Inc, ישראל, Israel, מערכות, שירותים, אחזקות, טכנולוגיות, גרופ). "אמדוקס" ו"אמדוקס מערכות בע"מ" הם אותו מעסיק, green. בספק החזר yellow. red רק כשמדובר בבירור בחברות שונות.
+5. הכנסה: אל תדרוש התאמה מדויקת. חשב אחוז סטייה מול המוצהר והסבר אותו ברכיבי שכר משתנים.
+6. לעולם אל תדחה מסמך רק בגלל אי התאמה טקסטואלית או סמנטית. red שמור לסתירה מהותית ומוכחת, לזיוף ברור או למסמך שאינו מהסוג המבוקש.
+
+לכל בדיקת הצלבה החזר: הערך שהוצהר, הערך שחולץ, שני הערכים אחרי נרמול, ציון ביטחון 0-100, רמה וסיבה מילולית בעברית.
+
+החזר JSON בלבד במבנה:
 {
  "doc_type_match": boolean,
  "quality": {"status":"good"|"fair"|"poor","score":0-100,"issues":[string]},
- "authenticity": {"status":"authentic"|"suspicious"|"unclear","flags":[string]},
+ "authenticity": {"status":"authentic"|"suspicious"|"unclear","confidence":0-100,"flags":[string]},
  "extracted": { שדות שחולצו, מספרים בשקלים },
  "detected_loans": [{"description":string,"monthly_amount":number}],
- "cross_check": [{"field":string,"declared":string,"found":string,"status":"match"|"mismatch"|"unknown"}],
- "overall": "verified"|"review"|"rejected",
- "summary": "משפט אחד בעברית ללקוח"
+ "cross_check": [{"field":string,"declared":string,"extracted":string,"normalized_declared":string,"normalized_extracted":string,"confidence":0-100,"level":"green"|"yellow"|"red","reason":string,"diff_pct":number|null}],
+ "summary": "משפט אחד בעברית, ענייני ולא מאשים"
 }
-כללים ל-overall: rejected אם quality=poor או doc_type_match=false או authenticity=suspicious. review אם יש mismatch משמעותי (פער מעל 10% בהכנסה) או unclear. אחרת verified.`;
+אל תמציא נתונים. אם שדה לא נקרא במסמך, ציין level "yellow" עם reason מתאים.`;
+
+type Level = "green" | "yellow" | "red";
+
+const num = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : null);
+
+/** Applies configurable business thresholds on top of the model output. */
+function applyPolicy(
+  result: Record<string, any>,
+  t: Record<string, number>,
+): { level: Level; overall: "verified" | "review" | "rejected" } {
+  const checks: any[] = Array.isArray(result.cross_check) ? result.cross_check : [];
+  const idMatch = checks.some(
+    (c) => /ת\.?ז|זהות|id/i.test(String(c.field ?? "")) && c.level === "green",
+  );
+
+  for (const c of checks) {
+    const field = String(c.field ?? "");
+    const diff = num(c.diff_pct);
+    const conf = num(c.confidence) ?? 0;
+
+    // Income tolerance is configurable and never auto rejects on its own.
+    if (diff !== null && /הכנס|שכר|ברוטו|נטו|income|salary/i.test(field)) {
+      const d = Math.abs(diff);
+      c.level = d <= t.income_green_pct ? "green" : d <= t.income_yellow_pct ? "yellow" : "red";
+      if (c.level === "red") c.requires_review = true;
+    }
+
+    // Name comparison: ID number carries more weight than spelling.
+    if (/שם|name/i.test(field)) {
+      if (conf >= t.name_green_score) c.level = "green";
+      else if (conf >= t.name_yellow_score) c.level = "yellow";
+      if (idMatch && c.level === "red") {
+        c.level = "yellow";
+        c.reason = `${c.reason ?? ""} (מספר תעודת הזהות תואם, ההבדל הוא באיות השם בלבד)`.trim();
+      }
+    }
+
+    if (/מעסיק|חברה|employer|company/i.test(field)) {
+      if (conf >= t.employer_green_score) c.level = "green";
+      else if (c.level === "red" && conf >= 40) c.level = "yellow";
+    }
+
+    if (!["green", "yellow", "red"].includes(c.level)) c.level = "yellow";
+  }
+
+  const hasRed = checks.some((c) => c.level === "red");
+  const hasYellow = checks.some((c) => c.level === "yellow");
+  const poorScan = result.quality?.status === "poor" || (num(result.quality?.score) ?? 100) < 40;
+  const forged = result.authenticity?.status === "suspicious";
+  const wrongType = result.doc_type_match === false;
+
+  let level: Level = "green";
+  if (poorScan || forged || wrongType || hasRed) level = "red";
+  else if (hasYellow || result.authenticity?.status === "unclear") level = "yellow";
+
+  // Only scan quality, wrong type or proven forgery force a re-upload.
+  const overall = poorScan || forged || wrongType ? "rejected" : level === "green" ? "verified" : "review";
+  return { level, overall };
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -52,15 +119,32 @@ Deno.serve(async (req) => {
     const c: any = (doc as any)?.cases;
     if (!doc || c.user_id !== user.id) return json({ error: "Not found" }, 404);
 
+    const { data: settings } = await admin.from("validation_settings").select("key, value");
+    const thresholds: Record<string, number> = {
+      income_green_pct: 15,
+      income_yellow_pct: 30,
+      name_green_score: 80,
+      name_yellow_score: 55,
+      employer_green_score: 75,
+    };
+    for (const s of settings ?? []) thresholds[s.key] = Number(s.value);
+
     const { data: file, error: dlErr } = await admin.storage.from("case-documents").download(doc.file_path);
     if (dlErr || !file) return json({ error: "Download failed" }, 404);
 
     const ext = doc.file_path.split(".").pop()?.toLowerCase() || "";
     const mime = ({ pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" } as Record<string, string>)[ext];
-    let result: Record<string, unknown>;
+    let result: Record<string, any>;
 
     if (!mime) {
-      result = { overall: "review", quality: { status: "fair", score: 50, issues: ["פורמט שאינו ניתן לסריקה אוטומטית, יבדק ידנית"] }, authenticity: { status: "unclear", flags: [] }, cross_check: [], summary: "המסמך יבדק ידנית על ידי הצוות" };
+      result = {
+        overall: "review",
+        level: "yellow",
+        quality: { status: "fair", score: 50, issues: ["פורמט שאינו ניתן לסריקה אוטומטית, יבדק ידנית"] },
+        authenticity: { status: "unclear", confidence: 0, flags: [] },
+        cross_check: [],
+        summary: "המסמך יועבר לבדיקה של מומחה המשכנתאות",
+      };
     } else {
       const b64 = encodeBase64(new Uint8Array(await file.arrayBuffer()));
       const intake = c.intake_data || {};
@@ -74,7 +158,7 @@ Deno.serve(async (req) => {
           messages: [
             { role: "system", content: SYSTEM },
             { role: "user", content: [
-              { type: "text", text: `סוג מסמך מבוקש: ${doc.doc_type}\nהנחיות: ${DOC_GUIDE[doc.doc_type] ?? "מסמך תומך לתיק משכנתא"}\nנתוני השאלון שהלקוח הצהיר:\n${JSON.stringify(declared)}` },
+              { type: "text", text: `סוג מסמך מבוקש: ${doc.doc_type}\nהנחיות: ${DOC_GUIDE[doc.doc_type] ?? "מסמך תומך לתיק משכנתא"}\nספי סבילות מוגדרים: סטיית הכנסה עד ${thresholds.income_green_pct}% תקינה, עד ${thresholds.income_yellow_pct}% דורשת בדיקה.\nנתוני השאלון שהלקוח הצהיר:\n${JSON.stringify(declared)}` },
               { type: "image_url", image_url: { url: `data:${mime};base64,${b64}` } },
             ] },
           ],
@@ -85,10 +169,23 @@ Deno.serve(async (req) => {
       if (!ai.ok) { console.error(await ai.text()); return json({ error: "Verification failed" }, 500); }
       const content = (await ai.json()).choices?.[0]?.message?.content ?? "";
       try { result = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] ?? content); }
-      catch { result = { overall: "review", summary: "לא ניתן היה לפענח את המסמך, יבדק ידנית", quality: { status: "fair", score: 0, issues: [] }, authenticity: { status: "unclear", flags: [] }, cross_check: [] }; }
+      catch {
+        result = {
+          quality: { status: "fair", score: 0, issues: [] },
+          authenticity: { status: "unclear", confidence: 0, flags: [] },
+          cross_check: [],
+          summary: "לא ניתן היה לפענח את המסמך, הוא יבדק ידנית",
+        };
+      }
+      const policy = applyPolicy(result, thresholds);
+      result.level = policy.level;
+      result.overall = policy.overall;
     }
 
+    result.thresholds = thresholds;
     result.verified_at = new Date().toISOString();
+    result.auto_result = { level: result.level, overall: result.overall, at: result.verified_at };
+
     await admin.from("case_documents").update({ ai_extracted_data: result }).eq("id", doc.id);
     return json({ success: true, result });
   } catch (e) {

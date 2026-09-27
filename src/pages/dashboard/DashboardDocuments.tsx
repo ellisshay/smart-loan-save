@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Upload, CheckCircle2, AlertTriangle, FileText, User, DollarSign, Home, Loader2, XCircle, ScanLine, ShieldCheck, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
+import { LEVEL_UI, levelOf, isDocSettled } from "@/lib/docValidation";
 
 interface UploadedDoc {
   id: string;
@@ -53,8 +54,12 @@ export default function DashboardDocuments() {
     setVerifying(null);
     if (error || data?.error) toast({ title: "האימות לא הושלם", description: data?.error || "נסה שוב בעוד רגע", variant: "destructive" });
     else {
-      const o = data.result?.overall;
-      toast({ title: o === "verified" ? "המסמך אומת בהצלחה" : o === "review" ? "נמצאו פערים לבירור" : "נדרשת העלאה מחדש", description: data.result?.summary, variant: o === "rejected" ? "destructive" : undefined });
+      const l = levelOf(data.result);
+      toast({
+        title: l === "green" ? "המסמך אומת בהצלחה" : l === "yellow" ? "המסמך התקבל ועובר בדיקת מומחה" : "נדרשת סריקה חוזרת",
+        description: data.result?.summary,
+        variant: l === "red" ? "destructive" : undefined,
+      });
     }
     loadDocs();
   };
@@ -138,7 +143,7 @@ export default function DashboardDocuments() {
 
   const totalRequired = requiredDocs.filter(d => d.required).length;
   const uploadedRequired = requiredDocs.filter(d => d.required && uploadedTypes.includes(d.type)).length;
-  const verifiedRequired = requiredDocs.filter(d => d.required && uploadedDocs.some(u => u.doc_type === d.type && u.ai_extracted_data?.overall === "verified")).length;
+  const verifiedRequired = requiredDocs.filter(d => d.required && uploadedDocs.some(u => u.doc_type === d.type && isDocSettled(u.ai_extracted_data))).length;
   const pct = totalRequired ? Math.round((verifiedRequired / totalRequired) * 100) : 0;
 
   return (
@@ -155,7 +160,7 @@ export default function DashboardDocuments() {
             <span className="font-mono text-primary font-bold">{pct}%</span>
           </div>
           <Progress value={pct} className="h-2.5" />
-          <p className="text-xs text-muted-foreground">{verifiedRequired} מתוך {totalRequired} מסמכי חובה אומתו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה לנתוני השאלון. המסמכים נשמרים בתיק עד להשלמה.</p>
+          <p className="text-xs text-muted-foreground">{verifiedRequired} מתוך {totalRequired} מסמכי חובה התקבלו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה סבירה לנתונים שמסרת. פערים קטנים בשם, במעסיק או בשכר הם נורמליים ועוברים בדיקה של מומחה, בלי לעכב אותך.</p>
         </CardContent>
       </Card>
 
@@ -233,11 +238,7 @@ export default function DashboardDocuments() {
   );
 }
 
-const STATUS = {
-  verified: { label: "מאומת", cls: "bg-success/10 text-success border-success/20", Icon: CheckCircle2, row: "bg-success/5 border-success/20" },
-  review: { label: "נדרש בירור", cls: "bg-warning/10 text-warning border-warning/20", Icon: AlertTriangle, row: "bg-warning/5 border-warning/30" },
-  rejected: { label: "נדרשת סריקה חוזרת", cls: "bg-destructive/10 text-destructive border-destructive/20", Icon: XCircle, row: "bg-destructive/5 border-destructive/30" },
-} as const;
+const LEVEL_ICON = { green: CheckCircle2, yellow: AlertTriangle, red: XCircle } as const;
 
 function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onReplace }: {
   doc: { type: string; label: string; required: boolean };
@@ -250,10 +251,11 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
 }) {
   const v = uploaded?.ai_extracted_data;
   const isScanning = !!uploaded && verifying === uploaded.id;
-  const st = v?.overall ? STATUS[v.overall as keyof typeof STATUS] : undefined;
-  const Icon = isScanning ? ScanLine : st?.Icon ?? (uploaded ? Loader2 : FileText);
+  const lvl = levelOf(v);
+  const st = lvl ? LEVEL_UI[lvl] : undefined;
+  const Icon = isScanning ? ScanLine : lvl ? LEVEL_ICON[lvl] : uploaded ? Loader2 : FileText;
   const issues: string[] = [...(v?.quality?.issues ?? []), ...(v?.authenticity?.flags ?? [])];
-  const mismatches = (v?.cross_check ?? []).filter((c: any) => c.status === "mismatch");
+  const notes = (v?.cross_check ?? []).filter((c: any) => c.level === "yellow" || c.level === "red" || c.status === "mismatch");
 
   return (
     <div className={`p-3 rounded-lg border transition-all ${st?.row ?? (uploaded ? "bg-primary/5 border-primary/20" : "bg-muted/20 border-border")}`}>
@@ -269,9 +271,9 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
         {uploaded ? (
           <div className="flex items-center gap-2">
             {isScanning ? <Badge variant="outline" className="text-[10px]">בסריקה...</Badge>
-              : st ? <Badge className={`${st.cls} text-[10px]`}>{st.label}</Badge>
+              : st ? <Badge className={`${st.cls} text-[10px]`}>{st.clientLabel}</Badge>
               : <Button size="sm" variant="outline" className="text-xs" onClick={() => onVerify(uploaded.id)}>אמת מסמך</Button>}
-            {st && st !== STATUS.verified && !isScanning && (
+            {lvl === "red" && !isScanning && (
               <Button size="sm" variant="ghost" className="text-xs" onClick={() => onReplace(uploaded)}><RefreshCw size={13} /> החלף</Button>
             )}
           </div>
@@ -293,8 +295,12 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
             <span>אמינות: <b className="text-foreground">{v.authenticity?.status === "authentic" ? "תקין" : v.authenticity?.status === "suspicious" ? "חשד לעריכה" : "לא חד משמעי"}</b></span>
           </div>
           {v.summary && <p className="text-foreground">{v.summary}</p>}
-          {mismatches.map((m: any, i: number) => (
-            <p key={i} className="text-warning">{m.field}: הוצהר {m.declared}, במסמך זוהה {m.found}</p>
+          {lvl === "yellow" && <p className="text-warning">המסמך התקבל ונשמר בתיק. מומחה המשכנתאות שלנו יעבור על הפרטים, לא נדרשת ממך פעולה כרגע.</p>}
+          {notes.map((m: any, i: number) => (
+            <p key={i} className={m.level === "red" ? "text-destructive" : "text-warning"}>
+              {m.field}: נמסר {m.declared ?? "-"}, במסמך זוהה {m.extracted ?? m.found ?? "-"}
+              {m.reason ? ` · ${m.reason}` : ""}
+            </p>
           ))}
           {issues.slice(0, 3).map((t, i) => <p key={i} className="text-muted-foreground">• {t}</p>)}
           {v.detected_loans?.length > 0 && (
