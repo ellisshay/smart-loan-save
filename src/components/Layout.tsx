@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase, ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import FloatingApplyButton from "@/components/FloatingApplyButton";
@@ -25,7 +26,21 @@ const navLinks = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { if (active) setIsAdmin(false); return; }
+      const { data } = await supabase.rpc("is_admin");
+      if (active) setIsAdmin(!!data);
+    };
+    check();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => check());
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
