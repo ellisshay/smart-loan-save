@@ -248,12 +248,22 @@ export default function DashboardPayment() {
             {fileComplete ? (
               <>
                 {showPayFrame ? (
-                  <iframe
-                    title="טופס תשלום מאובטח"
-                    src={payUrl}
-                    className="w-full h-[640px] rounded-xl border border-border bg-background"
-                    allow="payment"
-                  />
+                  <div className="space-y-3">
+                    <iframe
+                      title="טופס תשלום מאובטח"
+                      src={payUrl}
+                      className="w-full h-[640px] rounded-xl border border-border bg-background"
+                      allow="payment"
+                    />
+                    <a
+                      href={payUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-sm text-primary underline underline-offset-4"
+                    >
+                      הטופס לא נטען? פתחו את דף התשלום בחלון חדש
+                    </a>
+                  </div>
                 ) : (
                   <Button variant="cta" size="lg" className="w-full text-base" onClick={() => setShowPayFrame(true)}>
                     <Zap size={18} />
