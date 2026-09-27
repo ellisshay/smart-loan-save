@@ -123,42 +123,49 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Founder */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-4xl">
+        <div className="container max-w-5xl">
           <motion.div
-            className="text-center mb-14"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-4">
-              הצוות שלנו
+            <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-3">
+              המייסד
             </h2>
             <p className="text-lg text-muted-foreground">
-              אנשי מקצוע שמבינים משכנתאות, ודואגים שתחסוך.
+              האדם שעומד מאחורי EASY MORTE
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {team.map((member, i) => (
-              <motion.div
-                key={member.name}
-                className="bg-card rounded-2xl p-6 shadow-card text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto mb-4">
-                  <Users className="text-gold" size={28} />
-                </div>
-                <h3 className="font-display font-bold text-lg text-foreground">{member.name}</h3>
-                <p className="text-sm text-gold font-semibold mb-2">{member.role}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{member.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div
+            className="bg-card rounded-3xl shadow-card overflow-hidden border border-border/60"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-5">
+              <div className="md:col-span-3">
+                <img
+                  src={founderImage.url}
+                  alt="שי אליס, מייסד EASY MORTE"
+                  className="w-full h-64 md:h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 md:p-10 flex flex-col justify-center text-center md:text-right">
+                <h3 className="font-display font-black text-2xl text-foreground">
+                  {founder.name}
+                </h3>
+                <p className="text-gold font-semibold text-sm mb-4">{founder.role}</p>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                  {founder.bio}
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
