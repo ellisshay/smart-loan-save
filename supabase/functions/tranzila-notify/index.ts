@@ -83,6 +83,7 @@ serve(async (req) => {
       .from("cases")
       .update({
         status: "PaymentSucceeded",
+        payment_succeeded: true,
         updated_at: new Date().toISOString(),
       })
       .eq("id", caseId)
@@ -91,9 +92,9 @@ serve(async (req) => {
     if (updateErr) throw updateErr;
 
     // Log the payment event
-    await supabase.from("case_events").insert({
+    const { error: evErr } = await supabase.from("case_events").insert({
       case_id: caseId,
-      event_type: "payment_succeeded",
+      event_name: "payment_succeeded",
       payload: {
         provider: "tranzila",
         sum: EXPECTED_SUM,
