@@ -367,7 +367,6 @@ export default function HomePage() {
         {showAssessment && (
           <motion.section
             ref={assessmentRef}
-          <section
             id="assessment"
             className="py-16 md:py-24 bg-background scroll-mt-20"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
