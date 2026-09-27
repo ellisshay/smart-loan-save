@@ -118,7 +118,7 @@ export const firstMortgageArticles: KnowledgeArticle[] = [
       },
     ],
     calculator: { label: "מחשבון יכולת רכישה", href: "/calculators/affordability" },
-    related: ["how-much-equity-first-apartment", "mortgage-by-salary", "pre-approval-guide", "bank-auction-guide", "documents-checklist"],
+    related: ["how-much-equity-first-apartment", "mortgage-by-salary", "pre-approval-explained", "bank-auction-guide", "documents-checklist"],
   },
   {
     slug: "how-much-equity-first-apartment",
