@@ -1155,11 +1155,20 @@ export default function SmartAssessment({
   const handleNext = async () => {
     if (isLastStep) {
       await markComplete();
-      onComplete(score, quizData);
+      setCelebrating(true);
     } else {
       goToStep(currentStep + 1);
     }
   };
+
+  if (celebrating) {
+    return (
+      <CelebrationScreen
+        score={score}
+        onContinue={() => onComplete(score, quizData)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
