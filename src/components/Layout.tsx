@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, Briefcase, ShieldCheck } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
@@ -21,7 +21,6 @@ const navLinks = [
   { label: "מחשבונים", href: "/calculators", icon: Calculator },
   { label: "משכנתאפדיה", href: "/knowledge", icon: BookOpen },
   { label: "מחירים", href: "/pricing", icon: FileText },
-  { label: "ליועצים", href: "/for-advisors", icon: Briefcase },
   { label: "צור קשר", href: "/contact", icon: Phone },
 ];
 
