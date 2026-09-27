@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList } from "lucide-react";
 
+// Tranzila terminal name — provided by Tranzila when the merchant account is approved.
+// It appears in the public payment URL, so it is not a secret.
+const TRANZILA_TERMINAL = "YOUR_TERMINAL";
+
 export default function DashboardPayment() {
   const navigate = useNavigate();
   const { caseId, caseType, intakeData, intakeComplete, loading } = useDashboardCase();
