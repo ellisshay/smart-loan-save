@@ -372,7 +372,7 @@ function SLAIndicator({ startedAt, dueAt, createdAt, status }: { startedAt: stri
       <div>
         <div className="flex justify-between text-xs mb-2">
           <span className="text-muted-foreground">{isCompleted ? "הושלם" : `${hoursLeft} שעות נותרו`}</span>
-          <span className="text-muted-foreground">48 שעות</span>
+          <span className="text-muted-foreground">72 שעות</span>
         </div>
         <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
           <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />

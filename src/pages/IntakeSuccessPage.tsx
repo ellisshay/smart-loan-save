@@ -34,7 +34,7 @@ export default function IntakeSuccessPage() {
             <li>שליחה לבנקים וקבלת הצעות</li>
           </ol>
           <div className="mt-4 bg-gold/10 rounded-lg p-3 text-sm text-gold font-semibold">
-            ⏱️ SLA: 48 שעות מרגע השלמת מסמכים ותשלום
+            ⏱️ SLA: 72 שעות מרגע השלמת מסמכים ותשלום
           </div>
         </div>
 

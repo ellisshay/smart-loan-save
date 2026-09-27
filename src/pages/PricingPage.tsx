@@ -96,8 +96,8 @@ const clientPlans = [
     tier: "free" as const,
   },
   {
-    name: "תיק פרימיום 48 שעות",
-    price: "₪3,800",
+    name: "תיק פרימיום 72 שעות",
+    price: "₪3,450",
     period: "חד-פעמי",
     desc: "ניתוח מקצועי + שליחה לבנקים",
     features: [
@@ -415,7 +415,7 @@ export default function PricingPage() {
           {[
             { icon: Users, label: "4,200+ לקוחות" },
             { icon: TrendingDown, label: "חיסכון ממוצע 84,000 ₪" },
-            { icon: Clock, label: "הצעות תוך 48 שעות" },
+            { icon: Clock, label: "הצעות תוך 72 שעות" },
             { icon: Star, label: "98% שביעות רצון" },
           ].map(({ icon: Icon, label }) => (
             <div
