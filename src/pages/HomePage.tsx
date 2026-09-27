@@ -12,6 +12,7 @@ import {
   ArrowLeft, Check, CheckCircle, X, ChevronLeft,
   Coins, Zap, Building2, ShieldCheck, Landmark,
   FileText, Upload, Handshake, TrendingDown, Home, Calendar, Hourglass,
+  BadgeCheck, Timer, Gavel, Laptop,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
@@ -22,10 +23,10 @@ import heroHouse from "@/assets/hero-house.jpg";
 
 // ─── Trust strip ───
 const trustItems = [
-  { icon: Coins, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצועי מקצה לקצה" },
-  { icon: Zap, title: "עד 72 שעות", desc: "לקבלת הצעות ראשונות" },
-  { icon: Building2, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך" },
-  { icon: ShieldCheck, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין" },
+  { icon: BadgeCheck, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצועי מקצה לקצה" },
+  { icon: Timer, title: "עד 72 שעות", desc: "לקבלת הצעות ראשונות" },
+  { icon: Gavel, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך" },
+  { icon: Laptop, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין" },
 ];
 
 // ─── How it works steps ───
@@ -227,14 +228,14 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-card rounded-2xl border border-border shadow-card p-5 flex items-center gap-4 hover:shadow-card-hover transition-shadow"
+                className="bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover transition-shadow"
               >
-                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <item.icon size={20} className="text-primary" />
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0">
+                  <item.icon size={22} strokeWidth={2.2} className="text-primary" />
                 </div>
                 <div>
                   <p className="font-bold text-sm text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
