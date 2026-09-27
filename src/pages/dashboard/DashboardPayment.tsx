@@ -108,11 +108,45 @@ export default function DashboardPayment() {
               <span className="text-3xl font-display font-black text-foreground">₪3,450</span>
               <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · תשלום חד פעמי</span>
             </div>
-            <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3800&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank")}>
-              <Zap size={18} />
-              פתח ניתוח תוך 72 שעות
-            </Button>
-            <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
+            {fileComplete ? (
+              <>
+                <Button variant="cta" size="lg" className="w-full text-base" onClick={() => window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3800&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank")}>
+                  <Zap size={18} />
+                  פתח ניתוח תוך 72 שעות
+                </Button>
+                <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
+              </>
+            ) : (
+              <>
+                <Button variant="cta" size="lg" className="w-full text-base" disabled>
+                  <Lock size={18} />
+                  התשלום ייפתח לאחר השלמת התיק
+                </Button>
+                <div className="mt-4 space-y-2 text-right">
+                  {!intakeComplete && (
+                    <button
+                      onClick={() => navigate("/dashboard/mortgage")}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/40 hover:bg-muted transition-colors"
+                    >
+                      <ClipboardList size={16} className="text-warning shrink-0" />
+                      <span className="text-sm text-foreground">השלם את שאלון הפרטים האישיים</span>
+                    </button>
+                  )}
+                  {!docsComplete && (
+                    <button
+                      onClick={() => navigate("/dashboard/documents")}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/40 hover:bg-muted transition-colors"
+                    >
+                      <FileUp size={16} className="text-warning shrink-0" />
+                      <span className="text-sm text-foreground">
+                        העלה את המסמכים הנדרשים{missingDocs > 0 ? ` (חסרים ${missingDocs})` : ""}
+                      </span>
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-3">הצעת המשכנתא נפתחת רק כשהתיק מלא, כדי שהניתוח יהיה מדויק</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </motion.div>
