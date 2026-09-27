@@ -95,7 +95,7 @@ export default function MyCasesPage() {
     if (data && data.length > 0) {
       const { data: urlData } = await supabase.storage
         .from("case-documents")
-        .createSignedUrl(`${caseId}/reports/${data[0].name}`, 3600);
+        .createSignedUrl(`${caseId}/reports/${data[0].name}`, 300);
 
       if (urlData?.signedUrl) {
         window.open(urlData.signedUrl, "_blank");
