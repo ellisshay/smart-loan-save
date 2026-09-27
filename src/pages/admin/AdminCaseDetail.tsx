@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CASE_STATUSES, CaseStatus, STATUS_OPTIONS, BANK_EMAIL_TEMPLATE } from "@/types/admin";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import TenderSection from "@/components/tender/TenderSection";
 import { toast } from "@/hooks/use-toast";
 import {
   ArrowLeft,
@@ -39,6 +40,7 @@ interface CaseDetail {
   sla_due_at: string | null;
   intake_data: Record<string, any>;
   user_id: string;
+  assigned_advisor_id?: string | null;
 }
 
 interface DocRow {
@@ -315,6 +317,10 @@ export default function AdminCaseDetail() {
             />
           </motion.div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <TenderSection caseId={caseData.id} clientName={clientName} intake={{ ...caseData.intake_data, goal: caseData.goal }} caseStatus={status.label} createdAt={caseData.created_at} assignedAdvisorId={caseData.assigned_advisor_id ?? null} />
       </div>
 
       {/* Bank Email Modal */}

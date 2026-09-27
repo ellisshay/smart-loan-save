@@ -6,7 +6,8 @@ import { clientCardHtml, clientEmail, STATUS_LABELS, borrowers } from "../_share
 
 const Body = z.object({
   case_id: z.string().uuid(),
-  event: z.enum(["case_opened", "status_update", "intake_complete"]),
+  event: z.enum(["case_opened", "status_update", "intake_complete", "tender_proceed", "tender_question", "tender_update"]),
+  message: z.string().max(2000).optional(),
 });
 
 const json = (b: unknown, status = 200) =>
@@ -24,12 +25,12 @@ Deno.serve(async (req) => {
 
     const parsed = Body.safeParse(await req.json());
     if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
-    const { case_id, event } = parsed.data;
+    const { case_id, event, message } = parsed.data;
 
     const { data: c } = await admin.from("cases").select("*").eq("id", case_id).single();
     if (!c) return json({ error: "Case not found" }, 404);
     const { data: isAdmin } = await admin.rpc("has_role", { _user_id: user.id, _role: "admin" });
-    if (c.user_id !== user.id && !isAdmin) return json({ error: "Forbidden" }, 403);
+    if (c.user_id !== user.id && !isAdmin && c.assigned_advisor_id !== user.id) return json({ error: "Forbidden" }, 403);
 
     const { data: profile } = await admin.from("profiles").select("*").eq("user_id", c.user_id).maybeSingle();
     const sent = (c.emails_sent || {}) as Record<string, any>;
@@ -55,6 +56,20 @@ Deno.serve(async (req) => {
         await sendEmail(to, `עדכון סטטוס לתיק ${c.case_number}`, wrap(`שלום ${name}, יש עדכון בתיק שלך`, `<p>הסטטוס החדש: <b>${esc(STATUS_LABELS[c.status] || c.status)}</b></p>`, "לאזור האישי", `${SITE_URL}/dashboard/status`));
         await mark(key); results.push(key);
       }
+    }
+
+    if (event === "tender_proceed" || event === "tender_question") {
+      const { data: adv } = c.assigned_advisor_id ? await admin.auth.admin.getUserById(c.assigned_advisor_id) : { data: null } as any;
+      const subj = event === "tender_proceed" ? `הלקוח רוצה להתקדם עם הצעה: ${c.case_number}` : `שאלה מהלקוח על הצעה: ${c.case_number}`;
+      const body = `${clientCardHtml(c, profile)}${message ? `<p><b>הודעת הלקוח:</b> ${esc(message)}</p>` : ""}`;
+      const recipients = [ADMIN_EMAIL, adv?.user?.email].filter(Boolean) as string[];
+      for (const r of new Set(recipients)) await sendEmail(r, subj, wrap(subj, body, "למכרז בתיק", `${SITE_URL}/admin/cases/${c.id}`));
+      results.push(event);
+    }
+
+    if (event === "tender_update" && to) {
+      await sendEmail(to, `עדכון במכרז המשכנתא שלך, תיק ${c.case_number}`, wrap(`שלום ${name}, יש עדכון במכרז הבנקים`, `<p>${esc(message || "יש עדכון חדש בתיק שלך.")}</p>`, "למכרז המשכנתא שלי", `${SITE_URL}/dashboard/tender`));
+      results.push("tender_update");
     }
 
     if (event === "intake_complete") {

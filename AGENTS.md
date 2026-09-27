@@ -1,2 +1,4 @@
 - Use the shared BrandLogo component for site and workspace branding so every header displays the same identity and tagline.
 - Derive the browser favicon from the same brand symbol so the tab and site remain visually consistent.
+- Bank tender data lives in tenders/tender_banks/tender_offers; clients read only via get_client_tender RPC — keeps internal notes and unapproved offers hidden.
+- tender_offers are append-only versions (content-protect trigger) — offer history must never be overwritten.
