@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntakeForm } from "@/hooks/useIntakeForm";
+import { countMissingDocs } from "@/lib/docsComplete";
+import { toast } from "@/hooks/use-toast";
 import {
   NEW_CASE_STEPS, REFI_CASE_STEPS, SERVICE_GOALS,
   REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI,
