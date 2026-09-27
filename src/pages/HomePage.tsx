@@ -367,7 +367,8 @@ export default function HomePage() {
         {showAssessment && (
           <motion.section
             ref={assessmentRef}
-            className="py-16 md:py-24 bg-background"
+            id="assessment"
+            className="py-16 md:py-24 bg-background scroll-mt-20"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           >
             <div className="container max-w-2xl mx-auto">

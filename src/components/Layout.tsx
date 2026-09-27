@@ -18,7 +18,7 @@ const navLinks = [
   { label: "אודות", href: "/about", icon: Info },
   { label: "איך זה עובד", href: "/how-it-works", icon: Lightbulb },
   { label: "מחשבונים", href: "/calculators", icon: Calculator },
-  { label: "משכנתאפדיה", href: "/blog", icon: BookOpen },
+  { label: "משכנתאפדיה", href: "/knowledge", icon: BookOpen },
   { label: "מחירים", href: "/pricing", icon: FileText },
   { label: "ליועצים", href: "/for-advisors", icon: Briefcase },
   { label: "צור קשר", href: "/contact", icon: Phone },
