@@ -65,7 +65,6 @@ const faqItems = [
 export default function HomePage() {
   const navigate = useNavigate();
 
-  const [urgencyCount] = useState(() => Math.floor(Math.random() * 12) + 8);
   const [showAssessment, setShowAssessment] = useState(false);
   const [showRegModal, setShowRegModal] = useState(false);
   const [regForm, setRegForm] = useState({ name: "", phone: "", email: "" });
