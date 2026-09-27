@@ -78,29 +78,13 @@ serve(async (req) => {
           <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">החזר חודשי</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">₪${monthly_payment || ""}</td></tr>
           <tr><td style="padding:12px;color:#666;">תקופה</td><td style="padding:12px;">${loan_period || "—"} שנים</td></tr>
         </table>
-        <a href="https://smart-loan-save.lovable.app/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפה בהצעות →</a>
+        <a href="${SITE_URL}/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפה בהצעות →</a>
       </div>`;
 
-    // Send via Resend
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${resendApiKey}`,
-      },
-      body: JSON.stringify({
-        from: "EasyMorte <noreply@smart-loan-save.lovable.app>",
-        to: [profile.email],
-        subject: "יש לך הצעה חדשה מ-EasyMorte!",
-        html: htmlBody,
-      }),
-    });
-
-    const resendResult = await resendResponse.json();
-    console.log("Resend response:", resendResponse.status, resendResult);
+    await sendEmail(profile.email, "יש לך הצעה חדשה מ-EasyMorte!", htmlBody);
 
     return new Response(
-      JSON.stringify({ success: true, resend_status: resendResponse.status }),
+      JSON.stringify({ success: true }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
