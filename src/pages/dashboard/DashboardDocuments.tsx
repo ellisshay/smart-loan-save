@@ -160,7 +160,7 @@ export default function DashboardDocuments() {
             <span className="font-mono text-primary font-bold">{pct}%</span>
           </div>
           <Progress value={pct} className="h-2.5" />
-          <p className="text-xs text-muted-foreground">{verifiedRequired} מתוך {totalRequired} מסמכי חובה אומתו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה לנתוני השאלון. המסמכים נשמרים בתיק עד להשלמה.</p>
+          <p className="text-xs text-muted-foreground">{verifiedRequired} מתוך {totalRequired} מסמכי חובה התקבלו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה סבירה לנתונים שמסרת. פערים קטנים בשם, במעסיק או בשכר הם נורמליים ועוברים בדיקה של מומחה, בלי לעכב אותך.</p>
         </CardContent>
       </Card>
 
