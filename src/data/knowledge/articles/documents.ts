@@ -1,4 +1,4 @@
-import type { KnowledgeArticle } from "./types";
+import type { KnowledgeArticle } from "../types";
 
 export const documentsArticles: KnowledgeArticle[] = [
   {
