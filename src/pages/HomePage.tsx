@@ -119,9 +119,9 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EASY MORTE, משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
+        <title>EASY MORTE, לוקחים משכנתא בקלות | בדיקת תיק תוך 72 שעות</title>
         <meta name="description" content="אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
-        <meta property="og:title" content="EASY MORTE, משכנתא בלי כל הבלאגן" />
+        <meta property="og:title" content="EASY MORTE, לוקחים משכנתא בקלות" />
         <meta property="og:description" content="משווים הצעות מהבנקים ומנהלים משא ומתן בשבילך. עד 72 שעות להצעות ראשונות." />
       </Helmet>
 
@@ -149,7 +149,7 @@ export default function HomePage() {
               className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] mb-5 text-foreground"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             >
-              משכנתא בלי <span className="text-gradient-gold">כל הבלאגן.</span>
+              לוקחים משכנתא <span className="text-gradient-gold">בקלות.</span>
             </motion.h1>
             <motion.p
               className="text-lg text-muted-foreground mb-8 leading-relaxed"
