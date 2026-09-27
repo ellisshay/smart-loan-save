@@ -12,6 +12,7 @@ import MarketTicker from "@/components/MarketTicker";
 import PublicChatWidget from "@/components/PublicChatWidget";
 import speedMarketLogo from "@/assets/credits/speedmarket.png";
 import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
+import BrandLogo from "@/components/BrandLogo";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
@@ -70,11 +71,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border" role="banner">
         <MarketTicker />
         <div className="container flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <Home size={18} className="text-primary-foreground" />
-            </div>
-            <span className="font-display font-bold text-xl text-foreground">EASY MORTE</span>
+          <Link to="/" className="text-foreground" aria-label="EASY MORTE - לוקחים משכנתא בקלות">
+            <BrandLogo />
           </Link>
 
           {/* Desktop Nav */}
@@ -180,11 +178,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="container py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gold-gradient flex items-center justify-center">
-                  <span className="font-display font-black text-accent-foreground text-xs">EM</span>
-                </div>
-                <span className="font-display font-bold text-lg">EASY MORTE</span>
+              <div className="mb-4 inline-flex items-center rounded bg-card text-card-foreground px-2 py-1">
+                <BrandLogo />
               </div>
               <p className="text-sm text-primary-foreground/70 leading-relaxed">
                 חוסכים לישראלים אלפי שקלים במשכנתא. ניתוח מקצועי, תמהילים חכמים, תוצאות מיידיות.

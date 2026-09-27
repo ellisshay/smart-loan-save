@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import BrandLogo from "@/components/BrandLogo";
 import {
   FileText,
   Download,
@@ -122,11 +123,8 @@ export default function MyCasesPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="container flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-gold-gradient flex items-center justify-center">
-              <span className="font-display font-black text-accent-foreground text-sm">EM</span>
-            </div>
-            <span className="font-display font-bold text-xl text-foreground">EASY MORTE</span>
+          <Link to="/" className="text-foreground" aria-label="EASY MORTE - לוקחים משכנתא בקלות">
+            <BrandLogo />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/intake">
