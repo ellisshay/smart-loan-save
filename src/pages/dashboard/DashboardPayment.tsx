@@ -22,9 +22,12 @@ export default function DashboardPayment() {
     const checkDocs = async () => {
       const { data } = await supabase
         .from("case_documents")
-        .select("doc_type")
+        .select("doc_type, ai_extracted_data")
         .eq("case_id", caseId);
-      const uploadedTypes = (data || []).map((d) => d.doc_type);
+      // Only verified documents count toward a complete file
+      const uploadedTypes = (data || [])
+        .filter((d) => (d.ai_extracted_data as any)?.overall === "verified")
+        .map((d) => d.doc_type);
       const requiredDocs = (caseType === "refi" ? REQUIRED_DOCS_REFI : REQUIRED_DOCS_NEW).filter((d) => d.required);
       const missing = requiredDocs.filter((d) => !uploadedTypes.includes(d.type)).length;
       setMissingDocs(missing);
