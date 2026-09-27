@@ -84,7 +84,7 @@ export default function StepConsent({ onNext, onBack }: Props) {
           disabled={!allAccepted}
           onClick={() => onNext({ fullName, date })}
         >
-          שמור והמשך →
+          שמור והמשך ←
         </Button>
       </div>
     </motion.div>

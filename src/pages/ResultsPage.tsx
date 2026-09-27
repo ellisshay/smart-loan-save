@@ -616,7 +616,7 @@ export default function ResultsPage() {
                 rel="noopener noreferrer"
                 className="text-xs opacity-70 hover:opacity-100 underline inline-flex items-center gap-1"
               >
-                <MessageCircle className="h-3 w-3" /> שאל יועץ קודם →
+                <MessageCircle className="h-3 w-3" /> שאל יועץ קודם ←
               </a>
             </div>
           </CardContent>

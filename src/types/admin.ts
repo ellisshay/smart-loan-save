@@ -36,4 +36,4 @@ export const BANK_EMAIL_TEMPLATE = `שלום רב,
 
 בברכה,
 צוות EasyMorte
-info@easymortgage.co.il`;
+easymorte.il@gmail.com`;

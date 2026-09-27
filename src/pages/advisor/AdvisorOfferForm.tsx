@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 
 const banks = [
   "בנק הפועלים", "בנק לאומי", "בנק דיסקונט", "בנק מזרחי טפחות",
@@ -109,7 +109,7 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
   return (
     <div className="max-w-2xl mx-auto">
       <button onClick={onBack} className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 text-sm">
-        <ArrowRight size={16} /> חזרה לדשבורד
+        <ArrowLeft size={16} /> חזרה לדשבורד
       </button>
 
       <h2 className="font-display text-2xl font-black text-foreground mb-6">הגשת הצעה</h2>

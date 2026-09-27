@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, User, Home as HomeIcon, DollarSign, FileText,
-  CreditCard, Shield, Upload, LogOut, ArrowRight, CreditCard as PayIcon, Gift
+  CreditCard, Shield, Upload, LogOut, ArrowLeft, CreditCard as PayIcon, Gift
 } from "lucide-react";
 import AuthGuard from "@/components/AuthGuard";
 import ExitIntentModal from "@/components/ExitIntentModal";
@@ -71,7 +71,7 @@ export default function DashboardLayout() {
             </Link>
             <div className="flex items-center gap-2">
               {userName && <span className="text-xs text-muted-foreground hidden sm:block">שלום, {userName}</span>}
-              <Link to="/"><Button variant="outline" size="sm" className="text-xs h-8"><ArrowRight className="h-3 w-3" />לאתר</Button></Link>
+              <Link to="/"><Button variant="outline" size="sm" className="text-xs h-8"><ArrowLeft className="h-3 w-3" />לאתר</Button></Link>
               <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8"><LogOut className="h-3.5 w-3.5" /></Button>
             </div>
           </div>

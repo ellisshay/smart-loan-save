@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, Clock, BookOpen, CheckCircle2, Share2 } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, CheckCircle2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { articlesData } from "@/data/articlesData";
 
@@ -66,7 +66,7 @@ export default function ArticlePage() {
               to="/blog"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
             >
-              <ArrowRight size={14} /> חזרה למשכנתאפדיה
+              <ArrowLeft size={14} /> חזרה למשכנתאפדיה
             </Link>
 
             <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4">
@@ -162,7 +162,7 @@ export default function ArticlePage() {
             </p>
             <Link to="/calculators">
               <Button variant="cta" size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-                למחשבונים →
+                למחשבונים ←
               </Button>
             </Link>
           </motion.div>

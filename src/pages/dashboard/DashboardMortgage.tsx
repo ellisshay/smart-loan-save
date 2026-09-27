@@ -76,7 +76,7 @@ function MortgageForm({ defaults, saving, onSubmit }: { defaults: Partial<Mortga
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה</Button>
-        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "כמעט שם! המשך להצהרות →"}</Button>
+        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "כמעט שם! המשך להצהרות ←"}</Button>
       </div>
     </motion.form>
   );

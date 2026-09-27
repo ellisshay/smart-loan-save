@@ -190,7 +190,7 @@ export default function AccessibilityWidget() {
                     onClick={() => setOpen(false)}
                     className="text-sm text-primary hover:underline"
                   >
-                    הצהרת נגישות מלאה →
+                    הצהרת נגישות מלאה ←
                   </Link>
                 </div>
               </div>
