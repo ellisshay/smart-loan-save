@@ -253,26 +253,69 @@ export default function AdminCaseDetail() {
             {/* Uploaded docs */}
             {docs.length > 0 && (
               <div className="space-y-2 mb-4">
-                {docs.map((doc) => (
-                  <div key={doc.id} className="p-3 rounded-lg border border-border bg-muted/20 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <span className="text-sm text-foreground block truncate">{doc.file_name}</span>
-                        <span className="text-xs text-muted-foreground">{doc.doc_type} · {doc.ai_extracted_data?.overall === "verified" ? "מאומת" : doc.ai_extracted_data?.overall === "review" ? "נדרש בירור" : doc.ai_extracted_data?.overall === "rejected" ? "נדחה" : "טרם נבדק"}{doc.ai_extracted_data?.quality?.score != null ? ` · איכות ${doc.ai_extracted_data.quality.score}/100` : ""}</span>
+                {docs.map((doc) => {
+                  const v = doc.ai_extracted_data || {};
+                  const lvl = levelOf(v);
+                  const ui = lvl ? LEVEL_UI[lvl] : undefined;
+                  const checks: any[] = v.cross_check || [];
+                  return (
+                    <div key={doc.id} className={`p-3 rounded-lg border space-y-2 ${ui?.row ?? "border-border bg-muted/20"}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="text-sm text-foreground block truncate">{doc.file_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {doc.doc_type} · {ui?.label ?? "טרם נבדק"}
+                            {v.quality?.score != null ? ` · איכות סריקה ${v.quality.score}/100` : ""}
+                          </span>
+                          {v.manual_review && (
+                            <span className="text-[11px] text-muted-foreground block">
+                              החלטת מפעיל: {v.manual_review.label} · תוצאה אוטומטית מקורית: {v.auto_result?.level ?? "-"}
+                            </span>
+                          )}
+                        </div>
+                        <button onClick={() => handleDownloadDoc(doc.file_path)} className="text-xs text-primary font-semibold hover:underline flex items-center gap-1 shrink-0"><Download size={14} />צפייה</button>
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <button onClick={() => setDocDecision(doc, "verified")} className="text-xs text-success font-semibold hover:underline">אשר</button>
-                        <button onClick={() => setDocDecision(doc, "rejected")} className="text-xs text-destructive font-semibold hover:underline">דחה</button>
-                        <button onClick={() => handleDownloadDoc(doc.file_path)} className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"><Download size={14} />צפייה</button>
+
+                      {v.summary && <p className="text-xs text-foreground">{v.summary}</p>}
+
+                      {checks.map((c: any, i: number) => (
+                        <div key={i} className="text-[11px] rounded-md bg-card/60 border border-border/60 p-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-foreground">{c.field}</span>
+                            <span className={c.level === "green" ? "text-success" : c.level === "red" ? "text-destructive" : "text-warning"}>
+                              {c.level === "green" ? "תואם" : c.level === "red" ? "אי התאמה מהותית" : "לבדיקה"}
+                              {c.confidence != null ? ` · ביטחון ${c.confidence}%` : ""}
+                              {c.diff_pct != null ? ` · פער ${Math.round(Math.abs(c.diff_pct))}%` : ""}
+                            </span>
+                          </div>
+                          <p className="text-muted-foreground">נמסר: {c.declared ?? "-"} | במסמך: {c.extracted ?? c.found ?? "-"}</p>
+                          {(c.normalized_declared || c.normalized_extracted) && (
+                            <p className="text-muted-foreground">אחרי נרמול: {c.normalized_declared ?? "-"} | {c.normalized_extracted ?? "-"}</p>
+                          )}
+                          {c.reason && <p className="text-muted-foreground">{c.reason}</p>}
+                        </div>
+                      ))}
+
+                      {(v.authenticity?.flags || []).map((f: string, i: number) => <p key={i} className="text-xs text-destructive">• {f}</p>)}
+
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {MANUAL_DECISIONS.map((d) => (
+                          <button
+                            key={d.key}
+                            onClick={() => setDocDecision(doc, d)}
+                            className={`text-[11px] px-2.5 py-1 rounded-full border font-semibold transition-colors ${
+                              v.manual_review?.decision === d.key
+                                ? LEVEL_UI[d.level as "green" | "yellow" | "red"].cls
+                                : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {d.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    {doc.ai_extracted_data?.summary && <p className="text-xs text-foreground">{doc.ai_extracted_data.summary}</p>}
-                    {(doc.ai_extracted_data?.cross_check || []).filter((c: any) => c.status === "mismatch").map((m: any, i: number) => (
-                      <p key={i} className="text-xs text-warning">{m.field}: הוצהר {m.declared}, זוהה {m.found}</p>
-                    ))}
-                    {(doc.ai_extracted_data?.authenticity?.flags || []).map((f: string, i: number) => <p key={i} className="text-xs text-destructive">• {f}</p>)}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
