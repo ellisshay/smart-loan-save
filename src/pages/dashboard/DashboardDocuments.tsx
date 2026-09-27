@@ -42,11 +42,23 @@ const DOC_CATEGORIES = [
 ];
 
 export default function DashboardDocuments() {
-  const { caseId, caseType, intakeData, loading: caseLoading } = useDashboardCase();
+  const { caseId, caseType, intakeData, loading: caseLoading, saveStep } = useDashboardCase();
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
+
+  const deferredDocs: string[] = intakeData.deferred_docs ?? [];
+  const toggleDeferred = (docType: string) => {
+    const next = deferredDocs.includes(docType)
+      ? deferredDocs.filter((t) => t !== docType)
+      : [...deferredDocs, docType];
+    saveStep("deferred_docs", next);
+    toast({
+      title: deferredDocs.includes(docType) ? "הסימון הוסר" : "סומן — תשלח במועד אחר",
+      description: deferredDocs.includes(docType) ? undefined : "תוכל להשלים את המסמך בכל עת מהאזור האישי",
+    });
+  };
 
   const verifyDoc = async (documentId: string) => {
     setVerifying(documentId);
