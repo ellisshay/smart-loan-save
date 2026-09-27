@@ -87,6 +87,86 @@ export default function DashboardPayment() {
   const seconds = timeLeft % 60;
   const timerExpired = timeLeft <= 0;
 
+  // Payment status: confirmed (webhook landed), failed (Tranzila returned paid=0), pending (paid=1 but not yet confirmed)
+  const paymentState: "confirmed" | "failed" | "pending" | null = paymentSucceeded
+    ? "confirmed"
+    : paidParam === "0"
+      ? "failed"
+      : paidParam === "1"
+        ? "pending"
+        : null;
+
+  // Confirmed payment screen
+  if (paymentState === "confirmed") {
+    return (
+      <div className="space-y-6 max-w-lg mx-auto text-center">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 size={44} className="text-primary" />
+          </div>
+          <h2 className="font-display text-2xl font-bold text-foreground">התשלום אושר בהצלחה</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            התיק שלך נפתח לניתוח. צוות המומחים יטפל בו תוך עד 72 שעות, ונעדכן אותך בכל שלב.
+          </p>
+        </motion.div>
+        <Card className="border-primary/30">
+          <CardContent className="p-5 space-y-3 text-right">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">סכום ששולם</span>
+              <span className="font-bold text-foreground">₪3,450</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">סטטוס תיק</span>
+              <Badge variant="default">בניתוח</Badge>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">אישור תשלום</span>
+              <span className="text-primary font-medium">נשלח אליך במייל</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Button variant="cta" size="lg" className="w-full" onClick={() => navigate("/dashboard")}>
+          מעבר לאזור האישי
+        </Button>
+      </div>
+    );
+  }
+
+  // Failed payment screen
+  if (paymentState === "failed") {
+    return (
+      <div className="space-y-6 max-w-lg mx-auto text-center">
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+            <XCircle size={44} className="text-destructive" />
+          </div>
+          <h2 className="font-display text-2xl font-bold text-foreground">התשלום לא הושלם</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            העסקה לא אושרה או בוטלה. לא חויבת, וניתן לנסות שוב בכל עת.
+          </p>
+        </motion.div>
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-foreground">
+          שימו לב: עד לקבלת התשלום הבקשה לא תאובחן ולא תועבר לניתוח.
+        </div>
+        <div className="flex flex-col gap-3">
+          <Button
+            variant="cta"
+            size="lg"
+            className="w-full"
+            disabled={!fileComplete}
+            onClick={() => window.open(`https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframed.php?sum=3450&currency=1&cred_type=1&u1=${caseId}&success_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`, "_blank")}
+          >
+            <Zap size={18} />
+            נסה שוב לשלם ₪3,450
+          </Button>
+          <Button variant="outline" className="w-full" onClick={() => navigate("/dashboard")}>
+            ← חזרה לדשבורד
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 max-w-lg mx-auto">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center">
