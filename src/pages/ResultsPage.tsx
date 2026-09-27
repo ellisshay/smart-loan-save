@@ -80,7 +80,7 @@ interface AIAnalysis {
   recommended_banks: string[];
 }
 
-const WHATSAPP_NUMBER = "972501234567";
+const WHATSAPP_NUMBER = "972559961997";
 
 /* ═══════ Sub-components ═══════ */
 
