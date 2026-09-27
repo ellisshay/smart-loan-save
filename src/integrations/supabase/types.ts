@@ -1162,6 +1162,31 @@ export type Database = {
         Returns: undefined
       }
       open_tender: { Args: { _case_id: string }; Returns: string }
+      quiz_create_session: {
+        Args: never
+        Returns: {
+          id: string
+          session_token: string
+        }[]
+      }
+      quiz_get_session: {
+        Args: { _token: string }
+        Returns: {
+          current_step: number
+          quiz_data: Json
+        }[]
+      }
+      quiz_update_session: {
+        Args: {
+          _completed?: boolean
+          _current_step: number
+          _purpose: string
+          _quiz_data: Json
+          _score: number
+          _token: string
+        }
+        Returns: undefined
+      }
       submit_case_safe: {
         Args: { _case_id: string; _goal?: string }
         Returns: undefined
