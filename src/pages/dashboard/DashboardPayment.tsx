@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
 import { supabase } from "@/integrations/supabase/client";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList } from "lucide-react";
+import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass } from "lucide-react";
 
 // Tranzila terminal name — provided by Tranzila when the merchant account is approved.
 // It appears in the public payment URL, so it is not a secret.
