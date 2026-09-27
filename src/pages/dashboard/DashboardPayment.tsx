@@ -15,10 +15,39 @@ const TRANZILA_TERMINAL = "ttxellisshay";
 
 export default function DashboardPayment() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { caseId, caseType, intakeData, intakeComplete, loading } = useDashboardCase();
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes
   const [docsComplete, setDocsComplete] = useState(false);
   const [missingDocs, setMissingDocs] = useState(0);
+  const [caseStatus, setCaseStatus] = useState<string | null>(null);
+  const [paymentSucceeded, setPaymentSucceeded] = useState(false);
+
+  // Tranzila redirects back with ?paid=1 (success) or ?paid=0 (failure)
+  const paidParam = searchParams.get("paid");
+
+  // Fetch the case's payment status
+  useEffect(() => {
+    if (!caseId) return;
+    const fetchStatus = async () => {
+      const { data } = await supabase
+        .from("cases")
+        .select("status, payment_succeeded")
+        .eq("id", caseId)
+        .single();
+      if (data) {
+        setCaseStatus(data.status);
+        setPaymentSucceeded(!!data.payment_succeeded);
+      }
+    };
+    fetchStatus();
+    // Poll briefly after returning from Tranzila so the notify webhook can land
+    if (paidParam === "1") {
+      const poll = setInterval(fetchStatus, 3000);
+      const stop = setTimeout(() => clearInterval(poll), 30000);
+      return () => { clearInterval(poll); clearTimeout(stop); };
+    }
+  }, [caseId, paidParam]);
 
   // Check required documents status
   useEffect(() => {
