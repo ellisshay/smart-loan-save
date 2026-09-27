@@ -123,7 +123,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <AccessibilityWidget />
 
       {/* Footer */}
-      <footer className="bg-primary text-primary-foreground" role="contentinfo">
+      <footer className="bg-navy text-primary-foreground" role="contentinfo">
         <div className="container py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
