@@ -1,0 +1,2 @@
+- Use the shared BrandLogo component for site and workspace branding so every header displays the same identity and tagline.
+- Derive the browser favicon from the same brand symbol so the tab and site remain visually consistent.
