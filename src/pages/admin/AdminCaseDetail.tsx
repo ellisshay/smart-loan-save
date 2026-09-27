@@ -134,6 +134,7 @@ export default function AdminCaseDetail() {
       .from("cases")
       .update({ status: newStatus })
       .eq("id", caseData.id);
+    supabase.functions.invoke("case-email", { body: { case_id: caseData.id, event: "status_update" } }).catch(console.error);
 
     if (!error) {
       setCaseData(prev => prev ? { ...prev, status: newStatus } : prev);

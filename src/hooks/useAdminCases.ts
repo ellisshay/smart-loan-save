@@ -114,6 +114,7 @@ export function useAdminCases() {
       .from("cases")
       .update({ status: newStatus })
       .eq("id", caseId);
+    supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "status_update" } }).catch(console.error);
 
     if (!error) {
       setCases(prev => prev.map(c =>
