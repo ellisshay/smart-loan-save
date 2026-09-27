@@ -29,8 +29,8 @@ export default function MarketTicker() {
     const load = async () => {
       try {
         const [fx, fxPrev, btc] = await Promise.all([
-          fetch("https://api.frankfurter.app/latest?from=USD&to=ILS,EUR").then((r) => r.json()),
-          fetch(`https://api.frankfurter.app/${new Date(Date.now() - 4 * 864e5).toISOString().slice(0, 10)}?from=USD&to=ILS,EUR`).then((r) => r.json()),
+          fetch("https://api.frankfurter.dev/v1/latest?from=USD&to=ILS,EUR").then((r) => r.json()),
+          fetch(`https://api.frankfurter.dev/v1/${new Date(Date.now() - 4 * 864e5).toISOString().slice(0, 10)}?from=USD&to=ILS,EUR`).then((r) => r.json()),
           fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true").then((r) => r.json()),
         ]);
         const usdIls = fx.rates.ILS, usdEur = fx.rates.EUR;
