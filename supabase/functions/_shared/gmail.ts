@@ -1,6 +1,6 @@
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 export const ADMIN_EMAIL = "easymorte.il@gmail.com";
-export const SITE_URL = "https://smart-loan-save.lovable.app";
+export const SITE_URL = "https://www.easymorte.co.il";
 
 const b64 = (s: string) =>
   btoa(Array.from(new TextEncoder().encode(s), (b) => String.fromCharCode(b)).join(""));
