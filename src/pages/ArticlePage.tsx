@@ -44,7 +44,7 @@ export default function ArticlePage() {
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.metaDescription} />
         <meta property="og:type" content="article" />
-        <link rel="canonical" href={`https://smart-loan-save.lovable.app/blog/${article.slug}`} />
+        <link rel="canonical" href={`https://www.easymorte.co.il/blog/${article.slug}`} />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

@@ -16,11 +16,11 @@ const NUDGE_SCHEDULE = [
 // Message templates (Hebrew)
 const NUDGE_MESSAGES: Record<string, (name: string, score: number) => string> = {
   "2h": (name, score) =>
-    `היי ${name}! הניתוח שלך מוכן 📊\nציון: ${score}/100\nרוצה שנגיש לבנקים? ₪3,500 בלבד ←\nhttps://smart-loan-save.lovable.app/results`,
+    `היי ${name}! הניתוח שלך מוכן 📊\nציון: ${score}/100\nרוצה שנגיש לבנקים? ₪3,450 בלבד ←\nhttps://www.easymorte.co.il/results`,
   "24h": (name, score) =>
-    `${name}, הציון שלך (${score}) שמור אצלנו – אבל ריביות השוק משתנות כל יום 📉\nלא כדאי לחכות.\nhttps://smart-loan-save.lovable.app/results`,
+    `${name}, הציון שלך (${score}) שמור אצלנו – אבל ריביות השוק משתנות כל יום 📉\nלא כדאי לחכות.\nhttps://www.easymorte.co.il/results`,
   "72h": (name, score) =>
-    `${name}, הניתוח שלך עם ציון ${score} עומד לפוג 🔔\nזו ההזדמנות האחרונה לנצל את המחיר של ₪3,500.\nhttps://smart-loan-save.lovable.app/results`,
+    `${name}, הניתוח שלך עם ציון ${score} עומד לפוג 🔔\nזו ההזדמנות האחרונה לנצל את המחיר של ₪3,450.\nhttps://www.easymorte.co.il/results`,
 };
 
 Deno.serve(async (req: Request) => {
