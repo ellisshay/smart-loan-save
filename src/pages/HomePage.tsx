@@ -172,7 +172,7 @@ export default function HomePage() {
                 className="shadow-gold text-lg rounded-full px-10"
                 onClick={handleCTAClick}
               >
-                בדיקת התאמה בחינם
+                הגש בקשה עכשיו
                 <ChevronLeft size={20} />
               </Button>
               <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
@@ -467,7 +467,7 @@ export default function HomePage() {
             className="shadow-gold text-lg px-10 rounded-full"
             onClick={handleCTAClick}
           >
-            בדיקת התאמה בחינם
+            הגש בקשה עכשיו
             <ArrowLeft size={18} />
           </Button>
           <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>

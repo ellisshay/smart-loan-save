@@ -111,7 +111,7 @@ function BorrowerFields({
 }) {
   const additionalCitizenship = watch(`${prefix}.additionalCitizenship`);
   const isRequired = prefix === "borrower1";
-  const star = isRequired ? " *" : "";
+  const star = " *";
 
   return (
     <div className="space-y-4">
