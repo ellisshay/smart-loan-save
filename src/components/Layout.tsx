@@ -33,8 +33,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     let active = true;
     const check = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token;
+        const raw = window.localStorage.getItem(
+          `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID}-auth-token`
+        );
+        const token = raw ? JSON.parse(raw)?.access_token : null;
         if (!token) { if (active) setIsAdmin(false); return; }
         const res = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/is_admin`,
