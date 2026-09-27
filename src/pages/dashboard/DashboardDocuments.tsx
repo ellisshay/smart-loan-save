@@ -233,11 +233,7 @@ export default function DashboardDocuments() {
   );
 }
 
-const STATUS = {
-  verified: { label: "מאומת", cls: "bg-success/10 text-success border-success/20", Icon: CheckCircle2, row: "bg-success/5 border-success/20" },
-  review: { label: "נדרש בירור", cls: "bg-warning/10 text-warning border-warning/20", Icon: AlertTriangle, row: "bg-warning/5 border-warning/30" },
-  rejected: { label: "נדרשת סריקה חוזרת", cls: "bg-destructive/10 text-destructive border-destructive/20", Icon: XCircle, row: "bg-destructive/5 border-destructive/30" },
-} as const;
+const LEVEL_ICON = { green: CheckCircle2, yellow: AlertTriangle, red: XCircle } as const;
 
 function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onReplace }: {
   doc: { type: string; label: string; required: boolean };
@@ -250,10 +246,11 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
 }) {
   const v = uploaded?.ai_extracted_data;
   const isScanning = !!uploaded && verifying === uploaded.id;
-  const st = v?.overall ? STATUS[v.overall as keyof typeof STATUS] : undefined;
-  const Icon = isScanning ? ScanLine : st?.Icon ?? (uploaded ? Loader2 : FileText);
+  const lvl = levelOf(v);
+  const st = lvl ? LEVEL_UI[lvl] : undefined;
+  const Icon = isScanning ? ScanLine : lvl ? LEVEL_ICON[lvl] : uploaded ? Loader2 : FileText;
   const issues: string[] = [...(v?.quality?.issues ?? []), ...(v?.authenticity?.flags ?? [])];
-  const mismatches = (v?.cross_check ?? []).filter((c: any) => c.status === "mismatch");
+  const notes = (v?.cross_check ?? []).filter((c: any) => c.level === "yellow" || c.level === "red" || c.status === "mismatch");
 
   return (
     <div className={`p-3 rounded-lg border transition-all ${st?.row ?? (uploaded ? "bg-primary/5 border-primary/20" : "bg-muted/20 border-border")}`}>
