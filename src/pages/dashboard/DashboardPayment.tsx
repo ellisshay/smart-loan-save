@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
 import { supabase } from "@/integrations/supabase/client";
-import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
+import { countMissingDocs } from "@/lib/docsComplete";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,20 +49,11 @@ export default function DashboardPayment() {
     }
   }, [caseId, paidParam]);
 
-  // Check required documents status
+  // Check required documents status (verified, in expert review, or deferred by the client)
   useEffect(() => {
     if (!caseId) return;
     const checkDocs = async () => {
-      const { data } = await supabase
-        .from("case_documents")
-        .select("doc_type, ai_extracted_data")
-        .eq("case_id", caseId);
-      // Only verified documents count toward a complete file
-      const uploadedTypes = (data || [])
-        .filter((d) => (d.ai_extracted_data as any)?.overall === "verified")
-        .map((d) => d.doc_type);
-      const requiredDocs = (caseType === "refi" ? REQUIRED_DOCS_REFI : REQUIRED_DOCS_NEW).filter((d) => d.required);
-      const missing = requiredDocs.filter((d) => !uploadedTypes.includes(d.type)).length;
+      const missing = await countMissingDocs(caseId, caseType);
       setMissingDocs(missing);
       setDocsComplete(missing === 0);
     };
