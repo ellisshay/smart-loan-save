@@ -304,7 +304,7 @@ function StepEmployment({ data, update }: StepProps) {
 
           {data.co_borrower && (
             <SliderField
-              label="שכר נטו חודשי – מגיש/ה שני/ה"
+              label="שכר נטו חודשי, מגיש/ה שני/ה"
               value={data.salary_net_2 || 10000}
               onChange={(v) => update({ salary_net_2: v })}
               min={3000} max={60000} step={500}
@@ -324,7 +324,7 @@ function StepEmployment({ data, update }: StepProps) {
                 {[
                   { v: "none", l: "אין" },
                   { v: "up_30k", l: "עד ₪30,000/שנה" },
-                  { v: "30k_80k", l: "₪30K–₪80K/שנה" },
+                  { v: "30k_80k", l: "₪30K-₪80K/שנה" },
                   { v: "80k_plus", l: "מעל ₪80K/שנה" },
                 ].map((o) => (
                   <OptionCard key={o.v} selected={data.annual_bonus === o.v} onClick={() => update({ annual_bonus: o.v })} className="text-center text-xs py-2">
@@ -342,9 +342,9 @@ function StepEmployment({ data, update }: StepProps) {
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { v: "none", l: "אין" },
-                  { v: "unvested", l: "יש – עוד לא בשלו" },
-                  { v: "vested", l: "יש – בשלו השנה" },
-                  { v: "sold", l: "יש – מכרתי לאחרונה" },
+                  { v: "unvested", l: "יש, עוד לא בשלו" },
+                  { v: "vested", l: "יש, בשלו השנה" },
+                  { v: "sold", l: "יש, מכרתי לאחרונה" },
                 ].map((o) => (
                   <OptionCard key={o.v} selected={data.stock_options === o.v} onClick={() => update({ stock_options: o.v })} className="text-center text-xs py-2">
                     {o.l}
@@ -417,10 +417,10 @@ function StepEmployment({ data, update }: StepProps) {
             <>
               <StepNote variant="info">ממוצע חודשי: {shekel(Math.round((data.annual_income_y1 + data.annual_income_y2) / 2 / 12))}</StepNote>
               {data.annual_income_y1 < data.annual_income_y2 * 0.7 && (
-                <StepNote variant="warning">ירידה משמעותית בהכנסה בין השנים – הבנק יחשב ממוצע</StepNote>
+                <StepNote variant="warning">ירידה משמעותית בהכנסה בין השנים, הבנק יחשב ממוצע</StepNote>
               )}
               {data.annual_income_y1 > data.annual_income_y2 * 1.5 && (
-                <StepNote variant="success">עלייה בהכנסה – זה חיובי! הבנק יעדיף לראות מגמה עולה.</StepNote>
+                <StepNote variant="success">עלייה בהכנסה, זה חיובי! הבנק יעדיף לראות מגמה עולה.</StepNote>
               )}
             </>
           )}
@@ -554,8 +554,8 @@ function StepProperty({ data, update }: StepProps) {
         <div className="grid gap-2">
           {[
             { v: "none", l: "אין נכסים נוספים" },
-            { v: "one_no_mortgage", l: "יש נכס אחד נוסף – ללא משכנתא" },
-            { v: "one_with_mortgage", l: "יש נכס אחד נוסף – עם משכנתא" },
+            { v: "one_no_mortgage", l: "יש נכס אחד נוסף, ללא משכנתא" },
+            { v: "one_with_mortgage", l: "יש נכס אחד נוסף, עם משכנתא" },
             { v: "multiple", l: "יש 2+ נכסים" },
           ].map((o) => (
             <OptionCard key={o.v} selected={data.existing_properties === o.v} onClick={() => update({ existing_properties: o.v })} className="text-sm py-3">
@@ -660,9 +660,9 @@ function StepEquity({ data, update }: StepProps) {
         <p className="font-medium text-sm">זכאות לדיור ממשלתי</p>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { v: "young_couple", l: "כן – זוג צעיר" },
-            { v: "new_immigrant", l: "כן – עולה חדש" },
-            { v: "disabled", l: "כן – נכה" },
+            { v: "young_couple", l: "כן, זוג צעיר" },
+            { v: "new_immigrant", l: "כן, עולה חדש" },
+            { v: "disabled", l: "כן, נכה" },
             { v: "none", l: "לא / לא בטוח" },
           ].map((o) => (
             <OptionCard key={o.v} selected={data.government_eligibility === o.v} onClick={() => update({ government_eligibility: o.v })} className="text-center text-xs py-2">

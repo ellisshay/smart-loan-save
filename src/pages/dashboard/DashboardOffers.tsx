@@ -169,7 +169,7 @@ export default function DashboardOffers() {
                   { label: "החזר חודשי", key: "monthly_payment", format: (v: any) => `₪${v?.toLocaleString()}` },
                   { label: "ריבית", key: "interest_rate", format: (v: any) => `${v}%` },
                   { label: "מסלול", key: "track_type", format: (v: any) => v },
-                  { label: "עלות כוללת", key: "total_cost", format: (v: any) => v ? `₪${v?.toLocaleString()}` : "—" },
+                  { label: "עלות כוללת", key: "total_cost", format: (v: any) => v ? `₪${v?.toLocaleString()}` : "-" },
                   { label: "עמלת יועץ", key: "advisor_fee", format: (v: any) => v ? `₪${v?.toLocaleString()}` : "₪0" },
                 ] as { label: string; key: string; format: (v: any) => string }[]).map((row) => (
                   <tr key={row.label} className="border-b border-border/50">

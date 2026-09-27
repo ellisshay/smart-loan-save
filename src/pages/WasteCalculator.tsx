@@ -46,8 +46,8 @@ function calculateWaste(data: {
 
   const sources: string[] = [];
   if (avgRate > 4.5) sources.push("ריבית גבוהה מהממוצע בשוק");
-  if (isIndexLinked) sources.push("חשיפה למדד — עלויות עולות עם האינפלציה");
-  if (primePct > 50) sources.push("חשיפת יתר לפריים — סיכון בעליית ריבית");
+  if (isIndexLinked) sources.push("חשיפה למדד, עלויות עולות עם האינפלציה");
+  if (primePct > 50) sources.push("חשיפת יתר לפריים, סיכון בעליית ריבית");
   if (excessMonthly > 200) sources.push("החזר חודשי גבוה ביחס ליתרה");
   if (sources.length === 0) sources.push("המשכנתא שלך בטווח סביר, אך ייתכן שיש מקום לשיפור");
 
@@ -108,7 +108,7 @@ export default function WasteCalculator() {
             📊 מדד בזבוז משכנתא
           </h1>
           <p className="text-muted-foreground mb-8">
-            גלה כמה כסף אתה מבזבז כל חודש — וקבל ציון + המלצה.
+            גלה כמה כסף אתה מבזבז כל חודש, וקבל ציון + המלצה.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5 bg-card rounded-2xl p-6 md:p-8 shadow-card">
@@ -254,7 +254,7 @@ function ResultCard({ result }: { result: WasteResult }) {
       <div className="pt-2">
         <Link to="/pricing">
           <Button variant="cta" size="lg" className="w-full">
-            פתח תיק פרימיום תוך 72 שעות — ₪3,500
+            פתח תיק פרימיום תוך 72 שעות, ₪3,500
           </Button>
         </Link>
         <p className="text-xs text-muted-foreground text-center mt-2">

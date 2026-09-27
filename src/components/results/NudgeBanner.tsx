@@ -38,7 +38,7 @@ export default function NudgeBanner() {
       >
         <div className="container flex items-center justify-between py-3 px-4 gap-3">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <span>הציון שלך ({score}) שמרנו לך – אבל ריביות השוק משתנות.</span>
+            <span>הציון שלך ({score}) שמרנו לך, אבל ריביות השוק משתנות.</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Button

@@ -69,7 +69,7 @@ export default function AffordabilityCalculator() {
             כמה דירה אתה באמת יכול לקנות?
           </h1>
           <p className="text-muted-foreground text-base md:text-lg">
-            הכנס מחיר דירה — נחשב לך הון עצמי, משכורת והחזר חודשי
+            הכנס מחיר דירה, נחשב לך הון עצמי, משכורת והחזר חודשי
           </p>
         </motion.div>
 

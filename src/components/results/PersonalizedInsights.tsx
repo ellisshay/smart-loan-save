@@ -74,7 +74,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
       insights.push({
         icon: CheckCircle,
         title: "👔 יציבות תעסוקתית גבוהה",
-        body: `ותק של ${Math.round(seniority / 12)} שנים אצל אותו מעסיק – זה בונוס משמעותי מול הבנק.`,
+        body: `ותק של ${Math.round(seniority / 12)} שנים אצל אותו מעסיק, זה בונוס משמעותי מול הבנק.`,
         type: "positive",
       });
     }
@@ -135,7 +135,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
       insights.push({
         icon: CheckCircle,
         title: "🏠 LTV מצוין: " + ltv + "%",
-        body: "אחוז מימון נמוך מאוד – זה ייתן לך כוח מיקוח מול הבנקים.",
+        body: "אחוז מימון נמוך מאוד, זה ייתן לך כוח מיקוח מול הבנקים.",
         type: "positive",
       });
     } else if (ltv > 75) {
@@ -178,7 +178,7 @@ function generateInsights(data: Record<string, any>, score: number): InsightCard
   if (score >= 80 && insights.filter(i => i.type === "warning").length === 0) {
     insights.push({
       icon: Lightbulb,
-      title: "🎯 פרופיל חזק – נצל את זה",
+      title: "🎯 פרופיל חזק, נצל את זה",
       body: "עם ציון גבוה כזה, כדאי להגיש ל-3 בנקים במקביל ולמקסם את כוח המיקוח.",
       type: "positive",
     });

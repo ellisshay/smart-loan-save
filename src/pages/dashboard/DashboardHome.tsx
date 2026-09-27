@@ -311,7 +311,7 @@ export default function DashboardHome() {
               <p className="text-muted-foreground mb-4 text-sm">פתח ניתוח תוך 72 שעות</p>
               <Link to="/dashboard/payment">
                 <Button variant="cta" size="lg" className="text-base">
-                  <Zap size={18} /> פתח ניתוח תוך 72 שעות – ₪3,450
+                  <Zap size={18} /> פתח ניתוח תוך 72 שעות, ₪3,450
                 </Button>
               </Link>
             </CardContent>

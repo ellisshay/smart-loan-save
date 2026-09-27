@@ -18,12 +18,12 @@ const benefits = [
   {
     icon: Users,
     title: "לידים מוכנים לסגירה",
-    desc: "לקוחות שכבר השלימו KYC מלא, העלו מסמכים ושילמו — מגיעים אליך מוכנים.",
+    desc: "לקוחות שכבר השלימו KYC מלא, העלו מסמכים ושילמו, מגיעים אליך מוכנים.",
   },
   {
     icon: ShieldCheck,
     title: "מידע מאומת ומלא",
-    desc: "כל ליד כולל נתוני הכנסה, נכסים, התחייבויות ומסמכים — בלי להתחיל מאפס.",
+    desc: "כל ליד כולל נתוני הכנסה, נכסים, התחייבויות ומסמכים, בלי להתחיל מאפס.",
   },
   {
     icon: Zap,
@@ -38,12 +38,12 @@ const benefits = [
   {
     icon: Award,
     title: "דירוג ומוניטין",
-    desc: "לקוחות מרוצים מדרגים אותך — ככל שהדירוג עולה, יותר לידים בוחרים בך.",
+    desc: "לקוחות מרוצים מדרגים אותך, ככל שהדירוג עולה, יותר לידים בוחרים בך.",
   },
   {
     icon: TrendingUp,
     title: "עלות רכישה נמוכה",
-    desc: "ליד באיכות גבוהה מ-₪200 — הרבה פחות מעלות שיווק מסורתית.",
+    desc: "ליד באיכות גבוהה מ-₪200, הרבה פחות מעלות שיווק מסורתית.",
   },
 ];
 
@@ -73,9 +73,9 @@ const plans = [
 
 const steps = [
   { num: "01", title: "הירשם כיועץ", desc: "צור חשבון יועץ עם מספר רישיון ופרטי החברה." },
-  { num: "02", title: "בחר מנוי", desc: "בחר את התוכנית המתאימה לך — או רכוש לידים בודדים." },
+  { num: "02", title: "בחר מנוי", desc: "בחר את התוכנית המתאימה לך, או רכוש לידים בודדים." },
   { num: "03", title: "רכוש לידים", desc: "עיין בלידים אנונימיים ורכוש את אלה שמתאימים לך." },
-  { num: "04", title: "הגש הצעות וסגור", desc: "שלח הצעת משכנתא מפורטת — הלקוח מקבל ומשווה." },
+  { num: "04", title: "הגש הצעות וסגור", desc: "שלח הצעת משכנתא מפורטת, הלקוח מקבל ומשווה." },
 ];
 
 export default function ForAdvisorsPage() {
@@ -105,7 +105,7 @@ export default function ForAdvisorsPage() {
             className="text-lg md:text-xl text-primary-foreground/70 max-w-2xl mx-auto mb-10"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            לקוחות ב-EasyMorte משלימים KYC מלא, מעלים מסמכים ומשלמים — לפני שאתה בכלל רואה אותם.
+            לקוחות ב-EasyMorte משלימים KYC מלא, מעלים מסמכים ומשלמים, לפני שאתה בכלל רואה אותם.
             כל שנשאר לך זה להגיש הצעה ולסגור.
           </motion.p>
           <motion.div
@@ -253,7 +253,7 @@ export default function ForAdvisorsPage() {
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
           >
             הצטרף למאות יועצי משכנתאות שכבר סוגרים עסקאות דרך EasyMorte.
-            אין התחייבות — בטל בכל עת.
+            אין התחייבות, בטל בכל עת.
           </motion.p>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}>
             <Link to="/auth?role=advisor">

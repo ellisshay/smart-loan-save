@@ -46,17 +46,17 @@ const sampleOffers = [
 
 // ─── Pain Cards Data ───
 const painCards = [
-  { icon: Calendar, title: "5–8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
+  { icon: Calendar, title: "5-8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
   { icon: FileText, title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
-  { icon: Coins, title: "₪5,000–8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
-  { icon: Hourglass, title: "3–6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
+  { icon: Coins, title: "₪5,000-8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
+  { icon: Hourglass, title: "3-6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
 ];
 
 // ─── FAQ Data ───
 const faqItems = [
-  { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים — בלי הפתעות." },
+  { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים, בלי הפתעות." },
   { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
-  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – עד 72 שעות לקבלת הצעות ראשונות." },
+  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל, עד 72 שעות לקבלת הצעות ראשונות." },
   { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל הצעה או לא לבחור. ללא מחויבות." },
   { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
 ];
@@ -119,9 +119,9 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EasyMorte – משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
-        <meta name="description" content="אנחנו עושים את כל העבודה בשבילך — משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
-        <meta property="og:title" content="EasyMorte – משכנתא בלי כל הבלאגן" />
+        <title>EasyMorte, משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
+        <meta name="description" content="אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
+        <meta property="og:title" content="EasyMorte, משכנתא בלי כל הבלאגן" />
         <meta property="og:description" content="משווים הצעות מהבנקים ומנהלים משא ומתן בשבילך. עד 72 שעות להצעות ראשונות." />
       </Helmet>
 
@@ -148,7 +148,7 @@ export default function HomePage() {
               className="text-lg text-muted-foreground mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             >
-              אנחנו עושים את כל העבודה בשבילך – משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף.
+              אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף.
             </motion.p>
 
             <motion.div
@@ -269,7 +269,7 @@ export default function HomePage() {
       <section className="py-14 md:py-20 bg-secondary/50">
         <div className="container max-w-5xl">
           <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">הצעות מהבנקים</h2>
-          <p className="text-center text-muted-foreground mb-10">ככה נראות ההצעות שתקבלו — השוואה אמיתית, שקופה ופשוטה</p>
+          <p className="text-center text-muted-foreground mb-10">ככה נראות ההצעות שתקבלו, השוואה אמיתית, שקופה ופשוטה</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {sampleOffers.map((offer, i) => (
@@ -382,8 +382,8 @@ export default function HomePage() {
                 {[
                   "5+ פגישות פיזיות",
                   "ניירת כפולה לכל בנק",
-                  "₪5,000–8,000 ליועץ",
-                  "3–6 שבועות המתנה",
+                  "₪5,000-8,000 ליועץ",
+                  "3-6 שבועות המתנה",
                   "הצעה אחת בלבד",
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -464,7 +464,7 @@ export default function HomePage() {
               dir="rtl"
             >
               <div className="text-center space-y-2">
-                <h2 className="text-xl font-bold text-foreground">הציון שלך: {completedScore} – הניתוח מוכן!</h2>
+                <h2 className="text-xl font-bold text-foreground">הציון שלך: {completedScore}, הניתוח מוכן!</h2>
                 <p className="text-sm text-muted-foreground">רק שם וטלפון כדי לשלוח לך את הדוח</p>
               </div>
 

@@ -143,7 +143,7 @@ export default function NewMortgageCalculator() {
                 <p className="text-sm text-muted-foreground">
                   שיעור מימון (LTV): <span className="font-bold text-gold">{result.ltv.toFixed(0)}%</span>
                   {result.ltv > 75 && (
-                    <span className="text-amber-400 mr-2">· מימון גבוה — ייתכן שתצטרך ביטוח משכנתא</span>
+                    <span className="text-amber-400 mr-2">· מימון גבוה, ייתכן שתצטרך ביטוח משכנתא</span>
                   )}
                 </p>
               </div>

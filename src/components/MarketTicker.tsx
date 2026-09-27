@@ -8,7 +8,7 @@ interface Item {
   note?: string;
 }
 
-// Official indices without a public live feed — latest published values (update monthly).
+// Official indices without a public live feed, latest published values (update monthly).
 const STATIC_ITEMS: Item[] = [
   { label: "מדד המחירים לצרכן", value: "2.8%", note: "שנתי" },
   { label: "מדד תשומות הבנייה", value: "3.9%", note: "שנתי" },
@@ -19,10 +19,10 @@ const fmt = (n: number, d = 3) => n.toLocaleString("he-IL", { minimumFractionDig
 
 export default function MarketTicker() {
   const [live, setLive] = useState<Item[]>([
-    { label: "דולר / שקל", value: "—" },
-    { label: "אירו / שקל", value: "—" },
-    { label: "אירו / דולר", value: "—" },
-    { label: "ביטקוין / דולר", value: "—" },
+    { label: "דולר / שקל", value: "-" },
+    { label: "אירו / שקל", value: "-" },
+    { label: "אירו / דולר", value: "-" },
+    { label: "ביטקוין / דולר", value: "-" },
   ]);
 
   useEffect(() => {

@@ -21,7 +21,7 @@ const calculators = [
   },
   {
     title: "השוואת תמהילים",
-    desc: "קבל 3 תמהילים — שמרני, מאוזן ואגרסיבי — מותאמים לפרופיל הסיכון שלך.",
+    desc: "קבל 3 תמהילים, שמרני, מאוזן ואגרסיבי, מותאמים לפרופיל הסיכון שלך.",
     icon: Calculator,
     href: "/calculators/mix",
     emoji: "⚖️",
@@ -50,7 +50,7 @@ export default function CalculatorsHub() {
             מחשבוני משכנתא <span className="text-gradient-gold">מקצועיים</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-            בחר מחשבון, הזן את הנתונים שלך, וקבל תוצאה מיידית — בלי רישום ובלי שיחות.
+            בחר מחשבון, הזן את הנתונים שלך, וקבל תוצאה מיידית, בלי רישום ובלי שיחות.
           </p>
         </motion.div>
 

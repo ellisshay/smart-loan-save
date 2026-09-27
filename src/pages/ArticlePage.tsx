@@ -39,7 +39,7 @@ export default function ArticlePage() {
   return (
     <>
       <Helmet>
-        <title>{article.title} | משכנתאפדיה – EasyMorte</title>
+        <title>{article.title} | משכנתאפדיה, EasyMorte</title>
         <meta name="description" content={article.metaDescription} />
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.metaDescription} />

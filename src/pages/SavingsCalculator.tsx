@@ -274,7 +274,7 @@ export default function SavingsCalculator() {
             <div>
               <Label className="mb-2 block">ריבית ממוצעת משוערת (%)</Label>
               <Input type="number" step="0.1" placeholder={`${DEFAULT_RATE}`} value={rate} onChange={(e) => setRate(e.target.value)} className="text-lg h-12" />
-              <p className="text-xs text-muted-foreground mt-1">השאר ריק — נחשב לפי ממוצע שוק {DEFAULT_RATE}%</p>
+              <p className="text-xs text-muted-foreground mt-1">השאר ריק, נחשב לפי ממוצע שוק {DEFAULT_RATE}%</p>
             </div>
           </div>
 
@@ -418,7 +418,7 @@ export default function SavingsCalculator() {
               {/* Chart */}
               <div className="bg-card rounded-2xl p-6 border border-border">
                 <h3 className="font-display font-bold text-lg text-foreground mb-4 text-center">
-                  השוואת החזר חודשי — 3 תרחישים
+                  השוואת החזר חודשי, 3 תרחישים
                 </h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -481,7 +481,7 @@ export default function SavingsCalculator() {
                     <Timer className="text-gold" size={18} />
                     <span className="text-sm font-semibold text-gold">חלון עדיפות לניתוח מהיר</span>
                   </div>
-                  <p className="text-muted-foreground text-sm mb-2">בדיקה מלאה ב-72 שעות — המחיר המוזל נשמר עבורך ל-</p>
+                  <p className="text-muted-foreground text-sm mb-2">בדיקה מלאה ב-72 שעות, המחיר המוזל נשמר עבורך ל-</p>
                   <div className="font-display text-3xl font-black text-gold">
                     {String(timer.minutes).padStart(2, "0")}:{String(timer.seconds).padStart(2, "0")}
                   </div>
@@ -494,14 +494,14 @@ export default function SavingsCalculator() {
                   רוצה בדיקה מלאה ומדויקת תוך 72 שעות?
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  דוח מקצועי עם 3 תמהילים מותאמים אישית — שמרני, מאוזן ואגרסיבי
+                  דוח מקצועי עם 3 תמהילים מותאמים אישית, שמרני, מאוזן ואגרסיבי
                 </p>
 
                 {/* Price anchoring */}
                 <div className="mb-6 space-y-1">
                   <p className="text-sm text-muted-foreground">
                     שווי ניתוח מלא אצל יועץ פרטי:{" "}
-                    <span className="line-through text-muted-foreground/60">2,500–4,000 ₪</span>
+                    <span className="line-through text-muted-foreground/60">2,500-4,000 ₪</span>
                   </p>
                   <p className="text-2xl font-display font-black text-gold">
                     היום: 590 ₪ בלבד
@@ -510,7 +510,7 @@ export default function SavingsCalculator() {
                 </div>
 
                 <Button variant="cta" size="lg" className="text-lg px-8" onClick={handleCheckoutClick}>
-                  פתח בדיקה מלאה — 590 ₪
+                  פתח בדיקה מלאה, 590 ₪
                   <ArrowLeft size={18} />
                 </Button>
               </div>

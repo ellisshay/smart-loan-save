@@ -79,7 +79,7 @@ export default function RefinanceCalculator() {
             💰 סימולטור מיחזור וחיסכון
           </h1>
           <p className="text-muted-foreground mb-8">
-            בדוק אם מיחזור משכנתא ישתלם לך — ותוך כמה חודשים תחזיר את ההשקעה.
+            בדוק אם מיחזור משכנתא ישתלם לך, ותוך כמה חודשים תחזיר את ההשקעה.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5 bg-card rounded-2xl p-6 md:p-8 shadow-card">
@@ -126,7 +126,7 @@ export default function RefinanceCalculator() {
               <div className="pt-2">
                 <Link to="/pricing">
                   <Button variant="cta" size="lg" className="w-full">
-                    פתח תיק פרימיום תוך 72 שעות — ₪3,500
+                    פתח תיק פרימיום תוך 72 שעות, ₪3,500
                   </Button>
                 </Link>
               </div>

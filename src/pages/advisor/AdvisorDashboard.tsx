@@ -134,7 +134,7 @@ export default function AdvisorDashboard() {
           { label: "לידים שנרכשו", value: purchases.length, icon: ShoppingCart },
           { label: "הצעות שהוגשו", value: myOffers.length, icon: FileText },
           { label: "הצעות שנבחרו", value: myOffers.filter((o: any) => o.status === "accepted").length, icon: Star },
-          { label: "דירוג", value: profile?.rating || "—", icon: TrendingUp },
+          { label: "דירוג", value: profile?.rating || "-", icon: TrendingUp },
         ].map((stat) => (
           <div key={stat.label} className="bg-card rounded-xl p-4 border border-border shadow-card">
             <stat.icon className="text-gold mb-2" size={20} />
@@ -194,7 +194,7 @@ export default function AdvisorDashboard() {
                     disabled={purchaseLead.isPending || (profile?.lead_credits || 0) < 1}
                   >
                     <ShoppingCart size={16} />
-                    רכוש ליד — ₪200
+                    רכוש ליד, ₪200
                   </Button>
                 </div>
               ))}
@@ -213,8 +213,8 @@ export default function AdvisorDashboard() {
               {purchases.map((p: any) => (
                 <div key={p.id} className="bg-card rounded-xl p-6 border border-border shadow-card">
                   <div className="text-sm space-y-2 mb-4">
-                    <p className="text-muted-foreground">אזור: {p.leads?.property_area || "—"}</p>
-                    <p className="text-muted-foreground">מטרה: {p.leads?.purpose || "—"}</p>
+                    <p className="text-muted-foreground">אזור: {p.leads?.property_area || "-"}</p>
+                    <p className="text-muted-foreground">מטרה: {p.leads?.purpose || "-"}</p>
                     <p className="text-muted-foreground">נרכש: {new Date(p.purchased_at).toLocaleDateString("he-IL")}</p>
                   </div>
                   <Button variant="cta" size="sm" onClick={() => navigate(`/advisor/offer/${p.lead_id}`)}>

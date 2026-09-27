@@ -522,7 +522,7 @@ export default function ResultsPage() {
               ) : (
                 <div className="flex items-center gap-2 text-sm text-[hsl(var(--success))]">
                   <CheckCircle className="h-4 w-4" />
-                  <span>פרופיל נקי – ללא נקודות בעייתיות ✓</span>
+                  <span>פרופיל נקי, ללא נקודות בעייתיות ✓</span>
                 </div>
               )}
             </CardContent>
@@ -547,7 +547,7 @@ export default function ResultsPage() {
         <Card className="bg-[hsl(var(--navy))] text-white border-0 overflow-hidden">
           <CardContent className="py-8 px-6 space-y-5">
             <div className="space-y-2 text-center">
-              <h2 className="text-xl font-bold">הציון שלך: {score} – עכשיו נגיש לבנקים</h2>
+              <h2 className="text-xl font-bold">הציון שלך: {score}, עכשיו נגיש לבנקים</h2>
               <p className="text-sm opacity-80">{advisor_summary}</p>
             </div>
 
@@ -565,7 +565,7 @@ export default function ResultsPage() {
             <div className="space-y-2">
               {[
                 "יועץ אישי שולח ל-3 בנקים במקביל",
-                "מכרז ריביות – הבנקים מתחרים",
+                "מכרז ריביות, הבנקים מתחרים",
                 "ממוצע חיסכון: ₪32,000",
               ].map((point, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
@@ -606,7 +606,7 @@ export default function ResultsPage() {
                 window.open("https://secure.tranzila.com/YOUR_TERMINAL/iframed.php?sum=3500&currency=1&cred_type=1&success_url=https://smart-loan-save.lovable.app/dashboard", "_blank");
               }}
             >
-              אני רוצה את ההצעה הטובה ביותר – ₪3,500 ←
+              אני רוצה את ההצעה הטובה ביותר, ₪3,500 ←
             </Button>
 
             <div className="text-center">

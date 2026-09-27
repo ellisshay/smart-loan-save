@@ -136,7 +136,7 @@ export default function MixCalculator() {
             ⚖️ השוואת תמהילים
           </h1>
           <p className="text-muted-foreground mb-8">
-            קבל 3 תמהילים — שמרני, מאוזן ואגרסיבי — מותאמים אישית.
+            קבל 3 תמהילים, שמרני, מאוזן ואגרסיבי, מותאמים אישית.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5 bg-card rounded-2xl p-6 md:p-8 shadow-card">
@@ -151,9 +151,9 @@ export default function MixCalculator() {
                 onChange={(e) => update("riskLevel", e.target.value)}
                 className="w-full h-11 px-3 rounded-lg border border-input bg-background text-foreground text-sm"
               >
-                <option value="conservative">שמרני — אני רוצה שקט</option>
-                <option value="balanced">מאוזן — מוכן לקצת סיכון</option>
-                <option value="aggressive">אגרסיבי — מוכן לסכן לחיסכון</option>
+                <option value="conservative">שמרני, אני רוצה שקט</option>
+                <option value="balanced">מאוזן, מוכן לקצת סיכון</option>
+                <option value="aggressive">אגרסיבי, מוכן לסכן לחיסכון</option>
               </select>
             </div>
 
@@ -245,7 +245,7 @@ export default function MixCalculator() {
               <div className="mt-8 text-center">
                 <Link to="/pricing">
                   <Button variant="cta" size="xl">
-                    פתח תיק פרימיום תוך 72 שעות — ₪3,500
+                    פתח תיק פרימיום תוך 72 שעות, ₪3,500
                   </Button>
                 </Link>
                 <p className="text-xs text-muted-foreground mt-2">
