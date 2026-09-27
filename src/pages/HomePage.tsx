@@ -173,12 +173,6 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-card text-muted-foreground text-sm border border-border mt-6"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> היום נרשמו {urgencyCount} אנשים
-            </motion.div>
           </div>
 
           {/* Image side (mobile / tablet) */}
