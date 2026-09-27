@@ -44,6 +44,7 @@ interface DocRow {
   id: string;
   doc_type: string;
   file_name: string;
+  ai_extracted_data?: any;
   file_path: string;
   uploaded_at: string;
 }
@@ -90,7 +91,7 @@ export default function AdminCaseDetail() {
       // Documents
       const { data: d } = await supabase
         .from("case_documents")
-        .select("id, doc_type, file_name, file_path, uploaded_at")
+        .select("id, doc_type, file_name, file_path, uploaded_at, ai_extracted_data")
         .eq("case_id", c.id);
       setDocs(d || []);
 
@@ -138,6 +139,13 @@ export default function AdminCaseDetail() {
       setCaseData(prev => prev ? { ...prev, status: newStatus } : prev);
       toast({ title: "סטטוס עודכן", description: `הסטטוס שונה ל: ${CASE_STATUSES[newStatus].label}` });
     }
+  };
+
+  const setDocDecision = async (doc: DocRow, overall: "verified" | "rejected") => {
+    const next = { ...(doc.ai_extracted_data || {}), overall, admin_override: true, summary: overall === "verified" ? "אושר ידנית על ידי מנהל התיק" : "נדחה על ידי מנהל התיק, נדרשת העלאה מחדש" };
+    const { error } = await supabase.from("case_documents").update({ ai_extracted_data: next }).eq("id", doc.id);
+    if (error) return toast({ title: "שגיאה", description: error.message, variant: "destructive" });
+    setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, ai_extracted_data: next } : d));
   };
 
   const handleDownloadDoc = async (filePath: string) => {
@@ -222,21 +230,23 @@ export default function AdminCaseDetail() {
             {docs.length > 0 && (
               <div className="space-y-2 mb-4">
                 {docs.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg bg-success/5">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 size={18} className="text-success" />
-                      <div>
-                        <span className="text-sm text-foreground">{doc.file_name}</span>
-                        <span className="text-xs text-muted-foreground mr-2">({doc.doc_type})</span>
+                  <div key={doc.id} className="p-3 rounded-lg border border-border bg-muted/20 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="text-sm text-foreground block truncate">{doc.file_name}</span>
+                        <span className="text-xs text-muted-foreground">{doc.doc_type} · {doc.ai_extracted_data?.overall === "verified" ? "מאומת" : doc.ai_extracted_data?.overall === "review" ? "נדרש בירור" : doc.ai_extracted_data?.overall === "rejected" ? "נדחה" : "טרם נבדק"}{doc.ai_extracted_data?.quality?.score != null ? ` · איכות ${doc.ai_extracted_data.quality.score}/100` : ""}</span>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <button onClick={() => setDocDecision(doc, "verified")} className="text-xs text-success font-semibold hover:underline">אשר</button>
+                        <button onClick={() => setDocDecision(doc, "rejected")} className="text-xs text-destructive font-semibold hover:underline">דחה</button>
+                        <button onClick={() => handleDownloadDoc(doc.file_path)} className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"><Download size={14} />צפייה</button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDownloadDoc(doc.file_path)}
-                      className="text-xs text-gold font-semibold hover:underline flex items-center gap-1"
-                    >
-                      <Download size={14} />
-                      הורדה
-                    </button>
+                    {doc.ai_extracted_data?.summary && <p className="text-xs text-foreground">{doc.ai_extracted_data.summary}</p>}
+                    {(doc.ai_extracted_data?.cross_check || []).filter((c: any) => c.status === "mismatch").map((m: any, i: number) => (
+                      <p key={i} className="text-xs text-warning">{m.field}: הוצהר {m.declared}, זוהה {m.found}</p>
+                    ))}
+                    {(doc.ai_extracted_data?.authenticity?.flags || []).map((f: string, i: number) => <p key={i} className="text-xs text-destructive">• {f}</p>)}
                   </div>
                 ))}
               </div>
