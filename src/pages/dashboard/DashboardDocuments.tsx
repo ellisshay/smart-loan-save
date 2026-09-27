@@ -266,9 +266,9 @@ function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onRep
         {uploaded ? (
           <div className="flex items-center gap-2">
             {isScanning ? <Badge variant="outline" className="text-[10px]">בסריקה...</Badge>
-              : st ? <Badge className={`${st.cls} text-[10px]`}>{st.label}</Badge>
+              : st ? <Badge className={`${st.cls} text-[10px]`}>{st.clientLabel}</Badge>
               : <Button size="sm" variant="outline" className="text-xs" onClick={() => onVerify(uploaded.id)}>אמת מסמך</Button>}
-            {st && st !== STATUS.verified && !isScanning && (
+            {lvl === "red" && !isScanning && (
               <Button size="sm" variant="ghost" className="text-xs" onClick={() => onReplace(uploaded)}><RefreshCw size={13} /> החלף</Button>
             )}
           </div>
