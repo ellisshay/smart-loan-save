@@ -179,6 +179,23 @@ export default function DashboardPayment() {
         </p>
       </motion.div>
 
+      {/* Pending confirmation banner — Tranzila returned success, waiting for webhook */}
+      {paymentState === "pending" && (
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="border-primary/40 bg-primary/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <Hourglass size={22} className="text-primary shrink-0 animate-pulse" />
+              <div className="text-right">
+                <p className="text-sm font-bold text-foreground">התשלום התקבל — ממתין לאישור סופי</p>
+                <p className="text-xs text-muted-foreground">
+                  אנחנו מאמתים את העסקה מול חברת האשראי. העמוד יתעדכן אוטומטית תוך מספר שניות.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-foreground text-center font-medium">
         שימו לב: עד לקבלת התשלום הבקשה לא תאובחן ולא תועבר לניתוח.
       </div>
