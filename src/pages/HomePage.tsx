@@ -35,7 +35,7 @@ const steps = [
   { icon: Upload, title: "מעלים מסמכים", desc: "בקלות ובביטחה" },
   { icon: Handshake, title: "אנחנו משווים", desc: "ומנהלים משא ומתן" },
   { icon: Landmark, title: "מקבלים הצעות", desc: "מהבנקים המובילים" },
-  { icon: CheckCircle, title: "חותמים ומשכנתא מאושרת", desc: "בלי כל הבלאגן" },
+  { icon: CheckCircle, title: "חותמים ומשכנתא מאושרת", desc: "בקלות ובלי בלאגן" },
 ];
 
 // ─── Sample offers preview ───
