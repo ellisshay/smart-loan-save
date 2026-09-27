@@ -690,6 +690,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      submit_case_safe: {
+        Args: { _case_id: string; _goal?: string }
+        Returns: undefined
+      }
       update_case_safe: {
         Args: {
           _case_id: string
