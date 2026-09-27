@@ -32,8 +32,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { if (active) setIsAdmin(false); return; }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { if (active) setIsAdmin(false); return; }
       const { data } = await supabase.rpc("is_admin");
       if (active) setIsAdmin(!!data);
     };
