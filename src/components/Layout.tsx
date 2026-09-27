@@ -32,10 +32,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     const check = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { if (active) setIsAdmin(false); return; }
-      const { data } = await supabase.rpc("is_admin");
-      if (active) setIsAdmin(!!data);
+      try {
+        console.log("[Layout] admin check start");
+        const { data: { user }, error: ue } = await supabase.auth.getUser();
+        console.log("[Layout] getUser", !!user, ue?.message);
+        if (!user) { if (active) setIsAdmin(false); return; }
+        const { data, error } = await supabase.rpc("is_admin");
+        console.log("[Layout] is_admin", data, error?.message);
+        if (active) setIsAdmin(!!data);
+      } catch (e) {
+        console.log("[Layout] admin check failed", e);
+      }
     };
     check();
     const { data: sub } = supabase.auth.onAuthStateChange(() => check());
