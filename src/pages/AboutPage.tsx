@@ -3,14 +3,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Shield,
-  Users,
   Target,
-  Award,
-  Heart,
   TrendingDown,
   Clock,
-  CheckCircle2,
 } from "lucide-react";
+import founderImage from "@/assets/shay-ellis-founder.png.asset.json";
 
 const values = [
   {
