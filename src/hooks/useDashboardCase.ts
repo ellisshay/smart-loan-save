@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { countMissingDocs } from "@/lib/docsComplete";
 
 export function useDashboardCase() {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export function useDashboardCase() {
         supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "case_opened" } }).catch(console.error);
       }
       const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
-      if (!intakeComplete && keys.every((k) => updated[k] && Object.keys(updated[k]).length > 0)) {
+      if (!intakeComplete && keys.every((k) => updated[k] && Object.keys(updated[k]).length > 0) && (await countMissingDocs(caseId, caseType)) === 0) {
         const { error: subErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId });
         if (!subErr) {
           setIntakeComplete(true);
@@ -69,7 +70,7 @@ export function useDashboardCase() {
     } finally {
       setSaving(false);
     }
-  }, [caseId, intakeData, intakeComplete]);
+  }, [caseId, caseType, intakeData, intakeComplete]);
 
   const saveStepAndNavigate = useCallback(async (stepKey: string, stepData: any, nextPath: string) => {
     await saveStep(stepKey, stepData);

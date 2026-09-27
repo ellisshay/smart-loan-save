@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntakeForm } from "@/hooks/useIntakeForm";
+import { countMissingDocs } from "@/lib/docsComplete";
+import { toast } from "@/hooks/use-toast";
 import {
   NEW_CASE_STEPS, REFI_CASE_STEPS, SERVICE_GOALS,
   REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI,
@@ -153,8 +155,16 @@ function IntakeFormFlow({
   }, [presetIncrease, caseType, intakeData]);
 
   const handleSubmit = async () => {
+    if (!caseId) return;
+    const missing = await countMissingDocs(caseId, caseType);
+    if (missing > 0) {
+      toast({ title: "לא ניתן להגיש עדיין", description: `חסרים ${missing} מסמכי חובה מאומתים. התיק נשמר ותוכל להמשיך בכל עת.`, variant: "destructive" });
+      const idx = steps.findIndex((s) => s.key === "documents");
+      if (idx >= 0) goToStep(idx);
+      return;
+    }
     await submitCase(goal);
-    navigate("/intake/success");
+    navigate("/dashboard/payment");
   };
 
   const renderStep = () => {

@@ -66,6 +66,10 @@ export default function DashboardPayment() {
         </p>
       </motion.div>
 
+      <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-foreground text-center font-medium">
+        שימו לב: עד לקבלת התשלום הבקשה לא תאובחן ולא תועבר לניתוח.
+      </div>
+
       {/* Priority timer */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
         <Card className={`border-2 ${timerExpired ? "border-border" : "border-warning/30"}`}>
