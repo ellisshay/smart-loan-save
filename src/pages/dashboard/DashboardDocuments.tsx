@@ -143,7 +143,7 @@ export default function DashboardDocuments() {
 
   const totalRequired = requiredDocs.filter(d => d.required).length;
   const uploadedRequired = requiredDocs.filter(d => d.required && uploadedTypes.includes(d.type)).length;
-  const verifiedRequired = requiredDocs.filter(d => d.required && uploadedDocs.some(u => u.doc_type === d.type && u.ai_extracted_data?.overall === "verified")).length;
+  const verifiedRequired = requiredDocs.filter(d => d.required && uploadedDocs.some(u => u.doc_type === d.type && isDocSettled(u.ai_extracted_data))).length;
   const pct = totalRequired ? Math.round((verifiedRequired / totalRequired) * 100) : 0;
 
   return (
