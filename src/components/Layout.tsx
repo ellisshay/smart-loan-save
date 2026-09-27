@@ -32,10 +32,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { if (active) setIsAdmin(false); return; }
-      const { data } = await supabase.rpc("is_admin");
-      if (active) setIsAdmin(!!data);
+      try {
+        const raw = window.localStorage.getItem(
+          `sb-${import.meta.env.VITE_SUPABASE_PROJECT_ID}-auth-token`
+        );
+        const token = raw ? JSON.parse(raw)?.access_token : null;
+        if (!token) { if (active) setIsAdmin(false); return; }
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/is_admin`,
+          {
+            method: "POST",
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: "{}",
+          }
+        );
+        const result = res.ok ? await res.json() : false;
+        if (active) setIsAdmin(result === true);
+      } catch {
+        if (active) setIsAdmin(false);
+      }
     };
     check();
     const { data: sub } = supabase.auth.onAuthStateChange(() => check());
