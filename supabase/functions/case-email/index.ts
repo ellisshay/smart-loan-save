@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
-import { sendEmail, wrap, ADMIN_EMAIL, SITE_URL, esc } from "../_shared/gmail.ts";
+import { sendEmail, wrap, wrapClient, ADMIN_EMAIL, SITE_URL, esc } from "../_shared/gmail.ts";
 import { clientCardHtml, clientEmail, STATUS_LABELS, borrowers } from "../_shared/caseInfo.ts";
 
 const Body = z.object({
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         await mark("admin_opened"); results.push("admin_opened");
       }
       if (to && !sent.client_opened) {
-        await sendEmail(to, "התיק שלך ב-EasyMorte נפתח", wrap(`שלום ${name}, התיק שלך נפתח`, `<p>מספר תיק: <b>${esc(c.case_number)}</b></p><p>כל הפרטים שתזין נשמרים אוטומטית. אפשר לחזור בכל עת ולהמשיך מאותה נקודה.</p><p>לאחר השלמת הפרטים והמסמכים ותשלום, התיק ייבדק תוך עד 72 שעות.</p>`, "להמשך השלמת התיק", `${SITE_URL}/dashboard`));
+        await sendEmail(to, "התיק שלך ב-EasyMorte נפתח", wrapClient(`שלום ${name}, התיק שלך נפתח`, `<p>מספר תיק: <b>${esc(c.case_number)}</b></p><p>כל הפרטים שתזין נשמרים אוטומטית. אפשר לחזור בכל עת ולהמשיך מאותה נקודה.</p><p>לאחר השלמת הפרטים והמסמכים ותשלום, התיק ייבדק תוך עד 72 שעות.</p>`, "להמשך השלמת התיק", `${SITE_URL}/dashboard`));
         await mark("client_opened"); results.push("client_opened");
       }
     }
@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     if (event === "status_update" && to) {
       const key = `status_${c.status}`;
       if (!sent[key]) {
-        await sendEmail(to, `עדכון סטטוס לתיק ${c.case_number}`, wrap(`שלום ${name}, יש עדכון בתיק שלך`, `<p>הסטטוס החדש: <b>${esc(STATUS_LABELS[c.status] || c.status)}</b></p>`, "לאזור האישי", `${SITE_URL}/dashboard/status`));
+        await sendEmail(to, `עדכון סטטוס לתיק ${c.case_number}`, wrapClient(`שלום ${name}, יש עדכון בתיק שלך`, `<p>הסטטוס החדש: <b>${esc(STATUS_LABELS[c.status] || c.status)}</b></p>`, "לאזור האישי", `${SITE_URL}/dashboard/status`));
         await mark(key); results.push(key);
       }
     }
@@ -68,13 +68,13 @@ Deno.serve(async (req) => {
     }
 
     if (event === "tender_update" && to) {
-      await sendEmail(to, `עדכון במכרז המשכנתא שלך, תיק ${c.case_number}`, wrap(`שלום ${name}, יש עדכון במכרז הבנקים`, `<p>${esc(message || "יש עדכון חדש בתיק שלך.")}</p>`, "למכרז המשכנתא שלי", `${SITE_URL}/dashboard/tender`));
+      await sendEmail(to, `עדכון במכרז המשכנתא שלך, תיק ${c.case_number}`, wrapClient(`שלום ${name}, יש עדכון במכרז הבנקים`, `<p>${esc(message || "יש עדכון חדש בתיק שלך.")}</p>`, "למכרז המשכנתא שלי", `${SITE_URL}/dashboard/tender`));
       results.push("tender_update");
     }
 
     if (event === "intake_complete") {
       if (to && !sent.client_complete) {
-        await sendEmail(to, "הפרטים הושלמו, הדוח שלך מוכן", wrap(`שלום ${name}, סיימת את מילוי הפרטים`, `<p>תודה! קיבלנו את כל הפרטים. הדוח המפורט עם משכנתא מוערכת ותמהיל משוער לפי תנאי השוק של היום זמין באזור האישי.</p><p>סטטוס נוכחי: <b>${esc(STATUS_LABELS[c.status] || c.status)}</b></p>`, "לצפייה בדוח", `${SITE_URL}/results`));
+        await sendEmail(to, "הפרטים הושלמו, הדוח שלך מוכן", wrapClient(`שלום ${name}, סיימת את מילוי הפרטים`, `<p>תודה! קיבלנו את כל הפרטים. הדוח המפורט עם משכנתא מוערכת ותמהיל משוער לפי תנאי השוק של היום זמין באזור האישי.</p><p>סטטוס נוכחי: <b>${esc(STATUS_LABELS[c.status] || c.status)}</b></p>`, "לצפייה בדוח", `${SITE_URL}/results`));
         await mark("client_complete"); results.push("client_complete");
       }
       if (!sent.admin_complete) {

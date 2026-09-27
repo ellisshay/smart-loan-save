@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { sendEmail, wrap, SITE_URL } from "../_shared/gmail.ts";
+import { sendEmail, wrapClient, SITE_URL } from "../_shared/gmail.ts";
 import { clientEmail, progressOf, borrowers } from "../_shared/caseInfo.ts";
 
 // Runs on a schedule: one reminder per case, 48h after last activity, if still incomplete.
@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     if (!to) continue;
     try {
       const name = borrowers(c.intake_data, profile)[0]?.firstName || "";
-      await sendEmail(to, "תזכורת: התיק שלך מחכה להשלמה", wrap(`שלום ${name}, עוד לא סיימת`, `<p>התיק שלך הושלם ב-<b>${progressOf(c.intake_data)}%</b>. כל מה שמילאת שמור, ואפשר להמשיך בדיוק מאותה נקודה.</p>`, "להמשך השלמת התיק", `${SITE_URL}/dashboard`));
+      await sendEmail(to, "תזכורת: התיק שלך מחכה להשלמה", wrapClient(`שלום ${name}, עוד לא סיימת`, `<p>התיק שלך הושלם ב-<b>${progressOf(c.intake_data)}%</b>. כל מה שמילאת שמור, ואפשר להמשיך בדיוק מאותה נקודה.</p>`, "להמשך השלמת התיק", `${SITE_URL}/dashboard`));
       sent.reminder_48h = new Date().toISOString();
       await admin.from("cases").update({ emails_sent: sent }).eq("id", c.id);
       count++;
