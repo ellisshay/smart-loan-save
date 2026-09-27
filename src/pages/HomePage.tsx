@@ -1,4 +1,3 @@
-import Hero3D from "@/components/home/Hero3D";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,35 +9,40 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowLeft, Check, CheckCircle,
-  Sparkles, X,
+  ArrowLeft, Check, CheckCircle, X, ChevronLeft,
+  Coins, Zap, Building2, ShieldCheck, Landmark,
+  FileText, Upload, Handshake, TrendingDown, Home,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
 import BankLogosSection from "@/components/home/BankLogosSection";
 import SmartAssessment from "@/components/home/SmartAssessment";
 import { QuizData } from "@/types/quiz";
+import heroHouse from "@/assets/hero-house.jpg";
 
-// ─── Mortgage calculation helpers ───
-function calcMonthlyPayment(principal: number, annualRate: number, years: number) {
-  const r = annualRate / 100 / 12;
-  const n = years * 12;
-  if (r === 0) return principal / n;
-  return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-}
+// ─── Trust strip ───
+const trustItems = [
+  { icon: Coins, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצועי מקצה לקצה" },
+  { icon: Zap, title: "עד 72 שעות", desc: "לקבלת הצעות ראשונות" },
+  { icon: Building2, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך" },
+  { icon: ShieldCheck, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין" },
+];
 
-function calcMaxLoan(monthlyIncome: number) {
-  return Math.round(monthlyIncome * 0.33 * 12 * 25);
-}
+// ─── How it works steps ───
+const steps = [
+  { icon: FileText, title: "ממלאים פרטים", desc: "שאלון קצר אונליין" },
+  { icon: Upload, title: "מעלים מסמכים", desc: "בקלות ובביטחה" },
+  { icon: Handshake, title: "אנחנו משווים", desc: "ומנהלים משא ומתן" },
+  { icon: Landmark, title: "מקבלים הצעות", desc: "מהבנקים המובילים" },
+  { icon: CheckCircle, title: "חותמים ומשכנתא מאושרת", desc: "בלי כל הבלאגן" },
+];
 
-function calcApprovalChance(propertyPrice: number, income: number, purpose: string) {
-  const maxLoan = calcMaxLoan(income);
-  const ltv = purpose === "first" ? 0.75 : purpose === "upgrade" ? 0.7 : 0.5;
-  const neededLoan = propertyPrice * ltv;
-  if (maxLoan >= neededLoan * 1.2) return "high";
-  if (maxLoan >= neededLoan * 0.9) return "medium";
-  return "low";
-}
+// ─── Sample offers preview ───
+const sampleOffers = [
+  { bank: "בנק א'", rate: "4.62%", monthly: "4,980", best: true },
+  { bank: "בנק ב'", rate: "4.85%", monthly: "5,210", best: false },
+  { bank: "בנק ג'", rate: "5.11%", monthly: "5,640", best: false },
+];
 
 // ─── Pain Cards Data ───
 const painCards = [
@@ -50,29 +54,19 @@ const painCards = [
 
 // ─── FAQ Data ───
 const faqItems = [
-  { q: "האם השירות באמת חינם?", a: "כן, הניתוח AI חינמי לחלוטין. EasyMorte גובה מהיועצים בלבד." },
+  { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים — בלי הפתעות." },
   { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
-  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – בדרך כלל 72 שעות. בשיא עד 72 שעות." },
-  { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל יועץ או לא לבחור. ללא מחויבות." },
-  { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte היא פלטפורמת חיבור. אנחנו מביאים לך 3 הצעות תחרותיות במקום הצעה אחת." },
+  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל – עד 72 שעות לקבלת הצעות ראשונות." },
+  { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל הצעה או לא לבחור. ללא מחויבות." },
+  { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EasyMorte מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
 ];
 
 // ─── Main Component ───
 export default function HomePage() {
   const navigate = useNavigate();
 
-  // Urgency counter (random 8-19 on mount)
   const [urgencyCount] = useState(() => Math.floor(Math.random() * 12) + 8);
-
-  // Hero calculator state
-  const [propertyPrice, setPropertyPrice] = useState(1500000);
-  const [monthlyIncome, setMonthlyIncome] = useState(18000);
-  const [purpose, setPurpose] = useState<"first" | "upgrade" | "refi">("first");
-
-  // Assessment visibility
   const [showAssessment, setShowAssessment] = useState(false);
-
-  // Registration modal
   const [showRegModal, setShowRegModal] = useState(false);
   const [regForm, setRegForm] = useState({ name: "", phone: "", email: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -80,13 +74,6 @@ export default function HomePage() {
   const [completedData, setCompletedData] = useState<QuizData>({});
 
   const assessmentRef = useRef<HTMLDivElement>(null);
-
-  // Derived calculations
-  const ltvPct = purpose === "first" ? 75 : purpose === "upgrade" ? 70 : 50;
-  const loanAmount = Math.round(propertyPrice * ltvPct / 100);
-  const maxLoan = calcMaxLoan(monthlyIncome);
-  const monthlyPayment = Math.round(calcMonthlyPayment(loanAmount, 4.8, 25));
-  const approvalChance = calcApprovalChance(propertyPrice, monthlyIncome, purpose);
 
   const handleCTAClick = () => {
     setShowAssessment(true);
@@ -111,9 +98,9 @@ export default function HomePage() {
           phone: regForm.phone.trim(),
           email: regForm.email.trim() || null,
           quiz_answers: completedData,
-          property_price: completedData.property_price || propertyPrice,
-          monthly_income: completedData.salary_net || monthlyIncome,
-          purpose: completedData.purpose || purpose,
+          property_price: completedData.property_price,
+          monthly_income: completedData.salary_net,
+          purpose: completedData.purpose,
           score: completedScore,
         },
       });
@@ -132,157 +119,197 @@ export default function HomePage() {
   return (
     <div dir="rtl">
       <Helmet>
-        <title>EasyMorte – משכנתא דיגיטלית במחיר קבוע | בדיקת תיק תוך 72 שעות</title>
-        <meta name="description" content="פלטפורמת AI לניתוח משכנתאות. מקבלים ציון זכאות, מסלולים מותאמים ו-3 הצעות אמיתיות מבנקים תוך 72 שעות. חינם לחלוטין." />
-        <meta property="og:title" content="EasyMorte – 3 הצעות משכנתא תוך 72 שעות" />
-        <meta property="og:description" content="AI מנתח את הפרופיל שלך ומביא הצעות תחרותיות מ-3 בנקים. חינם." />
+        <title>EasyMorte – משכנתא בלי כל הבלאגן | בדיקת תיק תוך 72 שעות</title>
+        <meta name="description" content="אנחנו עושים את כל העבודה בשבילך — משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
+        <meta property="og:title" content="EasyMorte – משכנתא בלי כל הבלאגן" />
+        <meta property="og:description" content="משווים הצעות מהבנקים ומנהלים משא ומתן בשבילך. עד 72 שעות להצעות ראשונות." />
       </Helmet>
 
-      {/* ═══════ STAGE 0 – Hero Calculator ═══════ */}
-      <section className="relative overflow-hidden flex items-center">
+      {/* ═══════ Hero ═══════ */}
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-hero" />
         <div className="absolute inset-0 bg-grain opacity-60" />
-        
 
-        <div className="container relative py-14 md:py-20 grid lg:grid-cols-[1.15fr_0.85fr] gap-10 items-center">
-          <div>
-          <div className="max-w-2xl mb-8">
+        <div className="container relative py-14 md:py-20 grid lg:grid-cols-2 gap-10 items-center">
+          {/* Text side */}
+          <div className="max-w-xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-sm bg-gold/10 text-gold text-xs tracking-wide font-semibold mb-6 border border-gold/30">
-                <Sparkles size={14} /> מחיר קבוע · בלי פגישות · עד 72 שעות
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs tracking-wide font-semibold mb-6 border border-primary/25">
+                <Zap size={14} /> מחיר קבוע · בלי פגישות · עד 72 שעות
               </span>
             </motion.div>
             <motion.h1
-              className="font-display text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] mb-5 text-foreground"
+              className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] mb-5 text-foreground"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             >
               משכנתא בלי <span className="text-gradient-gold">כל הבלאגן.</span>
             </motion.h1>
             <motion.p
-              className="text-lg text-muted-foreground mb-4"
+              className="text-lg text-muted-foreground mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             >
-              מעלים הכול פעם אחת. אנחנו בודקים את התיק, בונים אסטרטגיה ומנהלים מכרז בנקים — ב־3,450 ₪ קבועים.
+              אנחנו עושים את כל העבודה בשבילך – משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף.
             </motion.p>
 
-            {/* Urgency counter pill */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-card text-muted-foreground text-sm border border-border"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+              className="flex flex-col items-start gap-3"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" /> היום נרשמו {urgencyCount} אנשים
+              <Button
+                variant="hero" size="xl"
+                className="shadow-gold text-lg rounded-full px-10"
+                onClick={handleCTAClick}
+              >
+                בדיקת התאמה בחינם
+                <ChevronLeft size={20} />
+              </Button>
+              <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-card text-muted-foreground text-sm border border-border mt-6"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> היום נרשמו {urgencyCount} אנשים
             </motion.div>
           </div>
 
-          {/* Calculator Card */}
+          {/* Image side */}
           <motion.div
-            className="max-w-2xl bg-card/90 backdrop-blur-xl rounded-lg border border-gold/25 shadow-card-hover p-6 md:p-8 space-y-6"
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            className="relative"
+            initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
           >
-            {/* Property Price Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>מחיר הנכס</span>
-                <span className="font-bold text-foreground">₪{propertyPrice.toLocaleString()}</span>
-              </div>
-              <input
-                type="range" min={500000} max={5000000} step={50000}
-                value={propertyPrice}
-                onChange={(e) => setPropertyPrice(Number(e.target.value))}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-muted accent-[hsl(var(--gold))]"
+            <div className="rounded-3xl overflow-hidden shadow-card-hover border border-border">
+              <img
+                src={heroHouse}
+                alt="בית מודרני"
+                width={1024}
+                height={768}
+                className="w-full h-auto object-cover"
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>₪500K</span><span>₪5M</span>
-              </div>
             </div>
-
-            {/* Income Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>הכנסה חודשית נטו</span>
-                <span className="font-bold text-foreground">₪{monthlyIncome.toLocaleString()}</span>
-              </div>
-              <input
-                type="range" min={5000} max={50000} step={1000}
-                value={monthlyIncome}
-                onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-muted accent-[hsl(var(--gold))]"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>₪5K</span><span>₪50K</span>
-              </div>
-            </div>
-
-            {/* Purpose Pills */}
-            <div className="space-y-2">
-              <span className="text-sm text-muted-foreground">מטרה</span>
-              <div className="flex gap-2">
-                {([
-                  { label: "דירה ראשונה", value: "first" as const },
-                  { label: "שדרוג", value: "upgrade" as const },
-                  { label: "מיחזור", value: "refi" as const },
-                ]).map((p) => (
-                  <button
-                    key={p.value}
-                    onClick={() => setPurpose(p.value)}
-                    className={`flex-1 py-2.5 rounded-md text-sm font-medium transition-all ${
-                      purpose === p.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-secondary"
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Results */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="bg-muted rounded-md p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">סיכוי ראשוני</p>
-                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
-                  approvalChance === "high" ? "bg-[hsl(var(--success))]/20 text-[hsl(var(--success))]" :
-                  approvalChance === "medium" ? "bg-[hsl(var(--warning))]/20 text-[hsl(var(--warning))]" :
-                  "bg-destructive/20 text-destructive"
-                }`}>
-                  {approvalChance === "high" ? "גבוה ✓" : approvalChance === "medium" ? "בינוני" : "נמוך"}
-                </span>
-              </div>
-              <div className="bg-muted rounded-md p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">החזר חודשי משוער</p>
-                <p className="text-lg font-bold text-foreground">₪{monthlyPayment.toLocaleString()}</p>
-              </div>
-              <div className="bg-muted rounded-md p-3 text-center">
-                <p className="text-xs text-muted-foreground mb-1">מקסימום הלוואה</p>
-                <p className="text-lg font-bold text-foreground">₪{maxLoan.toLocaleString()}</p>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <Button
-              variant="hero" size="xl"
-              className="w-full shadow-gold text-lg"
-              onClick={handleCTAClick}
+            {/* Floating badge */}
+            <motion.div
+              className="absolute -bottom-5 right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex items-center gap-3"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             >
-              קבל ניתוח מלא חינם ←
-              <ArrowLeft size={18} />
-            </Button>
-
-            <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><Check size={12} className="text-gold" /> ללא הרשמה</span>
-              <span className="flex items-center gap-1"><Check size={12} className="text-gold" /> 30 שניות</span>
-              <span className="flex items-center gap-1"><Check size={12} className="text-gold" /> חינם לגמרי</span>
-            </div>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingDown size={20} className="text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
+                <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
+              </div>
+            </motion.div>
           </motion.div>
-          </div>
-          <div className="hidden lg:block"><Hero3D /></div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" className="w-full h-auto" preserveAspectRatio="none">
-            <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,20 1440,30 L1440,60 L0,60 Z" className="fill-background" />
-          </svg>
+        {/* Trust strip */}
+        <div className="container relative pb-14">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {trustItems.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="bg-card rounded-2xl border border-border shadow-card p-5 flex items-center gap-4 hover:shadow-card-hover transition-shadow"
+              >
+                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <item.icon size={20} className="text-primary" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ How it works ═══════ */}
+      <section className="py-14 md:py-20 bg-background">
+        <div className="container max-w-5xl">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">איך זה עובד?</h2>
+          <p className="text-center text-muted-foreground mb-12">תהליך פשוט, שקוף ומהיר עד לקבלת המשכנתא הטובה ביותר עבורכם</p>
+
+          <div className="relative">
+            {/* connector line */}
+            <div className="hidden md:block absolute top-7 right-[10%] left-[10%] h-0.5 bg-border" />
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-4">
+              {steps.map((step, i) => (
+                <motion.div
+                  key={i}
+                  className="flex md:flex-col items-center gap-4 md:gap-3 md:text-center relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <div className="relative z-10 w-14 h-14 rounded-full bg-card border-2 border-primary/40 flex items-center justify-center shadow-card shrink-0">
+                    <step.icon size={22} className="text-primary" />
+                    <span className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-foreground">{step.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{step.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ Offers preview ═══════ */}
+      <section className="py-14 md:py-20 bg-secondary/50">
+        <div className="container max-w-5xl">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">הצעות מהבנקים</h2>
+          <p className="text-center text-muted-foreground mb-10">ככה נראות ההצעות שתקבלו — השוואה אמיתית, שקופה ופשוטה</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {sampleOffers.map((offer, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className={`rounded-2xl shadow-card hover:shadow-card-hover transition-shadow ${offer.best ? "border-2 border-primary relative" : "border border-border"}`}>
+                  {offer.best && (
+                    <span className="absolute -top-3 right-5 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
+                      ההצעה הטובה ביותר
+                    </span>
+                  )}
+                  <CardContent className="p-6 text-center space-y-3">
+                    <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Landmark size={22} className="text-primary" />
+                    </div>
+                    <p className="font-bold text-foreground">{offer.bank}</p>
+                    <p className="text-3xl font-extrabold text-primary">{offer.rate}</p>
+                    <p className="text-xs text-muted-foreground">ריבית ממוצעת</p>
+                    <div className="border-t border-border pt-3">
+                      <p className="text-lg font-bold text-foreground">₪{offer.monthly}</p>
+                      <p className="text-xs text-muted-foreground">החזר חודשי משוער</p>
+                    </div>
+                    <Button
+                      variant={offer.best ? "hero" : "outline"}
+                      className="w-full rounded-full"
+                      onClick={handleCTAClick}
+                    >
+                      {offer.best ? "בחירת הצעה" : "פרטים נוספים"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-6">* המספרים להמחשה בלבד. ההצעות שלך יתבססו על הפרופיל האישי שלך.</p>
         </div>
       </section>
 
@@ -292,7 +319,7 @@ export default function HomePage() {
       {/* ═══════ Pain Section ═══════ */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">
             ככה נראה התהליך <span className="text-destructive">בלי</span> EasyMorte
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -304,7 +331,7 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Card className="bg-red-950/30 border-red-800/30">
+                <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
                   <CardContent className="p-5 flex items-start gap-4">
                     <span className="text-2xl">{card.emoji}</span>
                     <div>
@@ -319,7 +346,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ Smart Assessment (replaces old quiz + score) ═══════ */}
+      {/* ═══════ Smart Assessment ═══════ */}
       <AnimatePresence>
         {showAssessment && (
           <motion.section
@@ -343,12 +370,11 @@ export default function HomePage() {
       {/* ═══════ Comparison Section ═══════ */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">
             EasyMorte מול השיטה הישנה
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Old way */}
-            <Card className="bg-red-950/20 border-red-800/30">
+            <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
               <CardContent className="p-6 space-y-4">
                 <Badge variant="destructive" className="mb-2">שיטה ישנה</Badge>
                 {[
@@ -366,19 +392,18 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* EasyMorte way */}
-            <Card className="bg-green-950/20 border-green-700/30 border-2">
+            <Card className="bg-primary/5 border-primary/30 border-2 rounded-2xl">
               <CardContent className="p-6 space-y-4">
-                <Badge className="mb-2 bg-[hsl(var(--success))] text-white">EasyMorte ✦</Badge>
+                <Badge className="mb-2 bg-primary text-primary-foreground">EasyMorte ✦</Badge>
                 {[
                   "פרופיל אחד, הכל דיגיטלי",
                   "מסמכים פעם אחת בלבד",
-                  "חינם לחלוטין ללקוח",
+                  "מחיר קבוע 3,450 ₪",
                   "הצעות תוך 72 שעות",
                   "3 הצעות במקביל",
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-foreground">
-                    <CheckCircle size={16} className="text-[hsl(var(--success))] shrink-0" />
+                    <CheckCircle size={16} className="text-primary shrink-0" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -391,10 +416,10 @@ export default function HomePage() {
       {/* ═══════ FAQ Section ═══════ */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-2xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-foreground">שאלות נפוצות</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">שאלות נפוצות</h2>
           <Accordion type="single" collapsible className="space-y-2">
             {faqItems.map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="border rounded-xl px-4">
+              <AccordionItem key={i} value={`faq-${i}`} className="border rounded-xl px-4 bg-card">
                 <AccordionTrigger className="text-sm font-semibold text-right">{item.q}</AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground">{item.a}</AccordionContent>
               </AccordionItem>
@@ -404,16 +429,21 @@ export default function HomePage() {
       </section>
 
       {/* ═══════ Final CTA ═══════ */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container text-center">
+      <section className="py-14 md:py-20 bg-secondary/50">
+        <div className="container text-center space-y-5">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Home size={30} className="text-primary" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">מוכנים לבדוק כמה אפשר לחסוך?</h2>
           <Button
             variant="hero" size="xl"
-            className="shadow-gold text-lg px-10"
+            className="shadow-gold text-lg px-10 rounded-full"
             onClick={handleCTAClick}
           >
-            בדוק את הסיכוי שלך עכשיו ←
+            בדיקת התאמה בחינם
             <ArrowLeft size={18} />
           </Button>
+          <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
         </div>
       </section>
 
@@ -462,7 +492,7 @@ export default function HomePage() {
               </div>
 
               <Button
-                className="w-full font-bold text-base"
+                className="w-full font-bold text-base rounded-full"
                 size="lg"
                 onClick={handleRegistration}
                 disabled={submitting || !regForm.name.trim() || !regForm.phone.trim()}
