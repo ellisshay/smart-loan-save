@@ -18,14 +18,12 @@ export function useQuizSession() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          setSessionId(parsed.id);
+          if (!parsed.token) throw new Error("legacy");
           // Fetch latest from DB
-          const { data } = await supabase
-            .from("quiz_sessions")
-            .select("quiz_data, current_step")
-            .eq("id", parsed.id)
-            .single();
+          const { data: rows } = await supabase.rpc("quiz_get_session" as any, { _token: parsed.token });
+          const data = (rows as any[])?.[0];
           if (data) {
+            setSessionId(parsed.token);
             setQuizData((data.quiz_data as unknown as QuizData) || {});
             setCurrentStep(data.current_step || 0);
             return;
@@ -33,14 +31,11 @@ export function useQuizSession() {
         } catch { /* fallthrough to create new */ }
       }
       // Create new session
-      const { data } = await supabase
-        .from("quiz_sessions")
-        .insert({ quiz_data: {} })
-        .select("id")
-        .single();
+      const { data: rows } = await supabase.rpc("quiz_create_session" as any);
+      const data = (rows as any[])?.[0];
       if (data) {
-        setSessionId(data.id);
-        localStorage.setItem(SESSION_KEY, JSON.stringify({ id: data.id }));
+        setSessionId(data.session_token);
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ token: data.session_token }));
       }
     };
     init();
@@ -54,15 +49,13 @@ export function useQuizSession() {
       debounceRef.current = setTimeout(async () => {
         setSaving(true);
         const score = calculateQuizScore(updatedData);
-        await supabase
-          .from("quiz_sessions")
-          .update({
-            quiz_data: updatedData as any,
-            current_step: step,
-            score_estimate: score,
-            purpose: updatedData.purpose || null,
-          })
-          .eq("id", sessionId);
+        await supabase.rpc("quiz_update_session" as any, {
+          _token: sessionId,
+          _quiz_data: updatedData as any,
+          _current_step: step,
+          _score: score,
+          _purpose: updatedData.purpose || null,
+        });
         setSaving(false);
       }, 500);
     },
@@ -91,10 +84,14 @@ export function useQuizSession() {
   const markComplete = useCallback(async () => {
     if (!sessionId) return;
     const score = calculateQuizScore(quizData);
-    await supabase
-      .from("quiz_sessions")
-      .update({ completed: true, score_estimate: score })
-      .eq("id", sessionId);
+    await supabase.rpc("quiz_update_session" as any, {
+      _token: sessionId,
+      _quiz_data: null,
+      _current_step: null,
+      _score: score,
+      _purpose: null,
+      _completed: true,
+    });
     localStorage.setItem("easymort_score", String(score));
     localStorage.setItem("easymort_quiz", JSON.stringify(quizData));
     localStorage.setItem("easymort_reg_time", new Date().toISOString());
