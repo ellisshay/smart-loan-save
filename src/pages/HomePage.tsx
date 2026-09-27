@@ -170,7 +170,7 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm bg-card text-muted-foreground text-sm border border-border"
             >
-              🔴 היום נרשמו {urgencyCount} אנשים
+              <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" /> היום נרשמו {urgencyCount} אנשים
             </motion.div>
           </div>
 
