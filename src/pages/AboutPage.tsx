@@ -7,7 +7,7 @@ import {
   TrendingDown,
   Clock,
 } from "lucide-react";
-import founderImage from "@/assets/shay-ellis-founder.png.asset.json";
+import founderImage from "@/assets/shay-ellis-founder.png";
 
 const values = [
   {
@@ -149,7 +149,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-5">
               <div className="md:col-span-3">
                 <img
-                  src={founderImage.url}
+                  src={founderImage}
                   alt="שי אליס, מייסד EASY MORTE"
                   className="w-full h-64 md:h-full object-cover"
                   loading="lazy"
