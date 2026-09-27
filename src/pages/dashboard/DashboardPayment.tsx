@@ -29,7 +29,29 @@ export default function DashboardPayment() {
   // Tranzila redirects back with ?paid=1 (success) or ?paid=0 (failure)
   const paidParam = searchParams.get("paid");
   const [showPayFrame, setShowPayFrame] = useState(false);
-  const payUrl = `https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
+
+  // Billing details for the invoice — prefillable from the borrower questionnaire
+  const borrower = (intakeData as any)?.borrower1 ?? {};
+  const [sameAsBorrower, setSameAsBorrower] = useState(true);
+  const [billing, setBilling] = useState({ firstName: "", lastName: "", invoiceName: "", email: "" });
+
+  useEffect(() => {
+    if (!sameAsBorrower) return;
+    setBilling({
+      firstName: borrower.first_name ?? "",
+      lastName: borrower.last_name ?? "",
+      invoiceName: [borrower.first_name, borrower.last_name].filter(Boolean).join(" "),
+      email: borrower.email ?? (intakeData as any)?.email ?? "",
+    });
+  }, [sameAsBorrower, borrower.first_name, borrower.last_name, borrower.email, intakeData]);
+
+  const billingValid =
+    billing.firstName.trim().length > 0 &&
+    billing.lastName.trim().length > 0 &&
+    billing.invoiceName.trim().length > 0 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim());
+
+  const payUrl = `https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
 
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {
