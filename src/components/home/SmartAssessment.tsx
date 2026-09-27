@@ -976,6 +976,131 @@ function StepPreferences({ data, update }: StepProps) {
   );
 }
 
+// ─── Celebration Screen (end of questionnaire) ───
+const celebrationParticles = [
+  { top: "6%", right: "10%", size: 12, delay: 0, dur: 2.6, opacity: 0.7 },
+  { top: "12%", right: "28%", size: 8, delay: 0.3, dur: 3.1, opacity: 0.5 },
+  { top: "4%", right: "48%", size: 14, delay: 0.6, dur: 2.2, opacity: 0.6 },
+  { top: "10%", right: "68%", size: 10, delay: 0.2, dur: 2.9, opacity: 0.5 },
+  { top: "16%", right: "86%", size: 8, delay: 0.5, dur: 2.4, opacity: 0.65 },
+  { top: "30%", right: "4%", size: 16, delay: 0.8, dur: 3.4, opacity: 0.35 },
+  { top: "42%", right: "94%", size: 12, delay: 0.4, dur: 2.7, opacity: 0.3 },
+];
+
+function CelebrationScreen({ score, onContinue }: { score: number; onContinue: () => void }) {
+  const praise =
+    score >= 75
+      ? "הפרופיל שלך נראה מצוין. הבנקים אוהבים פרופילים כאלה."
+      : score >= 50
+      ? "אתה בדרך הנכונה. נדע לחזק את הנקודות החשובות."
+      : "עשית צעד ראשון חשוב. מכאן אנחנו מובילים אותך.";
+
+  return (
+    <div className="relative py-10 overflow-hidden" dir="rtl">
+      {/* Floating particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {celebrationParticles.map((p, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-primary"
+            style={{ top: p.top, right: p.right, width: p.size, height: p.size, opacity: p.opacity }}
+            animate={{ y: [0, -18, 0], rotate: [0, 120] }}
+            transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 max-w-xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="bg-card/90 backdrop-blur-xl rounded-[40px] p-8 md:p-14 shadow-[0_20px_50px_hsl(var(--primary)/0.15)] border border-border/60 text-center flex flex-col items-center"
+        >
+          {/* Achievement badge */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.25, type: "spring", stiffness: 260, damping: 16 }}
+            className="relative mb-8"
+          >
+            <motion.div
+              className="absolute -inset-2 rounded-full bg-primary/20"
+              animate={{ scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <div className="w-24 h-24 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg shadow-primary/30 relative">
+              <CheckCircle size={48} strokeWidth={2.5} />
+            </div>
+          </motion.div>
+
+          {/* Score badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.4 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-bold mb-6 border border-primary/20"
+          >
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            הושלם בהצלחה · ציון {score}
+          </motion.div>
+
+          {/* Tagline */}
+          <h1 className="text-4xl md:text-5xl font-black mb-6 leading-[1.2]" style={{ fontFamily: "'Heebo', sans-serif" }}>
+            <motion.span
+              className="block text-primary"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
+            >
+              משכנתא בלי
+            </motion.span>
+            <motion.span
+              className="block text-foreground"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.95, duration: 0.5 }}
+            >
+              כאב ראש.
+            </motion.span>
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="text-muted-foreground text-lg max-w-md mb-10 leading-relaxed"
+          >
+            {praise}
+          </motion.p>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.45 }}
+            className="w-full max-w-xs"
+          >
+            <Button variant="hero" size="xl" className="w-full rounded-2xl text-lg shadow-gold" onClick={onContinue}>
+              בואו נתחיל ברישום
+              <ArrowLeft size={20} />
+            </Button>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.7, duration: 0.5 }}
+            className="mt-6 text-muted-foreground/70 text-sm"
+          >
+            התהליך לוקח פחות מ־60 שניות
+          </motion.p>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Step Props Interface ───
 interface StepProps {
   data: QuizData;
@@ -989,6 +1114,7 @@ export default function SmartAssessment({
   onComplete: (score: number, data: QuizData) => void;
 }) {
   const { quizData, currentStep, score, saving, updateData, goToStep, markComplete } = useQuizSession();
+  const [celebrating, setCelebrating] = useState(false);
 
   // Determine steps based on purpose
   const steps = useMemo(() => {
@@ -1029,11 +1155,20 @@ export default function SmartAssessment({
   const handleNext = async () => {
     if (isLastStep) {
       await markComplete();
-      onComplete(score, quizData);
+      setCelebrating(true);
     } else {
       goToStep(currentStep + 1);
     }
   };
+
+  if (celebrating) {
+    return (
+      <CelebrationScreen
+        score={score}
+        onContinue={() => onComplete(score, quizData)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
