@@ -6,7 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Upload, CheckCircle2, AlertTriangle, FileText, User, DollarSign, Home, Loader2, X, Eye } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, User, DollarSign, Home, Loader2, XCircle, ScanLine, ShieldCheck, RefreshCw } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
 
 interface UploadedDoc {
@@ -14,6 +15,8 @@ interface UploadedDoc {
   doc_type: string;
   file_name: string;
   is_required: boolean;
+  file_path: string;
+  ai_extracted_data: any;
 }
 
 const DOC_CATEGORIES = [
@@ -42,6 +45,25 @@ export default function DashboardDocuments() {
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [verifying, setVerifying] = useState<string | null>(null);
+
+  const verifyDoc = async (documentId: string) => {
+    setVerifying(documentId);
+    const { data, error } = await supabase.functions.invoke("analyze-document", { body: { document_id: documentId } });
+    setVerifying(null);
+    if (error || data?.error) toast({ title: "האימות לא הושלם", description: data?.error || "נסה שוב בעוד רגע", variant: "destructive" });
+    else {
+      const o = data.result?.overall;
+      toast({ title: o === "verified" ? "המסמך אומת בהצלחה" : o === "review" ? "נמצאו פערים לבירור" : "נדרשת העלאה מחדש", description: data.result?.summary, variant: o === "rejected" ? "destructive" : undefined });
+    }
+    loadDocs();
+  };
+
+  const replaceDoc = async (doc: UploadedDoc) => {
+    await supabase.storage.from("case-documents").remove([doc.file_path]);
+    await supabase.from("case_documents").delete().eq("id", doc.id);
+    loadDocs();
+  };
 
   const hasBorrower2 = intakeData.personal?.borrowerCount === "2";
 
@@ -52,8 +74,8 @@ export default function DashboardDocuments() {
 
   const loadDocs = async () => {
     if (!caseId) return;
-    const { data } = await supabase.from("case_documents").select("id, doc_type, file_name, is_required").eq("case_id", caseId);
-    if (data) setUploadedDocs(data);
+    const { data } = await supabase.from("case_documents").select("id, doc_type, file_name, is_required, file_path, ai_extracted_data").eq("case_id", caseId);
+    if (data) setUploadedDocs(data as UploadedDoc[]);
     setLoading(false);
   };
 
@@ -64,25 +86,28 @@ export default function DashboardDocuments() {
     if (!caseId) return;
     setUploading(docType);
     try {
-      const filePath = `${caseId}/${docType}/${file.name}`;
+      const safeName = file.name.replace(/[^\w.\-]/g, "_");
+      const filePath = `${caseId}/${docType}/${Date.now()}_${safeName}`;
       const { error: uploadError } = await supabase.storage.from("case-documents").upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
 
       const isRequired = requiredDocs.find(d => d.type === docType)?.required ?? false;
-      await supabase.from("case_documents").insert({
+      const { data: inserted, error: insErr } = await supabase.from("case_documents").insert({
         case_id: caseId,
         doc_type: docType,
         file_name: file.name,
         file_path: filePath,
         is_required: isRequired,
-      });
+      }).select("id").single();
+      if (insErr) throw insErr;
 
       await supabase.functions.invoke("webhook-handler", {
         body: { event_name: "doc_uploaded", case_id: caseId, payload: { doc_type: docType } },
       });
 
-      toast({ title: `${label} הועלה בהצלחה` });
-      loadDocs();
+      toast({ title: `${label} הועלה, מתחיל סריקה ואימות` });
+      await loadDocs();
+      if (inserted) verifyDoc(inserted.id);
     } catch (e: any) {
       console.error("Upload error:", e);
       toast({ title: "שגיאה בהעלאה", description: e.message, variant: "destructive" });
@@ -111,6 +136,8 @@ export default function DashboardDocuments() {
 
   const totalRequired = requiredDocs.filter(d => d.required).length;
   const uploadedRequired = requiredDocs.filter(d => d.required && uploadedTypes.includes(d.type)).length;
+  const verifiedRequired = requiredDocs.filter(d => d.required && uploadedDocs.some(u => u.doc_type === d.type && u.ai_extracted_data?.overall === "verified")).length;
+  const pct = totalRequired ? Math.round((verifiedRequired / totalRequired) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -118,6 +145,17 @@ export default function DashboardDocuments() {
         <h2 className="font-display text-xl font-bold text-foreground">העלאת מסמכים</h2>
         <p className="text-sm text-muted-foreground">העלה את המסמכים הנדרשים · {uploadedRequired}/{totalRequired} חובה הועלו</p>
       </div>
+
+      <Card>
+        <CardContent className="p-5 space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold text-foreground flex items-center gap-2"><ShieldCheck size={16} className="text-primary" /> השלמת תיק מסמכים</span>
+            <span className="font-mono text-primary font-bold">{pct}%</span>
+          </div>
+          <Progress value={pct} className="h-2.5" />
+          <p className="text-xs text-muted-foreground">{verifiedRequired} מתוך {totalRequired} מסמכי חובה אומתו · כל מסמך נבדק לאיכות סריקה, אמינות והתאמה לנתוני השאלון. המסמכים נשמרים בתיק עד להשלמה.</p>
+        </CardContent>
+      </Card>
 
       {/* Progress badge */}
       <div className="flex items-center gap-3">
@@ -148,6 +186,9 @@ export default function DashboardDocuments() {
                       doc={doc}
                       uploaded={uploadedDocs.find(u => u.doc_type === doc.type)}
                       uploading={uploading === doc.type}
+                      verifying={verifying}
+                      onVerify={verifyDoc}
+                      onReplace={replaceDoc}
                       onUpload={(file) => handleUpload(doc.type, doc.label, file)}
                     />
                   ))}
@@ -163,6 +204,9 @@ export default function DashboardDocuments() {
                             doc={doc}
                             uploaded={uploadedDocs.find(u => u.doc_type === doc.type)}
                             uploading={uploading === doc.type}
+                            verifying={verifying}
+                            onVerify={verifyDoc}
+                            onReplace={replaceDoc}
                             onUpload={(file) => handleUpload(doc.type, doc.label, file)}
                           />
                         ))}
@@ -187,44 +231,74 @@ export default function DashboardDocuments() {
   );
 }
 
-function DocRow({ doc, uploaded, uploading, onUpload }: {
+const STATUS = {
+  verified: { label: "מאומת", cls: "bg-success/10 text-success border-success/20", Icon: CheckCircle2, row: "bg-success/5 border-success/20" },
+  review: { label: "נדרש בירור", cls: "bg-warning/10 text-warning border-warning/20", Icon: AlertTriangle, row: "bg-warning/5 border-warning/30" },
+  rejected: { label: "נדרשת סריקה חוזרת", cls: "bg-destructive/10 text-destructive border-destructive/20", Icon: XCircle, row: "bg-destructive/5 border-destructive/30" },
+} as const;
+
+function DocRow({ doc, uploaded, uploading, verifying, onUpload, onVerify, onReplace }: {
   doc: { type: string; label: string; required: boolean };
   uploaded?: UploadedDoc;
   uploading: boolean;
+  verifying: string | null;
   onUpload: (file: File) => void;
+  onVerify: (id: string) => void;
+  onReplace: (doc: UploadedDoc) => void;
 }) {
+  const v = uploaded?.ai_extracted_data;
+  const isScanning = !!uploaded && verifying === uploaded.id;
+  const st = v?.overall ? STATUS[v.overall as keyof typeof STATUS] : undefined;
+  const Icon = isScanning ? ScanLine : st?.Icon ?? (uploaded ? Loader2 : FileText);
+  const issues: string[] = [...(v?.quality?.issues ?? []), ...(v?.authenticity?.flags ?? [])];
+  const mismatches = (v?.cross_check ?? []).filter((c: any) => c.status === "mismatch");
+
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-      uploaded ? "bg-primary/5 border-primary/20" : "bg-muted/20 border-border"
-    }`}>
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-        uploaded ? "bg-primary/10" : "bg-muted"
-      }`}>
-        {uploaded ? <CheckCircle2 size={16} className="text-primary" /> : <FileText size={16} className="text-muted-foreground" />}
+    <div className={`p-3 rounded-lg border transition-all ${st?.row ?? (uploaded ? "bg-primary/5 border-primary/20" : "bg-muted/20 border-border")}`}>
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-card border border-border">
+          <Icon size={16} className={isScanning ? "text-primary animate-pulse" : st ? "" : uploaded ? "text-muted-foreground animate-spin" : "text-muted-foreground"} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-medium text-foreground block">{doc.label}</span>
+          {uploaded && <span className="text-[11px] text-muted-foreground truncate block">{uploaded.file_name}</span>}
+          {!uploaded && doc.required && <span className="text-[10px] text-destructive">חובה</span>}
+        </div>
+        {uploaded ? (
+          <div className="flex items-center gap-2">
+            {isScanning ? <Badge variant="outline" className="text-[10px]">בסריקה...</Badge>
+              : st ? <Badge className={`${st.cls} text-[10px]`}>{st.label}</Badge>
+              : <Button size="sm" variant="outline" className="text-xs" onClick={() => onVerify(uploaded.id)}>אמת מסמך</Button>}
+            {st && st !== STATUS.verified && !isScanning && (
+              <Button size="sm" variant="ghost" className="text-xs" onClick={() => onReplace(uploaded)}><RefreshCw size={13} /> החלף</Button>
+            )}
+          </div>
+        ) : (
+          <label className="cursor-pointer">
+            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
+            <Button variant="outline" size="sm" className="text-xs pointer-events-none" disabled={uploading}>
+              {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+              {uploading ? "מעלה..." : "העלה"}
+            </Button>
+          </label>
+        )}
       </div>
-      <div className="flex-1 min-w-0">
-        <span className="text-sm font-medium text-foreground block">{doc.label}</span>
-        {uploaded && <span className="text-[11px] text-muted-foreground truncate block">{uploaded.file_name}</span>}
-        {!uploaded && doc.required && <span className="text-[10px] text-destructive">חובה</span>}
-      </div>
-      {uploaded ? (
-        <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">הועלה</Badge>
-      ) : (
-        <label className="cursor-pointer">
-          <input
-            type="file"
-            className="hidden"
-            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) onUpload(file);
-            }}
-          />
-          <Button variant="outline" size="sm" className="text-xs pointer-events-none" disabled={uploading}>
-            {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-            {uploading ? "מעלה..." : "העלה"}
-          </Button>
-        </label>
+      {v && !isScanning && (
+        <div className="mt-3 pt-3 border-t border-border/60 space-y-2 text-xs">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
+            <span>איכות סריקה: <b className="text-foreground">{v.quality?.score ?? "-"}/100</b></span>
+            <span>אמינות: <b className="text-foreground">{v.authenticity?.status === "authentic" ? "תקין" : v.authenticity?.status === "suspicious" ? "חשד לעריכה" : "לא חד משמעי"}</b></span>
+          </div>
+          {v.summary && <p className="text-foreground">{v.summary}</p>}
+          {mismatches.map((m: any, i: number) => (
+            <p key={i} className="text-warning">{m.field}: הוצהר {m.declared}, במסמך זוהה {m.found}</p>
+          ))}
+          {issues.slice(0, 3).map((t, i) => <p key={i} className="text-muted-foreground">• {t}</p>)}
+          {v.detected_loans?.length > 0 && (
+            <p className="text-muted-foreground">זוהו החזרים קבועים: {v.detected_loans.map((l: any) => `${l.description} (${l.monthly_amount?.toLocaleString()} ₪)`).join(", ")}</p>
+          )}
+        </div>
       )}
     </div>
   );
