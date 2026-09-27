@@ -46,6 +46,10 @@ export const personalSchema = z.object({
   hasGuarantor: z.enum(["yes", "no"], { required_error: "ציין האם יש ערבים" }),
   borrower1: borrowerSchema,
   borrower2: borrowerSchema.partial().optional(),
+}).superRefine((d, ctx) => {
+  if (d.borrowerCount !== "2") return;
+  const r = borrowerSchema.safeParse(d.borrower2 ?? {});
+  if (!r.success) r.error.issues.forEach((i) => ctx.addIssue({ ...i, path: ["borrower2", ...i.path] }));
 });
 
 export type PersonalData = z.infer<typeof personalSchema>;
