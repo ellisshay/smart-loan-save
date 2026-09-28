@@ -128,7 +128,7 @@ function IntakeFormFlow({
   presetIncrease: boolean;
 }) {
   const navigate = useNavigate();
-  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase } =
+  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft } =
     useIntakeForm(caseType);
 
   const steps = caseType === "new" ? NEW_CASE_STEPS : REFI_CASE_STEPS;
