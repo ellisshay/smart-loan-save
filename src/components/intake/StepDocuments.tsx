@@ -22,11 +22,13 @@ interface Props {
   caseId: string | null;
   uploadedDocs: UploadedDoc[];
   onUploaded: (doc: UploadedDoc) => void;
+  deferredDocs?: string[];
+  onToggleDefer?: (docType: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, onNext, onBack }: Props) {
+export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, deferredDocs = [], onToggleDefer, onNext, onBack }: Props) {
   const [uploading, setUploading] = useState<string | null>(null);
 
   const handleUpload = useCallback(async (docType: string, file: File) => {
@@ -45,15 +47,17 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
       if (uploadError) throw uploadError;
 
       // Save document record
-      const { error: dbError } = await supabase.from("case_documents").insert({
+      const { data: inserted, error: dbError } = await supabase.from("case_documents").insert({
         case_id: caseId,
         doc_type: docType,
         file_name: file.name,
         file_path: filePath,
         is_required: docs.find(d => d.type === docType)?.required ?? true,
-      });
+      }).select("id").single();
 
       if (dbError) throw dbError;
+      // Run document verification so the file counts toward completion
+      if (inserted) await supabase.functions.invoke("analyze-document", { body: { document_id: inserted.id } }).catch(console.error);
 
       onUploaded({ type: docType, fileName: file.name, filePath });
       
@@ -71,7 +75,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
     }
   }, [caseId, docs, onUploaded]);
 
-  const isUploaded = (docType: string) => uploadedDocs.some(d => d.type === docType);
+  const isUploaded = (docType: string) => uploadedDocs.some(d => d.type === docType) || deferredDocs.includes(docType);
   const requiredUploaded = docs.filter(d => d.required).every(d => isUploaded(d.type));
 
   return (
@@ -115,9 +119,15 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
                 </div>
               </div>
 
-              {uploaded ? (
+              {uploaded && deferredDocs.includes(doc.type) && !uploadedDocs.some(d => d.type === doc.type) ? (
+                <button type="button" onClick={() => onToggleDefer?.(doc.type)} className="text-xs text-warning font-semibold underline">יישלח במועד אחר · ביטול</button>
+              ) : uploaded ? (
                 <span className="text-xs text-success font-semibold">הועלה </span>
               ) : (
+                <div className="flex items-center gap-2">
+                {onToggleDefer && (
+                  <button type="button" onClick={() => onToggleDefer(doc.type)} className="text-xs text-muted-foreground underline">אשלח במועד אחר</button>
+                )}
                 <label className="cursor-pointer">
                   <input
                     type="file"
@@ -141,6 +151,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
                     )}
                   </span>
                 </label>
+                </div>
               )}
             </div>
           );

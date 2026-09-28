@@ -128,7 +128,7 @@ function IntakeFormFlow({
   presetIncrease: boolean;
 }) {
   const navigate = useNavigate();
-  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase } =
+  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft } =
     useIntakeForm(caseType);
 
   const steps = caseType === "new" ? NEW_CASE_STEPS : REFI_CASE_STEPS;
@@ -178,7 +178,7 @@ function IntakeFormFlow({
         case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "preferences": return <StepPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
-        case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
+        case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} deferredDocs={intakeData.deferred_docs ?? []} onToggleDefer={(t) => { const cur: string[] = intakeData.deferred_docs ?? []; saveDraft("deferred_docs", cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]); }} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         // New steps (equity, mortgage_request, declarations) - pass through for now
@@ -196,7 +196,7 @@ function IntakeFormFlow({
         case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "refi_preferences": return <StepRefiPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
-        case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
+        case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} deferredDocs={intakeData.deferred_docs ?? []} onToggleDefer={(t) => { const cur: string[] = intakeData.deferred_docs ?? []; saveDraft("deferred_docs", cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]); }} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
