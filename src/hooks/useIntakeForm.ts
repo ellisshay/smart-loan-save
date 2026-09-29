@@ -92,32 +92,30 @@ export function useIntakeForm(caseType: CaseType) {
   const prevStep = () => setCurrentStep((prev) => Math.max(0, prev - 1));
 
   // Submit case
-  const submitCase = async (goal: string) => {
-    if (!caseId) return;
+  const submitCase = async (goal: string): Promise<boolean> => {
+    if (!caseId) return false;
     setLoading(true);
     try {
       await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: intakeData });
       const { error: submitErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId, _goal: goal });
       if (submitErr) throw submitErr;
       supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
-
-      // Fire webhooks for submission + lead creation + Make.com notification
-      await Promise.all([
+      // Side notifications must never block the client
+      Promise.allSettled([
         fireWebhook("case_submitted", caseId, {}),
         fireWebhook("lead_created", caseId, {
           property_area: intakeData.property?.area || intakeData.property_area || "",
           purpose: goal || caseType,
           income_range: intakeData.income?.monthly_income || intakeData.monthly_income || "",
         }),
-        supabase.functions.invoke("notify-on-intake-complete", {
-          body: { case_id: caseId },
-        }),
-      ]);
-
-      toast({ title: "התיק הוגש בהצלחה! " });
-    } catch (error) {
+        supabase.functions.invoke("notify-on-intake-complete", { body: { case_id: caseId } }),
+      ]).catch(console.error);
+      toast({ title: "התיק הוגש בהצלחה!" });
+      return true;
+    } catch (error: any) {
       console.error("Error submitting case:", error);
-      toast({ title: "שגיאה בהגשה", variant: "destructive" });
+      toast({ title: "שגיאה בהגשה", description: error?.message || "נסה שוב בעוד רגע.", variant: "destructive" });
+      return false;
     } finally {
       setLoading(false);
     }
