@@ -109,9 +109,9 @@ export default function AccessibilityWidget() {
       <button
         onClick={() => setOpen(!open)}
         aria-label="פתח תפריט נגישות"
-        className="fixed bottom-24 left-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 hover:shadow-xl"
+        className="fixed top-1/2 -translate-y-1/2 left-3 z-40 w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200 hover:shadow-xl"
       >
-        <Accessibility size={28} />
+        <Accessibility size={22} />
       </button>
 
       {/* Accessibility panel */}
