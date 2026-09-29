@@ -1,6 +1,6 @@
+import { Helmet } from "react-helmet-async";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { Search, Clock, Calculator, ChevronLeft, ShieldCheck, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -79,17 +79,6 @@ const KnowledgeHub = () => {
   return (
     <>
       <Helmet>
-        <title>משכנתאפדיה — כל מה שצריך לדעת על משכנתא | EASY MORTE</title>
-        <meta
-          name="description"
-          content="מרכז הידע של EASY MORTE: מדריכים מעמיקים על משכנתא ראשונה, מחזור, תמהילים, ריביות, אישור עקרוני, מסמכים, משכנתא לעצמאים ומכירות פומביות — בשפה שכל אחד מבין."
-        />
-        <meta property="og:title" content="משכנתאפדיה — כל מה שצריך לדעת על משכנתא | EASY MORTE" />
-        <meta
-          property="og:description"
-          content="מדריכים מעמיקים על משכנתא ראשונה, מחזור, תמהילים, ריביות, אישור עקרוני, מסמכים ועצמאים — בשפה שכל אחד מבין."
-        />
-        <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(siteSchema)}</script>
       </Helmet>
 

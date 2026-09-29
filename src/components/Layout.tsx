@@ -13,6 +13,7 @@ import PublicChatWidget from "@/components/PublicChatWidget";
 import speedMarketLogo from "@/assets/credits/speedmarket.png";
 import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
 import BrandLogo from "@/components/BrandLogo";
+import { RouteSeoHead, RouteSeoFooterContent } from "@/components/seo/RouteSeo";
 
 const navLinks = [
   { label: "ראשי", href: "/", icon: Home },
@@ -165,7 +166,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main */}
-      <main id="main-content" className="flex-1" role="main">{children}</main>
+      <main id="main-content" className="flex-1" role="main">
+        <RouteSeoHead />
+        {children}
+        <RouteSeoFooterContent />
+      </main>
       <FloatingApplyButton />
 
       {/* Floating widgets */}
@@ -190,20 +195,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Link to="/calculators/waste" className="block hover:text-primary-foreground transition-colors">מדד בזבוז משכנתא</Link>
                 <Link to="/calculators/refinance" className="block hover:text-primary-foreground transition-colors">סימולטור מיחזור</Link>
                 <Link to="/calculators/mix" className="block hover:text-primary-foreground transition-colors">השוואת תמהילים</Link>
+                <Link to="/mortgage-calculator" className="block hover:text-primary-foreground transition-colors">מחשבון משכנתא</Link>
+                <Link to="/refinance-calculator" className="block hover:text-primary-foreground transition-colors">מחשבון מחזור משכנתא</Link>
+                <Link to="/mortgage-refinance" className="block hover:text-primary-foreground transition-colors">מחזור משכנתא</Link>
+                <Link to="/first-mortgage" className="block hover:text-primary-foreground transition-colors">משכנתא ראשונה</Link>
+                <Link to="/mortgage-tender" className="block hover:text-primary-foreground transition-colors">מכרז בנקים</Link>
               </div>
             </div>
             <div>
               <h4 className="font-display font-bold mb-3">החברה</h4>
               <div className="space-y-2 text-sm text-primary-foreground/70">
+                <Link to="/about" className="block hover:text-primary-foreground transition-colors">אודות</Link>
                 <Link to="/pricing" className="block hover:text-primary-foreground transition-colors">מחירים</Link>
+                <Link to="/knowledge" className="block hover:text-primary-foreground transition-colors">מרכז ידע</Link>
+                <Link to="/faq" className="block hover:text-primary-foreground transition-colors">שאלות נפוצות</Link>
+                <Link to="/mortgage-advisor" className="block hover:text-primary-foreground transition-colors">יועץ משכנתאות</Link>
                 <Link to="/contact" className="block hover:text-primary-foreground transition-colors">צור קשר</Link>
               </div>
             </div>
             <div>
               <h4 className="font-display font-bold mb-3">משפטי</h4>
               <div className="space-y-2 text-sm text-primary-foreground/70">
-                <Link to="/legal/terms" className="block hover:text-primary-foreground transition-colors">תנאי שימוש</Link>
-                <Link to="/legal/privacy" className="block hover:text-primary-foreground transition-colors">מדיניות פרטיות</Link>
+                <Link to="/terms" className="block hover:text-primary-foreground transition-colors">תנאי שימוש</Link>
+                <Link to="/privacy" className="block hover:text-primary-foreground transition-colors">מדיניות פרטיות</Link>
                 <Link to="/legal/accessibility" className="block hover:text-primary-foreground transition-colors">נגישות</Link>
               </div>
             </div>

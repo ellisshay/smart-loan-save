@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import Seo from "@/components/seo/Seo";
+import { SITE_URL, organizationSchema } from "@/seo/config";
 import { motion } from "framer-motion";
 import { ChevronLeft, Clock, CalendarDays, User, ListChecks, Calculator, CheckCircle2 } from "lucide-react";
 import {
@@ -129,7 +130,8 @@ const KnowledgeArticlePage = () => {
   const cluster = getCluster(article.clusterId);
   const related = getRelatedArticles(article as KnowledgeArticle);
   const image = article.imageKey ? knowledgeImages[article.imageKey] : undefined;
-  const canonicalUrl = `https://www.easymorte.co.il/knowledge/${article.slug}`;
+  const path = `/knowledge/${article.slug}`;
+  const canonicalUrl = `${SITE_URL}${path}`;
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -138,7 +140,9 @@ const KnowledgeArticlePage = () => {
     description: article.metaDescription,
     inLanguage: "he",
     author: { "@type": "Organization", name: article.author },
+    datePublished: article.updatedDate,
     dateModified: article.updatedDate,
+    publisher: organizationSchema,
     mainEntityOfPage: canonicalUrl,
   };
   const faqSchema = {
@@ -150,28 +154,17 @@ const KnowledgeArticlePage = () => {
       acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "משכנתאפדיה", item: "https://www.easymorte.co.il/knowledge" },
-      { "@type": "ListItem", position: 2, name: article.title, item: canonicalUrl },
-    ],
-  };
 
   return (
     <>
-      <Helmet>
-        <title>{`${article.title} | משכנתאפדיה EASY MORTE`}</title>
-        <meta name="description" content={article.metaDescription} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.metaDescription} />
-        <meta property="og:type" content="article" />
-        <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-      </Helmet>
+      <Seo
+        title={`${article.metaTitle ?? article.title} | EasyMorte`}
+        description={article.metaDescription}
+        path={path}
+        type="article"
+        jsonLd={[articleSchema, faqSchema]}
+        crumbs={[{ name: "בית", path: "/" }, { name: "מרכז ידע", path: "/knowledge" }, { name: article.title, path }]}
+      />
 
       {/* Mobile sticky CTA */}
       <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border p-3">

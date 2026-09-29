@@ -242,11 +242,11 @@ export default function SavingsCalculator() {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-destructive/20 to-warning/20 flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="text-destructive" size={28} />
           </div>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-3">
+          <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-foreground mb-3">
             כמה כסף אתה עלול לשלם יותר
             <br />
             <span className="text-gradient-gold">בעשור הקרוב?</span>
-          </h2>
+          </h1>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             הזן את פרטי המשכנתא שלך וגלה מיד
           </p>

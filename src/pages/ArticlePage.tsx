@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Helmet } from "react-helmet-async";
+import Seo from "@/components/seo/Seo";
+import { SITE_URL, organizationSchema } from "@/seo/config";
 import { ArrowLeft, Clock, BookOpen, CheckCircle2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { articlesData } from "@/data/articlesData";
@@ -13,7 +14,7 @@ export default function ArticlePage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <h1 className="font-display text-2xl font-bold text-foreground">המאמר לא נמצא</h1>
-        <Link to="/blog">
+        <Link to="/knowledge">
           <Button variant="outline">חזרה למשכנתאפדיה</Button>
         </Link>
       </div>
@@ -38,25 +39,25 @@ export default function ArticlePage() {
 
   return (
     <>
-      <Helmet>
-        <title>{article.title} | משכנתאפדיה, EASY MORTE</title>
-        <meta name="description" content={article.metaDescription} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.metaDescription} />
-        <meta property="og:type" content="article" />
-        <link rel="canonical" href={`https://www.easymorte.co.il/blog/${article.slug}`} />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: article.title,
-            description: article.metaDescription,
-            datePublished: article.publishDate,
-            author: { "@type": "Organization", name: "EASY MORTE" },
-            publisher: { "@type": "Organization", name: "EASY MORTE" },
-          })}
-        </script>
-      </Helmet>
+      <Seo
+        title={`${article.title} | EasyMorte`}
+        description={article.metaDescription}
+        path={`/blog/${article.slug}`}
+        type="article"
+        crumbs={[{ name: "בית", path: "/" }, { name: "מרכז ידע", path: "/knowledge" }, { name: article.title, path: `/blog/${article.slug}` }]}
+        jsonLd={[{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.metaDescription,
+          inLanguage: "he",
+          datePublished: article.publishDate,
+          dateModified: article.publishDate,
+          mainEntityOfPage: `${SITE_URL}/blog/${article.slug}`,
+          author: { "@type": "Organization", name: "EasyMorte" },
+          publisher: organizationSchema,
+        }]}
+      />
 
       {/* Hero */}
       <section className="bg-hero py-16 md:py-24">

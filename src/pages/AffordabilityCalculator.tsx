@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,10 +48,6 @@ export default function AffordabilityCalculator() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-hero py-12 md:py-20 relative overflow-hidden">
-      <Helmet>
-        <title>מחשבון יכולת רכישת דירה | EASY MORTE</title>
-        <meta name="description" content="גלה תוך שניות כמה הון עצמי, משכורת והחזר חודשי תצטרך כדי לקנות את הדירה שאתה רוצה." />
-      </Helmet>
 
       <div className="absolute inset-0 bg-grain opacity-60 pointer-events-none" />
 
