@@ -29,10 +29,18 @@ export function useIntakeForm(caseType: CaseType) {
           .limit(1)
           .single();
 
+        const prefill = quizToIntake();
         if (existing) {
           setCaseId(existing.id);
           setCurrentStep(existing.current_step || 0);
-          setIntakeData((existing.intake_data as Record<string, any>) || {});
+          const cur = (existing.intake_data as Record<string, any>) || {};
+          const merged = { ...prefill, ...cur };
+          for (const k of Object.keys(prefill)) merged[k] = { ...prefill[k], ...(cur[k] || {}) };
+          setIntakeData(merged);
+          if (Object.keys(prefill).length) {
+            await supabase.rpc("update_case_safe", { _case_id: existing.id, _intake_data: merged });
+            localStorage.removeItem("easymort_quiz");
+          }
         } else {
           const { data: newCase, error } = await supabase
             .from("cases")
@@ -46,6 +54,11 @@ export function useIntakeForm(caseType: CaseType) {
 
           if (error) throw error;
           setCaseId(newCase.id);
+          if (Object.keys(prefill).length) {
+            setIntakeData(prefill);
+            await supabase.rpc("update_case_safe", { _case_id: newCase.id, _intake_data: prefill });
+            localStorage.removeItem("easymort_quiz");
+          }
           
           // Fire webhook
           await fireWebhook("case_created", newCase.id, { case_type: caseType });
@@ -143,4 +156,23 @@ async function fireWebhook(eventName: string, caseId: string, payload: Record<st
   } catch (error) {
     console.error("Webhook fire error:", error);
   }
+}
+
+// Map the homepage quick questionnaire into intake sections so the user doesn't retype it
+function quizToIntake(): Record<string, any> {
+  let q: any;
+  try { q = JSON.parse(localStorage.getItem("easymort_quiz") || "null"); } catch { return {}; }
+  if (!q) return {};
+  const clean = (o: Record<string, any>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ""));
+  const out: Record<string, any> = {};
+  const personal = clean({ borrowerCount: q.co_borrower === true ? "2" : q.co_borrower === false ? "1" : undefined });
+  if (Object.keys(personal).length) out.personal = personal;
+  const property = clean({ propertyCity: q.property_area, purchasePrice: q.property_price, ownEquity: q.equity_amount,
+    requestedMortgage: q.property_price && q.equity_amount ? q.property_price - q.equity_amount : undefined });
+  if (Object.keys(property).length) out.property = property;
+  const income = clean({ monthlyNetIncome: q.salary_net, b2MonthlyNetIncome: q.salary_net_2, businessField: q.business_field,
+    annualIncome: q.annual_income_y1 });
+  if (Object.keys(income).length) out.income = income;
+  out.quiz_answers = q;
+  return out;
 }

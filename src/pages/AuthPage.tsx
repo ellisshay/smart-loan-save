@@ -13,6 +13,7 @@ type UserType = "client" | "advisor";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const nextPath = (() => { const n = new URLSearchParams(window.location.search).get("next"); return n && n.startsWith("/") && !n.startsWith("//") ? n : null; })();
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const [userType, setUserType] = useState<UserType>(() => {
@@ -42,7 +43,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/dashboard");
+      if (session) navigate(nextPath || "/dashboard");
     });
   }, [navigate]);
 
@@ -66,7 +67,7 @@ export default function AuthPage() {
 
         const isAdvisor = roles?.some((r) => r.role === "advisor");
         toast({ title: "התחברת בהצלחה! " });
-        navigate(isAdvisor ? "/advisor" : "/dashboard");
+        navigate(isAdvisor ? "/advisor" : nextPath || "/dashboard");
       } else {
         const { data, error } = await supabase.auth.signUp({
           email: form.email,
@@ -94,7 +95,7 @@ export default function AuthPage() {
         }
 
         toast({ title: "נרשמת בהצלחה! " });
-        navigate(userType === "advisor" ? "/advisor" : "/dashboard");
+        navigate(userType === "advisor" ? "/advisor" : nextPath || "/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -219,7 +220,7 @@ export default function AuthPage() {
             type="button" variant="outline" className="w-full" size="lg" disabled={googleLoading}
             onClick={async () => {
               setGoogleLoading(true);
-              const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+              const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + (nextPath ? "/auth?next=" + encodeURIComponent(nextPath) : "") });
               if (error) { toast({ title: "שגיאה בהתחברות Google", variant: "destructive" }); setGoogleLoading(false); }
             }}
           >
