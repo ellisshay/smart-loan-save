@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntakeForm } from "@/hooks/useIntakeForm";
@@ -27,7 +27,10 @@ import { Home, RefreshCw, TrendingUp, Save } from "lucide-react";
 
 export default function IntakePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const resumeCaseId = searchParams.get("caseId");
   const [, setUser] = useState<any>(null);
+  const [resumeLoading, setResumeLoading] = useState(!!resumeCaseId);
   const [caseTypeSelection, setCaseTypeSelection] = useState<CaseTypeSelection | null>(() => {
     try { const p = JSON.parse(localStorage.getItem("easymort_quiz") || "{}").purpose; return p === "new" ? "new" : p === "refi" ? "refi" : p === "increase" ? "refi_plus" : null; } catch { return null; }
   });
@@ -46,8 +49,32 @@ export default function IntakePage() {
     });
   }, [navigate]);
 
+  // Resuming an existing case: adopt its type so the client continues where they stopped
+  useEffect(() => {
+    if (!resumeCaseId) return;
+    let active = true;
+    supabase.from("cases").select("case_type, goal").eq("id", resumeCaseId).maybeSingle().then(({ data }) => {
+      if (!active) return;
+      if (data) {
+        setCaseTypeSelection(data.case_type === "new" ? "new" : "refi");
+        if (data.goal) setGoal(data.goal);
+      }
+      setResumeLoading(false);
+    });
+    return () => { active = false; };
+  }, [resumeCaseId]);
+
+  if (resumeLoading) {
+    return (
+      <div className="bg-background flex items-center justify-center min-h-[60vh]">
+        <div className="animate-pulse text-muted-foreground">טוען את התיק שלך...</div>
+      </div>
+    );
+  }
+
   // Case type selection screen
   if (!caseType) {
+
     return (
       <div className="bg-background">
         <div className="container max-w-2xl py-12">
@@ -112,6 +139,7 @@ export default function IntakePage() {
       uploadedDocs={uploadedDocs}
       setUploadedDocs={setUploadedDocs}
       presetIncrease={presetIncrease}
+      resumeCaseId={resumeCaseId}
     />
   );
 }
@@ -122,16 +150,31 @@ function IntakeFormFlow({
   uploadedDocs,
   setUploadedDocs,
   presetIncrease,
+  resumeCaseId,
 }: {
   caseType: CaseType;
   goal: string;
   uploadedDocs: any[];
   setUploadedDocs: (docs: any[]) => void;
   presetIncrease: boolean;
+  resumeCaseId?: string | null;
 }) {
   const navigate = useNavigate();
-  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft } =
-    useIntakeForm(caseType);
+  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft, savePatch } =
+    useIntakeForm(caseType, resumeCaseId);
+
+
+  // Show files already uploaded in earlier sessions
+  useEffect(() => {
+    if (!caseId) return;
+    let active = true;
+    supabase.from("case_documents").select("doc_type, file_name, file_path").eq("case_id", caseId).then(({ data }) => {
+      if (!active || !data) return;
+      setUploadedDocs(data.map((d) => ({ type: d.doc_type, fileName: d.file_name, filePath: d.file_path })));
+    });
+    return () => { active = false; };
+  }, [caseId]);
+
 
   const steps = caseType === "new" ? NEW_CASE_STEPS : REFI_CASE_STEPS;
   const docs = caseType === "new" ? REQUIRED_DOCS_NEW : REQUIRED_DOCS_REFI;
@@ -167,22 +210,50 @@ function IntakeFormFlow({
     } catch (e) {
       console.error(e);
     }
+    // Missing documents no longer block submission — the client can pay and send them later
+    const ok = await submitCase(goal);
+    if (!ok) return;
     if (missing > 0) {
       toast({
-        title: "חסרים מסמכי חובה",
-        description: `חסרים ${missing} מסמכים. העלה אותם או סמן "אשלח במועד אחר" ליד כל מסמך, ואז חזור להגשה.`,
-        variant: "destructive",
+        title: "התיק הוגש — נותרו מסמכים להשלמה",
+        description: `${missing} מסמכים עדיין חסרים. ניתן להעלות אותם בכל שלב מהאזור האישי. בדיקת התיק מתחילה לאחר התשלום וקבלת המסמכים.`,
       });
-      const idx = steps.findIndex((s) => s.key === "documents");
-      if (idx >= 0) goToStep(idx);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
     }
-    const ok = await submitCase(goal);
-    if (ok) navigate("/dashboard/payment");
+    navigate("/dashboard/payment");
   };
 
+
+  // Continuing from the documents step marks anything still missing as "will be sent later"
+  const handleDocsNext = async (stepKey: string) => {
+    const cur: string[] = intakeData.deferred_docs ?? [];
+    const stillMissing = docs
+      .filter((d) => d.required)
+      .map((d) => d.type)
+      .filter((t) => !uploadedDocs.some((u) => u.type === t) && !cur.includes(t));
+    const next = currentStep + 1;
+    const ok = await savePatch(
+      { [stepKey]: { completed: true }, deferred_docs: [...cur, ...stillMissing] },
+      next
+    );
+    if (ok) goToStep(next);
+  };
+
+  const docsProps = (stepKey: string) => ({
+    docs,
+    caseId,
+    uploadedDocs,
+    onUploaded: (d: any) => setUploadedDocs([...uploadedDocs, d]),
+    deferredDocs: (intakeData.deferred_docs ?? []) as string[],
+    onToggleDefer: (t: string) => {
+      const cur: string[] = intakeData.deferred_docs ?? [];
+      saveDraft("deferred_docs", cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]);
+    },
+    onNext: () => handleDocsNext(stepKey),
+    onBack: prevStep,
+  });
+
   const renderStep = () => {
+
     const stepKey = steps[currentStep]?.key;
     const defaults = intakeData[stepKey] || {};
 
@@ -193,7 +264,8 @@ function IntakeFormFlow({
         case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "preferences": return <StepPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
-        case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} deferredDocs={intakeData.deferred_docs ?? []} onToggleDefer={(t) => { const cur: string[] = intakeData.deferred_docs ?? []; saveDraft("deferred_docs", cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]); }} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
+        case "documents": return <StepDocuments {...docsProps(stepKey)} />;
+
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         // New steps (equity, mortgage_request, declarations) - pass through for now
@@ -211,7 +283,7 @@ function IntakeFormFlow({
         case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "refi_preferences": return <StepRefiPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
-        case "documents": return <StepDocuments docs={docs} caseId={caseId} uploadedDocs={uploadedDocs} onUploaded={(d) => setUploadedDocs([...uploadedDocs, d])} deferredDocs={intakeData.deferred_docs ?? []} onToggleDefer={(t) => { const cur: string[] = intakeData.deferred_docs ?? []; saveDraft("deferred_docs", cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]); }} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
+        case "documents": return <StepDocuments {...docsProps(stepKey)} />;
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;

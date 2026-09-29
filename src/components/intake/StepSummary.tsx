@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Edit, Send } from "lucide-react";
 import type { IntakeStep } from "@/types/intake";
+
 
 interface Props {
   steps: IntakeStep[];
@@ -64,7 +66,9 @@ function formatValue(key: string, val: any): string {
 }
 
 export default function StepSummary({ steps, intakeData, onEdit, onSubmit, loading }: Props) {
+  const navigate = useNavigate();
   const dataSteps = steps.filter(s => s.key !== "documents" && s.key !== "consent" && s.key !== "summary");
+
 
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -112,7 +116,7 @@ export default function StepSummary({ steps, intakeData, onEdit, onSubmit, loadi
         );
       })}
 
-      <div className="flex gap-3 pt-6">
+      <div className="flex flex-col sm:flex-row gap-3 pt-6">
         <Button
           type="button"
           variant="cta"
@@ -130,7 +134,11 @@ export default function StepSummary({ steps, intakeData, onEdit, onSubmit, loadi
             </>
           )}
         </Button>
+        <Button type="button" variant="outline" size="xl" onClick={() => navigate("/my-cases")}>
+          שמור והמשך מאוחר יותר
+        </Button>
       </div>
+
     </motion.div>
   );
 }
