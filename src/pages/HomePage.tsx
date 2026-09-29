@@ -158,17 +158,17 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
               className="flex flex-col items-start gap-3"
             >
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
                 <Button
                   variant="hero" size="xl"
-                  className="shadow-gold text-base sm:text-lg rounded-full px-6 sm:px-10"
+                  className="shadow-gold rounded-full h-auto min-h-14 px-2 sm:px-10 py-2 text-sm sm:text-lg whitespace-normal text-center leading-tight"
                   onClick={handleCTAClick}
                 >
                   הגש בקשה עכשיו
-                  <ChevronLeft size={20} />
+                  <ChevronLeft size={20} className="hidden sm:block" />
                 </Button>
-                <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 px-5 sm:px-7 text-sm sm:text-base">
-                  <Link to="/mortgage-check">בדיקת משכנתא קיימת <span className="font-bold">חינם</span></Link>
+                <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 h-auto min-h-14 px-2 sm:px-7 py-2 text-sm sm:text-base whitespace-normal text-center leading-tight">
+                  <Link to="/mortgage-check">בדיקת משכנתא קיימת חינם</Link>
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
