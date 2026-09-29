@@ -222,7 +222,37 @@ function IntakeFormFlow({
   };
 
 
+  // Continuing from the documents step marks anything still missing as "will be sent later"
+  const handleDocsNext = async (stepKey: string) => {
+    const cur: string[] = intakeData.deferred_docs ?? [];
+    const stillMissing = docs
+      .filter((d) => d.required)
+      .map((d) => d.type)
+      .filter((t) => !uploadedDocs.some((u) => u.type === t) && !cur.includes(t));
+    const next = currentStep + 1;
+    const ok = await savePatch(
+      { [stepKey]: { completed: true }, deferred_docs: [...cur, ...stillMissing] },
+      next
+    );
+    if (ok) goToStep(next);
+  };
+
+  const docsProps = (stepKey: string) => ({
+    docs,
+    caseId,
+    uploadedDocs,
+    onUploaded: (d: any) => setUploadedDocs([...uploadedDocs, d]),
+    deferredDocs: (intakeData.deferred_docs ?? []) as string[],
+    onToggleDefer: (t: string) => {
+      const cur: string[] = intakeData.deferred_docs ?? [];
+      saveDraft("deferred_docs", cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]);
+    },
+    onNext: () => handleDocsNext(stepKey),
+    onBack: prevStep,
+  });
+
   const renderStep = () => {
+
     const stepKey = steps[currentStep]?.key;
     const defaults = intakeData[stepKey] || {};
 
