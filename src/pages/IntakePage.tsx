@@ -209,20 +209,18 @@ function IntakeFormFlow({
     } catch (e) {
       console.error(e);
     }
+    // Missing documents no longer block submission — the client can pay and send them later
+    const ok = await submitCase(goal);
+    if (!ok) return;
     if (missing > 0) {
       toast({
-        title: "חסרים מסמכי חובה",
-        description: `חסרים ${missing} מסמכים. העלה אותם או סמן "אשלח במועד אחר" ליד כל מסמך, ואז חזור להגשה.`,
-        variant: "destructive",
+        title: "התיק הוגש — נותרו מסמכים להשלמה",
+        description: `${missing} מסמכים עדיין חסרים. ניתן להעלות אותם בכל שלב מהאזור האישי. בדיקת התיק מתחילה לאחר התשלום וקבלת המסמכים.`,
       });
-      const idx = steps.findIndex((s) => s.key === "documents");
-      if (idx >= 0) goToStep(idx);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
     }
-    const ok = await submitCase(goal);
-    if (ok) navigate("/dashboard/payment");
+    navigate("/dashboard/payment");
   };
+
 
   const renderStep = () => {
     const stepKey = steps[currentStep]?.key;
