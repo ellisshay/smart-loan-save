@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, ShieldCheck } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, ShieldCheck, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
