@@ -66,7 +66,9 @@ function formatValue(key: string, val: any): string {
 }
 
 export default function StepSummary({ steps, intakeData, onEdit, onSubmit, loading }: Props) {
+  const navigate = useNavigate();
   const dataSteps = steps.filter(s => s.key !== "documents" && s.key !== "consent" && s.key !== "summary");
+
 
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
