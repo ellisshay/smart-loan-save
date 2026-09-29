@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntakeForm } from "@/hooks/useIntakeForm";
@@ -160,8 +160,9 @@ function IntakeFormFlow({
   resumeCaseId?: string | null;
 }) {
   const navigate = useNavigate();
-  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft } =
+  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft, savePatch } =
     useIntakeForm(caseType, resumeCaseId);
+
 
   // Show files already uploaded in earlier sessions
   useEffect(() => {
