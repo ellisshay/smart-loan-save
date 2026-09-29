@@ -97,11 +97,11 @@ export function useAdminCases() {
         selected_mix: c.selected_mix,
         sla_started_at: c.sla_started_at,
         sla_due_at: c.sla_due_at,
-        intake_data: (c.intake_data as Record<string, any>) || {},
+        intake_data: intake,
         user_id: c.user_id,
         client_name: name,
         client_email: profile?.email || null,
-        client_phone: profile?.phone || null,
+        client_phone: profile?.phone || b1.phone || null,
         docs_uploaded: docCountMap.get(c.id) || 0,
         docs_total: 4, // standard required docs
       };
