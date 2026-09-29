@@ -32,17 +32,29 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
+  const [lastLogin, setLastLogin] = useState("");
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        supabase.from("profiles").select("first_name, last_name").eq("user_id", user.id).single()
+        const meta = (user.user_metadata ?? {}) as Record<string, any>;
+        supabase.from("profiles").select("first_name, last_name").eq("user_id", user.id).maybeSingle()
           .then(({ data }) => {
-            if (data) setUserName([data.first_name, data.last_name].filter(Boolean).join(" "));
+            const first =
+              data?.first_name?.trim() ||
+              meta.first_name ||
+              (typeof meta.full_name === "string" ? meta.full_name.split(" ")[0] : "") ||
+              (user.email ? user.email.split("@")[0] : "");
+            setUserName(first || "");
           });
+        if (user.last_sign_in_at) {
+          setLastLogin(new Date(user.last_sign_in_at).toLocaleString("he-IL", {
+            day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
+          }));
+        }
         // Load progress for exit intent
-        supabase.from("cases").select("intake_data").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).single()
+        supabase.from("cases").select("intake_data").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle()
           .then(({ data }) => {
             if (data) {
               const intakeData = (data.intake_data as Record<string, any>) || {};
@@ -67,9 +79,12 @@ export default function DashboardLayout() {
       <Layout>
       <div className="bg-background flex flex-col">
         <div className="border-b border-border bg-card/60">
-          <div className="container flex items-center justify-between h-11">
-            <span className="text-sm font-medium text-foreground">האזור האישי{userName ? `, שלום ${userName}` : ""}</span>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 text-xs gap-1"><LogOut className="h-3.5 w-3.5" />התנתקות</Button>
+          <div className="container flex items-center justify-between gap-3 min-h-11 py-1.5">
+            <div className="min-w-0">
+              <span className="text-sm font-medium text-foreground block truncate">{userName ? `שלום ${userName}` : "האזור האישי"}</span>
+              {lastLogin && <span className="text-[11px] text-muted-foreground block truncate">כניסה אחרונה: {lastLogin}</span>}
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 text-xs gap-1 shrink-0"><LogOut className="h-3.5 w-3.5" />התנתקות</Button>
           </div>
         </div>
         <div className="flex flex-1">

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, ShieldCheck } from "lucide-react";
+import { Menu, X, Calculator, FileText, Phone, Home, Info, Lightbulb, BookOpen, ShieldCheck, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
@@ -27,7 +27,20 @@ const navLinks = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setLoggedIn(!!s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
 
   useEffect(() => {
     let active = true;
@@ -104,6 +117,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/my-cases">
               <Button variant="outline" size="sm">האזור שלי</Button>
             </Link>
+            {loggedIn && (
+              <Button variant="ghost" size="sm" className="gap-1.5" onClick={handleLogout}>
+                <LogOut size={15} />
+                התנתקות
+              </Button>
+            )}
             <Link to="/calculators">
               <Button variant="cta" size="default">בדוק את המשכנתא שלך</Button>
             </Link>
@@ -150,6 +169,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       <ShieldCheck size={18} />
                       אזור מנהל
                     </Link>
+                  )}
+                  <Link to="/my-cases" onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted">
+                    <User size={18} />
+                    האזור שלי
+                  </Link>
+                  {loggedIn && (
+                    <button onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted">
+                      <LogOut size={18} />
+                      התנתקות
+                    </button>
                   )}
                   <div className="flex items-center gap-2">
                     <ThemeToggle />

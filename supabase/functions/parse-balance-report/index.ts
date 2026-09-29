@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     const tracks = (Array.isArray(parsed.tracks) ? parsed.tracks : [])
       .filter((t: any) => types.includes(t.type))
       .map((t: any) => ({ type: t.type, balance: Number(t.balance) || 0, rate: Number(t.rate) || 0, years: Math.round(Number(t.years) || 0) }))
-      .slice(0, 8);
+      .slice(0, 12);
     return json({ bank: parsed.bank ?? null, tracks });
   } catch (e) {
     console.error(e);

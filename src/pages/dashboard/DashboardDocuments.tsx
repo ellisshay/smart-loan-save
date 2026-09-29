@@ -47,6 +47,7 @@ export default function DashboardDocuments() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
+  const [generalLabel, setGeneralLabel] = useState("");
 
   const deferredDocs: string[] = intakeData.deferred_docs ?? [];
   const toggleDeferred = (docType: string) => {
@@ -134,6 +135,41 @@ export default function DashboardDocuments() {
       setUploading(null);
     }
   };
+
+  const handleGeneralUpload = async (file: File) => {
+    if (!caseId) return;
+    setUploading("general");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("נדרשת התחברות מחדש");
+      const safeName = file.name.replace(/[^\w.\-]/g, "_");
+      const filePath = `${user.id}/${caseId}/general/${Date.now()}_${safeName}`;
+      const { error: uploadError } = await supabase.storage.from("case-documents").upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { error: insErr } = await supabase.from("case_documents").insert({
+        case_id: caseId,
+        doc_type: "general",
+        file_name: generalLabel.trim() ? `${generalLabel.trim()} — ${file.name}` : file.name,
+        file_path: filePath,
+        is_required: false,
+      });
+      if (insErr) throw insErr;
+      setGeneralLabel("");
+      toast({ title: "המסמך נוסף לתיק" });
+      await loadDocs();
+    } catch (e: any) {
+      toast({ title: "שגיאה בהעלאה", description: e.message, variant: "destructive" });
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const removeGeneral = async (doc: UploadedDoc) => {
+    await supabase.storage.from("case-documents").remove([doc.file_path]);
+    await supabase.from("case_documents").delete().eq("id", doc.id);
+    loadDocs();
+  };
+
 
   if (caseLoading || loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -244,6 +280,43 @@ export default function DashboardDocuments() {
           </motion.div>
         );
       })}
+
+      {/* General / additional documents */}
+      <Card>
+        <CardContent className="p-5 space-y-3">
+          <h3 className="font-display font-bold text-foreground flex items-center gap-2">
+            <FileText size={18} className="text-primary" />
+            מסמכים כלליים נוספים
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            אפשר לצרף כל מסמך נוסף שרלוונטי לתיק — הסכם ממון, שמאות, מכתב הסבר, תדפיס נוסף ועוד. המסמכים נשמרים בתיק ונגישים לצוות המקצועי.
+          </p>
+          {uploadedDocs.filter(d => d.doc_type === "general").map(d => (
+            <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/20">
+              <FileText size={16} className="text-muted-foreground shrink-0" />
+              <span className="text-sm text-foreground flex-1 truncate">{d.file_name}</span>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => removeGeneral(d)}>הסר</Button>
+            </div>
+          ))}
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <input
+              type="text"
+              value={generalLabel}
+              onChange={(e) => setGeneralLabel(e.target.value)}
+              placeholder="תיאור המסמך (לא חובה)"
+              className="flex-1 h-10 rounded-lg border border-input bg-background px-3 text-sm"
+            />
+            <label className="cursor-pointer">
+              <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleGeneralUpload(f); e.target.value = ""; }} />
+              <Button variant="outline" size="sm" className="text-xs pointer-events-none w-full sm:w-auto" disabled={uploading === "general"}>
+                {uploading === "general" ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                {uploading === "general" ? "מעלה..." : "העלאת מסמך נוסף"}
+              </Button>
+            </label>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="flex gap-3 pt-2">
         <Button variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה לדשבורד</Button>
