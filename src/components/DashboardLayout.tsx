@@ -32,17 +32,29 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
+  const [lastLogin, setLastLogin] = useState("");
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        supabase.from("profiles").select("first_name, last_name").eq("user_id", user.id).single()
+        const meta = (user.user_metadata ?? {}) as Record<string, any>;
+        supabase.from("profiles").select("first_name, last_name").eq("user_id", user.id).maybeSingle()
           .then(({ data }) => {
-            if (data) setUserName([data.first_name, data.last_name].filter(Boolean).join(" "));
+            const first =
+              data?.first_name?.trim() ||
+              meta.first_name ||
+              (typeof meta.full_name === "string" ? meta.full_name.split(" ")[0] : "") ||
+              (user.email ? user.email.split("@")[0] : "");
+            setUserName(first || "");
           });
+        if (user.last_sign_in_at) {
+          setLastLogin(new Date(user.last_sign_in_at).toLocaleString("he-IL", {
+            day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
+          }));
+        }
         // Load progress for exit intent
-        supabase.from("cases").select("intake_data").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).single()
+        supabase.from("cases").select("intake_data").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle()
           .then(({ data }) => {
             if (data) {
               const intakeData = (data.intake_data as Record<string, any>) || {};
