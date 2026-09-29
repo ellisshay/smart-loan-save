@@ -1,5 +1,6 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,13 +10,17 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
+    <div className="flex min-h-[60vh] items-center justify-center bg-muted" dir="rtl">
+      <Helmet>
+        <title>העמוד לא נמצא | EasyMorte</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <div className="text-center">
         <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+        <p className="mb-4 text-xl text-muted-foreground">העמוד שחיפשת לא נמצא</p>
+        <Link to="/" className="text-primary underline hover:text-primary/90">
+          חזרה לדף הבית
+        </Link>
       </div>
     </div>
   );
