@@ -114,7 +114,7 @@ export function useAdminCases() {
         intake_data: intake,
         user_id: c.user_id,
         client_name: name,
-        client_email: profile?.email || null,
+        client_email: email,
         client_phone: profile?.phone || b1.phone || null,
         docs_uploaded: docCountMap.get(c.id) || 0,
         docs_total: 4, // standard required docs
