@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export default function IntakeSuccessPage() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="bg-background flex items-center justify-center min-h-[70vh] p-4">
       <motion.div
         className="max-w-md w-full text-center"
         initial={{ opacity: 0, scale: 0.9 }}

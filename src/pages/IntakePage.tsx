@@ -49,7 +49,7 @@ export default function IntakePage() {
   // Case type selection screen
   if (!caseType) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         <div className="container max-w-2xl py-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
             <h1 className="font-display text-3xl font-black text-foreground mb-2">פתיחת תיק חדש</h1>
@@ -221,14 +221,14 @@ function IntakeFormFlow({
 
   if (loading && !caseId) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center min-h-[60vh]">
         <div className="animate-pulse text-muted-foreground">טוען תיק...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <div className="container max-w-3xl py-8">
         {saving && (
           <div className="fixed top-4 left-4 z-50 flex items-center gap-2 bg-card px-3 py-2 rounded-lg shadow-lg border border-border text-xs text-muted-foreground">
