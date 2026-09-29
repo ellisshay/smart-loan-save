@@ -135,6 +135,41 @@ export default function DashboardDocuments() {
     }
   };
 
+  const handleGeneralUpload = async (file: File) => {
+    if (!caseId) return;
+    setUploading("general");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("נדרשת התחברות מחדש");
+      const safeName = file.name.replace(/[^\w.\-]/g, "_");
+      const filePath = `${user.id}/${caseId}/general/${Date.now()}_${safeName}`;
+      const { error: uploadError } = await supabase.storage.from("case-documents").upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { error: insErr } = await supabase.from("case_documents").insert({
+        case_id: caseId,
+        doc_type: "general",
+        file_name: generalLabel.trim() ? `${generalLabel.trim()} — ${file.name}` : file.name,
+        file_path: filePath,
+        is_required: false,
+      });
+      if (insErr) throw insErr;
+      setGeneralLabel("");
+      toast({ title: "המסמך נוסף לתיק" });
+      await loadDocs();
+    } catch (e: any) {
+      toast({ title: "שגיאה בהעלאה", description: e.message, variant: "destructive" });
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const removeGeneral = async (doc: UploadedDoc) => {
+    await supabase.storage.from("case-documents").remove([doc.file_path]);
+    await supabase.from("case_documents").delete().eq("id", doc.id);
+    loadDocs();
+  };
+
+
   if (caseLoading || loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   // Build documents per category with progressive reveal
