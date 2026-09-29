@@ -22,10 +22,11 @@ export function render(url: string): Promise<{ html: string; head: string }> {
   HelmetProvider.canUseDOM = false;
   const helmetContext: { helmet?: any } = {};
   return new Promise((resolve, reject) => {
-    let html = "";
+    const chunks: Buffer[] = [];
     const sink = new Writable({
-      write(chunk, _enc, cb) { html += chunk.toString(); cb(); },
+      write(chunk, _enc, cb) { chunks.push(Buffer.from(chunk)); cb(); },
       final(cb) {
+        const html = Buffer.concat(chunks).toString("utf8");
         const h = helmetContext.helmet;
         const head = h ? [h.title, h.meta, h.link, h.script].map((x: any) => x.toString()).join("\n") : "";
         resolve({ html, head });
