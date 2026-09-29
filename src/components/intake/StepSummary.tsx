@@ -112,7 +112,7 @@ export default function StepSummary({ steps, intakeData, onEdit, onSubmit, loadi
         );
       })}
 
-      <div className="flex gap-3 pt-6">
+      <div className="flex flex-col sm:flex-row gap-3 pt-6">
         <Button
           type="button"
           variant="cta"
@@ -130,7 +130,11 @@ export default function StepSummary({ steps, intakeData, onEdit, onSubmit, loadi
             </>
           )}
         </Button>
+        <Button type="button" variant="outline" size="xl" onClick={() => navigate("/my-cases")}>
+          שמור והמשך מאוחר יותר
+        </Button>
       </div>
+
     </motion.div>
   );
 }
