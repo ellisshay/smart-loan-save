@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -158,14 +158,19 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
               className="flex flex-col items-start gap-3"
             >
-              <Button
-                variant="hero" size="xl"
-                className="shadow-gold text-lg rounded-full px-10"
-                onClick={handleCTAClick}
-              >
-                הגש בקשה עכשיו
-                <ChevronLeft size={20} />
-              </Button>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  variant="hero" size="xl"
+                  className="shadow-gold text-base sm:text-lg rounded-full px-6 sm:px-10"
+                  onClick={handleCTAClick}
+                >
+                  הגש בקשה עכשיו
+                  <ChevronLeft size={20} />
+                </Button>
+                <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 px-5 sm:px-7 text-sm sm:text-base">
+                  <Link to="/mortgage-check">בדיקת משכנתא קיימת <span className="font-bold">חינם</span></Link>
+                </Button>
+              </div>
               <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
             </motion.div>
 
