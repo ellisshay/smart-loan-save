@@ -58,7 +58,7 @@ export default function MortgageCheckPage() {
       const { data, error } = await supabase.functions.invoke("parse-balance-report", { body: { file: b64, mime: f.type, name: f.name } });
       if (error || data?.error) throw new Error(data?.error || "הניתוח נכשל");
       if (!data.tracks?.length) { setParseMsg("לא זוהו מסלולים בדוח. אפשר להזין ידנית למטה."); return; }
-      setTracks(data.tracks.slice(0, 4));
+      setTracks(data.tracks.slice(0, 12));
       setShow(true);
       setParseMsg(`זוהו ${data.tracks.length} מסלולים${data.bank ? ` (${data.bank})` : ""}. בדקו שהנתונים תואמים לדוח.`);
     } catch (e: any) {
@@ -119,7 +119,7 @@ export default function MortgageCheckPage() {
           </div>
         ))}
         <div className="flex flex-wrap gap-2 justify-between">
-          <Button variant="outline" size="sm" disabled={tracks.length >= 4} onClick={() => setTracks((ts) => [...ts, { type: "fixed_nl", balance: 0, rate: 0, years: 0 }])}><Plus size={16} /> הוספת מסלול</Button>
+          <Button variant="outline" size="sm" disabled={tracks.length >= 12} onClick={() => setTracks((ts) => [...ts, { type: "fixed_nl", balance: 0, rate: 0, years: 0 }])}><Plus size={16} /> הוספת מסלול</Button>
           <Button variant="cta" onClick={() => setShow(true)}>קבלו המלצה חינם</Button>
         </div>
       </section>
