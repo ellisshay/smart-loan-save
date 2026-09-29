@@ -117,6 +117,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/my-cases">
               <Button variant="outline" size="sm">האזור שלי</Button>
             </Link>
+            {loggedIn && (
+              <Button variant="ghost" size="sm" className="gap-1.5" onClick={handleLogout}>
+                <LogOut size={15} />
+                התנתקות
+              </Button>
+            )}
             <Link to="/calculators">
               <Button variant="cta" size="default">בדוק את המשכנתא שלך</Button>
             </Link>
