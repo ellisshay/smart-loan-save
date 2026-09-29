@@ -150,6 +150,9 @@ export default function MyCasesPage() {
               {userName ? `שלום, ${userName}` : "אזור אישי"}
             </h1>
             <p className="text-muted-foreground">כאן תוכל/י לעקוב אחרי כל התיקים שלך</p>
+            {lastLogin && (
+              <p className="text-sm text-muted-foreground mt-1">כניסה אחרונה: {lastLogin}</p>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Link to="/intake">
