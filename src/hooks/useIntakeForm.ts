@@ -92,10 +92,10 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
   }, [caseType, existingCaseId]);
 
   // Auto-save draft (persists the step too, so the client can resume exactly where they stopped)
-  const saveDraft = useCallback(async (stepKey: string, stepData: any, step?: number) => {
+  const savePatch = useCallback(async (patch: Record<string, any>, step?: number) => {
     if (!caseId) return false;
     setSaving(true);
-    const updatedData = { ...intakeData, [stepKey]: stepData };
+    const updatedData = { ...intakeData, ...patch };
     setIntakeData(updatedData);
     try {
       const { error } = await supabase.rpc("update_case_safe", {
@@ -104,7 +104,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
         _current_step: step ?? currentStep,
       });
       if (error) throw error;
-      if (stepKey === "personal") {
+      if ("personal" in patch) {
         supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "case_opened" } }).catch(console.error);
       }
       return true;
@@ -120,6 +120,12 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
       setSaving(false);
     }
   }, [caseId, intakeData, currentStep]);
+
+  const saveDraft = useCallback(
+    (stepKey: string, stepData: any, step?: number) => savePatch({ [stepKey]: stepData }, step),
+    [savePatch]
+  );
+
 
   // Navigate steps
   const goToStep = (step: number) => setCurrentStep(step);
