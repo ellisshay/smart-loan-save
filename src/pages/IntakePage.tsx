@@ -139,6 +139,7 @@ export default function IntakePage() {
       uploadedDocs={uploadedDocs}
       setUploadedDocs={setUploadedDocs}
       presetIncrease={presetIncrease}
+      resumeCaseId={resumeCaseId}
     />
   );
 }
@@ -149,16 +150,30 @@ function IntakeFormFlow({
   uploadedDocs,
   setUploadedDocs,
   presetIncrease,
+  resumeCaseId,
 }: {
   caseType: CaseType;
   goal: string;
   uploadedDocs: any[];
   setUploadedDocs: (docs: any[]) => void;
   presetIncrease: boolean;
+  resumeCaseId?: string | null;
 }) {
   const navigate = useNavigate();
   const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft } =
-    useIntakeForm(caseType);
+    useIntakeForm(caseType, resumeCaseId);
+
+  // Show files already uploaded in earlier sessions
+  useEffect(() => {
+    if (!caseId) return;
+    let active = true;
+    supabase.from("case_documents").select("doc_type, file_name, file_path").eq("case_id", caseId).then(({ data }) => {
+      if (!active || !data) return;
+      setUploadedDocs(data.map((d) => ({ type: d.doc_type, fileName: d.file_name, filePath: d.file_path })));
+    });
+    return () => { active = false; };
+  }, [caseId]);
+
 
   const steps = caseType === "new" ? NEW_CASE_STEPS : REFI_CASE_STEPS;
   const docs = caseType === "new" ? REQUIRED_DOCS_NEW : REQUIRED_DOCS_REFI;
