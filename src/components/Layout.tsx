@@ -170,6 +170,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       אזור מנהל
                     </Link>
                   )}
+                  <Link to="/my-cases" onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted">
+                    <User size={18} />
+                    האזור שלי
+                  </Link>
+                  {loggedIn && (
+                    <button onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted">
+                      <LogOut size={18} />
+                      התנתקות
+                    </button>
+                  )}
                   <div className="flex items-center gap-2">
                     <ThemeToggle />
                     <Link to="/calculators" onClick={() => setMobileOpen(false)} className="flex-1">
