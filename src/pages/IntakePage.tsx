@@ -155,16 +155,29 @@ function IntakeFormFlow({
   }, [presetIncrease, caseType, intakeData]);
 
   const handleSubmit = async () => {
-    if (!caseId) return;
-    const missing = await countMissingDocs(caseId, caseType);
-    if (missing > 0) {
-      toast({ title: "לא ניתן להגיש עדיין", description: `חסרים ${missing} מסמכי חובה מאומתים. התיק נשמר ותוכל להמשיך בכל עת.`, variant: "destructive" });
-      const idx = steps.findIndex((s) => s.key === "documents");
-      if (idx >= 0) goToStep(idx);
+    if (!caseId) {
+      toast({ title: "התיק עדיין נטען", description: "המתן שנייה ונסה שוב. אם הבעיה חוזרת, רענן את הדף — הנתונים שמורים.", variant: "destructive" });
       return;
     }
-    await submitCase(goal);
-    navigate("/dashboard/payment");
+    let missing = 0;
+    try {
+      missing = await countMissingDocs(caseId, caseType);
+    } catch (e) {
+      console.error(e);
+    }
+    if (missing > 0) {
+      toast({
+        title: "חסרים מסמכי חובה",
+        description: `חסרים ${missing} מסמכים. העלה אותם או סמן "אשלח במועד אחר" ליד כל מסמך, ואז חזור להגשה.`,
+        variant: "destructive",
+      });
+      const idx = steps.findIndex((s) => s.key === "documents");
+      if (idx >= 0) goToStep(idx);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const ok = await submitCase(goal);
+    if (ok) navigate("/dashboard/payment");
   };
 
   const renderStep = () => {
