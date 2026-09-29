@@ -47,6 +47,7 @@ export default function DashboardDocuments() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState<string | null>(null);
+  const [generalLabel, setGeneralLabel] = useState("");
 
   const deferredDocs: string[] = intakeData.deferred_docs ?? [];
   const toggleDeferred = (docType: string) => {
