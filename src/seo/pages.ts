@@ -36,6 +36,9 @@ export const staticPages: StaticPageMeta[] = [
   { path: "/mortgage-tender", label: "מכרז בנקים", service: true, priority: "0.8", changefreq: "monthly",
     title: "מכרז בנקים למשכנתא: השוואת הצעות מכמה בנקים | EasyMorte",
     description: "תיק משכנתא אחד שנשלח לכמה בנקים במקביל, השוואת הצעות לפי עלות כוללת ומשא ומתן מבוסס נתונים. כך עובד מכרז הבנקים של EasyMorte." },
+  { path: "/mortgage-check", label: "בדיקת המשכנתא שלי", service: true, priority: "0.9", changefreq: "monthly",
+    title: "בדיקת משכנתא חינם לפי דוח יתרות: מה לשמור ומה למחזר | EasyMorte",
+    description: "בדיקת המשכנתא שלי – חינם: מזינים או מעלים דוח יתרות לסילוק ומקבלים המלצה לכל מסלול: להשאיר, לתקן בבנק או למחזר. כולל מדריך הורדת דוח יתרות לפי בנק." },
   // Calculators
   { path: "/calculators", label: "מחשבונים", priority: "0.7", changefreq: "monthly",
     title: "מחשבוני משכנתא: החזר, מחזור, תמהיל ויכולת רכישה | EasyMorte",
