@@ -27,7 +27,20 @@ const navLinks = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setLoggedIn(!!s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
 
   useEffect(() => {
     let active = true;
