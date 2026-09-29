@@ -76,9 +76,13 @@ export function useAdminCases() {
 
     const enriched: AdminCase[] = casesData.map(c => {
       const profile = profileMap.get(c.user_id);
-      const name = profile
-        ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "ללא שם"
-        : "ללא שם";
+      const intake = (c.intake_data as Record<string, any>) || {};
+      const b1 = intake?.personal?.borrower1 || {};
+      const intakeName = [b1.firstName, b1.lastName].filter(Boolean).join(" ");
+      const name =
+        (profile ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") : "") ||
+        intakeName ||
+        "ללא שם";
 
       return {
         id: c.id,
@@ -93,11 +97,11 @@ export function useAdminCases() {
         selected_mix: c.selected_mix,
         sla_started_at: c.sla_started_at,
         sla_due_at: c.sla_due_at,
-        intake_data: (c.intake_data as Record<string, any>) || {},
+        intake_data: intake,
         user_id: c.user_id,
         client_name: name,
         client_email: profile?.email || null,
-        client_phone: profile?.phone || null,
+        client_phone: profile?.phone || b1.phone || null,
         docs_uploaded: docCountMap.get(c.id) || 0,
         docs_total: 4, // standard required docs
       };
