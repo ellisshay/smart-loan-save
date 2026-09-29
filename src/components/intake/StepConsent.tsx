@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Shield, FileText, Lock } from "lucide-react";
+import SignaturePad from "./SignaturePad";
 
 interface Props {
-  onNext: (data: { fullName: string; date: string }) => void;
+  onNext: (data: { fullName: string; date: string; signature: string; signedAt: string }) => void;
   onBack: () => void;
 }
 
@@ -16,9 +17,10 @@ export default function StepConsent({ onNext, onBack }: Props) {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [dataUsageAccepted, setDataUsageAccepted] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [signature, setSignature] = useState<string | null>(null);
   const [date] = useState(new Date().toLocaleDateString("he-IL"));
 
-  const allAccepted = termsAccepted && privacyAccepted && dataUsageAccepted && fullName.length >= 2;
+  const allAccepted = termsAccepted && privacyAccepted && dataUsageAccepted && fullName.length >= 2 && !!signature;
 
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -73,6 +75,13 @@ export default function StepConsent({ onNext, onBack }: Props) {
             <Input value={date} disabled className="bg-muted" />
           </div>
         </div>
+        <div>
+          <Label className="text-sm font-medium text-foreground mb-1.5 block">חתימה *</Label>
+          <SignaturePad onChange={setSignature} />
+        </div>
+        <p className="text-xs leading-relaxed text-muted-foreground bg-muted/50 rounded-lg p-3">
+          בחתימתי לעיל אני מצהיר/ה כי כל הפרטים והמסמכים שמסרתי נכונים, מלאים ומעודכנים, וכי ידוע לי שהם ישמשו לבחינת תיק המשכנתא ולהגשתו לגופים מממנים. אני מסכים/ה שחתימה אלקטרונית זו תהווה חתימה מחייבת בהתאם לחוק חתימה אלקטרונית, התשס"א-2001, ותהיה בעלת תוקף זהה לחתימה בכתב יד. החתימה, התאריך והשעה יישמרו בתיק לצורך תיעוד.
+        </p>
       </div>
 
       <div className="flex gap-3 pt-4">
@@ -82,7 +91,7 @@ export default function StepConsent({ onNext, onBack }: Props) {
           variant="cta"
           size="lg"
           disabled={!allAccepted}
-          onClick={() => onNext({ fullName, date })}
+          onClick={() => onNext({ fullName, date, signature: signature!, signedAt: new Date().toISOString() })}
         >
           שמור והמשך ←
         </Button>
