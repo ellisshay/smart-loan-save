@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Edit, Send } from "lucide-react";
 import type { IntakeStep } from "@/types/intake";
+
 
 interface Props {
   steps: IntakeStep[];
