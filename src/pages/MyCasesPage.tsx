@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CASE_STATUSES, type CaseStatus } from "@/types/admin";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import BrandLogo from "@/components/BrandLogo";
 import {
   FileText,
   Download,
@@ -119,14 +118,21 @@ export default function MyCasesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
-        <div className="container flex items-center justify-between h-16">
-          <Link to="/" className="text-foreground" aria-label="EASY MORTE - לוקחים משכנתא בקלות">
-            <BrandLogo />
-          </Link>
-          <div className="flex items-center gap-3">
+    <div className="bg-background">
+      <div className="container py-10 max-w-4xl">
+        {/* Welcome */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div>
+            <h1 className="font-display text-3xl font-bold text-foreground mb-1">
+              {userName ? `שלום, ${userName}` : "אזור אישי"}
+            </h1>
+            <p className="text-muted-foreground">כאן תוכל/י לעקוב אחרי כל התיקים שלך</p>
+          </div>
+          <div className="flex items-center gap-2">
             <Link to="/intake">
               <Button variant="cta" size="sm">
                 <Plus className="h-4 w-4" />
@@ -138,20 +144,6 @@ export default function MyCasesPage() {
               יציאה
             </Button>
           </div>
-        </div>
-      </header>
-
-      <div className="container py-10 max-w-4xl">
-        {/* Welcome */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="font-display text-3xl font-bold text-foreground mb-1">
-            {userName ? `שלום, ${userName}` : "אזור אישי"}
-          </h1>
-          <p className="text-muted-foreground">כאן תוכל/י לעקוב אחרי כל התיקים שלך</p>
         </motion.div>
 
         {/* Cases list */}

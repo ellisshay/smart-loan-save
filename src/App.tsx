@@ -122,12 +122,12 @@ export const AppRoutes = () => (
         </Route>
 
         {/* Client area */}
-        <Route path="/my-cases" element={<MyCasesPage />} />
+        <Route path="/my-cases" element={<Layout><MyCasesPage /></Layout>} />
 
         {/* Intake flow */}
-        <Route path="/intake" element={<ConsentGate><IntakePage /></ConsentGate>} />
+        <Route path="/intake" element={<Layout><ConsentGate><IntakePage /></ConsentGate></Layout>} />
         <Route path="/results" element={<ResultsPage />} />
-        <Route path="/intake/success" element={<IntakeSuccessPage />} />
+        <Route path="/intake/success" element={<Layout><IntakeSuccessPage /></Layout>} />
         <Route path="/mix-selection/:caseId" element={<MixSelectionPage />} />
 
         {/* Admin routes */}
