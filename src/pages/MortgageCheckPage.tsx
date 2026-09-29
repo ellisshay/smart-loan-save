@@ -42,6 +42,29 @@ export default function MortgageCheckPage() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [tracks, setTracks] = useState<Track[]>([{ type: "prime", balance: 0, rate: 0, years: 0 }]);
   const [show, setShow] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [parseMsg, setParseMsg] = useState("");
+
+  const onFile = async (f: File) => {
+    if (f.size > 8 * 1024 * 1024) return setParseMsg("הקובץ גדול מ-8MB");
+    setParsing(true); setParseMsg("");
+    try {
+      const b64 = await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(String(r.result).split(",")[1] ?? "");
+        r.onerror = rej;
+        r.readAsDataURL(f);
+      });
+      const { data, error } = await supabase.functions.invoke("parse-balance-report", { body: { file: b64, mime: f.type, name: f.name } });
+      if (error || data?.error) throw new Error(data?.error || "הניתוח נכשל");
+      if (!data.tracks?.length) { setParseMsg("לא זוהו מסלולים בדוח. אפשר להזין ידנית למטה."); return; }
+      setTracks(data.tracks.slice(0, 4));
+      setShow(true);
+      setParseMsg(`זוהו ${data.tracks.length} מסלולים${data.bank ? ` (${data.bank})` : ""}. בדקו שהנתונים תואמים לדוח.`);
+    } catch (e: any) {
+      setParseMsg(e.message || "הניתוח נכשל, אפשר להזין ידנית");
+    } finally { setParsing(false); }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
@@ -65,8 +88,23 @@ export default function MortgageCheckPage() {
         </p>
       </header>
 
+      <section className="bg-card border-2 border-dashed border-primary/40 rounded-2xl p-6 text-center space-y-3">
+        <Upload className="mx-auto text-primary" />
+        <h2 className="font-display text-xl font-bold text-foreground">העלו את דוח היתרות לסילוק</h2>
+        <p className="text-sm text-muted-foreground">PDF או צילום של הדוח. המערכת תחלץ את המסלולים, הריביות והיתרות ותמלא אותם עבורכם.</p>
+        {loggedIn ? (
+          <label className="inline-block">
+            <input type="file" accept="application/pdf,image/*" className="sr-only" disabled={parsing} onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+            <span className="inline-flex items-center gap-2 h-10 px-5 rounded-lg bg-primary text-primary-foreground font-bold cursor-pointer">{parsing ? "מנתח את הדוח..." : "בחירת קובץ"}</span>
+          </label>
+        ) : (
+          <Link to="/auth?next=/mortgage-check"><Button variant="cta">הרשמה והעלאת הדוח</Button></Link>
+        )}
+        {parseMsg && <p className="text-sm text-foreground">{parseMsg}</p>}
+      </section>
+
       <section className="bg-card border border-border rounded-2xl p-5 md:p-7 space-y-4">
-        <h2 className="font-display text-xl font-bold text-foreground">נתוני המסלולים מדוח היתרות</h2>
+        <h2 className="font-display text-xl font-bold text-foreground">נתוני המסלולים (מולאו מהדוח או הזנה ידנית)</h2>
         {tracks.map((t, i) => (
           <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-2 items-end">
             <label className="col-span-2 md:col-span-1 text-xs text-muted-foreground">סוג מסלול
