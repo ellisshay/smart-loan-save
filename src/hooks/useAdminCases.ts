@@ -79,9 +79,23 @@ export function useAdminCases() {
       const intake = (c.intake_data as Record<string, any>) || {};
       const b1 = intake?.personal?.borrower1 || {};
       const intakeName = [b1.firstName, b1.lastName].filter(Boolean).join(" ");
+      const email = profile?.email || b1.email || null;
+      // Derive a readable display name from the email address as a last resort,
+      // e.g. "david.levy92@gmail.com" -> "David Levy"
+      const nameFromEmail = (() => {
+        if (!email) return "";
+        const local = email.split("@")[0];
+        const words = local
+          .split(/[._\-+]+/)
+          .map(w => w.replace(/\d+/g, ""))
+          .filter(Boolean)
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1));
+        return words.length ? words.join(" ") : "";
+      })();
       const name =
         (profile ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") : "") ||
         intakeName ||
+        nameFromEmail ||
         "ללא שם";
 
       return {
