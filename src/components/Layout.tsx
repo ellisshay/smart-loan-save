@@ -9,7 +9,6 @@ import FloatingApplyButton from "@/components/FloatingApplyButton";
 import AccessibilityWidget from "@/components/AccessibilityWidget";
 import ThemeToggle from "@/components/ThemeToggle";
 import MarketTicker from "@/components/MarketTicker";
-import PublicChatWidget from "@/components/PublicChatWidget";
 import speedMarketLogo from "@/assets/credits/speedmarket.png";
 import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
 import BrandLogo from "@/components/BrandLogo";
