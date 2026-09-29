@@ -12,3 +12,21 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /advisor
+Disallow: /auth
+Disallow: /login
+Disallow: /signup
+Disallow: /questionnaire
+Disallow: /intake
+Disallow: /results
+Disallow: /my-cases
+Disallow: /mix-selection
+Disallow: /documents
+Disallow: /payment
+Disallow: /api
+Disallow: /functions
+Disallow: /private
+
+Sitemap: https://easymorte.co.il/sitemap.xml
