@@ -37,6 +37,7 @@ export default function MyCasesPage() {
   const [cases, setCases] = useState<CaseRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
+  const [lastLogin, setLastLogin] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -50,11 +51,29 @@ export default function MyCasesPage() {
         .from("profiles")
         .select("first_name, last_name")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (profile) {
-        setUserName([profile.first_name, profile.last_name].filter(Boolean).join(" "));
+      const meta = (user.user_metadata ?? {}) as Record<string, any>;
+      const first =
+        profile?.first_name?.trim() ||
+        meta.first_name ||
+        (typeof meta.full_name === "string" ? meta.full_name.split(" ")[0] : "") ||
+        (user.email ? user.email.split("@")[0] : "");
+      setUserName(first || "");
+
+      const signedInAt = user.last_sign_in_at;
+      if (signedInAt) {
+        setLastLogin(
+          new Date(signedInAt).toLocaleString("he-IL", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        );
       }
+
 
       const { data, error } = await supabase
         .from("cases")
