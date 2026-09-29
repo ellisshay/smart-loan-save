@@ -27,7 +27,10 @@ import { Home, RefreshCw, TrendingUp, Save } from "lucide-react";
 
 export default function IntakePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const resumeCaseId = searchParams.get("caseId");
   const [, setUser] = useState<any>(null);
+  const [resumeLoading, setResumeLoading] = useState(!!resumeCaseId);
   const [caseTypeSelection, setCaseTypeSelection] = useState<CaseTypeSelection | null>(() => {
     try { const p = JSON.parse(localStorage.getItem("easymort_quiz") || "{}").purpose; return p === "new" ? "new" : p === "refi" ? "refi" : p === "increase" ? "refi_plus" : null; } catch { return null; }
   });
@@ -46,8 +49,32 @@ export default function IntakePage() {
     });
   }, [navigate]);
 
+  // Resuming an existing case: adopt its type so the client continues where they stopped
+  useEffect(() => {
+    if (!resumeCaseId) return;
+    let active = true;
+    supabase.from("cases").select("case_type, goal").eq("id", resumeCaseId).maybeSingle().then(({ data }) => {
+      if (!active) return;
+      if (data) {
+        setCaseTypeSelection(data.case_type === "new" ? "new" : "refi");
+        if (data.goal) setGoal(data.goal);
+      }
+      setResumeLoading(false);
+    });
+    return () => { active = false; };
+  }, [resumeCaseId]);
+
+  if (resumeLoading) {
+    return (
+      <div className="bg-background flex items-center justify-center min-h-[60vh]">
+        <div className="animate-pulse text-muted-foreground">טוען את התיק שלך...</div>
+      </div>
+    );
+  }
+
   // Case type selection screen
   if (!caseType) {
+
     return (
       <div className="bg-background">
         <div className="container max-w-2xl py-12">
