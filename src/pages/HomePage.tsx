@@ -84,7 +84,10 @@ export default function HomePage() {
   const handleAssessmentComplete = useCallback((score: number, data: QuizData) => {
     setCompletedScore(score);
     setCompletedData(data);
-    setShowRegModal(true);
+    localStorage.setItem("easymort_quiz", JSON.stringify(data));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      window.location.href = session ? "/intake" : "/auth?next=/intake";
+    });
   }, []);
 
   const handleRegistration = async () => {
