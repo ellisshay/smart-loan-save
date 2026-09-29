@@ -62,7 +62,7 @@ async function main() {
     try {
       const { html, head } = await render(r.path);
       if (!html.includes("<h1")) throw new Error("no <h1> rendered");
-      const page = base.replace("</head>", `${head}\n</head>`).replace('<div id="root"></div>', `<div id="root">${html}</div>`);
+      const page = base.replace("</head>", `${head}\n</head>`).replace('<div id="root"></div>', `<div id="root" data-prerendered="${r.path}">${html}</div>`);
       const file = outFile(r.path);
       mkdirSync(dirname(file), { recursive: true });
       writeFileSync(file, page);

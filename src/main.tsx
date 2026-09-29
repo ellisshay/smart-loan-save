@@ -11,8 +11,12 @@ const app = (
 );
 
 // Public pages ship prerendered HTML; hydrate them. Private (SPA-only) pages render fresh.
-if (container.hasChildNodes()) {
+const prerendered = container.getAttribute("data-prerendered");
+const path = window.location.pathname.replace(/\/+$/, "") || "/";
+if (prerendered && prerendered === path) {
   hydrateRoot(container, app);
 } else {
+  // SPA fallback served another page's HTML (e.g. private routes): discard it.
+  container.innerHTML = "";
   createRoot(container).render(app);
 }
