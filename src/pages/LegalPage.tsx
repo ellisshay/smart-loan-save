@@ -68,8 +68,9 @@ const pages: Record<string, { title: string; content: string }> = {
   },
 };
 
-export default function LegalPage() {
-  const { page } = useParams<{ page: string }>();
+export default function LegalPage({ page: pageProp }: { page?: string } = {}) {
+  const params = useParams<{ page: string }>();
+  const page = pageProp ?? params.page;
   const data = pages[page || ""];
 
   if (!data) {

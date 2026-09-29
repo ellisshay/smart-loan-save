@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -118,12 +117,6 @@ export default function HomePage() {
 
   return (
     <div dir="rtl">
-      <Helmet>
-        <title>EASY MORTE, לוקחים משכנתא בקלות | בדיקת תיק תוך 72 שעות</title>
-        <meta name="description" content="אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף. מחיר קבוע 3,450 ₪." />
-        <meta property="og:title" content="EASY MORTE, לוקחים משכנתא בקלות" />
-        <meta property="og:description" content="משווים הצעות מהבנקים ומנהלים משא ומתן בשבילך. עד 72 שעות להצעות ראשונות." />
-      </Helmet>
 
       {/* ═══════ Hero ═══════ */}
       <section className="relative overflow-hidden">
