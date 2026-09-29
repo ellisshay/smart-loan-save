@@ -181,6 +181,8 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
     nextStep,
     prevStep,
     saveDraft,
+    savePatch,
+
     submitCase,
   };
 }
