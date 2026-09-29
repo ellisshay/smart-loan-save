@@ -79,9 +79,12 @@ export default function DashboardLayout() {
       <Layout>
       <div className="bg-background flex flex-col">
         <div className="border-b border-border bg-card/60">
-          <div className="container flex items-center justify-between h-11">
-            <span className="text-sm font-medium text-foreground">האזור האישי{userName ? `, שלום ${userName}` : ""}</span>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 text-xs gap-1"><LogOut className="h-3.5 w-3.5" />התנתקות</Button>
+          <div className="container flex items-center justify-between gap-3 min-h-11 py-1.5">
+            <div className="min-w-0">
+              <span className="text-sm font-medium text-foreground block truncate">{userName ? `שלום ${userName}` : "האזור האישי"}</span>
+              {lastLogin && <span className="text-[11px] text-muted-foreground block truncate">כניסה אחרונה: {lastLogin}</span>}
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 text-xs gap-1 shrink-0"><LogOut className="h-3.5 w-3.5" />התנתקות</Button>
           </div>
         </div>
         <div className="flex flex-1">
