@@ -71,7 +71,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "מה הטעות שהכי מעכבת?", a: "מסמכים חסרים או נתונים שלא תואמים למסמכים. אלה יוצרים סבבי השלמות ומעכבים את הבדיקה." },
     ],
     calculator: { label: "מחשבון יכולת רכישה", href: "/calculators/affordability" },
-    related: ["pre-approval-guide", "mortgage-documents-guide", "bank-tender-guide"],
+    related: ["pre-approval-explained", "documents-checklist", "bank-auction-guide"],
     sources: [
       { label: "בנק ישראל, רפורמת השקיפות והתחרות במשכנתאות", url: BOI_MORTGAGE_REFORM },
     ],
@@ -137,7 +137,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "האם הלוואה לרכב פוגעת ביכולת המשכנתא?", a: "כן, תשלום חודשי קבוע על הלוואה מצמצם את ההכנסה הפנויה שהבנק יכול לייחס להחזר המשכנתא." },
     ],
     calculator: { label: "מחשבון יכולת רכישה", href: "/calculators/affordability" },
-    related: ["first-mortgage-guide", "mortgage-payment-ratio", "pre-approval-guide"],
+    related: ["first-mortgage-guide", "mortgage-payment-ratio", "pre-approval-explained"],
     sources: [
       { label: "בנק ישראל, רפורמת השקיפות והתחרות במשכנתאות", url: BOI_MORTGAGE_REFORM },
       { label: "בנק ישראל, דוחות אשראי לדיור", url: BOI_HOUSING_REPORT },
@@ -195,7 +195,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "האם כדאי לקחת החזר נמוך ולהאריך תקופה?", a: "זה מקל תזרים אבל בדרך כלל מגדיל את סך הריבית. צריך להשוות גם עלות כוללת, לא רק תשלום חודשי." },
     ],
     calculator: { label: "מחשבון משכנתא", href: "/mortgage-calculator" },
-    related: ["how-much-mortgage-by-income-2027", "mortgage-term-30-years", "first-mortgage-guide"],
+    related: ["how-much-mortgage-by-income-2027", "mix-guide", "first-mortgage-guide"],
     sources: [
       { label: "בנק ישראל, רפורמת השקיפות והתחרות במשכנתאות", url: BOI_MORTGAGE_REFORM },
     ],
@@ -262,7 +262,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "איך משווים בין שני בנקים?", a: "מבקשים מהם לתמחר מבנה זהה ככל האפשר, ואז משווים ריבית, החזר, עלות כוללת וסיכון." },
     ],
     calculator: { label: "השוואת תמהילים", href: "/calculators/mix" },
-    related: ["bank-tender-guide", "mortgage-mix-guide", "what-is-prime-rate"],
+    related: ["bank-auction-guide", "mix-guide", "prime-track-explained"],
     sources: [
       { label: "בנק ישראל, הריבית הממוצעת על משכנתאות", url: BOI_MORTGAGE_RATES },
       { label: "בנק ישראל, ביצועים וריביות באשראי לדיור", url: BOI_HOUSING_XLS },
@@ -322,7 +322,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "למה צריך להשאיר כסף בצד?", a: "כדי לכסות הוצאות עסקה ולהימנע ממצב שבו כל הנזילות נעלמת ביום הרכישה." },
     ],
     calculator: { label: "מחשבון יכולת רכישה", href: "/calculators/affordability" },
-    related: ["first-mortgage-guide", "how-much-mortgage-by-income-2027", "pre-approval-guide"],
+    related: ["first-mortgage-guide", "how-much-mortgage-by-income-2027", "pre-approval-explained"],
     sources: [
       { label: "בנק ישראל, מגבלות שיעור מימון והסבר על LTV", url: BOI_MORTGAGE_REFORM },
     ],
@@ -381,7 +381,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "האם נכס טוב מבטיח אישור?", a: "לא. גם אם הנכס מתאים, הבנק צריך להשתכנע שהלווים יכולים לעמוד בהחזר." },
       { q: "האם אישור עקרוני הוא אישור סופי?", a: "לא. הוא כפוף לנכונות המידע ולהשלמת הבדיקות והמסמכים הנדרשים." },
     ],
-    related: ["pre-approval-guide", "mortgage-documents-guide", "how-much-mortgage-by-income-2027"],
+    related: ["pre-approval-explained", "documents-checklist", "how-much-mortgage-by-income-2027"],
     sources: [
       { label: "בנק ישראל, רפורמת השקיפות והתחרות במשכנתאות", url: BOI_MORTGAGE_REFORM },
     ],
@@ -442,7 +442,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "האם כדאי להראות לבנק הצעה מתחרה?", a: "כן. הצעה קונקרטית יכולה לחדד את המו"מ ולתת לבנק יעד לשיפור." },
     ],
     calculator: { label: "השוואת תמהילים", href: "/calculators/mix" },
-    related: ["bank-tender-guide", "mortgage-rates-israel-2027", "mortgage-mix-guide"],
+    related: ["bank-auction-guide", "mortgage-rates-israel-2027", "mix-guide"],
     sources: [
       { label: "בנק ישראל, נתוני ביצועים וריביות באשראי לדיור", url: BOI_HOUSING_XLS },
     ],
@@ -501,7 +501,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "אפשר לשלוח מסמכים בוואטסאפ?", a: "מבחינת אבטחת מידע עדיף להשתמש באזור העלאה מאובטח ולא להעביר מסמכים פיננסיים רגישים בצ'אט אישי." },
       { q: "מה קורה אם חסר מסמך?", a: "הבנק או הגורם המטפל יבקש השלמה, ולכן כדאי לזהות חסרים לפני שהבקשה נכנסת לסבב בדיקה." },
     ],
-    related: ["mortgage-documents-guide", "fastest-way-to-get-mortgage-2027", "pre-approval-guide"],
+    related: ["documents-checklist", "fastest-way-to-get-mortgage-2027", "pre-approval-explained"],
     sources: [
       { label: "בנק ישראל, מידע לציבור על תהליך משכנתא ואישור עקרוני", url: BOI_MORTGAGE_REFORM },
     ],
