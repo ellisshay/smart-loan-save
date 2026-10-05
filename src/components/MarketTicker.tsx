@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Item {
   label: string;
@@ -16,6 +17,7 @@ const STATIC_ITEMS: Item[] = [
 ];
 
 const fmt = (n: number, d = 3) => n.toLocaleString("he-IL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const percent = (n: number | null | undefined) => typeof n === "number" ? `${n.toFixed(2)}%` : "-";
 
 export default function MarketTicker() {
   const [live, setLive] = useState<Item[]>([
@@ -24,9 +26,37 @@ export default function MarketTicker() {
     { label: "אירו / דולר", value: "-" },
     { label: "ביטקוין / דולר", value: "-" },
   ]);
+  const [rates, setRates] = useState<Item[]>([
+    { label: "ריבית בנק ישראל", value: "-" },
+    { label: "ריבית פריים", value: "-" },
+    { label: "קבועה לא צמודה", value: "-", note: "ממוצע" },
+    { label: "קבועה צמודה", value: "-", note: "ממוצע" },
+    { label: "משתנה כל 5", value: "-", note: "ממוצע" },
+  ]);
 
   useEffect(() => {
     const load = async () => {
+      const { data: marketRates } = await supabase
+        .from("market_rates")
+        .select("prime, fixed_not_linked, fixed_linked, variable_5, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (marketRates) {
+        const updated = marketRates.updated_at
+          ? new Date(marketRates.updated_at).toLocaleDateString("he-IL")
+          : undefined;
+        setRates([
+          { label: "ריבית בנק ישראל", value: percent(Number(marketRates.prime) - 1.5) },
+          { label: "ריבית פריים", value: percent(Number(marketRates.prime)) },
+          { label: "קבועה לא צמודה", value: percent(Number(marketRates.fixed_not_linked)), note: "ממוצע" },
+          { label: "קבועה צמודה", value: percent(Number(marketRates.fixed_linked)), note: "ממוצע" },
+          { label: "משתנה כל 5", value: percent(Number(marketRates.variable_5)), note: "ממוצע" },
+          ...(updated ? [{ label: "עדכון ריביות", value: updated }] : []),
+        ]);
+      }
+
       try {
         const [fx, fxPrev, btc] = await Promise.all([
           fetch("https://api.frankfurter.dev/v1/latest?from=USD&to=ILS,EUR").then((r) => r.json()),
@@ -53,7 +83,7 @@ export default function MarketTicker() {
     return () => clearInterval(id);
   }, []);
 
-  const items = [...STATIC_ITEMS.slice(0, 1), ...live.slice(0, 3), ...STATIC_ITEMS.slice(1), live[3]];
+  const items = [...rates, ...STATIC_ITEMS.slice(0, 1), ...live.slice(0, 3), ...STATIC_ITEMS.slice(1), live[3]];
   const row = (key: string) => (
     <div key={key} className="flex shrink-0 items-center">
       {items.map((it, i) => (
