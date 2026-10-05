@@ -3,7 +3,7 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import Seo from "@/components/seo/Seo";
 import { SITE_URL, organizationSchema } from "@/seo/config";
 import { motion } from "framer-motion";
-import { ChevronLeft, Clock, CalendarDays, User, ListChecks, Calculator, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Clock, CalendarDays, User, ListChecks, Calculator, CheckCircle2, ExternalLink, ShieldCheck } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -288,6 +288,34 @@ const KnowledgeArticlePage = () => {
                   <Link to={article.calculator.href}>
                     <Button variant="cta">{article.calculator.label}</Button>
                   </Link>
+                </section>
+              )}
+
+              {/* Authoritative sources */}
+              {article.sources && article.sources.length > 0 && (
+                <section className="rounded-2xl border border-border bg-secondary/35 p-5 md:p-6 mb-10" dir="rtl">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ShieldCheck size={18} className="text-primary" />
+                    <h2 className="font-display font-bold text-lg text-foreground">מקורות רשמיים ועדכונים</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    נתונים רגולטוריים וריביות משתנים לאורך זמן. כשמופיע נתון שמתעדכן, המקור הרשמי גובר על דוגמאות מספריות במאמר.
+                  </p>
+                  <ul className="space-y-2.5">
+                    {article.sources.map((source) => (
+                      <li key={source.url}>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm text-primary hover:underline underline-offset-4"
+                        >
+                          <ExternalLink size={14} />
+                          {source.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </section>
               )}
 
