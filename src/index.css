@@ -224,3 +224,8 @@
 @keyframes spin-slow { to { transform: rotateY(360deg); } }
 .animate-spin-3d { animation: spin-slow 18s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .animate-ticker, .animate-float-3d, .animate-spin-3d { animation: none; } }
+
+/* Hide Lovable branding on production site */
+#lovable-badge {
+  display: none !important;
+}
