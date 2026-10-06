@@ -134,6 +134,37 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
     const next = currentStep + 1;
     const ok = await saveDraft(stepKey, stepData, next);
     if (!ok) return;
+
+    // Keep refinance tracks in a normalized table as well as intake_data.
+    // This powers analytics, bank-tender comparisons and future learning from actual outcomes.
+    if (stepKey === "current_mortgage" && caseId && Array.isArray(stepData?.tracks)) {
+      try {
+        await supabase.from("case_tracks").delete().eq("case_id", caseId);
+        const rows = stepData.tracks
+          .filter((t: any) => Number(t.principalBalance) > 0)
+          .map((t: any) => ({
+            case_id: caseId,
+            track_type: t.trackType,
+            principal_balance: Number(t.principalBalance) || 0,
+            interest_rate: Number(t.interestRate) || 0,
+            remaining_years: Number(t.remainingYears) || 0,
+            is_indexed: t.isIndexed === "yes",
+            exit_date: t.exitDate || null,
+            exit_penalty: Number(t.exitPenalty) || 0,
+          }));
+        if (rows.length) {
+          const { error: tracksError } = await supabase.from("case_tracks").insert(rows);
+          if (tracksError) throw tracksError;
+        }
+      } catch (tracksError) {
+        console.error("Could not sync refinance tracks:", tracksError);
+        toast({
+          title: "פרטי המשכנתא נשמרו",
+          description: "חלק מנתוני המסלולים ייבדקו שוב מהדוח שתעלה בהמשך.",
+        });
+      }
+    }
+
     fireWebhook("intake_step_completed", caseId!, { step: stepKey }).catch(console.error);
     setCurrentStep(next);
   };
