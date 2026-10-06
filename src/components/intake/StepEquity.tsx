@@ -53,15 +53,10 @@ export default function StepEquity({ defaultValues, suggestedAmount = 0, onNext,
       </div>
 
       <div className="space-y-5">
-        <div>
-          <Label className="text-sm font-medium mb-1.5 block">סך הון עצמי זמין (₪) *</Label>
-          <Input
-            type="number"
-            dir="ltr"
-            value={data.amount || ""}
-            onChange={(e) => setData((cur) => ({ ...cur, amount: Number(e.target.value) }))}
-            placeholder="500000"
-          />
+        <div className="rounded-xl bg-muted/40 border border-border p-4">
+          <span className="text-xs text-muted-foreground block">הון עצמי שציינתם בשלב הנכס</span>
+          <span className="font-display text-2xl font-black text-foreground">₪{Number(data.amount || 0).toLocaleString()}</span>
+          <p className="text-xs text-muted-foreground mt-1">לשינוי הסכום חזרו לשלב "נכס ועסקה", כדי שסכום המשכנתא ואחוז המימון יתעדכנו יחד.</p>
         </div>
 
         <div>
