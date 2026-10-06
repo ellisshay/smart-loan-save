@@ -14,7 +14,6 @@ import {
   BadgeCheck, Timer, Gavel, Laptop,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
-import EnhancedTestimonials from "@/components/home/EnhancedTestimonials";
 import BankLogosSection from "@/components/home/BankLogosSection";
 import SmartAssessment from "@/components/home/SmartAssessment";
 import { QuizData } from "@/types/quiz";
@@ -23,7 +22,7 @@ import heroHouse from "@/assets/hero-house.jpg";
 // ─── Trust strip ───
 const trustItems = [
   { icon: BadgeCheck, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצועי מקצה לקצה" },
-  { icon: Timer, title: "עד 72 שעות", desc: "לקבלת הצעות ראשונות" },
+  { icon: Timer, title: "עד 72 שעות", desc: "לטיפול מקצועי מרגע שהתיק מלא ושולם" },
   { icon: Gavel, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך" },
   { icon: Laptop, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין" },
 ];
@@ -55,8 +54,8 @@ const painCards = [
 // ─── FAQ Data ───
 const faqItems = [
   { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים, בלי הפתעות." },
-  { q: "האם המסמכים שלי מאובטחים?", a: "כל המסמכים מוצפנים ומאוחסנים בשרת מאובטח. SSL 256-bit." },
-  { q: "כמה זמן לוקח לקבל הצעה?", a: "לאחר השלמת הפרופיל, עד 72 שעות לקבלת הצעות ראשונות." },
+  { q: "האם המסמכים שלי מאובטחים?", a: "המסמכים נשמרים באחסון פרטי עם בקרת הרשאות, ונגישים רק למשתמש ולצוות מורשה לפי הצורך." },
+  { q: "מה מתחייבים בתוך 72 שעות?", a: "חלון ה-72 שעות הוא זמן הטיפול המקצועי שלנו מרגע שהתיק מלא ושולם. זמני האישור והמענה של הבנקים אינם בשליטת EasyMorte." },
   { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל הצעה או לא לבחור. ללא מחויבות." },
   { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EASY MORTE מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
 ];
@@ -199,8 +198,8 @@ export default function HomePage() {
                 <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
-                <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
+                <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
+                <p className="text-xs text-muted-foreground">₪3,450 לתהליך המלא</p>
               </div>
             </motion.div>
           </motion.div>
@@ -213,8 +212,8 @@ export default function HomePage() {
               <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">חיסכון ממוצע</p>
-              <p className="text-xs text-muted-foreground">₪120,000 לאורך חיי המשכנתא</p>
+              <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
+              <p className="text-xs text-muted-foreground">₪3,450 לתהליך המלא</p>
             </div>
           </motion.div>
         </div>
@@ -379,10 +378,7 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* ═══════ Enhanced Testimonials ═══════ */}
-      <EnhancedTestimonials />
-
-      {/* ═══════ Bank Logos ═══════ */}
+       {/* ═══════ Bank Logos ═══════ */}
       <BankLogosSection />
 
       {/* ═══════ Comparison Section ═══════ */}

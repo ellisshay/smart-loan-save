@@ -7,7 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SUBMISSION_DOC_PROMPT = `אתה עוזר ליועץ משכנתאות מורשה בישראל להכין בקשה למשכנתא.
+const SUBMISSION_DOC_PROMPT = `אתה מסייע לצוות מקצועי להכין טיוטת בקשה למשכנתא להגשה לבנק.
 צור מסמך HTML מקצועי ומסודר שיוגש לבנק.
 המסמך צריך להיות ברור, מקצועי, ולכלול את כל הפרטים שהבנק צריך.
 
@@ -65,6 +65,12 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    const { data: { user } } = token ? await supabase.auth.getUser(token) : { data: { user: null } };
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const { case_id, bank_name } = await req.json();
 
     if (!case_id || !bank_name) {
@@ -86,6 +92,16 @@ serve(async (req) => {
         JSON.stringify({ error: "Case not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    const [{ data: profileRole }, { data: roleRows }] = await Promise.all([
+      supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+    ]);
+    const staffRoles = new Set(["admin", "operations", "mortgage_advisor", "supervisor"]);
+    const isStaff = profileRole?.role === "admin" || (roleRows || []).some((r: any) => staffRoles.has(String(r.role)));
+    if (caseData.user_id !== user.id && !isStaff) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const { data: profile } = await supabase

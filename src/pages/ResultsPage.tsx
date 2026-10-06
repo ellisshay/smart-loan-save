@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle, AlertTriangle, Download, ArrowLeft, MessageCircle,
-  Shield, TrendingUp, Home, Percent, Clock, Users, Lightbulb, BarChart3,
+  Shield, TrendingUp, Home, Percent, Lightbulb, BarChart3,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AnalysisLoadingScreen from "@/components/results/AnalysisLoadingScreen";
@@ -125,29 +125,6 @@ function ScoreCircle({ score }: { score: number }) {
   );
 }
 
-function CountdownTimer() {
-  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
-  useEffect(() => {
-    const regTime = localStorage.getItem("easymort_reg_time");
-    const deadline = regTime ? new Date(new Date(regTime).getTime() + 48 * 3600000) : new Date(Date.now() + 48 * 3600000);
-    const tick = () => {
-      const diff = Math.max(0, deadline.getTime() - Date.now());
-      setTimeLeft({ hours: Math.floor(diff / 3600000), minutes: Math.floor((diff % 3600000) / 60000), seconds: Math.floor((diff % 60000) / 1000) });
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, []);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return (
-    <div className="flex items-center justify-center gap-1 text-sm font-mono">
-      <Clock className="h-4 w-4" />
-      <span>מחיר זה תקף עוד: </span>
-      <span className="font-bold">{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}</span>
-    </div>
-  );
-}
-
 const breakdownLabels: Record<string, { label: string; icon: React.ElementType }> = {
   income_stability: { label: "יציבות תעסוקה", icon: TrendingUp },
   ltv_quality: { label: "איכות LTV", icon: Home },
@@ -246,7 +223,6 @@ export default function ResultsPage() {
   const { score, score_label, approval_probability, ltv, dti, max_monthly, score_breakdown, mixes, insights, existing_offer_comparison, strengths, red_flags, urgency_note, advisor_summary, recommended_banks } = analysis;
 
   const whatsappMsg = encodeURIComponent("שלום, סיימתי ניתוח AI ב-EASY MORTE ורוצה לשמוע על שלב ההגשה");
-  const socialProofCount = 8 + (new Date().getDay() * 2) + Math.floor(new Date().getHours() / 6);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -316,7 +292,7 @@ export default function ResultsPage() {
         {mixes?.length > 0 && (
           <motion.section className="space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
             <h2 className="text-lg font-bold">3 תמהילים מותאמים אישית לפרופיל שלך</h2>
-            <p className="text-sm text-muted-foreground">בנויים לפי ריביות שוק אפריל 2026 ודרישות בנק ישראל</p>
+            <p className="text-sm text-muted-foreground">מבוססים על נתוני הריבית השמורים במערכת במועד הניתוח ועל כללי בנק ישראל. לפני הגשה לבנק התמהיל עובר בדיקה מקצועית.</p>
 
             {/* Mobile tabs */}
             <div className="flex gap-2 md:hidden overflow-x-auto pb-2">
@@ -557,16 +533,11 @@ export default function ResultsPage() {
               </p>
             )}
 
-            <div className="flex items-center justify-center gap-2 text-sm bg-white/10 rounded-lg py-2 px-3">
-              <Users className="h-4 w-4 text-destructive" />
-              <span>{socialProofCount} לקוחות עם ציון דומה הזמינו שירות מלא השבוע</span>
-            </div>
-
             <div className="space-y-2">
               {[
-                "יועץ אישי שולח ל-3 בנקים במקביל",
-                "מכרז ריביות, הבנקים מתחרים",
-                "ממוצע חיסכון: ₪32,000",
+                "בדיקה מקצועית של הנתונים והתמהיל לפני הגשה",
+                "הגשה מסודרת לעד 3 בנקים רלוונטיים לתיק",
+                "השוואת הצעות ומשא ומתן על בסיס אותן דרישות",
               ].map((point, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <CheckCircle className="h-4 w-4 text-[hsl(var(--success))] shrink-0" />
@@ -575,38 +546,28 @@ export default function ResultsPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center bg-white/10 rounded-lg py-3">
+            <div className="grid grid-cols-2 gap-2 text-center bg-white/10 rounded-lg py-3">
               <div>
-                <p className="text-xs opacity-60">עלות</p>
+                <p className="text-xs opacity-60">מחיר קבוע</p>
                 <p className="font-bold">₪3,450</p>
               </div>
               <div>
-                <p className="text-xs opacity-60">ממוצע חיסכון</p>
-                <p className="font-bold text-[hsl(var(--success))]">₪32,000</p>
-              </div>
-              <div>
-                <p className="text-xs opacity-60">ROI</p>
-                <p className="font-bold text-[hsl(var(--gold))]">9X</p>
+                <p className="text-xs opacity-60">תחילת SLA</p>
+                <p className="font-bold">לאחר תשלום + תיק מלא</p>
               </div>
             </div>
 
             <div className="text-center space-y-1">
               <p className="text-3xl font-black">₪3,450</p>
-              <p className="text-sm line-through opacity-50">₪5,000</p>
-            </div>
-
-            <div className="bg-white/10 rounded-lg py-2">
-              <CountdownTimer />
+              <p className="text-sm opacity-60">תשלום חד פעמי</p>
             </div>
 
             <Button
               size="lg"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base"
-              onClick={() => {
-                window.open(`https://secure.tranzila.com/ttxellisshay/iframed.php?sum=3450&currency=1&cred_type=1&success_url=${encodeURIComponent(window.location.origin + "/dashboard")}`, "_blank");
-              }}
+              onClick={() => navigate("/dashboard/payment")}
             >
-              אני רוצה את ההצעה הטובה ביותר, ₪3,450 ←
+              המשך לפתיחת תיק מלא, ₪3,450 ←
             </Button>
 
             <div className="text-center">

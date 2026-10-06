@@ -8,7 +8,7 @@ import { Shield, FileText, Lock } from "lucide-react";
 import SignaturePad from "./SignaturePad";
 
 interface Props {
-  onNext: (data: { fullName: string; date: string; signature: string; signedAt: string }) => void;
+  onNext: (data: { fullName: string; date: string; signature: string; signedAt: string; termsAccepted: true; privacyAccepted: true; dataUsageAccepted: true }) => void;
   onBack: () => void;
 }
 
@@ -91,7 +91,15 @@ export default function StepConsent({ onNext, onBack }: Props) {
           variant="cta"
           size="lg"
           disabled={!allAccepted}
-          onClick={() => onNext({ fullName, date, signature: signature!, signedAt: new Date().toISOString() })}
+          onClick={() => onNext({
+            fullName,
+            date,
+            signature: signature!,
+            signedAt: new Date().toISOString(),
+            termsAccepted: true,
+            privacyAccepted: true,
+            dataUsageAccepted: true,
+          })}
         >
           שמור והמשך ←
         </Button>

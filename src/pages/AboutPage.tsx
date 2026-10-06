@@ -18,7 +18,7 @@ const values = [
   {
     icon: TrendingDown,
     title: "חיסכון אמיתי",
-    desc: "הלקוחות שלנו חוסכים בממוצע ₪847,000 על פני חיי המשכנתא.",
+    desc: "אנחנו בוחנים את העלות הכוללת, התמהיל והסיכון, ולא מסתפקים בריבית אחת או בהחזר הראשון.",
   },
   {
     icon: Shield,
@@ -92,31 +92,6 @@ export default function AboutPage() {
                   <h3 className="font-display font-bold text-lg text-foreground mb-1">{v.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Numbers */}
-      <section className="py-16 bg-muted/50">
-        <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { value: "4,200+", label: "לקוחות מרוצים" },
-              { value: "₪847K", label: "חיסכון ממוצע" },
-              { value: "15+", label: "שנות ניסיון" },
-              { value: "98%", label: "שביעות רצון" },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div className="font-display text-3xl font-black text-foreground">{stat.value}</div>
-                <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
               </motion.div>
             ))}
           </div>

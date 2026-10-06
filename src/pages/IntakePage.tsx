@@ -19,6 +19,9 @@ import StepPreferences from "@/components/intake/StepPreferences";
 import StepDocuments from "@/components/intake/StepDocuments";
 import StepConsent from "@/components/intake/StepConsent";
 import StepSummary from "@/components/intake/StepSummary";
+import StepEquity from "@/components/intake/StepEquity";
+import StepMortgageRequest from "@/components/intake/StepMortgageRequest";
+import StepDeclarations from "@/components/intake/StepDeclarations";
 import StepRefiGoal from "@/components/intake/StepRefiGoal";
 import StepCurrentMortgage from "@/components/intake/StepCurrentMortgage";
 import StepRefiProperty from "@/components/intake/StepRefiProperty";
@@ -206,7 +209,7 @@ function IntakeFormFlow({
     }
     let missing = 0;
     try {
-      missing = await countMissingDocs(caseId, caseType);
+      missing = await countMissingDocs(caseId, caseType, { deferredCountsAsComplete: false });
     } catch (e) {
       console.error(e);
     }
@@ -261,14 +264,17 @@ function IntakeFormFlow({
       switch (stepKey) {
         case "personal": return <StepPersonal defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} saving={saving} />;
         case "property": return <StepProperty defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
+        case "equity": return <StepEquity defaultValues={defaults} suggestedAmount={intakeData.property?.ownEquity || 0} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
+        case "mortgage_request": return <StepMortgageRequest defaultValues={defaults} suggestedAmount={intakeData.property?.requestedMortgage || 0} suggestedMaxPayment={intakeData.liabilities?.maxDesiredPayment || 0} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "preferences": return <StepPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
+        case "declarations": return <StepDeclarations defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
+        case "declarations": return <StepDeclarations defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;
 
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
-        // New steps (equity, mortgage_request, declarations) - pass through for now
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }
     } else {

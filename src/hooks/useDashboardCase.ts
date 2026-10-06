@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { countMissingDocs } from "@/lib/docsComplete";
 
 export function useDashboardCase() {
   const navigate = useNavigate();
@@ -51,13 +50,16 @@ export function useDashboardCase() {
       if (stepKey === "personal") {
         supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "case_opened" } }).catch(console.error);
       }
-      const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
-      if (!intakeComplete && keys.every((k) => updated[k] && Object.keys(updated[k]).length > 0) && (await countMissingDocs(caseId, caseType)) === 0) {
+      const requiredKeys = caseType === "refi"
+        ? ["personal", "refi_goal", "current_mortgage", "refi_property", "income", "liabilities", "refi_preferences", "declarations", "consent"]
+        : ["personal", "property", "equity", "income", "liabilities", "mortgage_request", "preferences", "declarations", "consent"];
+      // Documents are deliberately NOT part of intake completion. A customer may pay first
+      // and return with documents later; operational SLA readiness is tracked separately.
+      if (!intakeComplete && requiredKeys.every((k) => updated[k] && Object.keys(updated[k]).length > 0)) {
         const { error: subErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId });
         if (!subErr) {
           setIntakeComplete(true);
           supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
-          supabase.auth.getUser().then(({ data: { user } }) => user && supabase.functions.invoke("generate-financial-score", { body: { user_id: user.id, case_id: caseId } }));
         }
       }
 

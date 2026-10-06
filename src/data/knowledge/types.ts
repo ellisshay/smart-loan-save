@@ -28,6 +28,8 @@ export interface KnowledgeArticle {
   faqs: { q: string; a: string }[];
   calculator?: { label: string; href: string };
   related: string[];
+  /** Authoritative external sources shown at the end of the article. */
+  sources?: { label: string; url: string }[];
 }
 
 export interface CalculatorLink {

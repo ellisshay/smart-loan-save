@@ -5,13 +5,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 type TrackType = "prime" | "fixed_nl" | "fixed_l" | "var5" | "var_l";
-const TYPES: Record<TrackType, { label: string; market: number }> = {
-  prime: { label: "פריים", market: 5.0 },
-  fixed_nl: { label: "קבועה לא צמודה", market: 4.9 },
-  fixed_l: { label: "קבועה צמודה", market: 3.4 },
-  var5: { label: "משתנה כל 5 לא צמודה", market: 4.8 },
-  var_l: { label: "משתנה כל 5 צמודה", market: 3.3 },
+const TYPES: Record<TrackType, { label: string; rateKey: string | null }> = {
+  prime: { label: "פריים", rateKey: "prime" },
+  fixed_nl: { label: "קבועה לא צמודה", rateKey: "fixed_not_linked" },
+  fixed_l: { label: "קבועה צמודה", rateKey: "fixed_linked" },
+  var5: { label: "משתנה כל 5 לא צמודה", rateKey: "variable_5" },
+  var_l: { label: "משתנה כל 5 צמודה", rateKey: null },
 };
+
+interface MarketRates {
+  prime?: number;
+  fixed_not_linked?: number;
+  fixed_linked?: number;
+  variable_5?: number;
+  updated_at?: string;
+  source?: string;
+}
 interface Track { type: TrackType; balance: number; rate: number; years: number }
 
 const BANKS = [
@@ -29,13 +38,17 @@ const pmt = (b: number, r: number, y: number) => {
 };
 const nis = (v: number) => `${Math.round(v).toLocaleString("he-IL")} ₪`;
 
-function analyze(t: Track) {
-  const market = TYPES[t.type].market;
+function analyze(t: Track, rates: MarketRates | null) {
+  const key = TYPES[t.type].rateKey;
+  const market = key && rates ? Number((rates as any)[key]) : 0;
+  if (!market || !t.rate || !t.balance || !t.years) {
+    return { color: "bg-muted-foreground", tone: "text-muted-foreground", label: "נדרשים עוד נתונים", gap: null as number | null, saving: 0 };
+  }
   const gap = t.rate - market;
-  const saving = t.balance > 0 && t.years > 0 ? Math.max(0, pmt(t.balance, t.rate, t.years) - pmt(t.balance, market, t.years)) : 0;
-  if (gap >= 0.8) return { color: "bg-destructive", tone: "text-destructive", label: "מומלץ לשקול מחזור", gap, saving };
-  if (gap >= 0.3) return { color: "bg-warning", tone: "text-warning", label: "כדאי לבדוק תיקון בבנק", gap, saving };
-  return { color: "bg-success", tone: "text-success", label: "מסלול טוב – להשאיר", gap, saving };
+  const saving = Math.max(0, pmt(t.balance, t.rate, t.years) - pmt(t.balance, market, t.years));
+  if (gap >= 0.8) return { color: "bg-destructive", tone: "text-destructive", label: "פוטנציאל משמעותי לבדיקה", gap, saving };
+  if (gap >= 0.3) return { color: "bg-warning", tone: "text-warning", label: "כדאי לבדוק", gap, saving };
+  return { color: "bg-success", tone: "text-success", label: "נראה יעיל כרגע", gap, saving };
 }
 
 export default function MortgageCheckPage() {
@@ -44,6 +57,7 @@ export default function MortgageCheckPage() {
   const [show, setShow] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [parseMsg, setParseMsg] = useState("");
+  const [marketRates, setMarketRates] = useState<MarketRates | null>(null);
 
   const onFile = async (f: File) => {
     if (f.size > 8 * 1024 * 1024) return setParseMsg("הקובץ גדול מ-8MB");
@@ -67,6 +81,12 @@ export default function MortgageCheckPage() {
   };
 
   useEffect(() => {
+    supabase.from("market_rates").select("prime,fixed_not_linked,fixed_linked,variable_5,updated_at,source")
+      .order("updated_at", { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => setMarketRates((data as MarketRates | null) ?? null));
+  }, []);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setLoggedIn(!!s));
     return () => sub.subscription.unsubscribe();
@@ -74,7 +94,7 @@ export default function MortgageCheckPage() {
 
   const upd = (i: number, k: keyof Track, v: string) =>
     setTracks((ts) => ts.map((t, j) => (j === i ? { ...t, [k]: k === "type" ? v : Number(v) } : t)));
-  const results = tracks.map(analyze);
+  const results = tracks.map((t) => analyze(t, marketRates));
   const total = results.reduce((a, r) => a + r.saving, 0);
   const input = "w-full h-10 rounded-lg border border-input bg-background px-3 text-sm";
 
@@ -126,13 +146,18 @@ export default function MortgageCheckPage() {
 
       {show && (loggedIn ? (
         <section className="bg-card border border-border rounded-2xl p-5 md:p-7 space-y-4">
-          <h2 className="font-display text-xl font-bold text-foreground">ההמלצה שלכם</h2>
+          <h2 className="font-display text-xl font-bold text-foreground">הבדיקה הראשונית שלכם</h2>
+          <p className="text-xs text-muted-foreground">
+            ההשוואה משתמשת בנתוני הריבית השמורים במערכת{marketRates?.updated_at ? `, שעודכנו ב-${new Date(marketRates.updated_at).toLocaleDateString("he-IL")}` : ""}. זו נקודת ייחוס בלבד ולא הצעת בנק.
+          </p>
           {tracks.map((t, i) => (
             <div key={i} className="flex items-center gap-3 border-b border-border pb-3">
               <span className={`w-3 h-3 rounded-full ${results[i].color}`} aria-hidden="true" />
               <div className="flex-1">
                 <p className="font-bold text-foreground">{TYPES[t.type].label} · {nis(t.balance)}</p>
-                <p className="text-xs text-muted-foreground">פער מול ריבית שוק משוערת: {results[i].gap.toFixed(2)}%</p>
+                <p className="text-xs text-muted-foreground">
+                  {results[i].gap === null ? "אין כרגע נתון השוואה אמין למסלול הזה" : `פער מול נתון הייחוס במערכת: ${results[i].gap.toFixed(2)}%`}
+                </p>
               </div>
               <div className="text-left">
                 <p className={`font-bold text-sm ${results[i].tone}`}>{results[i].label}</p>
@@ -141,7 +166,7 @@ export default function MortgageCheckPage() {
             </div>
           ))}
           <p className="font-display font-bold text-lg text-foreground">חיסכון חודשי משוער: {nis(total)}</p>
-          <p className="text-xs text-muted-foreground">ההערכה אינה כוללת עמלות פירעון מוקדם ואינה מהווה הצעה מחייבת. בדיקה מלאה מתבצעת לפי דוח היתרות המקורי.</p>
+          <p className="text-xs text-muted-foreground">זו בדיקה אוטומטית ראשונית בלבד. היא אינה כוללת בהכרח עמלת פירעון מוקדם, הצמדה, תחנות שינוי, עלויות מעבר או שינויים עתידיים בריבית ואינה מהווה ייעוץ או הצעת בנק. לפני ביצוע מחזור נדרשת בדיקה מקצועית של דוח היתרות המלא.</p>
           {total > 0 && (
             <div className="rounded-xl bg-primary/10 p-4 space-y-3">
               <p className="font-bold text-foreground">זיהינו פוטנציאל לשיפור – רוצים שנבנה חלופת מחזור ונוציא את הבנקים למכרז?</p>

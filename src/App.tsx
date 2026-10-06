@@ -33,14 +33,12 @@ const AboutPage = lazy(() => import("./pages/AboutPage"));
 const HowItWorksPage = lazy(() => import("./pages/HowItWorksPage"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
-const ForAdvisorsPage = lazy(() => import("./pages/ForAdvisorsPage"));
 const ArticlePage = lazy(() => import("./pages/ArticlePage"));
 const KnowledgeHub = lazy(() => import("./pages/KnowledgeHub"));
 const KnowledgeArticlePage = lazy(() => import("./pages/KnowledgeArticle"));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const IntakePage = lazy(() => import("./pages/IntakePage"));
 const IntakeSuccessPage = lazy(() => import("./pages/IntakeSuccessPage"));
-const MixSelectionPage = lazy(() => import("./pages/MixSelectionPage"));
 const MyCasesPage = lazy(() => import("./pages/MyCasesPage"));
 const DashboardHome = lazy(() => import("./pages/dashboard/DashboardHome"));
 const DashboardStatus = lazy(() => import("./pages/dashboard/DashboardStatus"));
@@ -128,7 +126,6 @@ export const AppRoutes = () => (
         <Route path="/intake" element={<Layout><ConsentGate><IntakePage /></ConsentGate></Layout>} />
         <Route path="/results" element={<ResultsPage />} />
         <Route path="/intake/success" element={<Layout><IntakeSuccessPage /></Layout>} />
-        <Route path="/mix-selection/:caseId" element={<MixSelectionPage />} />
 
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -167,7 +164,7 @@ export const AppRoutes = () => (
         <Route path="/knowledge" element={<Layout><KnowledgeHub /></Layout>} />
         <Route path="/knowledge/:slug" element={<Layout><KnowledgeArticlePage /></Layout>} />
         <Route path="/blog/:slug" element={<Layout><ArticlePage /></Layout>} />
-        <Route path="/for-advisors" element={<Layout><ForAdvisorsPage /></Layout>} />
+        <Route path="/for-advisors" element={<Navigate to="/" replace />} />
         <Route path="/privacy" element={<Layout><LegalPage page="privacy" /></Layout>} />
         <Route path="/terms" element={<Layout><LegalPage page="terms" /></Layout>} />
         <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
