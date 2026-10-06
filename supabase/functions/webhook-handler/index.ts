@@ -25,7 +25,7 @@ function buildNotifications(
     case "case_created":
       return {
         whatsapp: {
-          body: `שלום ${name} 👋\nהתיק שלך נפתח בהצלחה ב-EasyMorte!\nמספר תיק: ${caseNumber}\nסוג: ${caseType}\n\nהשלם/י את השאלון כדי לקבל הצעות מיועצים מובילים.`,
+          body: `שלום ${name} 👋\nהתיק שלך נפתח בהצלחה ב-EasyMorte!\nמספר תיק: ${caseNumber}\nסוג: ${caseType}\n\nהשלם/י את השאלון כדי להשלים את התיק הדיגיטלי.`,
         },
         email: {
           subject: `התיק שלך נפתח בהצלחה – ${caseNumber}`,
@@ -37,7 +37,7 @@ function buildNotifications(
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">מספר תיק</td><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">${caseNumber}</td></tr>
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">סוג</td><td style="padding:8px;border-bottom:1px solid #eee;">${caseType}</td></tr>
               </table>
-              <p>השלם/י את השאלון כדי לקבל הצעות מיועצים מובילים.</p>
+              <p>השלם/י את השאלון כדי להשלים את התיק הדיגיטלי.</p>
               <a href="https://www.easymorte.co.il/intake" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">המשך לשאלון →</a>
             </div>`,
         },
@@ -46,7 +46,7 @@ function buildNotifications(
     case "case_submitted":
       return {
         whatsapp: {
-          body: `🎉 ${name}, השאלון הושלם בהצלחה!\nתיק ${caseNumber}\n\nהצעד הבא: תשלום דמי ניתוח (₪3,800) והעלאת מסמכים.\nהצוות שלנו יתחיל לעבוד על הניתוח מיד לאחר מכן.`,
+          body: `🎉 ${name}, השאלון הושלם בהצלחה!\nתיק ${caseNumber}\n\nהצעד הבא: תשלום דמי ניתוח (₪3,450) והעלאת מסמכים.\nהצוות שלנו יתחיל לעבוד על הניתוח מיד לאחר מכן.`,
         },
         email: {
           subject: `השאלון הושלם – תיק ${caseNumber}`,
@@ -57,9 +57,9 @@ function buildNotifications(
               <p>כל הפרטים התקבלו עבור תיק <strong>${caseNumber}</strong>.</p>
               <h3>מה הלאה?</h3>
               <ol>
-                <li>תשלום דמי ניתוח (₪3,800)</li>
+                <li>תשלום דמי ניתוח (₪3,450)</li>
                 <li>העלאת מסמכים נדרשים</li>
-                <li>ניתוח מקצועי תוך 48 שעות</li>
+                <li>ניתוח מקצועי תוך 72 שעות</li>
               </ol>
               <a href="https://www.easymorte.co.il/dashboard" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">עבור לדשבורד →</a>
             </div>`,
@@ -87,19 +87,19 @@ function buildNotifications(
     case "lead_created":
       return {
         whatsapp: {
-          body: `📢 ליד חדש ב-EasyMorte!\nאזור: ${data.property_area || "לא צוין"}\nמטרה: ${data.purpose || caseType}\nטווח הכנסה: ${data.income_range || "לא צוין"}\n\nהיכנס לדשבורד היועצים כדי לרכוש את הליד.`,
+          body: `📢 תיק חדש ב-EasyMorte\nאזור: ${data.property_area || "לא צוין"}\nמטרה: ${data.purpose || caseType}\nטווח הכנסה: ${data.income_range || "לא צוין"}\n\nיש לעבור על התיק במערכת התפעול.`,
         },
         email: {
           subject: `ליד חדש זמין – ${data.property_area || caseType}`,
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
-              <h2 style="color:#1a1a2e;">ליד חדש זמין! 📢</h2>
+              <h2 style="color:#1a1a2e;">תיק חדש לטיפול 📢</h2>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">אזור</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.property_area || "לא צוין"}</td></tr>
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">מטרה</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.purpose || caseType}</td></tr>
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">הכנסה</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.income_range || "לא צוין"}</td></tr>
               </table>
-              <a href="https://www.easymorte.co.il/advisor" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">רכוש ליד →</a>
+              <a href="https://www.easymorte.co.il/admin" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">פתח תיק במערכת →</a>
             </div>`,
         },
       };
@@ -130,7 +130,7 @@ function buildNotifications(
     case "payment_succeeded":
       return {
         whatsapp: {
-          body: `✅ ${name}, התשלום עבור תיק ${caseNumber} התקבל בהצלחה!\n\nהצוות שלנו מתחיל בניתוח המקצועי. תוצאות תוך 48 שעות.`,
+          body: `✅ ${name}, התשלום עבור תיק ${caseNumber} התקבל בהצלחה!\n\nאם כל מסמכי החובה כבר הושלמו, חלון הטיפול של עד 72 שעות מתחיל כעת. אם חסרים מסמכים, התשלום נשמר והשעון יתחיל לאחר השלמתם.`,
         },
         email: {
           subject: `התשלום התקבל – תיק ${caseNumber}`,
@@ -139,7 +139,7 @@ function buildNotifications(
               <h2 style="color:#27ae60;">התשלום התקבל בהצלחה ✅</h2>
               <p>שלום ${name},</p>
               <p>התשלום עבור תיק <strong>${caseNumber}</strong> התקבל.</p>
-              <p>הצוות שלנו מתחיל בניתוח המקצועי. תקבל/י תוצאות תוך <strong>48 שעות</strong>.</p>
+              <p>אם כל מסמכי החובה כבר הושלמו, חלון הטיפול של עד <strong>72 שעות</strong> מתחיל כעת. אם חסרים מסמכים, התשלום נשמר והשעון יתחיל לאחר השלמתם.</p>
               <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">מעקב סטטוס →</a>
             </div>`,
         },
@@ -180,6 +180,15 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    const { data: { user } } = token ? await supabase.auth.getUser(token) : { data: { user: null } };
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { event_name, case_id, payload } = await req.json();
 
     if (!event_name || !case_id) {
@@ -197,6 +206,26 @@ serve(async (req) => {
       .single();
 
     // Get profile
+    if (!caseData) {
+      return new Response(JSON.stringify({ error: "Case not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const [{ data: callerProfile }, { data: callerRoles }] = await Promise.all([
+      supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+    ]);
+    const staffRoles = new Set(["admin", "operations", "mortgage_advisor", "supervisor"]);
+    const isStaff = callerProfile?.role === "admin" || (callerRoles || []).some((r: any) => staffRoles.has(String(r.role)));
+    if (caseData.user_id !== user.id && !isStaff) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: profile } = caseData
       ? await supabase
           .from("profiles")
