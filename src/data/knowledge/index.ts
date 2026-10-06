@@ -7,6 +7,7 @@ import { selfEmployedArticles } from "./articles/selfEmployed";
 import { advisorArticles } from "./articles/advisor";
 import { documentsArticles } from "./articles/documents";
 import { bankAuctionArticles } from "./articles/bankAuction";
+import { aiQuestions2027Articles } from "./articles/aiQuestions2027";
 
 export * from "./types";
 export { clusters, getCluster } from "./clusters";
@@ -21,6 +22,7 @@ export const knowledgeArticles: KnowledgeArticle[] = [
   ...advisorArticles,
   ...documentsArticles,
   ...bankAuctionArticles,
+  ...aiQuestions2027Articles,
 ];
 
 export const getArticle = (slug: string): KnowledgeArticle | undefined =>
