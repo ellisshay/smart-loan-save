@@ -1,298 +1,125 @@
-import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  CheckCircle2,
-  Star,
-  Shield,
-  Clock,
-  Users,
-  TrendingDown,
-  Check,
-  X,
-  Zap,
-  CreditCard,
-  Building2,
-  Award,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { CheckCircle2, ShieldCheck, Zap, FileSearch, Landmark, Headphones } from "lucide-react";
 
-/* ── Advisor Plans ── */
-const advisorPlans = [
+const plans = [
   {
-    name: "בסיסי",
-    price: "₪299",
-    period: "לחודש",
-    leads: "5 לידים",
-    features: [
-      "5 לידים בחודש",
-      "גישה לשוק הלידים",
-      "הגשת הצעות ללקוחות",
-      "פרופיל יועץ בסיסי",
-    ],
-    missing: ["הופעה מועדפת", "לידים ללא הגבלה", "תמיכה ייעודית"],
-    featured: false,
-    tier: "basic" as const,
-  },
-  {
-    name: "מקצועי",
-    price: "₪599",
-    period: "לחודש",
-    leads: "15 לידים ⭐",
-    features: [
-      "15 לידים בחודש",
-      "גישה מלאה לשוק הלידים",
-      "הגשת הצעות ללקוחות",
-      "פרופיל יועץ מורחב",
-      "סטטיסטיקות ודוחות",
-      "תמיכה בעדיפות",
-    ],
-    missing: ["הופעה מועדפת"],
-    featured: true,
-    tier: "pro" as const,
-  },
-  {
-    name: "פרימיום",
-    price: "₪999",
-    period: "לחודש",
-    leads: "ללא הגבלה",
-    features: [
-      "לידים ללא הגבלה",
-      "הופעה מועדפת בשוק",
-      "הגשת הצעות ללקוחות",
-      "פרופיל יועץ פרימיום",
-      "סטטיסטיקות מתקדמות",
-      "תמיכה ייעודית 24/7",
-      "באנר מותאם אישית",
-    ],
-    missing: [],
-    featured: false,
-    tier: "premium" as const,
-  },
-];
-
-/* ── Client Plans ── */
-const clientPlans = [
-  {
-    name: "בדיקה בסיסית",
+    name: "בדיקה ראשונית",
     price: "₪0",
-    period: "",
-    desc: "סימולציה ראשונית בלבד",
+    desc: "להבין אם יש טעם להתקדם לפני שמוציאים כסף",
     features: [
-      "מחשבון חיסכון בסיסי",
-      "ציון בזבוז מיידי",
-      "גרף השוואה כללי",
+      "מחשבונים ובדיקות ראשוניות",
+      "בדיקת משכנתא קיימת לפי נתוני התיק",
+      "ללא התחייבות וללא שיחת מכירה חובה",
     ],
-    missing: ["ניתוח דוח יתרות", "שליחה לבנקים", "ליווי אישי"],
+    cta: "בדוק את המשכנתא שלי",
+    href: "/mortgage-check",
     featured: false,
-    tier: "free" as const,
   },
   {
-    name: "תיק פרימיום 72 שעות",
+    name: "EasyMorte מלא",
     price: "₪3,450",
-    period: "חד-פעמי",
-    desc: "ניתוח מקצועי + שליחה לבנקים",
+    desc: "תהליך מקצועי מקצה לקצה במחיר קבוע",
     features: [
-      "ניתוח דוח יתרות אמיתי",
-      "3 תמהילים מותאמים אישית",
-      "דוח PDF מקצועי מלא",
-      "מכרז והשוואה מול עד 3 בנקים",
+      "אינטייק פיננסי מלא ואימות מסמכים",
+      "ניתוח מקצועי ובניית 3 תמהילים",
+      "מכרז והשוואה מול עד 3 בנקים רלוונטיים",
+      "משא ומתן והשוואת הצעות",
+      "אזור אישי ומעקב אחרי התיק",
       "ליווי עד בחירת הצעה והתקדמות מול הבנק",
-      "אזור לקוח אישי",
     ],
-    missing: [],
+    cta: "פתח תיק",
+    href: "/intake",
     featured: true,
-    tier: "premium-client" as const,
   },
 ];
-
-/* ── Advisor comparison rows ── */
-const advisorComparisonRows = [
-  { label: "לידים בחודש", basic: "5", pro: "15", premium: "ללא הגבלה" },
-  { label: "גישה לשוק הלידים", basic: true, pro: true, premium: true },
-  { label: "הגשת הצעות", basic: true, pro: true, premium: true },
-  { label: "סטטיסטיקות", basic: false, pro: true, premium: true },
-  { label: "הופעה מועדפת", basic: false, pro: false, premium: true },
-  { label: "תמיכה ייעודית", basic: false, pro: false, premium: true },
-];
-
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-};
 
 export default function PricingPage() {
   const navigate = useNavigate();
-  const [tab] = useState<"clients">("clients");
-  const [showModal, setShowModal] = useState(false);
-
-  const handleConfirm = () => {
-    setShowModal(false);
-    navigate("/intake");
-  };
 
   return (
-    <section className="py-16 md:py-24 relative" dir="rtl">
+    <main className="py-16 md:py-24 relative" dir="rtl">
       <div className="absolute inset-0 bg-hero" />
       <div className="container max-w-5xl relative z-10">
-        {/* Header */}
-        <motion.div className="text-center mb-8" {...fadeUp}>
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
             תמחור <span className="text-gradient-gold">פשוט ושקוף</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-6">
-            בדיקה ראשונית חינם. התהליך המלא במחיר קבוע ושקוף של ₪3,450.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            מתחילים בחינם. אם רוצים שניקח את התיק עד למכרז בנקים, המחיר הוא 3,450 ₪ חד פעמי.
           </p>
-
         </motion.div>
 
-        {/* Client pricing */}
-        {tab === "clients" && (
-          <>
-            {/* Client plans grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-8">
-              {clientPlans.map((plan, i) => (
-                <motion.div
-                  key={plan.name}
-                  className={`relative bg-card rounded-2xl p-8 shadow-card border-2 transition-all flex flex-col ${
-                    plan.featured
-                      ? "border-gold shadow-gold md:scale-105 z-10"
-                      : "border-transparent"
-                  }`}
-                  {...fadeUp}
-                  transition={{ delay: i * 0.1 }}
-                >
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {plans.map((plan, i) => (
+            <motion.div
+              key={plan.name}
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+            >
+              <Card className={plan.featured ? "border-2 border-gold shadow-gold h-full" : "border border-border h-full"}>
+                <CardContent className="p-7 md:p-8 h-full flex flex-col">
                   {plan.featured && (
-                    <div className="absolute -top-3 right-4 bg-gold-gradient text-accent-foreground text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                      <Star size={12} /> הכי פופולרי
+                    <div className="inline-flex self-start items-center gap-1.5 rounded-full bg-gold/10 text-gold text-xs font-bold px-3 py-1 mb-4">
+                      <Zap size={13} />
+                      השירות המלא
                     </div>
                   )}
+                  <h2 className="font-display text-2xl font-black text-foreground">{plan.name}</h2>
+                  <p className="text-sm text-muted-foreground mt-1 mb-5">{plan.desc}</p>
+                  <div className="font-display text-5xl font-black text-foreground mb-6">{plan.price}</div>
 
-                  <h2 className="font-display text-2xl font-bold text-foreground mb-1">
-                    {plan.name}
-                  </h2>
-                  <p className="text-base text-muted-foreground mb-4">{plan.desc}</p>
-
-                  <div className="font-display text-5xl font-black text-foreground mb-1">
-                    {plan.price}
-                  </div>
-                  {plan.period && (
-                    <p className="text-sm text-muted-foreground mb-6">{plan.period}</p>
-                  )}
-
-                  <ul className="space-y-3 mb-4 flex-1">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                        <CheckCircle2 size={16} className="text-gold shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                    {plan.missing.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground/50">
-                        <X size={16} className="shrink-0" />
-                        {f}
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2.5 text-sm text-foreground">
+                        <CheckCircle2 size={17} className="text-gold shrink-0 mt-0.5" />
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-                  {plan.featured ? (
-                    <Button variant="cta" size="lg" className="w-full" onClick={() => setShowModal(true)}>
-                      התחל עכשיו
-                    </Button>
-                  ) : (
-                    <Link to={plan.tier === "free" ? "/calculators" : "/intake"}>
-                      <Button
-                        variant={plan.tier === "free" ? "ghost" : "outline"}
-                        size={plan.tier === "free" ? "default" : "lg"}
-                        className="w-full"
-                      >
-                        {plan.tier === "free" ? "בדיקה חינמית" : "בחר ליווי מלא"}
-                      </Button>
-                    </Link>
-                  )}
-
-                  {plan.featured && (
-                    <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1">
-                      <Shield size={10} /> תשלום מאובטח · ללא התחייבות להמשך
-                    </p>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Client info */}
-            <motion.div
-              className="mt-10 bg-card border border-gold/20 rounded-xl p-6 max-w-lg mx-auto text-center"
-              {...fadeUp}
-              transition={{ delay: 0.4 }}
-            >
-              <Users size={24} className="text-gold mx-auto mb-2" />
-              <h3 className="font-display text-lg font-bold text-foreground mb-1">
-                הלקוח לא משלם כלום
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                מלא פרופיל, העלה מסמכים, וקבל עד 3 הצעות תחרותיות מיועצים מורשים, בחינם לחלוטין.
-              </p>
+                  <Button
+                    variant={plan.featured ? "cta" : "outline"}
+                    size="lg"
+                    className="w-full"
+                    onClick={() => navigate(plan.href)}
+                  >
+                    {plan.cta}
+                  </Button>
+                </CardContent>
+              </Card>
             </motion.div>
-          </>
-        )}
+          ))}
+        </div>
 
-        {/* Trust badges */}
-        <motion.div
-          className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto"
-          {...fadeUp}
-          transition={{ delay: 0.5 }}
-        >
+        <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-8">
           {[
-            { icon: Users, label: "4,200+ לקוחות" },
-            { icon: TrendingDown, label: "חיסכון ממוצע 84,000 ₪" },
-            { icon: Clock, label: "הצעות תוך 72 שעות" },
-            { icon: Star, label: "98% שביעות רצון" },
-          ].map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-2 justify-center bg-card rounded-xl border border-border p-3"
-            >
-              <Icon size={18} className="text-gold shrink-0" />
-              <span className="text-sm text-foreground">{label}</span>
+            { icon: FileSearch, title: "לא משלמים על סימולציה", text: "אפשר לבדוק ולהבין את הכיוון לפני פתיחת התיק המלא." },
+            { icon: Landmark, title: "לא מוכרים ליד", text: "EasyMorte מנהלת את התהליך ומרכזת את העבודה מול הבנקים." },
+            { icon: Headphones, title: "72 שעות שלנו", text: "ה-SLA מתחיל רק אחרי שהתיק מלא והתשלום התקבל. זמן הבנק עצמו משתנה." },
+          ].map((item) => (
+            <div key={item.title} className="rounded-xl border border-border bg-card/80 p-4">
+              <item.icon size={19} className="text-gold mb-2" />
+              <h3 className="font-bold text-sm text-foreground">{item.title}</h3>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.text}</p>
             </div>
           ))}
-        </motion.div>
+        </div>
 
-        <p className="text-xs text-muted-foreground text-center mt-8 max-w-md mx-auto">
-          המחירים כוללים מע״מ. ניתן לבטל מנוי בכל עת.
-        </p>
+        <div className="max-w-4xl mx-auto mt-8 flex items-start gap-3 rounded-xl bg-card border border-border p-4">
+          <ShieldCheck size={18} className="text-primary shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            תשלום אינו הבטחת אישור או ריבית מסוימת. החלטת האשראי, התנאים וזמני המענה נקבעים על ידי הבנקים.
+          </p>
+        </div>
       </div>
-
-      {/* Client checkout modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-md text-center">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-display">
-              האם תרצה שנבדוק לעומק את הנתונים שלך?
-            </DialogTitle>
-            <DialogDescription className="mt-2">
-              נזהה חיסכון פוטנציאלי אמיתי ונשלח את התוצאות ישירות לבנקים.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 mt-4">
-            <Button variant="cta" size="lg" onClick={handleConfirm}>
-              כן, המשך לבדיקה מלאה
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowModal(false)}>
-              חזור
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </section>
+    </main>
   );
 }
