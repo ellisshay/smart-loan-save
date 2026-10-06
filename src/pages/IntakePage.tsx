@@ -270,7 +270,6 @@ function IntakeFormFlow({
         case "mortgage_request": return <StepMortgageRequest defaultValues={defaults} suggestedAmount={intakeData.property?.requestedMortgage || 0} suggestedMaxPayment={intakeData.liabilities?.maxDesiredPayment || 0} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "preferences": return <StepPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "declarations": return <StepDeclarations defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
-        case "declarations": return <StepDeclarations defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;
 
         case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
