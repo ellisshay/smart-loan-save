@@ -40,13 +40,13 @@ export default function StepMortgageRequest({ defaultValues, suggestedAmount = 0
           <Input {...register("requestedAmount", { valueAsNumber: true })} type="number" dir="ltr" />
         </Field>
         <Field label="החזר חודשי רצוי (₪)">
-          <Input {...register("desiredPayment", { valueAsNumber: true })} type="number" dir="ltr" />
+          <Input {...register("desiredPayment", { setValueAs: (v) => v === "" ? undefined : Number(v) })} type="number" dir="ltr" />
         </Field>
         <Field label="החזר חודשי מקסימלי (₪)">
-          <Input {...register("maxPayment", { valueAsNumber: true })} type="number" dir="ltr" />
+          <Input {...register("maxPayment", { setValueAs: (v) => v === "" ? undefined : Number(v) })} type="number" dir="ltr" />
         </Field>
         <Field label="תקופה רצויה בשנים">
-          <Input {...register("desiredYears", { valueAsNumber: true })} type="number" min={4} max={30} dir="ltr" />
+          <Input {...register("desiredYears", { setValueAs: (v) => v === "" ? undefined : Number(v) })} type="number" min={4} max={30} dir="ltr" />
         </Field>
         <Field label="המטרה המרכזית">
           <select {...register("goal")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
