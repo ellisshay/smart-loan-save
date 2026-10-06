@@ -10,6 +10,8 @@ const DOC_GUIDE: Record<string, string> = {
   id_card_b2: "תעודת זהות של לווה שני. אותן בדיקות.",
   payslips: "תלוש שכר. חלץ ברוטו, נטו, שם מעסיק, מספר ת.ז של העובד וחודש. שים לב שרכיבי שכר משתנים (שעות נוספות, בונוס, עמלות, הבראה, החזר הוצאות) גורמים לשונות חודשית לגיטימית.",
   bank_statements: "דף עובר ושב. זהה הפקדות שכר קבועות, החזרי הלוואות קבועים, חריגות מסגרת והחזרות צקים.",
+  mortgage_report: "דוח יתרות לסילוק / פירוט משכנתא. חלץ בנק, יתרה כוללת, החזר חודשי וכל תת-הלוואה: סוג מסלול, יתרה, ריבית, הצמדה, שנים שנותרו, תחנת שינוי/יציאה ועמלת פירעון אם מופיעה. אין להמציא נתון שאינו מופיע בדוח.",
+  settlement_report: "דוח סילוק למסלול משכנתא. חלץ יתרה, ריבית, הצמדה, תקופה שנותרה, עמלת פירעון מוקדם ותחנת שינוי אם מופיעים.",
 };
 
 const SYSTEM = `אתה מנוע אימות מסמכים פיננסיים לתיק משכנתא בישראל, ופועל כמערכת תומכת החלטה.
@@ -32,6 +34,7 @@ const SYSTEM = `אתה מנוע אימות מסמכים פיננסיים לתי�
  "authenticity": {"status":"authentic"|"suspicious"|"unclear","confidence":0-100,"flags":[string]},
  "extracted": { שדות שחולצו, מספרים בשקלים },
  "detected_loans": [{"description":string,"monthly_amount":number}],
+ "mortgage_tracks": [{"track_type":string,"principal_balance":number,"interest_rate":number,"is_indexed":boolean,"remaining_years":number,"exit_date":string|null,"exit_penalty":number|null}],
  "cross_check": [{"field":string,"declared":string,"extracted":string,"normalized_declared":string,"normalized_extracted":string,"confidence":0-100,"level":"green"|"yellow"|"red","reason":string,"diff_pct":number|null}],
  "summary": "משפט אחד בעברית, ענייני ולא מאשים"
 }
@@ -187,6 +190,34 @@ Deno.serve(async (req) => {
     result.auto_result = { level: result.level, overall: result.overall, at: result.verified_at };
 
     await admin.from("case_documents").update({ ai_extracted_data: result }).eq("id", doc.id);
+
+    // A verified/reviewable payoff-balance report becomes the normalized source of truth
+    // for refinance tracks. This lets later analysis compare each current track separately.
+    if (
+      doc.doc_type === "mortgage_report" &&
+      result.overall !== "rejected" &&
+      Array.isArray(result.mortgage_tracks)
+    ) {
+      const rows = result.mortgage_tracks
+        .map((t: any) => ({
+          case_id: doc.case_id,
+          track_type: String(t.track_type || "other").slice(0, 80),
+          principal_balance: Number(t.principal_balance) || 0,
+          interest_rate: Number(t.interest_rate) || 0,
+          remaining_years: Number(t.remaining_years) || 0,
+          is_indexed: Boolean(t.is_indexed),
+          exit_date: t.exit_date || null,
+          exit_penalty: Number(t.exit_penalty) || 0,
+        }))
+        .filter((t: any) => t.principal_balance > 0);
+
+      if (rows.length) {
+        await admin.from("case_tracks").delete().eq("case_id", doc.case_id);
+        const { error: tracksError } = await admin.from("case_tracks").insert(rows);
+        if (tracksError) console.error("mortgage track sync failed", tracksError);
+      }
+    }
+
     return json({ success: true, result });
   } catch (e) {
     console.error("analyze-document error:", e);
