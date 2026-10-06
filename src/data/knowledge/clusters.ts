@@ -2,6 +2,16 @@ import type { KnowledgeCluster } from "./types";
 
 export const clusters: KnowledgeCluster[] = [
   {
+    id: "smart-questions-2027",
+    label: "השאלות של 2027",
+    description:
+      "תשובות קצרות ומקצועיות לשאלות שאנשים שואלים בגוגל ובמנועי AI על משכנתאות, ריביות, הון עצמי ומהירות התהליך.",
+    calculators: [
+      { label: "מחשבון משכנתא", href: "/mortgage-calculator", desc: "בדקו החזר חודשי, ריבית ועלות כוללת." },
+      { label: "מחשבון יכולת רכישה", href: "/calculators/affordability", desc: "בדקו מהו טווח הרכישה שמתאים להכנסה ולהון העצמי." },
+    ],
+  },
+  {
     id: "first-mortgage",
     label: "משכנתא ראשונה",
     description:
