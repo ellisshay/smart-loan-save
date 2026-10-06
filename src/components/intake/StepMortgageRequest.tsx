@@ -23,7 +23,7 @@ export default function StepMortgageRequest({ defaultValues, suggestedAmount = 0
     resolver: zodResolver(mortgageRequestSchema),
     defaultValues: {
       requestedAmount: defaultValues.requestedAmount ?? suggestedAmount,
-      maxPayment: defaultValues.maxPayment ?? suggestedMaxPayment || undefined,
+      maxPayment: defaultValues.maxPayment ?? (suggestedMaxPayment || undefined),
       ...defaultValues,
     } as any,
   });
