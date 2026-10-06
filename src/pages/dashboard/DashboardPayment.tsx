@@ -87,7 +87,7 @@ export default function DashboardPayment() {
   useEffect(() => {
     if (!caseId) return;
     const checkDocs = async () => {
-      const missing = await countMissingDocs(caseId, caseType);
+      const missing = await countMissingDocs(caseId, caseType, { deferredCountsAsComplete: false });
       setMissingDocs(missing);
       setDocsComplete(missing === 0);
     };
