@@ -209,7 +209,7 @@ function IntakeFormFlow({
     }
     let missing = 0;
     try {
-      missing = await countMissingDocs(caseId, caseType);
+      missing = await countMissingDocs(caseId, caseType, { deferredCountsAsComplete: false });
     } catch (e) {
       console.error(e);
     }
