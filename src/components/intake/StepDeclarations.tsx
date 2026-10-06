@@ -52,7 +52,7 @@ export default function StepDeclarations({ defaultValues, onNext, onBack, saving
       </div>
 
       <label className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-4 cursor-pointer">
-        <Checkbox checked={confirmed === true} onCheckedChange={(v) => setValue("confirmTruthful", v === true as true, { shouldValidate: true })} className="mt-0.5" />
+        <Checkbox checked={confirmed === true} onCheckedChange={(v) => setValue("confirmTruthful", (v === true ? true : undefined) as any, { shouldValidate: true })} className="mt-0.5" />
         <span className="text-sm leading-relaxed">אני מאשר/ת שהמידע שמסרתי נכון ומלא לפי ידיעתי, ושידוע לי שמידע חסר או לא מדויק עלול להשפיע על בדיקת הבנק.</span>
       </label>
       {errors.confirmTruthful && <p className="text-xs text-destructive">{errors.confirmTruthful.message}</p>}
