@@ -104,29 +104,13 @@ const clientPlans = [
       "ניתוח דוח יתרות אמיתי",
       "3 תמהילים מותאמים אישית",
       "דוח PDF מקצועי מלא",
-      "שליחה ישירה לבנקים",
-      "ליווי עד קבלת הצעה",
+      "מכרז והשוואה מול עד 3 בנקים",
+      "ליווי עד בחירת הצעה והתקדמות מול הבנק",
       "אזור לקוח אישי",
     ],
     missing: [],
     featured: true,
     tier: "premium-client" as const,
-  },
-  {
-    name: "ליווי מלא",
-    price: "₪7,000",
-    period: "חד-פעמי",
-    desc: "ליווי אישי מקצה לקצה",
-    features: [
-      "כל הכלול בתיק פרימיום",
-      "יועץ משכנתאות אישי",
-      "משא ומתן מול הבנקים",
-      "ליווי עד חתימת הסכם",
-      "תמיכה טלפונית ללא הגבלה",
-    ],
-    missing: [],
-    featured: false,
-    tier: "full" as const,
   },
 ];
 
@@ -147,7 +131,7 @@ const fadeUp = {
 
 export default function PricingPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"clients" | "advisors">("clients");
+  const [tab] = useState<"clients">("clients");
   const [showModal, setShowModal] = useState(false);
 
   const handleConfirm = () => {
@@ -165,157 +149,12 @@ export default function PricingPage() {
             תמחור <span className="text-gradient-gold">פשוט ושקוף</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto mb-6">
-            ללקוחות, חינם לחלוטין. ליועצים, מנוי חודשי או רכישה בודדת.
+            בדיקה ראשונית חינם. התהליך המלא במחיר קבוע ושקוף של ₪3,450.
           </p>
 
-          {/* Tab switcher */}
-          <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="inline-flex">
-            <TabsList className="bg-secondary/60">
-              <TabsTrigger value="clients" className="gap-1.5">
-                <Users size={14} /> לקוחות
-              </TabsTrigger>
-              <TabsTrigger value="advisors" className="gap-1.5">
-                <Building2 size={14} /> יועצים
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
         </motion.div>
 
-        {/* ════════════ ADVISORS TAB ════════════ */}
-        {tab === "advisors" && (
-          <>
-            {/* Per-lead banner */}
-            <motion.div
-              className="bg-card border border-border rounded-xl p-4 mb-8 text-center max-w-lg mx-auto"
-              {...fadeUp}
-              transition={{ delay: 0.1 }}
-            >
-              <p className="text-sm text-muted-foreground mb-1">מעדיף לא להתחייב?</p>
-              <p className="text-lg font-display font-bold text-foreground">
-                רכישת ליד בודד, <span className="text-gold">₪200</span> לליד
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">Pay per lead · ללא מנוי</p>
-            </motion.div>
-
-            {/* Advisor plans grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {advisorPlans.map((plan, i) => (
-                <motion.div
-                  key={plan.name}
-                  className={`relative bg-card rounded-2xl p-8 shadow-card border-2 transition-all flex flex-col ${
-                    plan.featured
-                      ? "border-gold shadow-gold md:scale-105 z-10"
-                      : "border-transparent"
-                  }`}
-                  {...fadeUp}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  {plan.featured && (
-                    <div className="absolute -top-3 right-4 bg-gold-gradient text-accent-foreground text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                      <Star size={12} /> הכי פופולרי
-                    </div>
-                  )}
-
-                  <h2 className="font-display text-2xl font-bold text-foreground mb-1">
-                    {plan.name}
-                  </h2>
-                  <p className="text-sm text-gold font-semibold mb-4">{plan.leads}</p>
-
-                  <div className="font-display text-5xl font-black text-foreground mb-1">
-                    {plan.price}
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-6">{plan.period}</p>
-
-                  {/* Features */}
-                  <ul className="space-y-3 mb-4 flex-1">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                        <CheckCircle2 size={16} className="text-gold shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                    {plan.missing.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground/50">
-                        <X size={16} className="shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link to="/auth">
-                    <Button
-                      variant={plan.featured ? "cta" : "outline"}
-                      size="lg"
-                      className="w-full"
-                    >
-                      {plan.featured ? "התחל עכשיו" : "בחר תוכנית"}
-                    </Button>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Featured listing upsell */}
-            <motion.div
-              className="mt-8 bg-card border border-gold/20 rounded-xl p-6 max-w-lg mx-auto text-center"
-              {...fadeUp}
-              transition={{ delay: 0.4 }}
-            >
-              <Award size={24} className="text-gold mx-auto mb-2" />
-              <h3 className="font-display text-lg font-bold text-foreground mb-1">
-                Featured Listing
-              </h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                הופעה מועדפת בראש רשימת היועצים, נראות מקסימלית ללקוחות
-              </p>
-              <p className="text-2xl font-display font-black text-gold">₪500<span className="text-sm font-normal text-muted-foreground mr-1"> / חודש</span></p>
-            </motion.div>
-
-            {/* Advisor comparison table */}
-            <motion.div
-              className="mt-12 max-w-3xl mx-auto"
-              {...fadeUp}
-              transition={{ delay: 0.5 }}
-            >
-              <h2 className="text-2xl font-display font-bold text-center text-foreground mb-6">
-                השוואת תוכניות
-              </h2>
-              <div className="bg-card rounded-xl border border-border overflow-hidden">
-                <div className="grid grid-cols-4 bg-secondary/50 p-4 text-sm font-semibold text-foreground">
-                  <span></span>
-                  <span className="text-center">בסיסי</span>
-                  <span className="text-center text-gold">מקצועי</span>
-                  <span className="text-center">פרימיום</span>
-                </div>
-                {advisorComparisonRows.map((row, i) => (
-                  <div
-                    key={row.label}
-                    className={`grid grid-cols-4 p-4 text-sm ${
-                      i % 2 === 0 ? "bg-card" : "bg-secondary/20"
-                    }`}
-                  >
-                    <span className="text-foreground">{row.label}</span>
-                    {(["basic", "pro", "premium"] as const).map((tier) => (
-                      <span key={tier} className="text-center">
-                        {typeof row[tier] === "boolean" ? (
-                          row[tier] ? (
-                            <Check size={16} className="inline text-gold" />
-                          ) : (
-                            <X size={16} className="inline text-muted-foreground/40" />
-                          )
-                        ) : (
-                          <span className="font-semibold text-foreground">{row[tier]}</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </>
-        )}
-
-        {/* ════════════ CLIENTS TAB ════════════ */}
+        {/* Client pricing */}
         {tab === "clients" && (
           <>
             {/* Client plans grid */}
