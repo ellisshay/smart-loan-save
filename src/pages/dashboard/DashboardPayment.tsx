@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Clock, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass } from "lucide-react";
+import { Zap, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +20,6 @@ export default function DashboardPayment() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { caseId, caseType, intakeData, intakeComplete, loading } = useDashboardCase();
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes
   const [docsComplete, setDocsComplete] = useState(false);
   const [missingDocs, setMissingDocs] = useState(0);
   const [caseStatus, setCaseStatus] = useState<string | null>(null);
@@ -95,23 +94,11 @@ export default function DashboardPayment() {
     checkDocs();
   }, [caseId, caseType]);
 
-  const fileComplete = intakeComplete && docsComplete;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 0) return 0;
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Payment is intentionally allowed once the questionnaire is complete, even if documents are still missing.
+  // This reduces abandonment. The 72-hour professional SLA starts only after payment AND required documents are complete.
+  const paymentReady = intakeComplete;
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  const timerExpired = timeLeft <= 0;
 
   // Payment status: confirmed (webhook landed), failed (Tranzila returned paid=0), pending (paid=1 but not yet confirmed)
   const paymentState: "confirmed" | "failed" | "pending" | null = paymentSucceeded
@@ -132,7 +119,9 @@ export default function DashboardPayment() {
           </div>
           <h2 className="font-display text-2xl font-bold text-foreground">התשלום אושר בהצלחה</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            התיק שלך נפתח לניתוח. צוות המומחים יטפל בו תוך עד 72 שעות, ונעדכן אותך בכל שלב.
+            {docsComplete
+              ? "התיק שלך מלא והתשלום התקבל. חלון הטיפול של עד 72 שעות מתחיל עכשיו."
+              : `התשלום התקבל ונשמר. נשאר להשלים ${missingDocs || "את"} מסמכי החובה, ורק כשהתיק מלא מתחיל חלון הטיפול של עד 72 שעות.`}
           </p>
         </motion.div>
         <Card className="border-primary/30">
@@ -143,7 +132,7 @@ export default function DashboardPayment() {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">סטטוס תיק</span>
-              <Badge variant="default">בניתוח</Badge>
+              <Badge variant="default">{docsComplete ? "מוכן לניתוח" : "שולם · ממתין למסמכים"}</Badge>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">אישור תשלום</span>
@@ -151,7 +140,13 @@ export default function DashboardPayment() {
             </div>
           </CardContent>
         </Card>
-        <Button variant="cta" size="lg" className="w-full" onClick={() => navigate("/dashboard")}>
+        {!docsComplete && (
+          <Button variant="cta" size="lg" className="w-full" onClick={() => navigate("/dashboard/documents")}>
+            <FileUp size={18} />
+            השלמת מסמכים והפעלת 72 השעות
+          </Button>
+        )}
+        <Button variant={docsComplete ? "cta" : "outline"} size="lg" className="w-full" onClick={() => navigate("/dashboard")}>
           מעבר לאזור האישי
         </Button>
       </div>
@@ -179,7 +174,7 @@ export default function DashboardPayment() {
             variant="cta"
             size="lg"
             className="w-full"
-            disabled={!fileComplete}
+            disabled={!paymentReady}
             onClick={() => { setShowPayFrame(true); navigate("/dashboard/payment"); }}
           >
             <Zap size={18} />
@@ -226,28 +221,6 @@ export default function DashboardPayment() {
         שימו לב: עד לקבלת התשלום הבקשה לא תאובחן ולא תועבר לניתוח.
       </div>
 
-      {/* Priority timer */}
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
-        <Card className={`border-2 ${timerExpired ? "border-border" : "border-warning/30"}`}>
-          <CardContent className="p-5 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Clock size={16} className={timerExpired ? "text-muted-foreground" : "text-warning"} />
-              <span className="text-sm font-medium text-foreground">
-                {timerExpired ? "חלון העדיפות הסתיים" : "חלון עדיפות לניתוח מהיר"}
-              </span>
-            </div>
-            {!timerExpired && (
-              <div className="font-display text-4xl font-black text-warning tabular-nums">
-                {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
-              </div>
-            )}
-            <p className="text-xs text-muted-foreground mt-1">
-              {timerExpired ? "עדיין ניתן לשלם, הניתוח יתחיל בתור הרגיל" : "נשמר לך מקום בראש התור"}
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
-
       {/* Features */}
       <div className="space-y-3">
         {[
@@ -263,6 +236,17 @@ export default function DashboardPayment() {
         ))}
       </div>
 
+      {!docsComplete && intakeComplete && (
+        <Card className="border-primary/25 bg-primary/5">
+          <CardContent className="p-4 text-right">
+            <p className="text-sm font-bold text-foreground">אפשר לשלם עכשיו ולא לאבד את התהליך</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              חסרים כרגע {missingDocs} מסמכי חובה. התשלום ישמור את פתיחת התיק, ואפשר לחזור ולהעלות אותם מהאזור האישי. ה־72 שעות יתחילו רק לאחר השלמת המסמכים.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Price + CTA */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <Card className="border-primary/30 shadow-[var(--shadow-gold)]">
@@ -271,7 +255,7 @@ export default function DashboardPayment() {
               <span className="text-3xl font-display font-black text-foreground">₪3,450</span>
               <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · תשלום חד פעמי</span>
             </div>
-            {fileComplete ? (
+            {paymentReady ? (
               <>
                 {showPayFrame ? (
                   <div className="space-y-3">
@@ -353,14 +337,14 @@ export default function DashboardPayment() {
                       onClick={() => setShowPayFrame(true)}
                     >
                       <Zap size={18} />
-                      פתח ניתוח תוך 72 שעות
+                      שמור את התיק והמשך לתשלום
                     </Button>
                     {!billingValid && (
                       <p className="text-xs text-warning text-center">יש למלא את כל פרטי החיוב לפני המעבר לתשלום</p>
                     )}
                   </div>
                 )}
-                <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · SSL 256-bit</p>
+                <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · פרטי הכרטיס אינם נשמרים ב-EasyMorte</p>
               </>
             ) : (
               <>
@@ -378,19 +362,9 @@ export default function DashboardPayment() {
                       <span className="text-sm text-foreground">השלם את שאלון הפרטים האישיים</span>
                     </button>
                   )}
-                  {!docsComplete && (
-                    <button
-                      onClick={() => navigate("/dashboard/documents")}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/40 hover:bg-muted transition-colors"
-                    >
-                      <FileUp size={16} className="text-warning shrink-0" />
-                      <span className="text-sm text-foreground">
-                        העלה את המסמכים הנדרשים{missingDocs > 0 ? ` (חסרים ${missingDocs})` : ""}
-                      </span>
-                    </button>
-                  )}
+
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-3">הצעת המשכנתא נפתחת רק כשהתיק מלא, כדי שהניתוח יהיה מדויק</p>
+                <p className="text-[10px] text-muted-foreground mt-3">התשלום נפתח לאחר השלמת השאלון. אפשר להשלים מסמכים גם אחרי התשלום, אבל חלון ה־72 שעות מתחיל רק כשהתיק מלא.</p>
               </>
             )}
           </CardContent>
