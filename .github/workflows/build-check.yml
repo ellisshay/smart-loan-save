@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [launch-ready-p0]
+    branches: [main, launch-ready-p0]
 
 jobs:
   build:
