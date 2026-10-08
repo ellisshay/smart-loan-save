@@ -84,6 +84,9 @@ export const PRIVATE_PREFIXES = [
   "/my-cases",
   "/mix-selection",
   "/for-advisors",
+  "/payment",
+  "/questionnaire",
+  "/documents",
 ];
 
 export const isPrivatePath = (pathname: string) =>
