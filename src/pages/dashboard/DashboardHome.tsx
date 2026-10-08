@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import ContactCard from "@/components/dashboard/ContactCard";
 import { CASE_STATUSES, type CaseStatus } from "@/types/admin";
+import { useDashboardCase } from "@/hooks/useDashboardCase";
+import { completedIntakeSteps } from "@/lib/intakeCompletion";
 
 interface CaseData {
   id: string;
@@ -46,16 +48,18 @@ const REWARD_MILESTONES = [
 
 export default function DashboardHome() {
   const navigate = useNavigate();
+  const sharedCase = useDashboardCase();
   const [caseData, setCaseData] = useState<CaseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploadedDocTypes, setUploadedDocTypes] = useState<string[]>([]);
 
-  useEffect(() => { loadCase(); }, []);
+  useEffect(() => { if (sharedCase.caseId) loadCase(); }, [sharedCase.caseId]);
 
   const loadCase = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { data } = await supabase.from("cases").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).single();
+    if (!sharedCase.caseId) return;
+    const { data } = await supabase.from("cases").select("*").eq("user_id", user.id).eq("id", sharedCase.caseId).single();
     if (data) {
       setCaseData(data as unknown as CaseData);
       const { data: docs } = await supabase.from("case_documents").select("doc_type").eq("case_id", data.id);
@@ -76,12 +80,11 @@ export default function DashboardHome() {
     );
   }
 
-  const intakeData = (caseData.intake_data || {}) as Record<string, any>;
+  const intakeData = sharedCase.intakeData;
+  const savedCompleted = completedIntakeSteps(intakeData, sharedCase.caseType, sharedCase.settledDocTypes);
+  const mappedKey = (key: string) => sharedCase.caseType === "refi" ? ({ property: "refi_property", mortgage_request: "current_mortgage" }[key] || key) : key;
   const stepKeys = DASHBOARD_STEPS.map(s => s.key).filter(k => k !== "payment");
-  const completedSteps = stepKeys.filter(key => {
-    const d = intakeData[key];
-    return d && Object.keys(d).length > 0;
-  });
+  const completedSteps = stepKeys.filter(key => savedCompleted.includes(mappedKey(key)));
   const progress = Math.round((completedSteps.length / stepKeys.length) * 100);
   const remainingSteps = stepKeys.length - completedSteps.length;
 
@@ -94,8 +97,7 @@ export default function DashboardHome() {
 
   // First 5 steps must be done to unlock 6-8
   const firstGroupDone = DASHBOARD_STEPS.filter(s => s.group === 1).every(s => {
-    const d = intakeData[s.key];
-    return d && Object.keys(d).length > 0;
+    return savedCompleted.includes(mappedKey(s.key));
   });
 
   const requiredDocTypes = ["id_card", "payslips", "bank_statements", "purchase_contract"];
@@ -104,8 +106,7 @@ export default function DashboardHome() {
 
   const getStepStatus = (step: typeof DASHBOARD_STEPS[0]): "done" | "current" | "locked" => {
     if (step.key === "payment") return canPay ? "current" : "locked";
-    const d = intakeData[step.key];
-    if (d && Object.keys(d).length > 0) return "done";
+    if (savedCompleted.includes(mappedKey(step.key))) return "done";
     // Group 2 locked until group 1 done
     if (step.group === 2 && !firstGroupDone) return "locked";
     // Find first incomplete in same group
@@ -247,7 +248,7 @@ export default function DashboardHome() {
 
           return (
             <motion.div key={step.key} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-              <Link to={status === "locked" ? "#" : step.href} className={status === "locked" ? "pointer-events-none" : ""}>
+               <Link to={status === "locked" ? "#" : `${step.href}?caseId=${sharedCase.caseId}`} className={status === "locked" ? "pointer-events-none" : ""}>
                 <Card className={`transition-all hover:shadow-card-hover ${
                   status === "done" ? "border-primary/30" :
                   status === "current" ? "border-[hsl(var(--gold))]/30 shadow-[var(--shadow-gold)]" :
