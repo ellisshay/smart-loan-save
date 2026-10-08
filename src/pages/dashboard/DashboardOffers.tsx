@@ -60,8 +60,12 @@ export default function DashboardOffers() {
         <Clock className="mx-auto mb-4 text-muted-foreground/40" size={56} />
         <h2 className="font-display text-xl font-bold text-foreground mb-2">ממתינים להצעות</h2>
         <p className="text-muted-foreground max-w-md mx-auto">
-          הפרופיל שלך נשלח ל-5 יועצים מורשים. בדרך כלל ההצעות מגיעות תוך 72 שעות.
+          אנחנו מנהלים את התיק שלך מקצה לקצה — בדיקה, מו"מ מול הבנקים והשוואת הצעות, מול הצוות שלנו בלבד.
+          ברגע שההצעות מתקבלות הן מופיעות כאן, לצד הפירוט המלא במכרז המשכנתא שלך.
         </p>
+        <Button variant="cta" size="sm" className="mt-6" asChild>
+          <Link to="/dashboard/tender">למכרז המשכנתא שלי</Link>
+        </Button>
       </div>
     );
   }
