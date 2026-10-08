@@ -45,7 +45,7 @@ const DOC_CATEGORIES = [
 
 export default function DashboardDocuments() {
   const navigate = useNavigate();
-  const { caseId, caseType, intakeData, intakeComplete, status, paymentSucceeded, loading: caseLoading, saveStep } = useDashboardCase();
+  const { caseId, caseType, intakeData, intakeComplete, status, paymentSucceeded, loading: caseLoading, saveStep, refreshDocuments } = useDashboardCase();
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,6 +97,7 @@ export default function DashboardDocuments() {
     if (!caseId) return;
     const { data } = await supabase.from("case_documents").select("id, doc_type, file_name, is_required, file_path, ai_extracted_data").eq("case_id", caseId);
     if (data) setUploadedDocs(data as UploadedDoc[]);
+    refreshDocuments?.(caseId);
     setLoading(false);
   };
 
@@ -215,7 +216,7 @@ export default function DashboardDocuments() {
         <p className="text-sm text-foreground">אפשר לשלם ולהעלות את המסמכים במועד מאוחר יותר מהאזור האישי.</p>
         <p className="text-xs text-muted-foreground">בדיקת התיק בתוך עד 72 שעות מתחילה רק לאחר השלמת השאלון, כל מסמכי החובה ואישור התשלום; זה אינו זמן המענה של הבנק.</p>
         {!paymentSucceeded && (
-          <Button variant="cta" onClick={() => navigate("/dashboard/payment")}>
+          <Button variant="cta" onClick={() => navigate(`/dashboard/payment?caseId=${caseId}`)}>
             <DollarSign size={16} /> מעבר לתשלום
           </Button>
         )}
@@ -339,11 +340,11 @@ export default function DashboardDocuments() {
 
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         {!paymentSucceeded && (
-          <Button variant="cta" size="lg" onClick={() => navigate("/dashboard/payment")}>
+          <Button variant="cta" size="lg" onClick={() => navigate(`/dashboard/payment?caseId=${caseId}`)}>
             <DollarSign size={18} /> לתשלום — את המסמכים אשלח במועד מאוחר יותר
           </Button>
         )}
-        <Button variant="outline" size="lg" onClick={() => navigate("/dashboard")}>חזרה לאזור האישי</Button>
+        <Button variant="outline" size="lg" onClick={() => navigate(`/dashboard?caseId=${caseId}`)}>חזרה לאזור האישי</Button>
       </div>
     </div>
   );

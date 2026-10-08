@@ -10,15 +10,16 @@ import SignaturePad from "./SignaturePad";
 interface Props {
   onNext: (data: { fullName: string; date: string; signature: string; signedAt: string; termsAccepted: true; privacyAccepted: true; dataUsageAccepted: true }) => void;
   onBack: () => void;
+  defaultValues?: { fullName?: string; date?: string; signature?: string; signedAt?: string; termsAccepted?: boolean; privacyAccepted?: boolean; dataUsageAccepted?: boolean };
 }
 
-export default function StepConsent({ onNext, onBack }: Props) {
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const [dataUsageAccepted, setDataUsageAccepted] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [signature, setSignature] = useState<string | null>(null);
-  const [date] = useState(new Date().toLocaleDateString("he-IL"));
+export default function StepConsent({ onNext, onBack, defaultValues = {} }: Props) {
+  const [termsAccepted, setTermsAccepted] = useState(defaultValues.termsAccepted === true);
+  const [privacyAccepted, setPrivacyAccepted] = useState(defaultValues.privacyAccepted === true);
+  const [dataUsageAccepted, setDataUsageAccepted] = useState(defaultValues.dataUsageAccepted === true);
+  const [fullName, setFullName] = useState(defaultValues.fullName || "");
+  const [signature, setSignature] = useState<string | null>(defaultValues.signature || null);
+  const [date] = useState(defaultValues.date || new Date().toLocaleDateString("he-IL"));
 
   const allAccepted = termsAccepted && privacyAccepted && dataUsageAccepted && fullName.length >= 2 && !!signature;
 
@@ -77,7 +78,7 @@ export default function StepConsent({ onNext, onBack }: Props) {
         </div>
         <div>
           <Label className="text-sm font-medium text-foreground mb-1.5 block">חתימה *</Label>
-          <SignaturePad onChange={setSignature} />
+          <SignaturePad initialValue={defaultValues.signature} onChange={setSignature} />
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground bg-muted/50 rounded-lg p-3">
           בחתימתי לעיל אני מצהיר/ה כי כל הפרטים והמסמכים שמסרתי נכונים, מלאים ומעודכנים, וכי ידוע לי שהם ישמשו לבחינת תיק המשכנתא ולהגשתו לגופים מממנים. אני מסכים/ה שחתימה אלקטרונית זו תהווה חתימה מחייבת בהתאם לחוק חתימה אלקטרונית, התשס"א-2001, ותהיה בעלת תוקף זהה לחתימה בכתב יד. החתימה, התאריך והשעה יישמרו בתיק לצורך תיעוד.
@@ -91,15 +92,15 @@ export default function StepConsent({ onNext, onBack }: Props) {
           variant="cta"
           size="lg"
           disabled={!allAccepted}
-          onClick={() => onNext({
+          onClick={() => { if (!signature) return; onNext({
             fullName,
             date,
-            signature: signature!,
-            signedAt: new Date().toISOString(),
+            signature,
+            signedAt: signature === defaultValues.signature && defaultValues.signedAt ? defaultValues.signedAt : new Date().toISOString(),
             termsAccepted: true,
             privacyAccepted: true,
             dataUsageAccepted: true,
-          })}
+          }); }}
         >
           שמור והמשך ←
         </Button>

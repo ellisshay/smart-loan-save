@@ -1,11 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, createElement, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { isDocSettled } from "@/lib/docValidation";
 import type { CaseStatus } from "@/types/admin";
 
-export function useDashboardCase() {
+function useDashboardCaseState() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const requestedCaseId = params.get("caseId");
   const [caseId, setCaseId] = useState<string | null>(null);
   const [caseType, setCaseType] = useState<"new" | "refi">("new");
   const [intakeData, setIntakeData] = useState<Record<string, any>>({});
@@ -14,6 +17,11 @@ export function useDashboardCase() {
   const [paymentSucceeded, setPaymentSucceeded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [settledDocTypes, setSettledDocTypes] = useState<string[]>([]);
+  const refreshDocuments = useCallback(async (id: string) => {
+    const { data } = await supabase.from("case_documents").select("doc_type, ai_extracted_data").eq("case_id", id);
+    if (data) setSettledDocTypes(data.filter(d => isDocSettled(d.ai_extracted_data)).map(d => d.doc_type));
+  }, []);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -21,16 +29,19 @@ export function useDashboardCase() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth"); return; }
 
-      const { data } = await supabase
+      setLoading(true);
+      let query = supabase
         .from("cases")
         .select("id, case_type, intake_data, current_step, intake_complete, status, payment_succeeded")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
+        .eq("user_id", user.id);
+      if (requestedCaseId) query = query.eq("id", requestedCaseId);
+      const { data } = await query.order("created_at", { ascending: false })
         .limit(1)
         .single();
 
       if (data) {
         setCaseId(data.id);
+        refreshDocuments(data.id);
         setCaseType(data.case_type as "new" | "refi");
         setIntakeData((data.intake_data as Record<string, any>) || {});
         setIntakeComplete(!!data.intake_complete);
@@ -43,15 +54,16 @@ export function useDashboardCase() {
       setLoading(false);
     };
     load();
-  }, [navigate]);
+  }, [navigate, requestedCaseId]);
 
   const saveStep = useCallback(async (stepKey: string, stepData: any) => {
-    if (!caseId) return;
+    if (!caseId) return false;
     setSaving(true);
     try {
       const updated = { ...intakeData, [stepKey]: stepData };
+      const { error } = await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
+      if (error) throw error;
       setIntakeData(updated);
-      await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
       if (stepKey === "personal") {
         supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "case_opened" } }).catch(console.error);
       }
@@ -74,18 +86,22 @@ export function useDashboardCase() {
       await supabase.functions.invoke("webhook-handler", {
         body: { event_name: "intake_updated", case_id: caseId, payload: { step: stepKey } },
       });
+      return true;
     } catch (e) {
       console.error("Save error:", e);
+      toast({ title: "השמירה נכשלה", description: "הנתונים לא נשמרו. נסה שוב לפני מעבר לשלב הבא.", variant: "destructive" });
+      return false;
     } finally {
       setSaving(false);
     }
   }, [caseId, caseType, intakeData, intakeComplete, status]);
 
   const saveStepAndNavigate = useCallback(async (stepKey: string, stepData: any, nextPath: string) => {
-    await saveStep(stepKey, stepData);
+    const ok = await saveStep(stepKey, stepData);
+    if (!ok) return;
     toast({ title: "נשמר בהצלחה " });
-    navigate(nextPath);
-  }, [saveStep, navigate]);
+    navigate(`${nextPath}?caseId=${caseId}`);
+  }, [saveStep, navigate, caseId]);
 
   // Auto-save with debounce
   const autoSave = useCallback((stepKey: string, stepData: any) => {
@@ -107,5 +123,20 @@ export function useDashboardCase() {
     saveStep,
     saveStepAndNavigate,
     autoSave,
+    settledDocTypes,
+    refreshDocuments,
   };
+}
+
+const DashboardCaseContext = createContext<ReturnType<typeof useDashboardCaseState> | null>(null);
+
+export function DashboardCaseProvider({ children }: { children: ReactNode }) {
+  const value = useDashboardCaseState();
+  return createElement(DashboardCaseContext.Provider, { value }, children);
+}
+
+export function useDashboardCase() {
+  const value = useContext(DashboardCaseContext);
+  if (!value) throw new Error("Dashboard pages must use DashboardCaseProvider");
+  return value;
 }

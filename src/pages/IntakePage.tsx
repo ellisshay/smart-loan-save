@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntakeForm } from "@/hooks/useIntakeForm";
 import { countMissingDocs } from "@/lib/docsComplete";
+import { completedIntakeSteps } from "@/lib/intakeCompletion";
 import { toast } from "@/hooks/use-toast";
 import {
   NEW_CASE_STEPS, REFI_CASE_STEPS, SERVICE_GOALS,
@@ -163,6 +164,8 @@ function IntakeFormFlow({
   resumeCaseId?: string | null;
 }) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const requestedStep = params.get("step");
   const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft, savePatch } =
     useIntakeForm(caseType, resumeCaseId);
 
@@ -180,6 +183,11 @@ function IntakeFormFlow({
 
 
   const steps = caseType === "new" ? NEW_CASE_STEPS : REFI_CASE_STEPS;
+  useEffect(() => {
+    if (loading || !requestedStep) return;
+    const index = steps.findIndex(s => s.key === requestedStep);
+    if (index >= 0) goToStep(index);
+  }, [loading, requestedStep, caseId]);
   const docs = caseType === "new" ? REQUIRED_DOCS_NEW : REQUIRED_DOCS_REFI;
 
   const hasBorrower2 = intakeData.personal?.borrowerCount === "2";
@@ -222,7 +230,7 @@ function IntakeFormFlow({
         description: `${missing} מסמכים עדיין חסרים. ניתן להעלות אותם בכל שלב מהאזור האישי. בדיקת התיק מתחילה לאחר התשלום וקבלת המסמכים.`,
       });
     }
-    navigate("/dashboard/payment");
+    navigate(`/dashboard/payment?caseId=${caseId}`);
   };
 
 
@@ -272,7 +280,7 @@ function IntakeFormFlow({
         case "declarations": return <StepDeclarations defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;
 
-        case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
+        case "consent": return <StepConsent defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }
@@ -289,7 +297,7 @@ function IntakeFormFlow({
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "refi_preferences": return <StepRefiPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;
-        case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
+        case "consent": return <StepConsent defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }
@@ -314,7 +322,7 @@ function IntakeFormFlow({
           </div>
         )}
 
-        <IntakeProgressBar steps={steps} currentStep={currentStep} onStepClick={goToStep} />
+        <IntakeProgressBar steps={steps} currentStep={currentStep} completedSteps={completedIntakeSteps(intakeData, caseType)} onStepClick={goToStep} />
 
         <AnimatePresence mode="wait">
           <div key={currentStep}>
