@@ -216,7 +216,7 @@ export default function DashboardDocuments() {
         <p className="text-sm text-foreground">אפשר לשלם ולהעלות את המסמכים במועד מאוחר יותר מהאזור האישי.</p>
         <p className="text-xs text-muted-foreground">בדיקת התיק בתוך עד 72 שעות מתחילה רק לאחר השלמת השאלון, כל מסמכי החובה ואישור התשלום; זה אינו זמן המענה של הבנק.</p>
         {!paymentSucceeded && (
-          <Button variant="cta" onClick={() => navigate("/dashboard/payment")}>
+          <Button variant="cta" onClick={() => navigate(`/dashboard/payment?caseId=${caseId}`)}>
             <DollarSign size={16} /> מעבר לתשלום
           </Button>
         )}
@@ -340,11 +340,11 @@ export default function DashboardDocuments() {
 
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         {!paymentSucceeded && (
-          <Button variant="cta" size="lg" onClick={() => navigate("/dashboard/payment")}>
+          <Button variant="cta" size="lg" onClick={() => navigate(`/dashboard/payment?caseId=${caseId}`)}>
             <DollarSign size={18} /> לתשלום — את המסמכים אשלח במועד מאוחר יותר
           </Button>
         )}
-        <Button variant="outline" size="lg" onClick={() => navigate("/dashboard")}>חזרה לאזור האישי</Button>
+        <Button variant="outline" size="lg" onClick={() => navigate(`/dashboard?caseId=${caseId}`)}>חזרה לאזור האישי</Button>
       </div>
     </div>
   );
