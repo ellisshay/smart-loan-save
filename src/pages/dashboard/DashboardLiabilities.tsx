@@ -4,7 +4,7 @@ import StepLiabilities from "@/components/intake/StepLiabilities";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardLiabilities() {
-  const { intakeData, loading, saving, saveStep } = useDashboardCase();
+  const { caseId, caseType, intakeData, loading, saving, saveStep } = useDashboardCase();
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -12,12 +12,13 @@ export default function DashboardLiabilities() {
     (intakeData.personal?.borrowerCount === "2" ? Number(intakeData.income?.b2MonthlyNetIncome || 0) : 0);
 
   const handleNext = async (data: any) => {
-    await saveStep("liabilities", data);
+    const ok = await saveStep("liabilities", data);
+    if (!ok) return;
     const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
     const updated = { ...intakeData, liabilities: data };
     const done = keys.filter(k => updated[k] && Object.keys(updated[k]).length > 0).length;
     showCompletionToast(Math.round((done / keys.length) * 100), "התחייבויות");
-    window.location.href = "/dashboard/mortgage";
+    window.location.href = `/dashboard/mortgage?caseId=${caseId}`;
   };
 
   return (

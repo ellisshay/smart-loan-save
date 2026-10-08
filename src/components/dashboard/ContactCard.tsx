@@ -24,11 +24,12 @@ export default function ContactCard() {
   if (loading) return null;
 
   const save = async () => {
-    await saveStep("personal", {
+    const ok = await saveStep("personal", {
       ...personal,
       borrower1: { ...(personal.borrower1 || {}), ...b1 },
       ...(two ? { borrower2: { ...(personal.borrower2 || {}), ...b2 } } : {}),
     });
+    if (!ok) return;
     setEditing(false);
     toast({ title: "פרטי הקשר עודכנו" });
   };

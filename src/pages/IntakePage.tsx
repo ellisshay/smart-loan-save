@@ -164,6 +164,8 @@ function IntakeFormFlow({
   resumeCaseId?: string | null;
 }) {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const requestedStep = params.get("step");
   const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft, savePatch } =
     useIntakeForm(caseType, resumeCaseId);
 
@@ -181,6 +183,11 @@ function IntakeFormFlow({
 
 
   const steps = caseType === "new" ? NEW_CASE_STEPS : REFI_CASE_STEPS;
+  useEffect(() => {
+    if (loading || !requestedStep) return;
+    const index = steps.findIndex(s => s.key === requestedStep);
+    if (index >= 0) goToStep(index);
+  }, [loading, requestedStep, caseId]);
   const docs = caseType === "new" ? REQUIRED_DOCS_NEW : REQUIRED_DOCS_REFI;
 
   const hasBorrower2 = intakeData.personal?.borrowerCount === "2";
@@ -273,7 +280,7 @@ function IntakeFormFlow({
         case "declarations": return <StepDeclarations defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;
 
-        case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
+        case "consent": return <StepConsent defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }
@@ -290,7 +297,7 @@ function IntakeFormFlow({
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "refi_preferences": return <StepRefiPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;
-        case "consent": return <StepConsent onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
+        case "consent": return <StepConsent defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} />;
         case "summary": return <StepSummary steps={steps} intakeData={intakeData} onEdit={goToStep} onSubmit={handleSubmit} loading={loading} />;
         default: return <PlaceholderStep stepKey={stepKey} onNext={() => nextStep(stepKey, { completed: true })} onBack={prevStep} />;
       }

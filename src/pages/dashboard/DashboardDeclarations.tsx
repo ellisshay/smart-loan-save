@@ -13,17 +13,18 @@ import { Loader2, Shield, AlertTriangle } from "lucide-react";
 type DeclarationsData = z.infer<typeof declarationsSchema>;
 
 export default function DashboardDeclarations() {
-  const { intakeData, loading, saving, saveStep } = useDashboardCase();
+  const { caseId, caseType, intakeData, loading, saving, saveStep } = useDashboardCase();
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   const handleSubmit = async (data: DeclarationsData) => {
-    await saveStep("declarations", data);
+    const ok = await saveStep("declarations", data);
+    if (!ok) return;
     const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
     const updated = { ...intakeData, declarations: data };
     const done = keys.filter(k => updated[k] && Object.keys(updated[k]).length > 0).length;
     showCompletionToast(Math.round((done / keys.length) * 100), "הצהרות");
-    window.location.href = "/dashboard/documents";
+    window.location.href = `/dashboard/documents?caseId=${caseId}`;
   };
 
   return <DeclarationsForm defaults={intakeData.declarations || {}} saving={saving} onSubmit={handleSubmit} />;

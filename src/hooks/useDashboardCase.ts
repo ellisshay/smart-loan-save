@@ -2,6 +2,7 @@ import { createContext, createElement, useContext, useState, useEffect, useCallb
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { isDocSettled } from "@/lib/docValidation";
 import type { CaseStatus } from "@/types/admin";
 
 function useDashboardCaseState() {
@@ -16,6 +17,11 @@ function useDashboardCaseState() {
   const [paymentSucceeded, setPaymentSucceeded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [settledDocTypes, setSettledDocTypes] = useState<string[]>([]);
+  const refreshDocuments = useCallback(async (id: string) => {
+    const { data } = await supabase.from("case_documents").select("doc_type, ai_extracted_data").eq("case_id", id);
+    if (data) setSettledDocTypes(data.filter(d => isDocSettled(d.ai_extracted_data)).map(d => d.doc_type));
+  }, []);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -35,6 +41,7 @@ function useDashboardCaseState() {
 
       if (data) {
         setCaseId(data.id);
+        refreshDocuments(data.id);
         setCaseType(data.case_type as "new" | "refi");
         setIntakeData((data.intake_data as Record<string, any>) || {});
         setIntakeComplete(!!data.intake_complete);
@@ -116,6 +123,8 @@ function useDashboardCaseState() {
     saveStep,
     saveStepAndNavigate,
     autoSave,
+    settledDocTypes,
+    refreshDocuments,
   };
 }
 

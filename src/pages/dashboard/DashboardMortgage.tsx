@@ -1,3 +1,5 @@
+import StepCurrentMortgage from "@/components/intake/StepCurrentMortgage";
+import StepMortgageRequest from "@/components/intake/StepMortgageRequest";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mortgageRequestSchema } from "@/types/intake";
@@ -13,20 +15,22 @@ import { Loader2 } from "lucide-react";
 type MortgageData = z.infer<typeof mortgageRequestSchema>;
 
 export default function DashboardMortgage() {
-  const { intakeData, loading, saving, saveStep } = useDashboardCase();
+  const { caseId, caseType, intakeData, loading, saving, saveStep } = useDashboardCase();
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
-  const handleSubmit = async (data: MortgageData) => {
-    await saveStep("mortgage_request", data);
+  const handleSubmit = async (data: any) => {
+    const ok = await saveStep(caseType === "refi" ? "current_mortgage" : "mortgage_request", data);
+    if (!ok) return;
     const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
     const updated = { ...intakeData, mortgage_request: data };
     const done = keys.filter(k => updated[k] && Object.keys(updated[k]).length > 0).length;
     showCompletionToast(Math.round((done / keys.length) * 100), "משכנתא מבוקשת");
-    window.location.href = "/dashboard/declarations";
+    window.location.href = `/dashboard/declarations?caseId=${caseId}`;
   };
 
-  return <MortgageForm defaults={intakeData.mortgage_request || {}} saving={saving} onSubmit={handleSubmit} />;
+  if (caseType === "refi") return <StepCurrentMortgage defaultValues={intakeData.current_mortgage || {}} saving={saving} onNext={handleSubmit} onBack={() => window.history.back()} />;
+  return <StepMortgageRequest defaultValues={intakeData.mortgage_request || {}} suggestedAmount={intakeData.property?.requestedMortgage || 0} suggestedMaxPayment={intakeData.liabilities?.maxDesiredPayment || 0} saving={saving} onNext={handleSubmit} onBack={() => window.history.back()} />;
 }
 
 function MortgageForm({ defaults, saving, onSubmit }: { defaults: Partial<MortgageData>; saving: boolean; onSubmit: (d: MortgageData) => void }) {

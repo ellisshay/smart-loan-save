@@ -14,10 +14,14 @@ const schemas = {
 };
 
 /** Completion is derived from saved answers, never from the current navigation index. */
-export function completedIntakeSteps(data: Record<string, any>, type: CaseType): string[] {
+export function completedIntakeSteps(data: Record<string, any>, type: CaseType, settledDocTypes?: string[]): string[] {
   const steps = type === "refi" ? REFI_CASE_STEPS : NEW_CASE_STEPS;
   return steps.filter(({ key }) => {
     const value = data[key];
+    if (key === "documents" && settledDocTypes) {
+      const required = type === "refi" ? ["mortgage_report", "id_card", "payslips", "bank_statements"] : ["id_card", "payslips", "bank_statements", "purchase_contract"];
+      return required.every(t => settledDocTypes.includes(t) || data.deferred_docs?.includes(t));
+    }
     if (!value) return false;
     if (key === "equity") return Number(value.amount) > 0 && Array.isArray(value.sources) && value.sources.length > 0 && ["yes", "no"].includes(value.inAccount);
     if (key === "consent") return value.termsAccepted === true && value.privacyAccepted === true && value.dataUsageAccepted === true && typeof value.fullName === "string" && value.fullName.trim().length >= 2 && !!value.signature && !!value.signedAt;

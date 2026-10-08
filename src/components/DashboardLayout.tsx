@@ -39,8 +39,8 @@ function DashboardWorkspace() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [lastLogin, setLastLogin] = useState("");
-  const { caseId, caseType, intakeData, paymentSucceeded } = useDashboardCase();
-  const completed = completedIntakeSteps(intakeData, caseType);
+  const { caseId, caseType, intakeData, paymentSucceeded, settledDocTypes } = useDashboardCase();
+  const completed = completedIntakeSteps(intakeData, caseType, settledDocTypes);
   const progress = Math.round(completed.length / 10 * 100);
   const stepKeys: Record<string, string> = {
     personal: "personal", property: caseType === "refi" ? "refi_property" : "property",
@@ -48,7 +48,16 @@ function DashboardWorkspace() {
     declarations: "declarations", documents: "documents",
   };
   const isDone = (href: string) => href.endsWith("/payment") ? paymentSucceeded : completed.includes(stepKeys[href.split("/").pop() || ""]);
-  const caseLink = (href: string) => caseId ? `${href}?caseId=${caseId}` : href;
+  const caseLink = (href: string) => caseId ? `${href}${href.includes("?") ? "&" : "?"}caseId=${caseId}` : href;
+
+  const links = [...sideLinks];
+  links[2] = { ...links[2], label: caseType === "refi" ? "נכס נוכחי" : "נכס ועסקה" };
+  links[5] = { ...links[5], label: caseType === "refi" ? "משכנתא קיימת" : "משכנתא מבוקשת" };
+  const extra = caseType === "refi"
+    ? [{ label: "מטרת מיחזור", href: "/intake?step=refi_goal", icon: FileText }, { label: "העדפות תמהיל", href: "/intake?step=refi_preferences", icon: Shield }]
+    : [{ label: "הון עצמי", href: "/intake?step=equity", icon: DollarSign }, { label: "העדפות תמהיל", href: "/intake?step=preferences", icon: Shield }];
+  links.splice(6, 0, ...extra, { label: "אישורים", href: "/intake?step=consent", icon: Shield });
+  const linkDone = (href: string) => href.startsWith("/intake?") ? completed.includes(new URLSearchParams(href.split("?")[1]).get("step") || "") : isDone(href);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -95,7 +104,7 @@ function DashboardWorkspace() {
         <div className="flex flex-1">
           {/* Sidebar */}
           <aside className="hidden md:flex flex-col w-52 border-l border-border bg-card/50 py-4 px-2 gap-0.5">
-            {sideLinks.map((link) => {
+            {links.map((link) => {
               const active = location.pathname === link.href;
               return (
                 <Link key={link.href} to={caseLink(link.href)} aria-current={active ? "step" : undefined}
@@ -104,8 +113,8 @@ function DashboardWorkspace() {
                   }`}>
                   <link.icon size={14} />
                   <span className="flex-1">{link.label}</span>
-                  {isDone(link.href) && <span className="flex items-center gap-0.5 text-success text-[10px] shrink-0"><Check size={13} />הושלם</span>}
-                  {active && !isDone(link.href) && <span className="text-primary text-[10px] shrink-0">כאן</span>}
+                  {linkDone(link.href) && <span className="flex items-center gap-0.5 text-success text-[10px] shrink-0"><Check size={13} />הושלם</span>}
+                  {active && !linkDone(link.href) && <span className="text-primary text-[10px] shrink-0">כאן</span>}
                 </Link>
               );
             })}
@@ -114,7 +123,7 @@ function DashboardWorkspace() {
           {/* Mobile nav */}
           <div className="md:hidden bg-card/80 backdrop-blur-xl border-b border-border overflow-x-auto scrollbar-hide">
             <div className="flex gap-0.5 p-1.5">
-              {sideLinks.map((link) => {
+              {links.map((link) => {
                 const active = location.pathname === link.href;
                 return (
                   <Link key={link.href} to={caseLink(link.href)} aria-current={active ? "step" : undefined}
@@ -123,8 +132,8 @@ function DashboardWorkspace() {
                     }`}>
                     <link.icon size={12} />
                     {link.label}
-                    {isDone(link.href) && <span className="flex items-center gap-0.5 text-success"><Check size={12} />הושלם</span>}
-                    {active && !isDone(link.href) && <span className="text-primary">כאן</span>}
+                    {linkDone(link.href) && <span className="flex items-center gap-0.5 text-success"><Check size={12} />הושלם</span>}
+                    {active && !linkDone(link.href) && <span className="text-primary">כאן</span>}
                   </Link>
                 );
               })}

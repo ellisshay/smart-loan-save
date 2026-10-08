@@ -45,7 +45,7 @@ const DOC_CATEGORIES = [
 
 export default function DashboardDocuments() {
   const navigate = useNavigate();
-  const { caseId, caseType, intakeData, intakeComplete, status, paymentSucceeded, loading: caseLoading, saveStep } = useDashboardCase();
+  const { caseId, caseType, intakeData, intakeComplete, status, paymentSucceeded, loading: caseLoading, saveStep, refreshDocuments } = useDashboardCase();
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,6 +97,7 @@ export default function DashboardDocuments() {
     if (!caseId) return;
     const { data } = await supabase.from("case_documents").select("id, doc_type, file_name, is_required, file_path, ai_extracted_data").eq("case_id", caseId);
     if (data) setUploadedDocs(data as UploadedDoc[]);
+    refreshDocuments?.(caseId);
     setLoading(false);
   };
 
