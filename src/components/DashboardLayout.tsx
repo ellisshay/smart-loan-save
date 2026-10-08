@@ -1,4 +1,5 @@
-import { Gavel, Check } from "lucide-react";
+import { Gavel, Check, type LucideIcon } from "lucide-react";
+import { EXTERNAL_ADVISORS_ENABLED } from "@/lib/features";
 import { DashboardCaseProvider, useDashboardCase } from "@/hooks/useDashboardCase";
 import { completedIntakeSteps } from "@/lib/intakeCompletion";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +16,10 @@ import ExitIntentModal from "@/components/ExitIntentModal";
 import AIMortgageChat from "@/components/AIMortgageChat";
 import ConsentGate from "@/components/privacy/ConsentGate";
 
-const sideLinks = [
+type SideLink = { label: string; href: string; icon: LucideIcon };
+
+/** Client-area sidebar. Advisor-marketplace entries stay behind EXTERNAL_ADVISORS_ENABLED. */
+export const sideLinks: SideLink[] = [
   { label: "סקירה כללית", href: "/dashboard", icon: LayoutDashboard },
   { label: "פרטים אישיים", href: "/dashboard/personal", icon: User },
   { label: "נכס ועסקה", href: "/dashboard/property", icon: HomeIcon },
@@ -25,7 +29,7 @@ const sideLinks = [
   { label: "הצהרות", href: "/dashboard/declarations", icon: Shield },
   { label: "מסמכים", href: "/dashboard/documents", icon: Upload },
   { label: "תשלום", href: "/dashboard/payment", icon: PayIcon },
-  { label: "הצעות", href: "/dashboard/offers", icon: Gift },
+  ...(EXTERNAL_ADVISORS_ENABLED ? [{ label: "הצעות", href: "/dashboard/offers", icon: Gift }] : []),
   { label: "מכרז המשכנתא שלי", href: "/dashboard/tender", icon: Gavel },
   { label: "הפרטיות שלי", href: "/dashboard/privacy", icon: Shield },
 ];

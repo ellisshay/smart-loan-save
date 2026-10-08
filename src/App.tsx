@@ -109,7 +109,7 @@ export const AppRoutes = () => (
           <Route path="declarations" element={<DashboardDeclarations />} />
           <Route path="documents" element={<DashboardDocuments />} />
           <Route path="payment" element={<DashboardPayment />} />
-          <Route path="offers" element={<DashboardOffers />} />
+          <Route path="offers" element={EXTERNAL_ADVISORS_ENABLED ? <DashboardOffers /> : <Navigate to="/dashboard/tender" replace />} />
           <Route path="tender" element={<DashboardTender />} />
           <Route path="privacy" element={<DashboardPrivacy />} />
         </Route>
