@@ -321,17 +321,32 @@ export default function DashboardPayment() {
                           placeholder="שם מלא או שם חברה"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
-                        <Input
-                          id="bill-email"
-                          type="email"
-                          dir="ltr"
-                          className="text-left"
-                          value={billing.email}
-                          disabled={sameAsBorrower}
-                          onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
-                        />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-phone" className="text-xs">טלפו� נייד (לאימות SMS)</Label>
+                          <Input
+                            id="bill-phone"
+                            type="tel"
+                            dir="ltr"
+                            className="text-left"
+                            value={billing.phone}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, phone: e.target.value }))}
+                            placeholder="050-0000000"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
+                          <Input
+                            id="bill-email"
+                            type="email"
+                            dir="ltr"
+                            className="text-left"
+                            value={billing.email}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
+                          />
+                        </div>
                       </div>
                     </div>
                     <Button
