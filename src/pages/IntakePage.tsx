@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntakeForm } from "@/hooks/useIntakeForm";
 import { countMissingDocs } from "@/lib/docsComplete";
+import { completedIntakeSteps } from "@/lib/intakeCompletion";
 import { toast } from "@/hooks/use-toast";
 import {
   NEW_CASE_STEPS, REFI_CASE_STEPS, SERVICE_GOALS,
@@ -222,7 +223,7 @@ function IntakeFormFlow({
         description: `${missing} מסמכים עדיין חסרים. ניתן להעלות אותם בכל שלב מהאזור האישי. בדיקת התיק מתחילה לאחר התשלום וקבלת המסמכים.`,
       });
     }
-    navigate("/dashboard/payment");
+    navigate(`/dashboard/payment?caseId=${caseId}`);
   };
 
 
@@ -314,7 +315,7 @@ function IntakeFormFlow({
           </div>
         )}
 
-        <IntakeProgressBar steps={steps} currentStep={currentStep} onStepClick={goToStep} />
+        <IntakeProgressBar steps={steps} currentStep={currentStep} completedSteps={completedIntakeSteps(intakeData, caseType)} onStepClick={goToStep} />
 
         <AnimatePresence mode="wait">
           <div key={currentStep}>

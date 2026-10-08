@@ -1,4 +1,6 @@
-import { Gavel } from "lucide-react";
+import { Gavel, Check } from "lucide-react";
+import { DashboardCaseProvider, useDashboardCase } from "@/hooks/useDashboardCase";
+import { completedIntakeSteps } from "@/lib/intakeCompletion";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,11 +31,24 @@ const sideLinks = [
 ];
 
 export default function DashboardLayout() {
+  return <AuthGuard><DashboardCaseProvider><DashboardWorkspace /></DashboardCaseProvider></AuthGuard>;
+}
+
+function DashboardWorkspace() {
   const location = useLocation();
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [lastLogin, setLastLogin] = useState("");
-  const [progress, setProgress] = useState(0);
+  const { caseId, caseType, intakeData, paymentSucceeded } = useDashboardCase();
+  const completed = completedIntakeSteps(intakeData, caseType);
+  const progress = Math.round(completed.length / 10 * 100);
+  const stepKeys: Record<string, string> = {
+    personal: "personal", property: caseType === "refi" ? "refi_property" : "property",
+    income: "income", liabilities: "liabilities", mortgage: caseType === "refi" ? "current_mortgage" : "mortgage_request",
+    declarations: "declarations", documents: "documents",
+  };
+  const isDone = (href: string) => href.endsWith("/payment") ? paymentSucceeded : completed.includes(stepKeys[href.split("/").pop() || ""]);
+  const caseLink = (href: string) => caseId ? `${href}?caseId=${caseId}` : href;
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -53,16 +68,6 @@ export default function DashboardLayout() {
             day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
           }));
         }
-        // Load progress for exit intent
-        supabase.from("cases").select("intake_data").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle()
-          .then(({ data }) => {
-            if (data) {
-              const intakeData = (data.intake_data as Record<string, any>) || {};
-              const keys = ["personal", "property", "income", "liabilities", "mortgage_request", "declarations", "documents"];
-              const done = keys.filter(k => intakeData[k] && Object.keys(intakeData[k]).length > 0).length;
-              setProgress(Math.round((done / keys.length) * 100));
-            }
-          });
       }
     });
   }, [location.pathname]);
@@ -93,12 +98,14 @@ export default function DashboardLayout() {
             {sideLinks.map((link) => {
               const active = location.pathname === link.href;
               return (
-                <Link key={link.href} to={link.href}
+                <Link key={link.href} to={caseLink(link.href)} aria-current={active ? "step" : undefined}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                     active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}>
                   <link.icon size={14} />
-                  {link.label}
+                  <span className="flex-1">{link.label}</span>
+                  {isDone(link.href) && <span className="flex items-center gap-0.5 text-success text-[10px] shrink-0"><Check size={13} />הושלם</span>}
+                  {active && !isDone(link.href) && <span className="text-primary text-[10px] shrink-0">כאן</span>}
                 </Link>
               );
             })}
@@ -110,12 +117,14 @@ export default function DashboardLayout() {
               {sideLinks.map((link) => {
                 const active = location.pathname === link.href;
                 return (
-                  <Link key={link.href} to={link.href}
+                  <Link key={link.href} to={caseLink(link.href)} aria-current={active ? "step" : undefined}
                     className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium whitespace-nowrap transition-colors ${
                       active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                     }`}>
                     <link.icon size={12} />
                     {link.label}
+                    {isDone(link.href) && <span className="flex items-center gap-0.5 text-success"><Check size={12} />הושלם</span>}
+                    {active && !isDone(link.href) && <span className="text-primary">כאן</span>}
                   </Link>
                 );
               })}

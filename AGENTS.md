@@ -6,3 +6,4 @@
 - Public routes are prerendered at build (src/entry-server.tsx + scripts/prerender.mjs, route list in src/seo/pages.ts + article data); private prefixes in src/seo/config.ts get noindex and stay SPA — crawlers need content in the first HTML.
 - Per-page head tags come only from <Seo> (static pages via RouteSeo in Layout); canonical domain is https://easymorte.co.il — avoids duplicate/conflicting tags.
 - Intake steps use shared useIntakeValidation feedback for invalid submissions — keeps popup, red field highlighting and focus consistent across nested fields and case types.
+- Dashboard pages share one DashboardCaseProvider and preserve caseId in navigation; completion uses shared saved-answer validation rather than navigation position, so forms and sidebar always describe the same case.
