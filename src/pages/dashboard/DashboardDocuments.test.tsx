@@ -23,7 +23,7 @@ describe("documents payment navigation", () => {
   it("allows a completed questionnaire with zero documents to reach payment", async () => {
     state.paymentSucceeded = false;
     render(<MemoryRouter initialEntries={["/dashboard/documents"]}><DashboardDocuments /><Location /></MemoryRouter>);
-    fireEvent.click(await screen.findByRole("button", { name: /لتשלום|לתשלום —/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /לתשלום —/ }));
     await waitFor(() => expect(screen.getByTestId("location").textContent).toBe("/dashboard/payment"));
   });
 });
