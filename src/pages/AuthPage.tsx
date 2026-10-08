@@ -1,3 +1,4 @@
+import { EXTERNAL_ADVISORS_ENABLED } from "@/lib/features";
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";

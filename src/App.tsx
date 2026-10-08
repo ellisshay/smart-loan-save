@@ -1,3 +1,4 @@
+import { EXTERNAL_ADVISORS_ENABLED } from "@/lib/features";
 import DashboardPrivacy from "./pages/dashboard/DashboardPrivacy";
 import AdminPrivacy from "./pages/admin/AdminPrivacy";
 import ConsentGate from "@/components/privacy/ConsentGate";
