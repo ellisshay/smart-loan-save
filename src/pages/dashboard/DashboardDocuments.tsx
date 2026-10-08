@@ -10,6 +10,8 @@ import { Upload, CheckCircle2, AlertTriangle, FileText, User, DollarSign, Home, 
 import { Progress } from "@/components/ui/progress";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
 import { LEVEL_UI, levelOf, isDocSettled } from "@/lib/docValidation";
+import { useNavigate } from "react-router-dom";
+import { CASE_STATUSES } from "@/types/admin";
 
 interface UploadedDoc {
   id: string;
@@ -42,7 +44,8 @@ const DOC_CATEGORIES = [
 ];
 
 export default function DashboardDocuments() {
-  const { caseId, caseType, intakeData, loading: caseLoading, saveStep } = useDashboardCase();
+  const navigate = useNavigate();
+  const { caseId, caseType, intakeData, intakeComplete, status, paymentSucceeded, loading: caseLoading, saveStep } = useDashboardCase();
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -203,6 +206,22 @@ export default function DashboardDocuments() {
         <p className="text-sm text-muted-foreground">העלה את המסמכים הנדרשים · {uploadedRequired}/{totalRequired} חובה הועלו</p>
       </div>
 
+      <section aria-label="סטטוס התיק והתשלום" className="space-y-3 border-y border-border py-5">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline">סטטוס התיק: {CASE_STATUSES[status].label}</Badge>
+          <Badge variant="outline">{paymentSucceeded ? "התשלום אושר" : "טרם התקבל אישור תשלום"}</Badge>
+          <Badge variant="outline">{intakeComplete ? "השאלון הושלם" : "השאלון טרם הושלם"}</Badge>
+        </div>
+        <p className="text-sm text-foreground">אפשר לשלם ולהעלות את המסמכים במועד מאוחר יותר מהאזור האישי.</p>
+        <p className="text-xs text-muted-foreground">בדיקת התיק בתוך עד 72 שעות מתחילה רק לאחר השלמת השאלון, כל מסמכי החובה ואישור התשלום; זה אינו זמן המענה של הבנק.</p>
+        {!paymentSucceeded && (
+          <Button variant="cta" onClick={() => navigate("/dashboard/payment")}>
+            <DollarSign size={16} /> מעבר לתשלום
+          </Button>
+        )}
+        {!intakeComplete && !paymentSucceeded && <p className="text-xs text-muted-foreground">לפני ביצוע התשלום יש להשלים את השאלון; אין צורך להעלות את המסמכים כעת.</p>}
+      </section>
+
       <Card>
         <CardContent className="p-5 space-y-3">
           <div className="flex items-center justify-between text-sm">
@@ -217,7 +236,7 @@ export default function DashboardDocuments() {
       {/* Progress badge */}
       <div className="flex items-center gap-3">
         <Badge className={`text-xs ${settledRequired === totalRequired ? "bg-primary/10 text-primary border-primary/20" : "bg-warning/10 text-warning border-warning/20"}`}>
-          {settledRequired === totalRequired ? "כל מסמכי החובה טופלו — אפשר להמשיך לתשלום" : `חסרים ${totalRequired - settledRequired} מסמכי חובה`}
+          {settledRequired === totalRequired ? "מסמכי החובה הועלו לבדיקה או סומנו להשלמה מאוחרת" : `נותרו ${totalRequired - settledRequired} מסמכי חובה לטיפול — אינם חוסמים מעבר לתשלום`}
         </Badge>
       </div>
 
@@ -318,12 +337,13 @@ export default function DashboardDocuments() {
         </CardContent>
       </Card>
 
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" size="lg" onClick={() => window.history.back()}>← חזרה לדשבורד</Button>
-        {settledRequired === totalRequired && (
-          <Button variant="cta" size="lg" onClick={() => window.location.href = "/dashboard"}>
-            סיים וחזור לדשבורד </Button>
+      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        {!paymentSucceeded && (
+          <Button variant="cta" size="lg" onClick={() => navigate("/dashboard/payment")}>
+            <DollarSign size={18} /> לתשלום — את המסמכים אשלח במועד מאוחר יותר
+          </Button>
         )}
+        <Button variant="outline" size="lg" onClick={() => navigate("/dashboard")}>חזרה לאזור האישי</Button>
       </div>
     </div>
   );
