@@ -60,6 +60,7 @@ export function useDashboardCase() {
         if (!subErr) {
           setIntakeComplete(true);
           supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
+          supabase.functions.invoke("generate-financial-score", { body: { case_id: caseId } }).catch(console.error);
         }
       }
 
