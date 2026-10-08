@@ -33,7 +33,7 @@ export default function DashboardPayment() {
   const personal = (intakeData as any)?.personal ?? {};
   const borrower = personal.borrower1 ?? {};
   const [sameAsBorrower, setSameAsBorrower] = useState(true);
-  const [billing, setBilling] = useState({ firstName: "", lastName: "", invoiceName: "", email: "" });
+  const [billing, setBilling] = useState({ firstName: "", lastName: "", invoiceName: "", email: "", phone: "" });
 
   useEffect(() => {
     if (!sameAsBorrower) return;
@@ -42,16 +42,21 @@ export default function DashboardPayment() {
       lastName: borrower.lastName ?? "",
       invoiceName: [borrower.firstName, borrower.lastName].filter(Boolean).join(" "),
       email: borrower.email ?? "",
+      phone: borrower.phone ?? "",
     });
-  }, [sameAsBorrower, borrower.firstName, borrower.lastName, borrower.email]);
+  }, [sameAsBorrower, borrower.firstName, borrower.lastName, borrower.email, borrower.phone]);
 
   const billingValid =
     billing.firstName.trim().length > 0 &&
     billing.lastName.trim().length > 0 &&
     billing.invoiceName.trim().length > 0 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim());
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim()) &&
+    // Phone is optional, but when present it must look like a local Israeli number.
+    (billing.phone.trim() === "" || /^0?\d{8,10}$/.test(billing.phone.replace(/[\s-]/g, "")));
 
-  const payUrl = `https://direct.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
+  // cred_type=8 + maxpay=4: the Tranzila form offers the customer a choice of
+  // 1–4 installments (docs.tranzila.com — iframe integration / Lovable guide).
+  const payUrl = `https://direct.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=8&maxpay=4&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&phone=${encodeURIComponent(billing.phone.replace(/[\s-]/g, "").trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
 
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {
@@ -253,7 +258,7 @@ export default function DashboardPayment() {
           <CardContent className="p-6 text-center">
             <div className="mb-4">
               <span className="text-3xl font-display font-black text-foreground">₪3,450</span>
-              <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · תשלום חד פעמי</span>
+              <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · אפשרות חלוקה עד 4 תשלומים</span>
             </div>
             {paymentReady ? (
               <>
@@ -316,17 +321,32 @@ export default function DashboardPayment() {
                           placeholder="שם מלא או שם חברה"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
-                        <Input
-                          id="bill-email"
-                          type="email"
-                          dir="ltr"
-                          className="text-left"
-                          value={billing.email}
-                          disabled={sameAsBorrower}
-                          onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
-                        />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-phone" className="text-xs">טלפון נייד (לאימות SMS)</Label>
+                          <Input
+                            id="bill-phone"
+                            type="tel"
+                            dir="ltr"
+                            className="text-left"
+                            value={billing.phone}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, phone: e.target.value }))}
+                            placeholder="050-0000000"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
+                          <Input
+                            id="bill-email"
+                            type="email"
+                            dir="ltr"
+                            className="text-left"
+                            value={billing.email}
+                            disabled={sameAsBorrower}
+                            onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
+                          />
+                        </div>
                       </div>
                     </div>
                     <Button
