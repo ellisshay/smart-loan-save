@@ -181,6 +181,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
       const { error: submitErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId, _goal: goal });
       if (submitErr) throw submitErr;
       supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
+      supabase.functions.invoke("generate-financial-score", { body: { case_id: caseId } }).catch(console.error);
       // Side notifications must never block the client
       Promise.allSettled([
         fireWebhook("case_submitted", caseId, {}),
