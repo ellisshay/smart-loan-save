@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { useIntakeValidation } from "./useIntakeValidation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiGoalSchema, REFI_REASONS } from "@/types/intake";
@@ -35,8 +35,11 @@ export default function StepRefiGoal({ defaultValues, onNext, onBack, saving }: 
     setValue("refiReasons", updated, { shouldValidate: true });
   };
 
+  const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
+
   return (
-    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form ref={formRef} noValidate onSubmit={handleSubmit(onNext, onInvalid)} className="space-y-6 [&_[aria-invalid=true]]:border-destructive [&_[aria-invalid=true]]:ring-2 [&_[aria-invalid=true]]:ring-destructive/30" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+      {validationAlert}
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">מטרת המיחזור</h2>
         <p className="text-sm text-muted-foreground">למה אתה רוצה למחזר?</p>
@@ -45,7 +48,7 @@ export default function StepRefiGoal({ defaultValues, onNext, onBack, saving }: 
       <div>
         <Label className="text-sm font-medium text-foreground mb-3 block">בחר סיבות (ניתן לבחור מספר) *</Label>
         {errors.refiReasons && <p className="text-xs text-destructive mb-2">{errors.refiReasons.message}</p>}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div data-validation-name="refiReasons" tabIndex={-1} className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-md">
           {REFI_REASONS.map((r) => (
             <button
               key={r.value}
