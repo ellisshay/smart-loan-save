@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import type { CaseStatus } from "@/types/admin";
 
 export function useDashboardCase() {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ export function useDashboardCase() {
   const [caseType, setCaseType] = useState<"new" | "refi">("new");
   const [intakeData, setIntakeData] = useState<Record<string, any>>({});
   const [intakeComplete, setIntakeComplete] = useState(false);
+  const [status, setStatus] = useState<CaseStatus>("Draft");
+  const [paymentSucceeded, setPaymentSucceeded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -20,7 +23,7 @@ export function useDashboardCase() {
 
       const { data } = await supabase
         .from("cases")
-        .select("id, case_type, intake_data, current_step, intake_complete")
+        .select("id, case_type, intake_data, current_step, intake_complete, status, payment_succeeded")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -31,6 +34,8 @@ export function useDashboardCase() {
         setCaseType(data.case_type as "new" | "refi");
         setIntakeData((data.intake_data as Record<string, any>) || {});
         setIntakeComplete(!!data.intake_complete);
+        setStatus(data.status);
+        setPaymentSucceeded(data.payment_succeeded);
       } else {
         toast({ title: "אין תיק פעיל", description: "פתח תיק חדש כדי להתחיל", variant: "destructive" });
         navigate("/intake");
@@ -59,6 +64,7 @@ export function useDashboardCase() {
         const { error: subErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId });
         if (!subErr) {
           setIntakeComplete(true);
+          if (status === "Draft") setStatus("WaitingForPayment");
           supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
           supabase.functions.invoke("generate-financial-score", { body: { case_id: caseId } }).catch(console.error);
         }
@@ -73,7 +79,7 @@ export function useDashboardCase() {
     } finally {
       setSaving(false);
     }
-  }, [caseId, caseType, intakeData, intakeComplete]);
+  }, [caseId, caseType, intakeData, intakeComplete, status]);
 
   const saveStepAndNavigate = useCallback(async (stepKey: string, stepData: any, nextPath: string) => {
     await saveStep(stepKey, stepData);
@@ -94,6 +100,8 @@ export function useDashboardCase() {
     caseType,
     intakeData,
     intakeComplete,
+    status,
+    paymentSucceeded,
     loading,
     saving,
     saveStep,
