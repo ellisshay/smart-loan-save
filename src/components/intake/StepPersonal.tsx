@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalSchema, type PersonalData } from "@/types/intake";
@@ -36,7 +37,7 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
 
   return (
     <motion.form
-      onSubmit={handleSubmit(onNext)}
+      onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })}
       className="space-y-6"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}

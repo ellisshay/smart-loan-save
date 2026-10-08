@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiGoalSchema, REFI_REASONS } from "@/types/intake";
@@ -35,7 +36,7 @@ export default function StepRefiGoal({ defaultValues, onNext, onBack, saving }: 
   };
 
   return (
-    <motion.form onSubmit={handleSubmit(onNext)} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">מטרת המיחזור</h2>
         <p className="text-sm text-muted-foreground">למה אתה רוצה למחזר?</p>

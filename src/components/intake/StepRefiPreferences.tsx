@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiPreferencesSchema } from "@/types/intake";
@@ -24,7 +25,7 @@ export default function StepRefiPreferences({ defaultValues, onNext, onBack, sav
   const stability = watch("stabilityPriority") || 3;
 
   return (
-    <motion.form onSubmit={handleSubmit(onNext)} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">העדפות תמהיל למיחזור</h2>
         <p className="text-sm text-muted-foreground">מה חשוב לך בתמהיל החדש?</p>
