@@ -8,6 +8,13 @@
       "when": 1791447382044,
       "tag": "0000_profile_phone_from_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791447601824,
+      "tag": "0001_fix_case_number_generation",
+      "breakpoints": true
     }
   ]
 }
