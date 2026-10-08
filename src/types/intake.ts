@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+// Empty optional inputs arrive as "" or NaN (valueAsNumber) — treat them as "not filled" instead of silently blocking the step
+const blank = (v: unknown) => (v === "" || v === null || (typeof v === "number" && Number.isNaN(v)) ? undefined : v);
+const optNum = (min?: number) => z.preprocess(blank, (min === undefined ? z.coerce.number() : z.coerce.number().min(min)).optional());
+
 // Israeli ID validation (Luhn-like check digit)
 function isValidIsraeliId(id: string): boolean {
   if (id.length !== 9 || !/^\d{9}$/.test(id)) return false;
@@ -29,13 +33,13 @@ export const borrowerSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   zipCode: z.string().optional(),
-  additionalCitizenship: z.enum(["yes", "no"]).optional(),
+  additionalCitizenship: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   citizenshipDetails: z.string().optional(),
-  dependents: z.coerce.number().min(0).optional(),
-  hasPrenup: z.enum(["yes", "no"]).optional(),
-  isDivorced: z.enum(["yes", "no"]).optional(),
-  hasAlimony: z.enum(["yes", "no"]).optional(),
-  alimonyAmount: z.coerce.number().optional(),
+  dependents: optNum(0),
+  hasPrenup: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
+  isDivorced: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
+  hasAlimony: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
+  alimonyAmount: optNum(),
 });
 
 export type BorrowerData = z.infer<typeof borrowerSchema>;
@@ -61,18 +65,18 @@ export const propertySchema = z.object({
   }),
   propertyCity: z.string().min(2, "ציין לפחות עיר"),
   propertyAddress: z.string().optional(),
-  areaType: z.enum(["center", "periphery"]).optional(),
+  areaType: z.preprocess(blank, z.enum(["center", "periphery"]).optional()),
   purchasePrice: z.coerce.number().positive("מחיר רכישה חובה"),
-  appraisalValue: z.coerce.number().optional(),
+  appraisalValue: optNum(),
   signingDate: z.string().optional(),
   deliveryDate: z.string().optional(),
-  hasSignedContract: z.enum(["yes", "no"]).optional(),
-  hasWarningNote: z.enum(["yes", "no"]).optional(),
+  hasSignedContract: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
+  hasWarningNote: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   ownEquity: z.coerce.number().min(0, "הון עצמי לא תקין"),
   equitySources: z.array(z.string()).optional(),
-  isEquityInAccount: z.enum(["yes", "no"]).optional(),
+  isEquityInAccount: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   requestedMortgage: z.coerce.number().positive("סכום משכנתא חובה"),
-  hasExistingMortgage: z.enum(["yes", "no"]).optional(),
+  hasExistingMortgage: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
 });
 
 // ── Step 3: Income ──
@@ -82,41 +86,41 @@ export const incomeSchema = z.object({
   }),
   // Salaried fields
   employer: z.string().optional(),
-  workSeniority: z.coerce.number().min(0).optional(),
-  contractType: z.enum(["permanent", "temporary"]).optional(),
-  grossSalary: z.coerce.number().optional(),
+  workSeniority: optNum(0),
+  contractType: z.preprocess(blank, z.enum(["permanent", "temporary"]).optional()),
+  grossSalary: optNum(),
   monthlyNetIncome: z.coerce.number().positive("הכנסה חודשית חובה"),
-  averageNet3Months: z.coerce.number().optional(),
-  averageBonuses: z.coerce.number().optional(),
-  hasLeasingCar: z.enum(["yes", "no"]).optional(),
+  averageNet3Months: optNum(),
+  averageBonuses: optNum(),
+  hasLeasingCar: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   // Self-employed fields
   businessField: z.string().optional(),
-  businessSeniority: z.coerce.number().optional(),
-  annualIncome: z.coerce.number().optional(),
-  monthlyAvgSelfEmployed: z.coerce.number().optional(),
-  hasOpenTaxDebts: z.enum(["yes", "no"]).optional(),
+  businessSeniority: optNum(),
+  annualIncome: optNum(),
+  monthlyAvgSelfEmployed: optNum(),
+  hasOpenTaxDebts: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   // Additional income
   hasAdditionalIncome: z.enum(["yes", "no"]),
-  rentalIncome: z.coerce.number().optional(),
-  benefitsIncome: z.coerce.number().optional(),
-  alimonyIncome: z.coerce.number().optional(),
-  investmentIncome: z.coerce.number().optional(),
-  otherIncome: z.coerce.number().optional(),
+  rentalIncome: optNum(),
+  benefitsIncome: optNum(),
+  alimonyIncome: optNum(),
+  investmentIncome: optNum(),
+  otherIncome: optNum(),
   otherIncomeSource: z.string().optional(),
   occupation: z.string().min(2, "תחום עיסוק חובה"),
   // Borrower 2 fields (mirrors above)
   b2EmploymentStatus: z.string().optional(),
   b2Employer: z.string().optional(),
-  b2WorkSeniority: z.coerce.number().optional(),
+  b2WorkSeniority: optNum(),
   b2ContractType: z.string().optional(),
-  b2GrossSalary: z.coerce.number().optional(),
-  b2MonthlyNetIncome: z.coerce.number().optional(),
-  b2AverageNet3Months: z.coerce.number().optional(),
+  b2GrossSalary: optNum(),
+  b2MonthlyNetIncome: optNum(),
+  b2AverageNet3Months: optNum(),
   b2Occupation: z.string().optional(),
   b2BusinessField: z.string().optional(),
-  b2HasAdditionalIncome: z.enum(["yes", "no"]).optional(),
+  b2HasAdditionalIncome: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   b2AdditionalIncomeSource: z.string().optional(),
-  b2AdditionalIncomeAmount: z.coerce.number().optional(),
+  b2AdditionalIncomeAmount: optNum(),
 });
 
 // ── Step 4: Liabilities ──
@@ -128,11 +132,11 @@ export const liabilitiesSchema = z.object({
     endDate: z.string().optional(),
   })).optional(),
   existingLoanPayments: z.coerce.number().min(0, "סכום לא תקין"),
-  usedCreditFrames: z.coerce.number().optional(),
+  usedCreditFrames: optNum(),
   hasSignificantCreditCards: z.enum(["yes", "no"]),
-  creditCardMonthly: z.coerce.number().optional(),
-  alimonyPaid: z.coerce.number().optional(),
-  hasGuarantees: z.enum(["yes", "no"]).optional(),
+  creditCardMonthly: optNum(),
+  alimonyPaid: optNum(),
+  hasGuarantees: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   hasDelinquentDebt: z.enum(["yes", "no"]),
   hasLegalProceedings: z.enum(["yes", "no"]),
   maxDesiredPayment: z.coerce.number().positive("החזר מקסימלי חובה"),
@@ -142,7 +146,7 @@ export const liabilitiesSchema = z.object({
   riskLevel: z.enum(["low", "medium", "high"], {
     required_error: "בחר רמת סיכון",
   }),
-  incomeChangeExpected: z.enum(["up", "down", "none"]).optional(),
+  incomeChangeExpected: z.preprocess(blank, z.enum(["up", "down", "none"]).optional()),
   incomeChangeDetails: z.string().optional(),
 });
 
@@ -159,18 +163,18 @@ export const preferencesSchema = z.object({
 // ── Step 6: Mortgage request details (new mortgage) ──
 export const mortgageRequestSchema = z.object({
   requestedAmount: z.coerce.number().positive("סכום משכנתא חובה"),
-  desiredPayment: z.coerce.number().optional(),
-  maxPayment: z.coerce.number().optional(),
+  desiredPayment: optNum(),
+  maxPayment: optNum(),
   desiredYears: z.coerce.number().min(4).max(30).optional(),
-  goal: z.enum(["lower_payment", "total_savings", "stability", "combined"]).optional(),
-  riskLevel: z.enum(["low", "medium", "high"]).optional(),
+  goal: z.preprocess(blank, z.enum(["lower_payment", "total_savings", "stability", "combined"]).optional()),
+  riskLevel: z.preprocess(blank, z.enum(["low", "medium", "high"]).optional()),
 });
 
 // ── Refinance-specific schemas ──
 export const refiGoalSchema = z.object({
   refiReasons: z.array(z.string()).min(1, "בחר לפחות סיבה אחת"),
   wantsIncrease: z.enum(["yes", "no"]),
-  increaseAmount: z.coerce.number().optional(),
+  increaseAmount: optNum(),
   increasePurpose: z.string().optional(),
 });
 
@@ -182,7 +186,7 @@ export const currentMortgageSchema = z.object({
   hasUpcomingRateChange: z.enum(["yes", "no"]),
   rateChangeDate: z.string().optional(),
   hasExitPenalties: z.enum(["yes", "no"]),
-  exitPenaltyEstimate: z.coerce.number().optional(),
+  exitPenaltyEstimate: optNum(),
   // Dynamic tracks table
   tracks: z.array(z.object({
     trackType: z.string(),
@@ -191,7 +195,7 @@ export const currentMortgageSchema = z.object({
     isIndexed: z.enum(["yes", "no"]),
     remainingYears: z.coerce.number(),
     exitDate: z.string().optional(),
-    exitPenalty: z.coerce.number().optional(),
+    exitPenalty: optNum(),
   })).optional(),
 });
 
@@ -201,7 +205,7 @@ export const refiPropertySchema = z.object({
   propertyCity: z.string().min(2, "ציין לפחות עיר"),
   propertyAddress: z.string().optional(),
   isInvestment: z.enum(["yes", "no"]),
-  rentalIncome: z.coerce.number().optional(),
+  rentalIncome: optNum(),
 });
 
 export const refiPreferencesSchema = z.object({
