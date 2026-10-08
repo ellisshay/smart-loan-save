@@ -7,3 +7,4 @@
 - Per-page head tags come only from <Seo> (static pages via RouteSeo in Layout); canonical domain is https://easymorte.co.il — avoids duplicate/conflicting tags.
 - Intake steps use shared useIntakeValidation feedback for invalid submissions — keeps popup, red field highlighting and focus consistent across nested fields and case types.
 - Dashboard pages share one DashboardCaseProvider and preserve caseId in navigation; completion uses shared saved-answer validation rather than navigation position, so forms and sidebar always describe the same case.
+- Hosted Tranzila checkout must use the direct.tranzila.com endpoint (not secure.tranzila.com, which times out) — keeps the payment form loadable in the dashboard iframe and in a new tab.
