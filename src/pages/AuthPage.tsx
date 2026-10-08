@@ -94,6 +94,11 @@ export default function AuthPage() {
           });
         }
 
+        if (!data.session) {
+          toast({ title: "נרשמת בהצלחה!", description: `שלחנו מייל אימות אל ${form.email}. יש ללחוץ על הקישור במייל ואז להתחבר (בדוק גם בספאם).` });
+          setIsLogin(true);
+          return;
+        }
         toast({ title: "נרשמת בהצלחה! " });
         navigate(userType === "advisor" ? "/advisor" : nextPath || "/dashboard");
       }
