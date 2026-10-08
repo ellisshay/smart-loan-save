@@ -114,7 +114,7 @@ export const AppRoutes = () => (
         </Route>
 
         {/* Advisor routes */}
-        <Route path="/advisor" element={<AdvisorLayout />}>
+        <Route path="/advisor" element={EXTERNAL_ADVISORS_ENABLED ? <AdvisorLayout /> : <Navigate to="/" replace />}>
           <Route index element={<AdvisorDashboard />} />
           <Route path="offer/:leadId" element={<AdvisorOfferPage />} />
         </Route>

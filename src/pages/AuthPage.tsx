@@ -18,13 +18,13 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [userType, setUserType] = useState<UserType>(() => {
     const role = searchParams.get("role");
-    if (role === "advisor") return "advisor";
+    if (EXTERNAL_ADVISORS_ENABLED && role === "advisor") return "advisor";
     return "client";
   });
 
   // Auto-switch to signup when coming from advisor CTA
   useEffect(() => {
-    if (searchParams.get("role") === "advisor") {
+    if (EXTERNAL_ADVISORS_ENABLED && searchParams.get("role") === "advisor") {
       setIsLogin(false);
     }
   }, [searchParams]);
@@ -139,7 +139,7 @@ export default function AuthPage() {
 
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-6 shadow-card border border-border space-y-4">
           {/* Tab switcher for signup */}
-          {!isLogin && (
+          {!isLogin && EXTERNAL_ADVISORS_ENABLED && (
             <div className="flex rounded-xl bg-muted p-1 mb-2">
               <button
                 type="button"
