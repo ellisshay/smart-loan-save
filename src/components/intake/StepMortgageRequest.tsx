@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mortgageRequestSchema } from "@/types/intake";
@@ -29,7 +30,7 @@ export default function StepMortgageRequest({ defaultValues, suggestedAmount = 0
   });
 
   return (
-    <motion.form onSubmit={handleSubmit(onNext)} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">המשכנתא המבוקשת</h2>
         <p className="text-sm text-muted-foreground">נגדיר את הסכום, ההחזר והיעד לפני בניית התמהיל</p>

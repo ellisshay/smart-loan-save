@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { currentMortgageSchema, ISRAELI_BANKS } from "@/types/intake";
@@ -31,7 +32,7 @@ export default function StepCurrentMortgage({ defaultValues, onNext, onBack, sav
   const hasPenalties = watch("hasExitPenalties");
 
   return (
-    <motion.form onSubmit={handleSubmit(onNext)} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">פרטי משכנתא קיימת</h2>
         <p className="text-sm text-muted-foreground">ספר לנו על המשכנתא הנוכחית שלך</p>
