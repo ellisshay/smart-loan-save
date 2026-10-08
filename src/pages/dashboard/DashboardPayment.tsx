@@ -323,7 +323,7 @@ export default function DashboardPayment() {
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label htmlFor="bill-phone" className="text-xs">טלפו� נייד (לאימות SMS)</Label>
+                          <Label htmlFor="bill-phone" className="text-xs">טלפון נייד (לאימות SMS)</Label>
                           <Input
                             id="bill-phone"
                             type="tel"
