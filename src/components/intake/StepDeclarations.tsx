@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { useIntakeValidation } from "./useIntakeValidation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { declarationsSchema } from "@/types/intake";
@@ -31,8 +31,11 @@ export default function StepDeclarations({ defaultValues, onNext, onBack, saving
   });
   const confirmed = watch("confirmTruthful");
 
+  const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
+
   return (
-    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form ref={formRef} noValidate onSubmit={handleSubmit(onNext, onInvalid)} className="space-y-6 [&_[aria-invalid=true]]:border-destructive [&_[aria-invalid=true]]:ring-2 [&_[aria-invalid=true]]:ring-destructive/30" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+      {validationAlert}
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">הצהרות בנקאיות</h2>
         <p className="text-sm text-muted-foreground">המטרה היא לזהות מראש דברים שעלולים לעכב את הבנק, לא לפסול אתכם אוטומטית.</p>
@@ -53,7 +56,7 @@ export default function StepDeclarations({ defaultValues, onNext, onBack, saving
       </div>
 
       <label className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 p-4 cursor-pointer">
-        <Checkbox checked={confirmed === true} onCheckedChange={(v) => setValue("confirmTruthful", (v === true ? true : undefined) as any, { shouldValidate: true })} className="mt-0.5" />
+        <Checkbox data-validation-name="confirmTruthful" checked={confirmed === true} onCheckedChange={(v) => setValue("confirmTruthful", (v === true ? true : undefined) as any, { shouldValidate: true })} className="mt-0.5" />
         <span className="text-sm leading-relaxed">אני מאשר/ת שהמידע שמסרתי נכון ומלא לפי ידיעתי, ושידוע לי שמידע חסר או לא מדויק עלול להשפיע על בדיקת הבנק.</span>
       </label>
       {errors.confirmTruthful && <p className="text-xs text-destructive">{errors.confirmTruthful.message}</p>}

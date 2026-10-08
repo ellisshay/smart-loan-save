@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { useIntakeValidation } from "./useIntakeValidation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiPropertySchema } from "@/types/intake";
@@ -28,8 +28,11 @@ export default function StepRefiProperty({ defaultValues, onNext, onBack, saving
   const isInvestment = watch("isInvestment");
   const ltv = estimatedValue > 0 ? Math.round((totalBalance / estimatedValue) * 100) : 0;
 
+  const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
+
   return (
-    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form ref={formRef} noValidate onSubmit={handleSubmit(onNext, onInvalid)} className="space-y-6 [&_[aria-invalid=true]]:border-destructive [&_[aria-invalid=true]]:ring-2 [&_[aria-invalid=true]]:ring-destructive/30" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+      {validationAlert}
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">נתוני נכס נוכחי</h2>
         <p className="text-sm text-muted-foreground">פרטי הנכס שעליו רשומה המשכנתא</p>

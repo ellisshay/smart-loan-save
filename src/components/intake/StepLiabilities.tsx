@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { useIntakeValidation } from "./useIntakeValidation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { liabilitiesSchema } from "@/types/intake";
@@ -34,8 +34,11 @@ export default function StepLiabilities({ defaultValues, onNext, onBack, saving,
   const totalLiabilities = existingPayments + cardMonthly;
   const dti = totalIncome > 0 ? Math.round(((totalLiabilities + maxPayment) / totalIncome) * 100) : 0;
 
+  const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
+
   return (
-    <motion.form onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })} className="space-y-6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+    <motion.form ref={formRef} noValidate onSubmit={handleSubmit(onNext, onInvalid)} className="space-y-6 [&_[aria-invalid=true]]:border-destructive [&_[aria-invalid=true]]:ring-2 [&_[aria-invalid=true]]:ring-destructive/30" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+      {validationAlert}
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">התחייבויות ומסגרת סיכון</h2>
         <p className="text-sm text-muted-foreground">הלוואות קיימות והעדפות</p>

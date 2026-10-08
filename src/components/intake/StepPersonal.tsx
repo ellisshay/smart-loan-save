@@ -1,4 +1,4 @@
-import { toast } from "@/hooks/use-toast";
+import { useIntakeValidation } from "./useIntakeValidation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalSchema, type PersonalData } from "@/types/intake";
@@ -35,14 +35,17 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
   const showB1Prenup = b1MaritalStatus === "married" || b1MaritalStatus === "common_law";
   const showB2Prenup = b2MaritalStatus === "married" || b2MaritalStatus === "common_law";
 
+  const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
+
   return (
-    <motion.form
-      onSubmit={handleSubmit(onNext, () => { document.querySelector(".text-destructive")?.scrollIntoView({ behavior: "smooth", block: "center" }); toast({ title: "חסרים פרטים בשלב הזה", description: "השדות המסומנים באדום חייבים מילוי.", variant: "destructive" }); })}
-      className="space-y-6"
+    <motion.form ref={formRef} noValidate
+      onSubmit={handleSubmit(onNext, onInvalid)}
+      className="space-y-6 [&_[aria-invalid=true]]:border-destructive [&_[aria-invalid=true]]:ring-2 [&_[aria-invalid=true]]:ring-destructive/30"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
     >
+      {validationAlert}
       <div>
         <h2 className="font-display text-xl font-bold text-foreground">פרטי לווים</h2>
         <p className="text-sm text-muted-foreground">מלא את הפרטים האישיים של כל הלווים</p>
