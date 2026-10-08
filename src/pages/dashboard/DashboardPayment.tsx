@@ -51,7 +51,7 @@ export default function DashboardPayment() {
     billing.invoiceName.trim().length > 0 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim());
 
-  const payUrl = `https://secure.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
+  const payUrl = `https://direct.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=1&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
 
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {
