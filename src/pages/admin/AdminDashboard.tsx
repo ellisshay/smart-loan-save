@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAdminCases } from "@/hooks/useAdminCases";
 import { CASE_STATUSES, CaseStatus } from "@/types/admin";
 import { Skeleton } from "@/components/ui/skeleton";
+import EstimatedInquiries from "@/components/quickcheck/EstimatedInquiries";
 import {
   Briefcase,
   Clock,
@@ -157,6 +158,7 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
+      <EstimatedInquiries />
     </div>
   );
 }

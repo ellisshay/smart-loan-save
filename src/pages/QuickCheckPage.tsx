@@ -9,11 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CONSENT_VERSIONS } from "@/lib/privacy";
 import { buildMixes, dtiGrade, ltvGrade, Rates, TRACK_LABEL, Mix, Grade, TrackKey } from "@/lib/quickCheck";
 import { FUNNEL_ICONS } from "@/components/quickcheck/FunnelIcons";
+import { formatAmount, parseAmount, quickCheckContactSchema } from "@/lib/quickCheckContact";
 
 type Goal = "first" | "upgrade" | "refi";
 interface A {
   goal?: Goal; timing?: string; propertyType?: string; city?: string;
-  value: number; equity: number; borrowers?: string; firstName: string;
+  value: number; equity: number; borrowers?: string; firstName: string; phone: string;
   income: number; obligations: number;
   balance: number; currentPayment: number; yearsLeft: number;
 }
@@ -34,6 +35,7 @@ const WHY: Record<string, string> = {
   balance: "היתרה היא הסכום שיש למחזר.",
   currentPayment: "כך נשווה את ההחזר החדש לנוכחי.",
   yearsLeft: "התקופה משפיעה על ההחזר החודשי ועל העלות הכוללת.",
+  contact: "פרטי הקשר מאפשרים לשמור את הבדיקה כפנייה ראשונית, גם לפני השלמת בקשה מלאה.",
 };
 
 type Opt = { v: string; t: string; d: string; icon: string };
@@ -97,8 +99,8 @@ function Money({ label, value, onChange, min, max, step, suffix = "₪" }: { lab
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-center gap-2 rounded-2xl bg-muted/50 py-4">
-        <input type="number" inputMode="numeric" aria-label={label} value={value || ""} onChange={(e) => onChange(Math.max(0, Number(e.target.value)))}
-          className="w-48 bg-transparent text-center font-display text-4xl font-black text-foreground focus:outline-none" dir="ltr" />
+        <input type="text" inputMode="numeric" aria-label={label} value={value ? formatAmount(value) : ""} maxLength={11} onChange={(e) => { const n = parseAmount(e.target.value); if (n !== null && n <= 100_000_000) onChange(n); }}
+          className="w-full max-w-72 min-w-0 bg-transparent text-center font-display text-4xl font-black text-foreground focus:outline-none" dir="ltr" />
         <span className="text-xl font-bold text-muted-foreground">{suffix}</span>
       </div>
       <input type="range" min={min} max={max} step={step} value={Math.min(Math.max(value, min), max)} onChange={(e) => onChange(Number(e.target.value))} className="w-full accent-primary h-2" aria-label={`${label} – סליידר`} />
@@ -120,7 +122,7 @@ function Donut({ parts }: { parts: { label: string; value: number; color: string
 const PROCESS = ["קולטים את הנתונים", "בודקים את אחוז המימון והיחס להכנסה", "משווים לריביות הממוצעות", "בונים לכם תמהילים"];
 
 export default function QuickCheckPage() {
-  const [a, setA] = useState<A>({ value: 2_000_000, equity: 600_000, firstName: "", income: 20_000, obligations: 0, balance: 900_000, currentPayment: 5_500, yearsLeft: 20 });
+  const [a, setA] = useState<A>({ value: 2_000_000, equity: 600_000, firstName: "", phone: "", income: 20_000, obligations: 0, balance: 900_000, currentPayment: 5_500, yearsLeft: 20 });
   const [i, setI] = useState(0);
   const [why, setWhy] = useState(false);
   const [consent, setConsent] = useState(false);
@@ -132,36 +134,37 @@ export default function QuickCheckPage() {
   const refi = a.goal === "refi";
 
   const steps = refi
-    ? ["goal", "balance", "currentPayment", "yearsLeft", "borrowers", "income"]
-    : ["goal", "timing", "propertyType", "city", "value", "equity", "borrowers", "income"];
+    ? ["goal", "balance", "currentPayment", "yearsLeft", "borrowers", "income", "contact"]
+    : ["goal", "timing", "propertyType", "city", "value", "equity", "borrowers", "income", "contact"];
   const key = steps[i];
   const last = i === steps.length - 1;
   const loan = refi ? a.balance : Math.max(0, a.value - a.equity);
   const years = refi ? a.yearsLeft : 25;
 
   const advance = () => { setWhy(false); setI((n) => Math.min(n + 1, steps.length - 1)); };
-  const next = () => (key === "equity" ? setInterim(true) : advance());
+  const next = () => { if (key === "borrowers" && !a.borrowers) { setErr("יש לבחור מספר לווים"); return; } setErr(""); key === "equity" ? setInterim(true) : advance(); };
   const pick = (k: keyof A) => (v: string) => { set({ [k]: v } as Partial<A>); if (k === "goal") { setWhy(false); setI(1); } else setTimeout(advance, 150); };
 
   const showResult = async () => {
     if (!consent) return;
+    const contact = quickCheckContactSchema.safeParse(a);
+    if (!contact.success) { setErr(contact.error.issues[0]?.message || "יש להשלים שם וטלפון"); return; }
+    const answers = { ...a, ...contact.data };
     setErr(""); setProcessing(0); window.scrollTo({ top: 0 });
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const tick = reduce ? 400 : 850;
     const timer = (async () => { for (let s = 1; s <= PROCESS.length; s++) { await new Promise((r) => setTimeout(r, tick)); setProcessing(s); } })();
     try {
       const work = (async () => {
-        const { data: rows, error } = await supabase.rpc("quiz_create_session" as never);
-        const token = (rows as unknown as { session_token: string }[] | null)?.[0]?.session_token;
+        const { data: token, error } = await supabase.rpc("save_quick_check_inquiry", { _answers: answers, _consent_version: CONSENT_VERSIONS.quick_check, _ua: navigator.userAgent });
         if (error || !token) throw new Error("create");
-        await supabase.rpc("quiz_update_session" as never, { _token: token, _quiz_data: { quick_check: a } as never, _current_step: steps.length, _score: null, _purpose: a.goal, _completed: true } as never);
-        await supabase.rpc("record_session_consent" as never, { _token: token, _type: "quick_check", _version: CONSENT_VERSIONS.quick_check, _ua: navigator.userAgent } as never);
         const { data: r } = await supabase.from("market_rates").select("prime,fixed_not_linked,fixed_linked,variable_5,cpi_annual,updated_at").order("updated_at", { ascending: false }).limit(1).maybeSingle();
         if (!r) throw new Error("rates");
         return { token, r };
       })();
       const [{ token, r }] = await Promise.all([work, timer]);
-      localStorage.setItem(STORE, JSON.stringify({ token, answers: a }));
+      setA(answers);
+      localStorage.setItem(STORE, JSON.stringify({ token, answers }));
       await new Promise((res) => setTimeout(res, 300));
       setResult({ token, rates: r as unknown as Rates, updated: (r as { updated_at?: string }).updated_at });
       window.scrollTo({ top: 0 });
@@ -199,7 +202,8 @@ export default function QuickCheckPage() {
     city: { title: "באיזו עיר?", body: <div className="space-y-3"><input aria-label="עיר" className="w-full h-14 rounded-xl border border-input bg-background px-4 text-lg" value={a.city === "unknown" ? "" : a.city || ""} onChange={(e) => set({ city: e.target.value })} placeholder="שם העיר" /><Button variant="outline" onClick={() => { set({ city: "unknown" }); advance(); }}>לא ידוע עדיין</Button></div> },
     value: { title: "מה שווי הנכס?", body: <Money label="שווי הנכס" value={a.value} onChange={(v) => set({ value: v })} min={300_000} max={10_000_000} step={50_000} /> },
     equity: { title: "כמה הון עצמי יש לכם?", body: <Money label="הון עצמי" value={a.equity} onChange={(v) => set({ equity: v })} min={0} max={Math.max(a.value, 500_000)} step={10_000} /> },
-    borrowers: { title: "כמה לווים?", body: <div className="space-y-4"><Cards name="לווים" opts={OPTS.borrowers} value={a.borrowers} onPick={(v) => set({ borrowers: v })} /><label className="block text-sm text-muted-foreground">שם פרטי (לא חובה)<input className="w-full h-12 rounded-xl border border-input bg-background px-3" value={a.firstName} maxLength={40} onChange={(e) => set({ firstName: e.target.value })} /></label></div> },
+    borrowers: { title: "כמה לווים?", body: <Cards name="לווים" opts={OPTS.borrowers} value={a.borrowers} onPick={(v) => set({ borrowers: v })} /> },
+    contact: { title: "למי להכין את התוצאה?", body: <div className="space-y-4"><label className="block text-sm font-medium text-foreground">שם פרטי *<input aria-label="שם פרטי" autoComplete="given-name" required className="mt-2 w-full h-12 rounded-lg border border-input bg-background px-3" value={a.firstName} maxLength={40} onChange={(e) => set({ firstName: e.target.value })} /></label><label className="block text-sm font-medium text-foreground">טלפון נייד *<input aria-label="טלפון נייד" type="tel" dir="ltr" autoComplete="tel" required className="mt-2 w-full h-12 rounded-lg border border-input bg-background px-3" value={a.phone} maxLength={30} onChange={(e) => set({ phone: e.target.value })} /></label><p className="text-sm text-muted-foreground">הבדיקה תישמר כפנייה ראשונית עם נתונים משוערים. זו אינה בקשת משכנתא מלאה.</p></div> },
     income: { title: "הכנסה והחזרים", body: <div className="space-y-6"><Money label="הכנסה חודשית נטו משוערת של כל הלווים" value={a.income} onChange={(v) => set({ income: v })} min={0} max={100_000} step={500} /><p className="text-sm text-muted-foreground -mt-3">הכנסה חודשית נטו משוערת של כל הלווים</p><Money label="החזרים חודשיים קיימים" value={a.obligations} onChange={(v) => set({ obligations: v })} min={0} max={30_000} step={100} /><p className="text-sm text-muted-foreground -mt-3">החזרים חודשיים קיימים (הלוואות, ליסינג){refi ? " – לא כולל המשכנתא" : ""}</p></div> },
     balance: { title: "מה יתרת המשכנתא?", body: <Money label="יתרת המשכנתא" value={a.balance} onChange={(v) => set({ balance: v })} min={50_000} max={5_000_000} step={10_000} /> },
     currentPayment: { title: "מה ההחזר החודשי היום?", body: <Money label="החזר חודשי נוכחי" value={a.currentPayment} onChange={(v) => set({ currentPayment: v })} min={500} max={40_000} step={100} /> },
@@ -231,7 +235,7 @@ export default function QuickCheckPage() {
         {last && (
           <label className="flex items-start gap-3 cursor-pointer rounded-xl bg-muted/50 p-3">
             <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-1" />
-            <span className="text-sm text-foreground">אני מאשר/ת ל-EasyMorte לעבד את הנתונים שמסרתי לצורך הצגת התוצאה, בהתאם ל<Link to="/privacy" target="_blank" className="text-primary underline">מדיניות הפרטיות</Link>.</span>
+            <span className="text-sm text-foreground">אני מאשר/ת ל-EasyMorte לשמור את פרטי הקשר והנתונים שמסרתי כפנייה ראשונית, לעבד אותם לצורך הצגת התוצאה וליצור איתי קשר בנוגע לבדיקה, בהתאם ל<Link to="/privacy" target="_blank" className="text-primary underline">מדיניות הפרטיות</Link>.</span>
           </label>
         )}
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
@@ -240,7 +244,7 @@ export default function QuickCheckPage() {
           {last ? <Button variant="cta" disabled={!consent} onClick={showResult}>הצג לי את התוצאה</Button>
             : !autoCards && <Button variant="cta" onClick={next} className="flex-1 md:flex-none">המשך</Button>}
         </div>
-        {i === 0 && <p className="text-xs text-muted-foreground">הנתונים שתמסרו ישמשו להצגת התוצאה בלבד, בהתאם ל<Link to="/privacy" className="underline">מדיניות הפרטיות</Link>.</p>}
+        {i === 0 && <p className="text-xs text-muted-foreground">הנתונים יישמרו רק לאחר אישורכם, לצורך הבדיקה ופנייה בנוגע אליה, בהתאם ל<Link to="/privacy" className="underline">מדיניות הפרטיות</Link>.</p>}
       </section>
       <p className="text-center text-sm text-muted-foreground">יש לכם דוח יתרות? <Link to="/balance-check" className="text-primary underline">בדיקה לפי דוח יתרות לסילוק</Link></p>
 
