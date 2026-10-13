@@ -22,7 +22,8 @@ function writeSitemap(routes) {
     .filter((r) => !seen.has(r.path) && seen.add(r.path))
     .map((r) => {
       const loc = r.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${r.path}`;
-      const lastmod = r.lastmod && /^\d{4}-\d{2}-\d{2}$/.test(r.lastmod) ? `\n    <lastmod>${r.lastmod}</lastmod>` : "";
+      const lm = r.lastmod && /^\d{4}-\d{2}-\d{2}$/.test(r.lastmod) ? r.lastmod : new Date().toISOString().slice(0, 10);
+      const lastmod = `\n    <lastmod>${lm}</lastmod>`;
       const cf = r.changefreq ? `\n    <changefreq>${r.changefreq}</changefreq>` : "";
       const pr = r.priority ? `\n    <priority>${r.priority}</priority>` : "";
       return `  <url>\n    <loc>${escapeXml(loc)}</loc>${lastmod}${cf}${pr}\n  </url>`;

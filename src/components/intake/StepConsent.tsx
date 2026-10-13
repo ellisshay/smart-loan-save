@@ -37,7 +37,7 @@ export default function StepConsent({ onNext, onBack, defaultValues = {} }: Prop
           onCheckedChange={setTermsAccepted}
           title="תקנון ותנאי שימוש"
           description="אני מאשר/ת שקראתי והבנתי את תקנון ותנאי השימוש של EASY MORTE."
-          link="/legal/terms"
+          link="/terms"
         />
         <ConsentItem
           icon={Lock}
@@ -45,7 +45,7 @@ export default function StepConsent({ onNext, onBack, defaultValues = {} }: Prop
           onCheckedChange={setPrivacyAccepted}
           title="מדיניות פרטיות"
           description="אני מאשר/ת שקראתי את מדיניות הפרטיות ומסכים/ה לתנאיה."
-          link="/legal/privacy"
+          link="/privacy"
         />
         <ConsentItem
           icon={Shield}

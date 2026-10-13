@@ -186,7 +186,7 @@ export default function AccessibilityWidget() {
 
                 <div className="mt-4 pt-4 border-t border-border">
                   <Link
-                    to="/legal/accessibility"
+                    to="/accessibility"
                     onClick={() => setOpen(false)}
                     className="text-sm text-primary hover:underline"
                   >
