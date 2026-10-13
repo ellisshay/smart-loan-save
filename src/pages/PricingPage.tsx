@@ -15,7 +15,7 @@ const plans = [
       "ללא התחייבות וללא שיחת מכירה חובה",
     ],
     cta: "בדוק את המשכנתא שלי",
-    href: "/mortgage-check",
+    href: "/balance-check",
     featured: false,
   },
   {

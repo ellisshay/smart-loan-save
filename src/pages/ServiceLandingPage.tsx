@@ -15,7 +15,7 @@ export default function ServiceLandingPage() {
           <h1 className="font-display text-3xl md:text-5xl font-extrabold text-foreground leading-tight mb-4">{c.h1}</h1>
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6">{c.intro}</p>
           <div className="flex flex-wrap gap-3">
-            <Link to="/intake"><Button variant="cta" size="lg">הגש בקשה עכשיו</Button></Link>
+            <Link to="/mortgage-check"><Button variant="cta" size="lg">הגש בקשה עכשיו</Button></Link>
             <Link to="/how-it-works"><Button variant="outline" size="lg">איך זה עובד</Button></Link>
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function ServiceLandingPage() {
         <section className="bg-card border border-border rounded-2xl p-6 md:p-8 text-center">
           <h2 className="font-display text-2xl font-bold text-foreground mb-3">מוכנים להתחיל?</h2>
           <p className="text-muted-foreground mb-5">ממלאים שאלון קצר, מעלים מסמכים ומקבלים בדיקת תיק מקצועית במחיר קבוע של 3,450 ₪.</p>
-          <Link to="/intake"><Button variant="cta" size="lg">הגש בקשה עכשיו</Button></Link>
+          <Link to="/mortgage-check"><Button variant="cta" size="lg">הגש בקשה עכשיו</Button></Link>
         </section>
       </div>
     </div>

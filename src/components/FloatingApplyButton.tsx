@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 const HIDDEN = ["/intake", "/auth", "/dashboard", "/admin", "/advisor"];
 
 // Routes where the free mortgage check is the more relevant primary action
-const CHECK_FIRST = ["/calculators", "/savings", "/refinance", "/mix", "/affordability", "/waste"];
+const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance", "/mix", "/affordability", "/waste"];
 
 export default function FloatingApplyButton() {
   const { pathname } = useLocation();
@@ -24,7 +24,7 @@ export default function FloatingApplyButton() {
         </Link>
       ) : (
         <Link
-          to="/intake"
+          to="/mortgage-check"
           className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm md:text-base shadow-gold hover:scale-105 transition-transform whitespace-nowrap"
         >
           הגש בקשה עכשיו
