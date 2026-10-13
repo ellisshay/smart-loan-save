@@ -1,8 +1,7 @@
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 export const CONTACT_EMAIL = "info@easymorte.co.il";
 export const ADMIN_EMAIL = CONTACT_EMAIL;
-// Keep the authenticated transport until the requested sender domain is verified.
-const SENDING_MAILBOX = "easymorte.il@gmail.com";
+const SENDING_MAILBOX = "info@easymorte.co.il";
 export const SITE_URL = "https://www.easymorte.co.il";
 const CONTACT_PHONE = "055-996-1997";
 const CONTACT_PHONE_LINK = "tel:+972559961997";
@@ -57,7 +56,7 @@ ${ctaText && ctaUrl ? `<table role="presentation" cellpadding="0" cellspacing="0
 
 export async function sendEmail(to: string, subject: string, html: string) {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  const GMAIL_KEY = Deno.env.get("GOOGLE_MAIL_API_KEY");
+  const GMAIL_KEY = Deno.env.get("GOOGLE_MAIL_API_KEY_2") || Deno.env.get("GOOGLE_MAIL_API_KEY");
   if (!LOVABLE_API_KEY || !GMAIL_KEY) throw new Error("Email credentials not configured");
   const raw = [
     `From: ${header("EasyMorte")} <${SENDING_MAILBOX}>`,
