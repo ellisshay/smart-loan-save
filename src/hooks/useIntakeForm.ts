@@ -51,6 +51,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
           const cur = (existing.intake_data as Record<string, any>) || {};
           const merged = { ...prefill, ...cur };
           for (const k of Object.keys(prefill)) merged[k] = { ...prefill[k], ...(cur[k] || {}) };
+          if (prefill.personal?.borrower1) merged.personal.borrower1 = { ...prefill.personal.borrower1, ...(cur.personal?.borrower1 || {}) };
           setIntakeData(merged);
           if (Object.keys(prefill).length) {
             await supabase.rpc("update_case_safe", { _case_id: existing.id, _intake_data: merged });
@@ -237,7 +238,9 @@ function quizToIntake(): Record<string, any> {
   if (qc?.answers) {
     const a = qc.answers; const refi = a.goal === "refi";
     const out: Record<string, any> = {};
-    const personal = clean({ firstName: a.firstName, phone: a.phone, borrowerCount: a.borrowers === "1" ? "1" : a.borrowers ? "2" : undefined });
+    const b1 = clean({ firstName: a.firstName, phone: typeof a.phone === "string" ? a.phone.replace(/[\s()-]/g, "").replace(/^\+972/, "0") : undefined, email: a.email });
+    const personal = clean({ borrowerCount: a.borrowers === "1" ? "1" : a.borrowers ? "2" : undefined });
+    if (Object.keys(b1).length) personal.borrower1 = b1;
     if (Object.keys(personal).length) out.personal = personal;
     if (!refi) {
       const property = clean({ propertyCity: a.city, purchasePrice: a.value || undefined, ownEquity: a.equity || undefined,

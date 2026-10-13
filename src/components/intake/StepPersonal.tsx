@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   defaultValues: Partial<PersonalData>;
@@ -18,11 +20,29 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
     register,
     handleSubmit,
     watch,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<PersonalData>({
     resolver: zodResolver(personalSchema),
     defaultValues: defaultValues as any,
   });
+
+  // Prefill main contact (borrower1 only) from account/profile; never overwrite what is already filled.
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: p } = await supabase.from("profiles").select("first_name,last_name,phone,email").eq("user_id", user.id).maybeSingle();
+      const fill: Record<string, string | null | undefined> = {
+        firstName: p?.first_name, lastName: p?.last_name, phone: p?.phone?.replace(/[\s-]/g, ""), email: p?.email || user.email,
+      };
+      for (const [k, v] of Object.entries(fill)) {
+        const path = `borrower1.${k}` as any;
+        if (v && !getValues(path)) setValue(path, v);
+      }
+    })().catch(console.error);
+  }, [getValues, setValue]);
 
   const borrowerCount = watch("borrowerCount");
   const b1Divorced = watch("borrower1.isDivorced");
@@ -71,7 +91,8 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
 
       {/* ── Borrower 1 ── */}
       <div className="space-y-4 pt-4 border-t border-border">
-        <h3 className="font-display font-bold text-foreground text-lg">לווה 1</h3>
+        <h3 className="font-display font-bold text-foreground text-lg">לווה 1 · איש הקשר הראשי</h3>
+        <p className="text-xs text-muted-foreground -mt-2">המייל והטלפון כאן משמשים להתחברות, עדכוני התיק, אישורי תשלום ומסמכים. פרטים שכבר מסרת מולאו מראש וניתנים לעריכה.</p>
         <BorrowerFields prefix="borrower1" register={register} errors={errors.borrower1 || {}} watch={watch}
           showAlimony={showB1Alimony} showPrenup={showB1Prenup} />
       </div>
@@ -136,9 +157,11 @@ function BorrowerFields({
         <Field label={`טלפון${star}`} error={errors?.phone?.message}>
           <Input {...register(`${prefix}.phone`)} placeholder="0501234567" dir="ltr" maxLength={10} />
         </Field>
-        <Field label={`אימייל${star}`} error={errors?.email?.message}>
-          <Input {...register(`${prefix}.email`)} type="email" placeholder="example@email.com" dir="ltr" />
-        </Field>
+        {isRequired && (
+          <Field label={`אימייל איש הקשר הראשי${star}`} error={errors?.email?.message}>
+            <Input {...register(`${prefix}.email`)} type="email" placeholder="example@email.com" dir="ltr" />
+          </Field>
+        )}
       </div>
 
       {/* Status */}
@@ -172,15 +195,12 @@ function BorrowerFields({
       )}
 
       {/* Address */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field label="כתובת מגורים">
           <Input {...register(`${prefix}.address`)} placeholder="רחוב ומספר" />
         </Field>
         <Field label="עיר">
           <Input {...register(`${prefix}.city`)} placeholder="תל אביב" />
-        </Field>
-        <Field label="מיקוד">
-          <Input {...register(`${prefix}.zipCode`)} placeholder="6100000" dir="ltr" maxLength={7} />
         </Field>
       </div>
 

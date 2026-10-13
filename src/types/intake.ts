@@ -32,7 +32,7 @@ export const borrowerSchema = z.object({
   }),
   address: z.string().optional(),
   city: z.string().optional(),
-  zipCode: z.string().optional(),
+  zipCode: z.string().optional(), // legacy only: no longer collected, kept so saved values are not stripped
   additionalCitizenship: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   citizenshipDetails: z.string().optional(),
   dependents: optNum(0),
@@ -42,6 +42,8 @@ export const borrowerSchema = z.object({
   alimonyAmount: optNum(),
 });
 
+export const additionalBorrowerSchema = borrowerSchema.omit({ email: true });
+
 export type BorrowerData = z.infer<typeof borrowerSchema>;
 
 // ── Step 1: Personal (wraps borrowers) ──
@@ -49,10 +51,11 @@ export const personalSchema = z.object({
   borrowerCount: z.enum(["1", "2"], { required_error: "בחר מספר לווים" }),
   hasGuarantor: z.enum(["yes", "no"], { required_error: "ציין האם יש ערבים" }),
   borrower1: borrowerSchema,
-  borrower2: borrowerSchema.partial().optional(),
+  borrower2: borrowerSchema.partial().extend({ email: z.string().optional() }).optional(),
 }).superRefine((d, ctx) => {
   if (d.borrowerCount !== "2") return;
-  const r = borrowerSchema.safeParse(d.borrower2 ?? {});
+  // The case has one email (main contact = borrower1); additional borrowers never need one.
+  const r = additionalBorrowerSchema.safeParse(d.borrower2 ?? {});
   if (!r.success) r.error.issues.forEach((i) => ctx.addIssue({ ...i, path: ["borrower2", ...i.path] }));
 });
 

@@ -236,7 +236,7 @@ serve(async (req) => {
 
     // Build webhook payload
     const intakeData = (caseData?.intake_data as Record<string, any>) || {};
-    const personal = intakeData.personal || {};
+    const personal = { ...(intakeData.personal || {}), ...(intakeData.personal?.borrower1 || {}) };
     const income = intakeData.income || {};
     const liabilities = intakeData.liabilities || {};
     const property = intakeData.property || {};
