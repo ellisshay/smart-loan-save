@@ -1221,6 +1221,10 @@ export type Database = {
         Args: { _token: string; _type: string; _ua: string; _version: string }
         Returns: undefined
       }
+      save_quick_check_inquiry: {
+        Args: { _answers: Json; _consent_version: string; _ua: string }
+        Returns: string
+      }
       submit_case_safe: {
         Args: { _case_id: string; _goal?: string }
         Returns: undefined
