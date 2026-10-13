@@ -36,7 +36,7 @@ export default function IntakePage() {
   const [, setUser] = useState<any>(null);
   const [resumeLoading, setResumeLoading] = useState(!!resumeCaseId);
   const [caseTypeSelection, setCaseTypeSelection] = useState<CaseTypeSelection | null>(() => {
-    try { const p = JSON.parse(localStorage.getItem("easymort_quiz") || "{}").purpose; return p === "new" ? "new" : p === "refi" ? "refi" : p === "increase" ? "refi_plus" : null; } catch { return null; }
+    try { const g = JSON.parse(localStorage.getItem("easymort_quick_check") || "{}").answers?.goal; if (g) return g === "refi" ? "refi" : "new"; const p = JSON.parse(localStorage.getItem("easymort_quiz") || "{}").purpose; return p === "new" ? "new" : p === "refi" ? "refi" : p === "increase" ? "refi_plus" : null; } catch { return null; }
   });
   const [goal, setGoal] = useState("");
   const [uploadedDocs, setUploadedDocs] = useState<any[]>([]);

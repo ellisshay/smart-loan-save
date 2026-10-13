@@ -324,7 +324,7 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
         </ul>
         <p className="text-lg font-bold">₪3,450 כולל מע"מ · עד 4 תשלומים</p>
         <div className="fixed md:static bottom-0 inset-x-0 z-30 p-3 md:p-0 bg-background/95 md:bg-transparent border-t md:border-0 border-border">
-          <Link to="/auth?next=/intake" className="block md:inline-block"><Button variant="cta" size="lg" className="w-full md:w-auto">מתחילים</Button></Link>
+          <Link to="/auth?next=/intake" onClick={() => { try { const prev = JSON.parse(localStorage.getItem(STORE) || "{}"); localStorage.setItem(STORE, JSON.stringify({ ...prev, answers: a, ltv, dti, mixes: mixes.map((m) => ({ name: m.name, risk: m.risk, monthly: Math.round(m.monthly), total: Math.round(m.total), tracks: m.tracks })) })); } catch { /* ignore */ } }} className="block md:inline-block"><Button variant="cta" size="lg" className="w-full md:w-auto">מתחילים</Button></Link>
         </div>
         <div>
           <button type="button" className="text-sm underline text-primary-foreground/90" aria-expanded={openMail} onClick={() => setOpenMail((o) => !o)}>שלחו לי את התוצאה למייל</button>
