@@ -10,7 +10,7 @@ export const CONSENT_VERSIONS = {
   privacy_notice: "2026-10-v2",
   bank_data_transfer: "2026-10-v2",
   automated_processing: "2026-10-v2",
-  quick_check: "2026-10-v2",
+  quick_check: "2026-10-contact-v3",
   payment_terms: "2026-10-v2",
   marketing: "2026-10-v2",
 } as const;
