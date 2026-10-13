@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { currentMortgageSchema, ISRAELI_BANKS } from "@/types/intake";
@@ -26,6 +27,7 @@ export default function StepCurrentMortgage({ defaultValues, onNext, onBack, sav
       tracks: defaultValues.tracks?.length ? defaultValues.tracks : [],
     } as any,
   });
+  useStepAutosave("current_mortgage", watch);
   const { fields, append, remove } = useFieldArray({ control, name: "tracks" });
 
   const hasRateChange = watch("hasUpcomingRateChange");

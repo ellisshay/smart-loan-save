@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiPreferencesSchema } from "@/types/intake";
@@ -21,6 +22,7 @@ export default function StepRefiPreferences({ defaultValues, onNext, onBack, sav
     resolver: zodResolver(refiPreferencesSchema),
     defaultValues: { stabilityPriority: 3, ...defaultValues } as any,
   });
+  useStepAutosave("refi_preferences", watch);
 
   const stability = watch("stabilityPriority") || 3;
 

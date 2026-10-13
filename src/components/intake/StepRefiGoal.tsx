@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiGoalSchema, REFI_REASONS } from "@/types/intake";
@@ -23,6 +24,7 @@ export default function StepRefiGoal({ defaultValues, onNext, onBack, saving }: 
     resolver: zodResolver(refiGoalSchema),
     defaultValues: { refiReasons: [], ...defaultValues } as any,
   });
+  useStepAutosave("refi_goal", watch);
 
   const reasons = watch("refiReasons") || [];
   const wantsIncrease = watch("wantsIncrease");

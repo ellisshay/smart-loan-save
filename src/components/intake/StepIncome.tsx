@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { incomeSchema } from "@/types/intake";
@@ -24,6 +25,7 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
     resolver: zodResolver(incomeSchema),
     defaultValues: defaultValues as any,
   });
+  useStepAutosave("income", watch);
 
   const employmentStatus = watch("employmentStatus");
   const hasAdditional = watch("hasAdditionalIncome");
