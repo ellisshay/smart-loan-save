@@ -145,7 +145,7 @@ export default function QuickCheckPage() {
 
   const showResult = async () => {
     if (!consent) return;
-    setErr(""); setProcessing(0);
+    setErr(""); setProcessing(0); window.scrollTo({ top: 0 });
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const tick = reduce ? 400 : 850;
     const timer = (async () => { for (let s = 1; s <= PROCESS.length; s++) { await new Promise((r) => setTimeout(r, tick)); setProcessing(s); } })();
@@ -248,10 +248,10 @@ export default function QuickCheckPage() {
         <DialogContent dir="rtl" className="max-w-md">
           <DialogHeader><DialogTitle className="font-display text-right">התמונה שלכם עד עכשיו</DialogTitle><DialogDescription className="text-right">חלוקת מחיר הנכס לפי מה שמסרתם</DialogDescription></DialogHeader>
           <div className="flex flex-col items-center gap-4">
-            <Donut parts={[{ label: "הון עצמי", value: a.equity, color: "stroke-success" }, { label: "משכנתא", value: loan, color: "stroke-primary" }, { label: "הוצאות נוספות", value: extras, color: "stroke-warning" }]} />
+            <Donut parts={[{ label: "הון עצמי", value: a.equity, color: "stroke-success" }, { label: "משכנתא", value: loan, color: "stroke-navy" }, { label: "הוצאות נוספות", value: extras, color: "stroke-warning" }]} />
             <table className="w-full text-sm">
               <tbody>
-                {[["bg-success", "הון עצמי", a.equity], ["bg-primary", "משכנתא", loan], ["bg-warning", "הוצאות נוספות (הערכה: כ-2%)", extras]].map(([c, l, v]) => (
+                {[["bg-success", "הון עצמי", a.equity], ["bg-navy", "משכנתא", loan], ["bg-warning", "הוצאות נוספות (הערכה: כ-2%)", extras]].map(([c, l, v]) => (
                   <tr key={l as string} className="border-b border-border"><td className="py-2"><span className={`inline-block w-2.5 h-2.5 rounded-full ml-2 ${c}`} aria-hidden="true" />{l}</td><td className="py-2 text-left font-bold text-foreground">{nis(v as number)}</td></tr>
                 ))}
               </tbody>
