@@ -43,3 +43,7 @@
 - [x] Stage 8: /terms /privacy /cookies /accessibility /cancel, /legal/* redirects, sitemap lastmod
 - [ ] 2.6–2.8 pay-first signup, orders table, email code login — BLOCKED on Tranzila API key
 - [ ] 2.9 prefill intake from quick check; 2.10 bank-transfer consent screen in tender; 5.3/5.4 payment disclosure box + confirmation email (part of payment flow)
+
+## אישור תשלום ידני ודף אודות
+- [x] מנהל יכול לסמן תיק כשולם ללא חיוב (מזומן/העברה בנקאית/בדיקה) דרך admin_mark_payment עם רישום ביקורת
+- [x] שי אליס הועבר לראש דף האודות
