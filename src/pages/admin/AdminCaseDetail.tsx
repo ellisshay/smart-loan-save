@@ -188,6 +188,21 @@ export default function AdminCaseDetail() {
     toast({ title: "נשלח לבנק בהצלחה! ", description: `המייל נשלח ל-${bankEmailTo}` });
   };
 
+  const confirmManualPayment = async () => {
+    if (!caseData || manualBusy) return;
+    setManualBusy(true);
+    const { error } = await supabase.rpc("admin_mark_payment", { _case_id: caseData.id, _method: manualMethod });
+    setManualBusy(false);
+    if (error) {
+      toast({ title: "שגיאה", description: error.message, variant: "destructive" });
+      return;
+    }
+    setCaseData(prev => prev ? { ...prev, payment_succeeded: true, status: "PaymentSucceeded" } : prev);
+    setShowManualPayment(false);
+    supabase.functions.invoke("case-email", { body: { case_id: caseData.id, event: "payment_confirmed" } }).catch(console.error);
+    toast({ title: "התשלום אושר ידנית", description: "התיק סומן כשולם ללא חיוב בפועל." });
+  };
+
   const mortgageAmount = intake.mortgageAmount || intake.propertyValue || 0;
   const income = intake.monthlyIncome || 0;
 
