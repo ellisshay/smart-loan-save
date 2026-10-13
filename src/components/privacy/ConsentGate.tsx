@@ -45,7 +45,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
         <p><strong className="text-foreground">למי יועבר:</strong> לבנקים וגופים פיננסיים לצורך קבלת הצעות, רק לאחר הסכמה נפרדת שתתבקש בהמשך; ולספקי שירות טכניים הפועלים עבורנו (אחסון, סליקה, דיוור).</p>
         <p><strong className="text-foreground">עיבוד אוטומטי:</strong> המערכת עשויה להשתמש בכלים אוטומטיים לצורך עיבוד, סיווג וסיכום מידע. החלטות מקצועיות מהותיות נבדקות על ידי איש מקצוע.</p>
         <p><strong className="text-foreground">הזכויות שלך:</strong> לעיין במידע, לבקש לתקן אותו ולבקש מחיקה, דרך <Link to="/dashboard/privacy" className="text-primary underline">עמוד הפרטיות שלי</Link>.</p>
-        <p><Link to="/legal/privacy" target="_blank" className="text-primary underline">למדיניות הפרטיות המלאה</Link></p>
+        <p><Link to="/privacy" target="_blank" className="text-primary underline">למדיניות הפרטיות המלאה</Link></p>
       </div>
       <label className="flex items-start gap-3 cursor-pointer">
         <Checkbox checked={privacy} onCheckedChange={(v) => setPrivacy(v === true)} className="mt-1" />

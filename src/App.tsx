@@ -59,6 +59,11 @@ const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
 const AdvisorOfferPage = lazy(() => import("./pages/advisor/AdvisorOfferPage"));
+const CancelPage = lazy(() => import("./pages/CancelPage"));
+function LegalRedirect() {
+  const p = useLocation().pathname.replace(/^\/legal\//, "");
+  return <Navigate to={["terms", "privacy", "cookies", "accessibility"].includes(p) ? `/${p}` : "/terms"} replace />;
+}
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ServiceLandingPage = lazy(() => import("./pages/ServiceLandingPage"));
@@ -168,7 +173,10 @@ export const AppRoutes = () => (
         <Route path="/for-advisors" element={<Navigate to="/" replace />} />
         <Route path="/privacy" element={<Layout><LegalPage page="privacy" /></Layout>} />
         <Route path="/terms" element={<Layout><LegalPage page="terms" /></Layout>} />
-        <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
+        <Route path="/cookies" element={<Layout><LegalPage page="cookies" /></Layout>} />
+        <Route path="/accessibility" element={<Layout><LegalPage page="accessibility" /></Layout>} />
+        <Route path="/cancel" element={<Layout><CancelPage /></Layout>} />
+        <Route path="/legal/:page" element={<LegalRedirect />} />
         <Route path="*" element={<Layout><NotFound /></Layout>} />
       </Routes>
     </Suspense>

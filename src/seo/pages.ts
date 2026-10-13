@@ -87,7 +87,13 @@ export const staticPages: StaticPageMeta[] = [
   { path: "/terms", label: "תנאי שימוש", priority: "0.3", changefreq: "yearly",
     title: "תנאי שימוש | EasyMorte",
     description: "תנאי השימוש באתר ובשירותי EasyMorte, כולל אופי השירות, תשלום ואחריות." },
-  { path: "/legal/accessibility", label: "הצהרת נגישות", priority: "0.3", changefreq: "yearly",
+  { path: "/cookies", label: "מדיניות עוגיות", priority: "0.3", changefreq: "yearly",
+    title: "מדיניות עוגיות | EasyMorte",
+    description: "באילו עוגיות אתר EasyMorte משתמש, למה, ואיך ניתן למחוק או לחסום אותן בדפדפן." },
+  { path: "/cancel", label: "ביטול עסקה", priority: "0.4", changefreq: "yearly",
+    title: "ביטול עסקה | EasyMorte",
+    description: "טופס ביטול עסקה בשירות EasyMorte לפי חוק הגנת הצרכן: שם, פרטי קשר ומספר תיק. אישור קבלה מיידי." },
+  { path: "/accessibility", label: "הצהרת נגישות", priority: "0.3", changefreq: "yearly",
     title: "הצהרת נגישות | EasyMorte",
     description: "הצהרת הנגישות של EasyMorte: רמת הנגישות, ההתאמות שבוצעו באתר ודרכי פנייה לרכז הנגישות." },
 ];
@@ -103,7 +109,8 @@ export const redirects: Record<string, string> = {
   "/legal/privacy": "/privacy",
   "/legal/terms": "/terms",
   "/blog": "/knowledge",
-  "/legal/cookies": "/privacy",
+  "/legal/cookies": "/cookies",
+  "/legal/accessibility": "/accessibility",
 };
 
 export function crumbsFor(path: string): Crumb[] {
