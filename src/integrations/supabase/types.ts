@@ -110,6 +110,33 @@ export type Database = {
         }
         Relationships: []
       }
+      cancellation_requests: {
+        Row: {
+          case_number: string | null
+          contact: string
+          created_at: string
+          full_name: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          case_number?: string | null
+          contact: string
+          created_at?: string
+          full_name: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          case_number?: string | null
+          contact?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       case_documents: {
         Row: {
           ai_extracted_data: Json | null
@@ -339,8 +366,9 @@ export type Database = {
           consented_at: string
           id: string
           revoked_at: string | null
+          session_token: string | null
           user_agent: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           case_id?: string | null
@@ -349,8 +377,9 @@ export type Database = {
           consented_at?: string
           id?: string
           revoked_at?: string | null
+          session_token?: string | null
           user_agent?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           case_id?: string | null
@@ -359,8 +388,9 @@ export type Database = {
           consented_at?: string
           id?: string
           revoked_at?: string | null
+          session_token?: string | null
           user_agent?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1185,6 +1215,10 @@ export type Database = {
           _score: number
           _token: string
         }
+        Returns: undefined
+      }
+      record_session_consent: {
+        Args: { _token: string; _type: string; _ua: string; _version: string }
         Returns: undefined
       }
       submit_case_safe: {
