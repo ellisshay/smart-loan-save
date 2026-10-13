@@ -43,7 +43,7 @@ function DashboardWorkspace() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [lastLogin, setLastLogin] = useState("");
-  const { caseId, caseType, intakeData, paymentSucceeded, settledDocTypes } = useDashboardCase();
+  const { caseId, caseType, intakeData, paymentSucceeded, settledDocTypes, staffMode } = useDashboardCase();
   const completed = completedIntakeSteps(intakeData, caseType, settledDocTypes);
   const progress = Math.round(completed.length / 10 * 100);
   const stepKeys: Record<string, string> = {
@@ -152,7 +152,12 @@ function DashboardWorkspace() {
                 תוך 90 שניות מסיימים את השלב הזה
               </div>
             )}
-            {location.pathname === "/dashboard/privacy" ? <Outlet /> : <ConsentGate><Outlet /></ConsentGate>}
+            {staffMode && (
+              <div role="status" className="mb-4 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm text-foreground">
+                מצב מנהל: אתה ממלא את התיק של הלקוח. כל שינוי נשמר אוטומטית בתיק שלו.
+              </div>
+            )}
+            {staffMode || location.pathname === "/dashboard/privacy" ? <Outlet /> : <ConsentGate><Outlet /></ConsentGate>}
           </main>
         </div>
 
