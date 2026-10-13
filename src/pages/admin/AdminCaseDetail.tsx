@@ -416,6 +416,38 @@ export default function AdminCaseDetail() {
         <TenderSection caseId={caseData.id} clientName={clientName} intake={{ ...caseData.intake_data, goal: caseData.goal }} caseStatus={status.label} createdAt={caseData.created_at} assignedAdvisorId={caseData.assigned_advisor_id ?? null} />
       </div>
 
+      {/* Manual Payment Approval Modal */}
+      {showManualPayment && (
+        <div className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4">
+          <motion.div
+            className="bg-card rounded-2xl p-6 shadow-lg max-w-md w-full"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <h2 className="font-display text-xl font-bold text-foreground mb-2">אישור תשלום ללא חיוב</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              התיק יסומן כשולם ויעבור לבדיקה, בלי גביית תשלום בפועל. מתאים לתשלום במזומן, העברה בנקאית או בדיקות.
+            </p>
+            <label className="block text-sm font-medium text-foreground mb-2">אופן התשלום</label>
+            <select
+              value={manualMethod}
+              onChange={(e) => setManualMethod(e.target.value as typeof manualMethod)}
+              className="w-full h-11 px-3 rounded-lg border border-input bg-background text-foreground text-sm mb-5"
+            >
+              <option value="bank_transfer">העברה בנקאית</option>
+              <option value="cash">מזומן</option>
+              <option value="test">בדיקה</option>
+            </select>
+            <div className="flex gap-3">
+              <Button variant="cta" onClick={confirmManualPayment} disabled={manualBusy} className="flex-1">
+                {manualBusy ? "מאשר..." : "אשר תשלום"}
+              </Button>
+              <Button variant="outline" onClick={() => setShowManualPayment(false)}>ביטול</Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Bank Email Modal */}
       {showEmailModal && (
         <div className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4">
