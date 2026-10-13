@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { preferencesSchema } from "@/types/intake";
@@ -21,6 +22,7 @@ export default function StepPreferences({ defaultValues, onNext, onBack, saving 
     resolver: zodResolver(preferencesSchema),
     defaultValues: { stabilityPriority: 3, ...defaultValues } as any,
   });
+  useStepAutosave("preferences", watch);
 
   const stability = watch("stabilityPriority") || 3;
 

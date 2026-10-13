@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { propertySchema } from "@/types/intake";
@@ -28,6 +29,7 @@ export default function StepProperty({ defaultValues, onNext, onBack, saving }: 
     resolver: zodResolver(propertySchema),
     defaultValues: defaultValues as any,
   });
+  useStepAutosave("property", watch);
 
   const purchasePrice = watch("purchasePrice") || 0;
   const ownEquity = watch("ownEquity") || 0;

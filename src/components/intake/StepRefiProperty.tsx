@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { refiPropertySchema } from "@/types/intake";
@@ -23,6 +24,7 @@ export default function StepRefiProperty({ defaultValues, onNext, onBack, saving
     resolver: zodResolver(refiPropertySchema),
     defaultValues: defaultValues as any,
   });
+  useStepAutosave("refi_property", watch);
 
   const estimatedValue = watch("estimatedValue") || 0;
   const isInvestment = watch("isInvestment");

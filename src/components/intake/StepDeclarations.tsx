@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { declarationsSchema } from "@/types/intake";
@@ -29,6 +30,7 @@ export default function StepDeclarations({ defaultValues, onNext, onBack, saving
     resolver: zodResolver(declarationsSchema),
     defaultValues: defaultValues as any,
   });
+  useStepAutosave("declarations", watch);
   const confirmed = watch("confirmTruthful");
 
   const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);

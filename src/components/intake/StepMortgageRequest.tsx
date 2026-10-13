@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mortgageRequestSchema } from "@/types/intake";
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export default function StepMortgageRequest({ defaultValues, suggestedAmount = 0, suggestedMaxPayment = 0, onNext, onBack, saving }: Props) {
-  const { register, handleSubmit, formState: { errors } } = useForm<MortgageRequestData>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<MortgageRequestData>({
     resolver: zodResolver(mortgageRequestSchema),
     defaultValues: {
       requestedAmount: defaultValues.requestedAmount ?? suggestedAmount,
@@ -28,6 +29,7 @@ export default function StepMortgageRequest({ defaultValues, suggestedAmount = 0
       ...defaultValues,
     } as any,
   });
+  useStepAutosave("mortgage_request", watch);
 
   const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
 

@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalSchema, type PersonalData } from "@/types/intake";
@@ -27,6 +28,7 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
     resolver: zodResolver(personalSchema),
     defaultValues: defaultValues as any,
   });
+  useStepAutosave("personal", watch);
 
   // Prefill main contact (borrower1 only) from account/profile; never overwrite what is already filled.
   useEffect(() => {

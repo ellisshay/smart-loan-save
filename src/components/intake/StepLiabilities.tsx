@@ -1,4 +1,5 @@
 import { useIntakeValidation } from "./useIntakeValidation";
+import { useStepAutosave } from "./IntakeAutosave";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { liabilitiesSchema } from "@/types/intake";
@@ -24,6 +25,7 @@ export default function StepLiabilities({ defaultValues, onNext, onBack, saving,
     resolver: zodResolver(liabilitiesSchema),
     defaultValues: defaultValues as any,
   });
+  useStepAutosave("liabilities", watch);
 
   const hasCards = watch("hasSignificantCreditCards");
   const incomeChange = watch("incomeChangeExpected");

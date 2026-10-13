@@ -1,3 +1,4 @@
+import { IntakeAutosaveContext } from "@/components/intake/IntakeAutosave";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -166,7 +167,7 @@ function IntakeFormFlow({
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const requestedStep = params.get("step");
-  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft, savePatch } =
+  const { caseId, currentStep, intakeData, loading, saving, goToStep, nextStep, prevStep, submitCase, saveDraft, savePatch, autosaveStep } =
     useIntakeForm(caseType, resumeCaseId);
 
 
@@ -326,7 +327,7 @@ function IntakeFormFlow({
 
         <AnimatePresence mode="wait">
           <div key={currentStep}>
-            {renderStep()}
+            <IntakeAutosaveContext.Provider value={autosaveStep}>{renderStep()}</IntakeAutosaveContext.Provider>
           </div>
         </AnimatePresence>
       </div>

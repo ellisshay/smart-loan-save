@@ -11,3 +11,5 @@
 - Tranzila's server-to-server payment confirmation must be pointed at the backend edge-function endpoint, never a site-domain URL — the custom domain serves the SPA HTML for /functions/v1/*, so a site-domain notify URL silently leaves paid cases unmarked.
 - Quick check (/mortgage-check) keeps answers in browser state until the consent box is ticked; only then persist an inquiry and consent — privacy requirement.
 - Quick-check contact capture uses save_quick_check_inquiry to atomically validate contact, save an estimated quiz session and record consent; admin reads use existing quiz_sessions RLS, never create accounts or full cases for these inquiries.
+- Intake steps autosave while typing via IntakeAutosaveContext/useStepAutosave (silent update_case_safe, no emails/submit) — explicit "next" remains the only path that completes a case.
+- Admins complete cases by phone through the client dashboard with ?caseId= (staffMode); update_case_safe/submit_case_safe allow is_admin and audit admin edits — one form implementation for client and staff.

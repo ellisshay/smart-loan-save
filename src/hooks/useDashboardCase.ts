@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { isDocSettled } from "@/lib/docValidation";
+import { IntakeAutosaveContext } from "@/components/intake/IntakeAutosave";
 import type { CaseStatus } from "@/types/admin";
 
 function useDashboardCaseState() {
@@ -17,12 +18,13 @@ function useDashboardCaseState() {
   const [paymentSucceeded, setPaymentSucceeded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [staffMode, setStaffMode] = useState(false);
   const [settledDocTypes, setSettledDocTypes] = useState<string[]>([]);
   const refreshDocuments = useCallback(async (id: string) => {
     const { data } = await supabase.from("case_documents").select("doc_type, ai_extracted_data").eq("case_id", id);
     if (data) setSettledDocTypes(data.filter(d => isDocSettled(d.ai_extracted_data)).map(d => d.doc_type));
   }, []);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const intakeRef = useRef(intakeData); intakeRef.current = intakeData;
 
   useEffect(() => {
     const load = async () => {
@@ -30,10 +32,13 @@ function useDashboardCaseState() {
       if (!user) { navigate("/auth"); return; }
 
       setLoading(true);
+      // Staff completing a case by phone open it via ?caseId=; access is enforced by database rules.
+      const { data: admin } = requestedCaseId ? await supabase.rpc("is_admin") : { data: false };
+      setStaffMode(!!admin);
       let query = supabase
         .from("cases")
-        .select("id, case_type, intake_data, current_step, intake_complete, status, payment_succeeded")
-        .eq("user_id", user.id);
+        .select("id, case_type, intake_data, current_step, intake_complete, status, payment_succeeded, user_id");
+      if (!admin) query = query.eq("user_id", user.id);
       if (requestedCaseId) query = query.eq("id", requestedCaseId);
       const { data } = await query.order("created_at", { ascending: false })
         .limit(1)
@@ -60,7 +65,8 @@ function useDashboardCaseState() {
     if (!caseId) return false;
     setSaving(true);
     try {
-      const updated = { ...intakeData, [stepKey]: stepData };
+      const updated = { ...intakeRef.current, [stepKey]: stepData };
+      intakeRef.current = updated;
       const { error } = await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
       if (error) throw error;
       setIntakeData(updated);
@@ -103,13 +109,15 @@ function useDashboardCaseState() {
     navigate(`${nextPath}?caseId=${caseId}`);
   }, [saveStep, navigate, caseId]);
 
-  // Auto-save with debounce
-  const autoSave = useCallback((stepKey: string, stepData: any) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      saveStep(stepKey, stepData);
-    }, 2000);
-  }, [saveStep]);
+  // Silent save while typing (debounced by the step). Never completes the case or sends emails.
+  const autoSave = useCallback(async (stepKey: string, stepData: any) => {
+    if (!caseId) return;
+    const updated = { ...intakeRef.current, [stepKey]: stepData };
+    intakeRef.current = updated;
+    setIntakeData(updated);
+    const { error } = await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
+    if (error) console.error("Autosave failed:", error);
+  }, [caseId]);
 
   return {
     caseId,
@@ -123,6 +131,7 @@ function useDashboardCaseState() {
     saveStep,
     saveStepAndNavigate,
     autoSave,
+    staffMode,
     settledDocTypes,
     refreshDocuments,
   };
@@ -132,7 +141,8 @@ const DashboardCaseContext = createContext<ReturnType<typeof useDashboardCaseSta
 
 export function DashboardCaseProvider({ children }: { children: ReactNode }) {
   const value = useDashboardCaseState();
-  return createElement(DashboardCaseContext.Provider, { value }, children);
+  return createElement(DashboardCaseContext.Provider, { value },
+    createElement(IntakeAutosaveContext.Provider, { value: value.autoSave }, children));
 }
 
 export function useDashboardCase() {
