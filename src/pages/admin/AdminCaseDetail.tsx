@@ -62,6 +62,9 @@ export default function AdminCaseDetail() {
   const [loading, setLoading] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [bankEmailTo, setBankEmailTo] = useState("mortgage@bank.co.il");
+  const [showManualPayment, setShowManualPayment] = useState(false);
+  const [manualMethod, setManualMethod] = useState<"cash" | "bank_transfer" | "test">("bank_transfer");
+  const [manualBusy, setManualBusy] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -185,6 +188,21 @@ export default function AdminCaseDetail() {
     toast({ title: "נשלח לבנק בהצלחה! ", description: `המייל נשלח ל-${bankEmailTo}` });
   };
 
+  const confirmManualPayment = async () => {
+    if (!caseData || manualBusy) return;
+    setManualBusy(true);
+    const { error } = await supabase.rpc("admin_mark_payment", { _case_id: caseData.id, _method: manualMethod });
+    setManualBusy(false);
+    if (error) {
+      toast({ title: "שגיאה", description: error.message, variant: "destructive" });
+      return;
+    }
+    setCaseData(prev => prev ? { ...prev, payment_succeeded: true, status: "PaymentSucceeded" } : prev);
+    setShowManualPayment(false);
+    supabase.functions.invoke("case-email", { body: { case_id: caseData.id, event: "payment_confirmed" } }).catch(console.error);
+    toast({ title: "התשלום אושר ידנית", description: "התיק סומן כשולם ללא חיוב בפועל." });
+  };
+
   const mortgageAmount = intake.mortgageAmount || intake.propertyValue || 0;
   const income = intake.monthlyIncome || 0;
 
@@ -217,9 +235,14 @@ export default function AdminCaseDetail() {
               <Link to={`/dashboard/personal?caseId=${caseData.id}`}>השלמת פרטים טלפונית</Link>
             </Button>
             {!caseData.payment_succeeded && (
-              <Button size="sm" variant="cta" asChild>
-                <Link to={`/dashboard/payment?caseId=${caseData.id}`}>תשלום טלפוני / קישור לתשלום</Link>
-              </Button>
+              <>
+                <Button size="sm" variant="cta" asChild>
+                  <Link to={`/dashboard/payment?caseId=${caseData.id}`}>תשלום טלפוני / קישור לתשלום</Link>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowManualPayment(true)}>
+                  אישור תשלום ללא חיוב
+                </Button>
+              </>
             )}
             <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${status.color}`}>
               {status.label}
@@ -392,6 +415,38 @@ export default function AdminCaseDetail() {
       <div className="mt-8">
         <TenderSection caseId={caseData.id} clientName={clientName} intake={{ ...caseData.intake_data, goal: caseData.goal }} caseStatus={status.label} createdAt={caseData.created_at} assignedAdvisorId={caseData.assigned_advisor_id ?? null} />
       </div>
+
+      {/* Manual Payment Approval Modal */}
+      {showManualPayment && (
+        <div className="fixed inset-0 z-50 bg-foreground/50 flex items-center justify-center p-4">
+          <motion.div
+            className="bg-card rounded-2xl p-6 shadow-lg max-w-md w-full"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <h2 className="font-display text-xl font-bold text-foreground mb-2">אישור תשלום ללא חיוב</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              התיק יסומן כשולם ויעבור לבדיקה, בלי גביית תשלום בפועל. מתאים לתשלום במזומן, העברה בנקאית או בדיקות.
+            </p>
+            <label className="block text-sm font-medium text-foreground mb-2">אופן התשלום</label>
+            <select
+              value={manualMethod}
+              onChange={(e) => setManualMethod(e.target.value as typeof manualMethod)}
+              className="w-full h-11 px-3 rounded-lg border border-input bg-background text-foreground text-sm mb-5"
+            >
+              <option value="bank_transfer">העברה בנקאית</option>
+              <option value="cash">מזומן</option>
+              <option value="test">בדיקה</option>
+            </select>
+            <div className="flex gap-3">
+              <Button variant="cta" onClick={confirmManualPayment} disabled={manualBusy} className="flex-1">
+                {manualBusy ? "מאשר..." : "אשר תשלום"}
+              </Button>
+              <Button variant="outline" onClick={() => setShowManualPayment(false)}>ביטול</Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Bank Email Modal */}
       {showEmailModal && (

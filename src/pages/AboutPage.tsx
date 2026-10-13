@@ -41,13 +41,56 @@ const founder = {
 export default function AboutPage() {
   return (
     <>
+      {/* Founder */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-5xl">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="font-display text-3xl md:text-4xl font-black text-foreground mb-3">
+              המייסד
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              האדם שעומד מאחורי EASY MORTE
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="bg-card rounded-3xl shadow-card overflow-hidden border border-border/60"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-5">
+              <div className="md:col-span-3">
+                <img
+                  src={founderImage}
+                  alt="שי אליס, מייסד EASY MORTE"
+                  className="w-full h-64 md:h-full object-cover"
+                />
+              </div>
+              <div className="md:col-span-2 p-8 md:p-10 flex flex-col justify-center text-center md:text-right">
+                <h3 className="font-display font-black text-2xl text-foreground">
+                  {founder.name}
+                </h3>
+                <p className="text-gold font-semibold text-sm mb-4">{founder.role}</p>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                  {founder.bio}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Hero */}
       <section className="bg-hero py-20 md:py-28">
         <div className="container max-w-3xl text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
+            <h2 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
               אנחנו <span className="text-gradient-gold">EASY MORTE</span>
-            </h1>
+            </h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
               הקמנו את EASY MORTE כי נמאס לנו לראות ישראלים משלמים יותר מדי על המשכנתא שלהם.
               אנחנו מאמינים שכל אדם ראוי לדעת בדיוק כמה הוא יכול לחסוך, בלי שיחות מכירה,
@@ -95,52 +138,6 @@ export default function AboutPage() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Founder */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-5xl">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-display text-3xl md:text-4xl font-black text-foreground mb-3">
-              המייסד
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              האדם שעומד מאחורי EASY MORTE
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="bg-card rounded-3xl shadow-card overflow-hidden border border-border/60"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-5">
-              <div className="md:col-span-3">
-                <img
-                  src={founderImage}
-                  alt="שי אליס, מייסד EASY MORTE"
-                  className="w-full h-64 md:h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="md:col-span-2 p-8 md:p-10 flex flex-col justify-center text-center md:text-right">
-                <h3 className="font-display font-black text-2xl text-foreground">
-                  {founder.name}
-                </h3>
-                <p className="text-gold font-semibold text-sm mb-4">{founder.role}</p>
-                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                  {founder.bio}
-                </p>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
 

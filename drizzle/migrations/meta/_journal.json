@@ -36,6 +36,13 @@
       "when": 1791893476768,
       "tag": "0004_admin_phone_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791893746857,
+      "tag": "0005_admin_mark_payment_manual",
+      "breakpoints": true
     }
   ]
 }
