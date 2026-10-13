@@ -32,4 +32,9 @@
 ## Release 2026-10 (uploaded full task)
 - [x] Stage 1: business details (info@easymorte.co.il, Trumpeldor 11 Kfar Saba, privacy 09-7734442, public phone stays 055-996-1997)
 - [ ] Stage 2: value-first funnel + pay-first signup — BLOCKED: server-side Tranzila verification needs terminal API key
-- [ ] Stages 3–8: legal texts, /cancel, consents v2, lead_purchases policy, SEO legal URLs
+- [x] 2.1–2.5: quick check at /mortgage-check (consent before any save), inline result + mixes (unit-tested), email result; balance tool moved to /balance-check
+- [x] Stages 3–6: new terms/privacy/cookies/accessibility texts, /cancel + cancellation_requests, consents v2026-10-v2 with re-consent in dashboard
+- [x] Stage 7: advisors can no longer insert lead_purchases; new tables RLS, no anon reads
+- [x] Stage 8: /terms /privacy /cookies /accessibility /cancel, /legal/* redirects, sitemap lastmod
+- [ ] 2.6–2.8 pay-first signup, orders table, email code login — BLOCKED on Tranzila API key
+- [ ] 2.9 prefill intake from quick check; 2.10 bank-transfer consent screen in tender; 5.3/5.4 payment disclosure box + confirmation email (part of payment flow)

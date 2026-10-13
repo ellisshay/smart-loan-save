@@ -9,3 +9,4 @@
 - Dashboard pages share one DashboardCaseProvider and preserve caseId in navigation; completion uses shared saved-answer validation rather than navigation position, so forms and sidebar always describe the same case.
 - Hosted Tranzila checkout must use the direct.tranzila.com endpoint (not secure.tranzila.com, which times out) — keeps the payment form loadable in the dashboard iframe and in a new tab.
 - Tranzila's server-to-server payment confirmation must be pointed at the backend edge-function endpoint, never a site-domain URL — the custom domain serves the SPA HTML for /functions/v1/*, so a site-domain notify URL silently leaves paid cases unmarked.
+- Quick check (/mortgage-check) keeps answers in browser state until the consent box is ticked; only then create a quiz session and record consent via record_session_consent — privacy requirement.
