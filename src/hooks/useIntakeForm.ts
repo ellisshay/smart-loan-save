@@ -237,7 +237,7 @@ function quizToIntake(): Record<string, any> {
   if (qc?.answers) {
     const a = qc.answers; const refi = a.goal === "refi";
     const out: Record<string, any> = {};
-    const personal = clean({ firstName: a.firstName, borrowerCount: a.borrowers === "2" || a.borrowers === "two" ? "2" : a.borrowers ? "1" : undefined });
+    const personal = clean({ firstName: a.firstName, borrowerCount: a.borrowers === "1" ? "1" : a.borrowers ? "2" : undefined });
     if (Object.keys(personal).length) out.personal = personal;
     if (!refi) {
       const property = clean({ propertyCity: a.city, purchasePrice: a.value || undefined, ownEquity: a.equity || undefined,
