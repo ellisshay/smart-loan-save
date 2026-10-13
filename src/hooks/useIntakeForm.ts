@@ -9,6 +9,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
   const [intakeData, setIntakeData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const intakeRef = useRef(intakeData); intakeRef.current = intakeData;
 
   // Create or load case
   useEffect(() => {
@@ -130,7 +131,6 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
 
 
   // Silent save while typing: no emails/webhooks, never moves the step or completes the case.
-  const intakeRef = useRef(intakeData); intakeRef.current = intakeData;
   const autosaveStep = useCallback(async (stepKey: string, stepData: any) => {
     if (!caseId) return;
     const updated = { ...intakeRef.current, [stepKey]: stepData };

@@ -24,7 +24,7 @@ function useDashboardCaseState() {
     const { data } = await supabase.from("case_documents").select("doc_type, ai_extracted_data").eq("case_id", id);
     if (data) setSettledDocTypes(data.filter(d => isDocSettled(d.ai_extracted_data)).map(d => d.doc_type));
   }, []);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const intakeRef = useRef(intakeData); intakeRef.current = intakeData;
 
   useEffect(() => {
     const load = async () => {
@@ -110,7 +110,6 @@ function useDashboardCaseState() {
   }, [saveStep, navigate, caseId]);
 
   // Silent save while typing (debounced by the step). Never completes the case or sends emails.
-  const intakeRef = useRef(intakeData); intakeRef.current = intakeData;
   const autoSave = useCallback(async (stepKey: string, stepData: any) => {
     if (!caseId) return;
     const updated = { ...intakeRef.current, [stepKey]: stepData };
