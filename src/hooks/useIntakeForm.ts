@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { CaseType } from "@/types/intake";
@@ -96,7 +96,8 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
   const savePatch = useCallback(async (patch: Record<string, any>, step?: number) => {
     if (!caseId) return false;
     setSaving(true);
-    const updatedData = { ...intakeData, ...patch };
+    const updatedData = { ...intakeRef.current, ...patch };
+    intakeRef.current = updatedData;
     setIntakeData(updatedData);
     try {
       const { error } = await supabase.rpc("update_case_safe", {
@@ -127,6 +128,17 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
     [savePatch]
   );
 
+
+  // Silent save while typing: no emails/webhooks, never moves the step or completes the case.
+  const intakeRef = useRef(intakeData); intakeRef.current = intakeData;
+  const autosaveStep = useCallback(async (stepKey: string, stepData: any) => {
+    if (!caseId) return;
+    const updated = { ...intakeRef.current, [stepKey]: stepData };
+    intakeRef.current = updated;
+    setIntakeData(updated);
+    const { error } = await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: updated });
+    if (error) console.error("Autosave failed:", error);
+  }, [caseId]);
 
   // Navigate steps
   const goToStep = (step: number) => setCurrentStep(step);
@@ -215,6 +227,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
     prevStep,
     saveDraft,
     savePatch,
+    autosaveStep,
 
     submitCase,
   };
