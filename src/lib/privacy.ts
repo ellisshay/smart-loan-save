@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const CONTROLLER = {
   name: "שי אליס, אליס שירותי ייעוץ",
   businessId: "ע.מ 049025836",
-  email: "easymorte.il@gmail.com",
+  email: "info@easymorte.co.il",
 };
 
 export const CONSENT_VERSIONS = {

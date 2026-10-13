@@ -15,11 +15,11 @@ export const organizationSchema = {
   legalName: "אליס שירותי ייעוץ",
   url: `${SITE_URL}/`,
   logo: LOGO_URL,
-  email: "easymorte.il@gmail.com",
+  email: "info@easymorte.co.il",
   contactPoint: {
     "@type": "ContactPoint",
     telephone: "+972-55-996-1997",
-    email: "easymorte.il@gmail.com",
+    email: "info@easymorte.co.il",
     contactType: "customer service",
     areaServed: "IL",
     availableLanguage: ["he"],
