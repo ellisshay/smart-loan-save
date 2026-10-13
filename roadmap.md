@@ -28,3 +28,8 @@
 
 ## תפעול מלא בעצמנו (A-Z)
 - [x] הסרת ההבטחה שהנתונים נשלחים ל-5 יועצים; עמוד "הצעות" נגיש רק כיועצים חיצוניים פעילים, ומפנה למכרז
+
+## Release 2026-10 (uploaded full task)
+- [x] Stage 1: business details (info@easymorte.co.il, Trumpeldor 11 Kfar Saba, privacy 09-7734442, public phone stays 055-996-1997)
+- [ ] Stage 2: value-first funnel + pay-first signup — BLOCKED: server-side Tranzila verification needs terminal API key
+- [ ] Stages 3–8: legal texts, /cancel, consents v2, lead_purchases policy, SEO legal URLs
