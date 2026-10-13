@@ -74,6 +74,8 @@ export default function HomePage() {
   const assessmentRef = useRef<HTMLDivElement>(null);
 
   const handleCTAClick = () => {
+    navigate("/mortgage-check");
+    return;
     setShowAssessment(true);
     setTimeout(() => {
       assessmentRef.current?.scrollIntoView({ behavior: "smooth" });
