@@ -248,7 +248,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="space-y-2 text-sm text-primary-foreground/70">
                 <Link to="/terms" className="block hover:text-primary-foreground transition-colors">תנאי שימוש</Link>
                 <Link to="/privacy" className="block hover:text-primary-foreground transition-colors">מדיניות פרטיות</Link>
-                <Link to="/accessibility" className="block hover:text-primary-foreground transition-colors">נגישות</Link>
+                <Link to="/cookies" className="block hover:text-primary-foreground transition-colors">מדיניות עוגיות</Link>
+                <Link to="/accessibility" className="block hover:text-primary-foreground transition-colors">הצהרת נגישות</Link>
+                <Link to="/cancel" className="block hover:text-primary-foreground transition-colors">ביטול עסקה</Link>
               </div>
             </div>
           </div>
