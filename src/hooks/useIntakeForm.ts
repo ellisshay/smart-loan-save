@@ -54,7 +54,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
           setIntakeData(merged);
           if (Object.keys(prefill).length) {
             await supabase.rpc("update_case_safe", { _case_id: existing.id, _intake_data: merged });
-            localStorage.removeItem("easymort_quiz");
+            localStorage.removeItem("easymort_quiz"); localStorage.removeItem("easymort_quick_check");
           }
         } else {
           const { data: newCase, error } = await supabase
@@ -73,7 +73,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
           if (Object.keys(prefill).length) {
             setIntakeData(prefill);
             await supabase.rpc("update_case_safe", { _case_id: newCase.id, _intake_data: prefill });
-            localStorage.removeItem("easymort_quiz");
+            localStorage.removeItem("easymort_quiz"); localStorage.removeItem("easymort_quick_check");
           }
           
           // Fire webhook
@@ -231,11 +231,28 @@ async function fireWebhook(eventName: string, caseId: string, payload: Record<st
 
 // Map the homepage quick questionnaire into intake sections so the user doesn't retype it
 function quizToIntake(): Record<string, any> {
+  const clean = (o: Record<string, any>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ""));
+  let qc: any = null;
+  try { qc = JSON.parse(localStorage.getItem("easymort_quick_check") || "null"); } catch { /* ignore */ }
+  if (qc?.answers) {
+    const a = qc.answers; const refi = a.goal === "refi";
+    const out: Record<string, any> = {};
+    const personal = clean({ firstName: a.firstName, borrowerCount: a.borrowers === "2" || a.borrowers === "two" ? "2" : a.borrowers ? "1" : undefined });
+    if (Object.keys(personal).length) out.personal = personal;
+    if (!refi) {
+      const property = clean({ propertyCity: a.city, purchasePrice: a.value || undefined, ownEquity: a.equity || undefined,
+        requestedMortgage: a.value && a.equity ? a.value - a.equity : undefined });
+      if (Object.keys(property).length) out.property = property;
+    }
+    const income = clean({ monthlyNetIncome: a.income || undefined });
+    if (Object.keys(income).length) out.income = income;
+    out.quick_check = { answers: a, ltv: qc.ltv ?? null, dti: qc.dti ?? null, mixes: qc.mixes || [], saved_at: new Date().toISOString() };
+    return out;
+  }
   let q: any;
   try { q = JSON.parse(localStorage.getItem("easymort_quiz") || "null"); } catch { return {}; }
   if (!q) return {};
-  const clean = (o: Record<string, any>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ""));
-  const out: Record<string, any> = {};
+    const out: Record<string, any> = {};
   const personal = clean({ borrowerCount: q.co_borrower === true ? "2" : q.co_borrower === false ? "1" : undefined });
   if (Object.keys(personal).length) out.personal = personal;
   const property = clean({ propertyCity: q.property_area, purchasePrice: q.property_price, ownEquity: q.equity_amount,

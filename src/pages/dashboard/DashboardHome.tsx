@@ -139,6 +139,24 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       <ContactCard />
+      {caseData?.intake_data?.quick_check?.mixes?.length > 0 && (() => { const qc = caseData!.intake_data.quick_check; return (
+        <Card><CardContent className="p-5 space-y-3">
+          <h2 className="font-bold text-lg">התוצאה מהבדיקה המהירה שלכם</h2>
+          <div className="flex flex-wrap gap-4 text-sm">
+            {qc.ltv != null && <span>אחוז מימון: <b>{Math.round(qc.ltv)}%</b></span>}
+            {qc.dti != null && <span>יחס החזר להכנסה: <b>{Math.round(qc.dti)}%</b></span>}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {qc.mixes.map((m: any) => (
+              <div key={m.name} className="rounded-lg border border-border p-3">
+                <p className="font-semibold">{m.name}</p>
+                <p className="text-xs text-muted-foreground">סיכון {m.risk}</p>
+                <p className="text-xl font-bold mt-1">₪{Number(m.monthly).toLocaleString("he-IL")}<span className="text-xs font-normal"> לחודש</span></p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">הערכה ראשונית לפי הנתונים שמסרתם. הנתונים כבר הועתקו לתיק — נותר להשלים רק את מה שחסר.</p>
+        </CardContent></Card>); })()}
       {/* Risk-based urgency banner */}
       {riskScore > 75 && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 bg-destructive/10 border border-destructive/20 rounded-xl p-4">
