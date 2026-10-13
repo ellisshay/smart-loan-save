@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 
-const HIDDEN = ["/intake", "/auth", "/dashboard", "/admin", "/advisor"];
+const HIDDEN = ["/mortgage-check", "/intake", "/auth", "/dashboard", "/admin", "/advisor"];
 
 // Routes where the free mortgage check is the more relevant primary action
 const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance", "/mix", "/affordability", "/waste"];
