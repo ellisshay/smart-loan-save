@@ -62,6 +62,9 @@ export default function AdminCaseDetail() {
   const [loading, setLoading] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [bankEmailTo, setBankEmailTo] = useState("mortgage@bank.co.il");
+  const [showManualPayment, setShowManualPayment] = useState(false);
+  const [manualMethod, setManualMethod] = useState<"cash" | "bank_transfer" | "test">("bank_transfer");
+  const [manualBusy, setManualBusy] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -217,9 +220,14 @@ export default function AdminCaseDetail() {
               <Link to={`/dashboard/personal?caseId=${caseData.id}`}>השלמת פרטים טלפונית</Link>
             </Button>
             {!caseData.payment_succeeded && (
-              <Button size="sm" variant="cta" asChild>
-                <Link to={`/dashboard/payment?caseId=${caseData.id}`}>תשלום טלפוני / קישור לתשלום</Link>
-              </Button>
+              <>
+                <Button size="sm" variant="cta" asChild>
+                  <Link to={`/dashboard/payment?caseId=${caseData.id}`}>תשלום טלפוני / קישור לתשלום</Link>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowManualPayment(true)}>
+                  אישור תשלום ללא חיוב
+                </Button>
+              </>
             )}
             <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${status.color}`}>
               {status.label}
