@@ -29,6 +29,13 @@
       "when": 1791884780630,
       "tag": "0003_quick_check_contact_inquiry",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791893476768,
+      "tag": "0004_admin_phone_completion",
+      "breakpoints": true
     }
   ]
 }
