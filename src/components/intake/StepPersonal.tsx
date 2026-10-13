@@ -14,9 +14,11 @@ interface Props {
   defaultValues: Partial<PersonalData>;
   onNext: (data: PersonalData) => void;
   saving: boolean;
+  /** False when staff edit someone else's case — never prefill from the signed-in account. */
+  prefillFromAccount?: boolean;
 }
 
-export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
+export default function StepPersonal({ defaultValues, onNext, saving, prefillFromAccount = true }: Props) {
   const {
     register,
     handleSubmit,
@@ -32,6 +34,7 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
 
   // Prefill main contact (borrower1 only) from account/profile; never overwrite what is already filled.
   useEffect(() => {
+    if (!prefillFromAccount) return;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -44,7 +47,7 @@ export default function StepPersonal({ defaultValues, onNext, saving }: Props) {
         if (v && !getValues(path)) setValue(path, v);
       }
     })().catch(console.error);
-  }, [getValues, setValue]);
+  }, [getValues, setValue, prefillFromAccount]);
 
   const borrowerCount = watch("borrowerCount");
   const b1Divorced = watch("borrower1.isDivorced");

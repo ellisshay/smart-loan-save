@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import type { PersonalData } from "@/types/intake";
 
 export default function DashboardPersonal() {
-  const { caseId, caseType, intakeData, loading, saving, saveStep } = useDashboardCase();
+  const { caseId, caseType, intakeData, loading, saving, saveStep, staffMode } = useDashboardCase();
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -25,6 +25,7 @@ export default function DashboardPersonal() {
       defaultValues={(intakeData.personal || {}) as Partial<PersonalData>}
       onNext={handleNext}
       saving={saving}
+      prefillFromAccount={!staffMode}
     />
   );
 }
