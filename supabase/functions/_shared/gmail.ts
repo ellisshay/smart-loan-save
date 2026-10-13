@@ -1,5 +1,6 @@
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
-export const ADMIN_EMAIL = "easymorte.il@gmail.com";
+export const ADMIN_EMAIL = "easymorte.il@gmail.com"; // sending mailbox (Gmail connector)
+export const CONTACT_EMAIL = "info@easymorte.co.il";
 export const SITE_URL = "https://www.easymorte.co.il";
 const CONTACT_PHONE = "055-996-1997";
 const CONTACT_PHONE_LINK = "tel:+972559961997";
@@ -20,7 +21,7 @@ export function wrap(title: string, body: string, ctaText?: string, ctaUrl?: str
 <div style="font-size:15px;line-height:1.7">${body}</div>
 ${ctaText && ctaUrl ? `<a href="${ctaUrl}" style="display:inline-block;margin-top:20px;background:#0d9488;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold">${esc(ctaText)}</a>` : ""}
 <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0 12px"/>
-<div style="font-size:12px;color:#64748b">EasyMorte | ${ADMIN_EMAIL}</div>
+<div style="font-size:12px;color:#64748b">EasyMorte | ${CONTACT_EMAIL}</div>
 </div></body></html>`;
 }
 
@@ -45,7 +46,7 @@ ${ctaText && ctaUrl ? `<table role="presentation" cellpadding="0" cellspacing="0
 <tr><td style="background:#eef5f3;padding:22px 30px;font-size:14px;line-height:1.9;color:#294557">
 <strong>יש לך שאלה? אנחנו כאן.</strong><br>
 טלפון: <a href="${CONTACT_PHONE_LINK}" style="color:#0d756f;text-decoration:underline" dir="ltr">${CONTACT_PHONE}</a> &nbsp;·&nbsp; <a href="${WHATSAPP_LINK}" style="color:#0d756f;text-decoration:underline">WhatsApp</a><br>
-אימייל: <a href="mailto:${ADMIN_EMAIL}" style="color:#0d756f;text-decoration:underline" dir="ltr">${ADMIN_EMAIL}</a><br>
+אימייל: <a href="mailto:${CONTACT_EMAIL}" style="color:#0d756f;text-decoration:underline" dir="ltr">${CONTACT_EMAIL}</a><br>
 אתר: <a href="${SITE_URL}" style="color:#0d756f;text-decoration:underline" dir="ltr">www.easymorte.co.il</a>
 </td></tr></table>
 <div style="max-width:600px;padding:16px 8px;font-size:12px;line-height:1.6;color:#627b80;text-align:center">הודעה זו נשלחה אליך בעקבות פעילות בתיק שלך ב-EASY MORTE.</div>

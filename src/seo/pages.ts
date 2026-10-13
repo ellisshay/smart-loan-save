@@ -73,7 +73,7 @@ export const staticPages: StaticPageMeta[] = [
     description: "מחיר קבוע ושקוף של 3,450 ₪ לתהליך המשכנתא המלא, ללא עמלת אחוזים מגובה ההלוואה. מה כלול בשירות ומתי משלמים." },
   { path: "/contact", label: "צור קשר", priority: "0.5", changefreq: "yearly",
     title: "צור קשר עם EasyMorte: טלפון, WhatsApp ואימייל",
-    description: "שאלות על משכנתא, מחזור או התיק שלכם? פנו ל-EasyMorte בטלפון או ב-WhatsApp 055-996-1997 או במייל easymorte.il@gmail.com." },
+    description: "שאלות על משכנתא, מחזור או התיק שלכם? פנו ל-EasyMorte בטלפון או ב-WhatsApp 055-996-1997 או במייל info@easymorte.co.il." },
   { path: "/faq", label: "שאלות נפוצות", priority: "0.7",
     title: "שאלות נפוצות על משכנתא ועל השירות | EasyMorte",
     description: "תשובות לשאלות נפוצות: כמה עולה השירות, מה קורה אחרי התשלום, אילו מסמכים צריך, איך עובד מכרז הבנקים ומתי כדאי למחזר משכנתא." },
