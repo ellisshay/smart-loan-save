@@ -73,14 +73,7 @@ export default function HomePage() {
 
   const assessmentRef = useRef<HTMLDivElement>(null);
 
-  const handleCTAClick = () => {
-    navigate("/mortgage-check");
-    return;
-    setShowAssessment(true);
-    setTimeout(() => {
-      assessmentRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
+  const handleCTAClick = () => navigate("/mortgage-check");
 
   const handleAssessmentComplete = useCallback((score: number, data: QuizData) => {
     setCompletedScore(score);
