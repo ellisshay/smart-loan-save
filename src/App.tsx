@@ -59,6 +59,11 @@ const AdminCaseDetail = lazy(() => import("./pages/admin/AdminCaseDetail"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdvisorDashboard = lazy(() => import("./pages/advisor/AdvisorDashboard"));
 const AdvisorOfferPage = lazy(() => import("./pages/advisor/AdvisorOfferPage"));
+const CancelPage = lazy(() => import("./pages/CancelPage"));
+function LegalRedirect() {
+  const p = useLocation().pathname.replace(/^\/legal\//, "");
+  return <Navigate to={["terms", "privacy", "cookies", "accessibility"].includes(p) ? `/${p}` : "/terms"} replace />;
+}
 const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ServiceLandingPage = lazy(() => import("./pages/ServiceLandingPage"));
