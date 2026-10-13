@@ -1161,6 +1161,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_mark_payment: {
+        Args: { _case_id: string; _method: string }
+        Returns: undefined
+      }
       can_manage_case: { Args: { _case_id: string }; Returns: boolean }
       client_tender_action: {
         Args: { _action: string; _message?: string; _offer_id: string }
