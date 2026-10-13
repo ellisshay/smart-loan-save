@@ -7,9 +7,12 @@ export const CONTROLLER = {
 };
 
 export const CONSENT_VERSIONS = {
-  privacy_notice: "2026-09-v1",
-  bank_data_transfer: "2026-09-v1",
-  automated_processing: "2026-09-v1",
+  privacy_notice: "2026-10-v2",
+  bank_data_transfer: "2026-10-v2",
+  automated_processing: "2026-10-v2",
+  quick_check: "2026-10-v2",
+  payment_terms: "2026-10-v2",
+  marketing: "2026-10-v2",
 } as const;
 
 export type ConsentType = keyof typeof CONSENT_VERSIONS;

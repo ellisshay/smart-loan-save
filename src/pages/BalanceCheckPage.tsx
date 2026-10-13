@@ -118,7 +118,7 @@ export default function MortgageCheckPage() {
             <span className="inline-flex items-center gap-2 h-10 px-5 rounded-lg bg-primary text-primary-foreground font-bold cursor-pointer">{parsing ? "מנתח את הדוח..." : "בחירת קובץ"}</span>
           </label>
         ) : (
-          <Link to="/auth?next=/mortgage-check"><Button variant="cta">הרשמה והעלאת הדוח</Button></Link>
+          <Link to="/auth?next=/balance-check"><Button variant="cta">הרשמה והעלאת הדוח</Button></Link>
         )}
         {parseMsg && <p className="text-sm text-foreground">{parseMsg}</p>}
       </section>

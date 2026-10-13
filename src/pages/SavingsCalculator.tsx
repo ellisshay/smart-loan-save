@@ -153,7 +153,7 @@ export default function SavingsCalculator() {
 
   const handleConfirmCheckout = () => {
     setShowModal(false);
-    navigate("/intake");
+    navigate("/mortgage-check");
   };
 
   const calculate = () => {

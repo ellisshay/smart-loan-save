@@ -149,7 +149,7 @@ export default function NewMortgageCalculator() {
               </div>
 
               <div className="text-center pt-2">
-                <Link to="/intake">
+                <Link to="/mortgage-check">
                   <Button variant="cta" size="lg">
                     רוצה דוח מלא עם 3 תמהילים?
                     <ArrowLeft size={16} />

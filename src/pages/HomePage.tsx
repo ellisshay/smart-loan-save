@@ -73,12 +73,7 @@ export default function HomePage() {
 
   const assessmentRef = useRef<HTMLDivElement>(null);
 
-  const handleCTAClick = () => {
-    setShowAssessment(true);
-    setTimeout(() => {
-      assessmentRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
+  const handleCTAClick = () => navigate("/mortgage-check");
 
   const handleAssessmentComplete = useCallback((score: number, data: QuizData) => {
     setCompletedScore(score);
@@ -167,7 +162,7 @@ export default function HomePage() {
                   <ChevronLeft size={20} className="hidden sm:block" />
                 </Button>
                 <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 h-auto min-h-14 px-2 sm:px-7 py-2 text-sm sm:text-base whitespace-normal text-center leading-tight">
-                  <Link to="/mortgage-check">בדיקת משכנתא קיימת חינם</Link>
+                  <Link to="/balance-check">בדיקת משכנתא קיימת חינם</Link>
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
