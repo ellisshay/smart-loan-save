@@ -45,11 +45,11 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
         <p><strong className="text-foreground">למי יועבר:</strong> לבנקים וגופים פיננסיים לצורך קבלת הצעות, רק לאחר הסכמה נפרדת שתתבקש בהמשך; ולספקי שירות טכניים הפועלים עבורנו (אחסון, סליקה, דיוור).</p>
         <p><strong className="text-foreground">עיבוד אוטומטי:</strong> המערכת עשויה להשתמש בכלים אוטומטיים לצורך עיבוד, סיווג וסיכום מידע. החלטות מקצועיות מהותיות נבדקות על ידי איש מקצוע.</p>
         <p><strong className="text-foreground">הזכויות שלך:</strong> לעיין במידע, לבקש לתקן אותו ולבקש מחיקה, דרך <Link to="/dashboard/privacy" className="text-primary underline">עמוד הפרטיות שלי</Link>.</p>
-        <p><Link to="/privacy" target="_blank" className="text-primary underline">למדיניות הפרטיות המלאה</Link></p>
+        <p><Link to="/terms" target="_blank" className="text-primary underline">לתנאי השימוש</Link> · <Link to="/privacy" target="_blank" className="text-primary underline">למדיניות הפרטיות המלאה</Link></p>
       </div>
       <label className="flex items-start gap-3 cursor-pointer">
         <Checkbox checked={privacy} onCheckedChange={(v) => setPrivacy(v === true)} className="mt-1" />
-        <span className="text-sm text-foreground">אני מאשר/ת שקראתי את הודעת הפרטיות ואני מסכים/ה למסירת המידע לצורך בדיקת וטיפול בתיק המשכנתא.</span>
+        <span className="text-sm text-foreground">אני מאשר/ת שקראתי את תנאי השימוש ואת מדיניות הפרטיות (גרסה מעודכנת) ואני מסכים/ה למסירת המידע לצורך בדיקת וטיפול בתיק המשכנתא.</span>
       </label>
       <Button variant="cta" disabled={!privacy || saving} onClick={accept} className="w-full">
         {saving ? "שומר..." : "המשך למילוי הפרטים"}
