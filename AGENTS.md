@@ -3,6 +3,7 @@
 - Bank tender data lives in tenders/tender_banks/tender_offers; clients read only via get_client_tender RPC — keeps internal notes and unapproved offers hidden.
 - tender_offers are append-only versions (content-protect trigger) — offer history must never be overwritten.
 - Use wrapClient for customer-facing transactional emails and wrap for internal notifications — keeps customer branding and contact information consistent without changing staff alerts.
+- Keep the authenticated sending mailbox separate from the official contact/admin address and set Reply-To to the latter — prevents unverified sender spoofing while routing replies consistently.
 - Public routes are prerendered at build (src/entry-server.tsx + scripts/prerender.mjs, route list in src/seo/pages.ts + article data); private prefixes in src/seo/config.ts get noindex and stay SPA — crawlers need content in the first HTML.
 - Per-page head tags come only from <Seo> (static pages via RouteSeo in Layout); canonical domain is https://easymorte.co.il — avoids duplicate/conflicting tags.
 - Intake steps use shared useIntakeValidation feedback for invalid submissions — keeps popup, red field highlighting and focus consistent across nested fields and case types.
