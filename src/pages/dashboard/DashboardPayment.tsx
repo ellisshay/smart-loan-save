@@ -19,7 +19,8 @@ const TRANZILA_TERMINAL = "ttxellisshay";
 export default function DashboardPayment() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { caseId, caseType, intakeData, intakeComplete, loading } = useDashboardCase();
+  const { caseId, caseType, intakeData, intakeComplete, loading, staffMode } = useDashboardCase();
+  const [linkCopied, setLinkCopied] = useState(false);
   const [docsComplete, setDocsComplete] = useState(false);
   const [missingDocs, setMissingDocs] = useState(0);
   const [caseStatus, setCaseStatus] = useState<string | null>(null);
@@ -56,7 +57,11 @@ export default function DashboardPayment() {
 
   // cred_type=8 + maxpay=4: the Tranzila form offers the customer a choice of
   // 1–4 installments (docs.tranzila.com — iframe integration / Lovable guide).
-  const payUrl = `https://direct.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=8&maxpay=4&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&phone=${encodeURIComponent(billing.phone.replace(/[\s-]/g, "").trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=1")}&fail_url_address=${encodeURIComponent(window.location.origin + "/dashboard/payment?paid=0")}`;
+  const payUrl = `https://direct.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=8&maxpay=4&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&phone=${encodeURIComponent(billing.phone.replace(/[\s-]/g, "").trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + `/dashboard/payment?paid=1&caseId=${caseId}`)}&fail_url_address=${encodeURIComponent(window.location.origin + `/dashboard/payment?paid=0&caseId=${caseId}`)}`;
+  // Link the client opens on their own device (after signing in) to pay for this case.
+  const clientPayLink = `${window.location.origin}/dashboard/payment?caseId=${caseId}`;
+  const clientPhone = String(borrower.phone || "").replace(/\D/g, "").replace(/^0/, "972");
+  const waLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(`שלום${borrower.firstName ? " " + borrower.firstName : ""}, זה הקישור לתשלום עבור התיק שלך ב-EasyMorte (₪3,450): ${clientPayLink}`)}`;
 
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {

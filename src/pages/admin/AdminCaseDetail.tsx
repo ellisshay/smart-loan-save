@@ -212,9 +212,19 @@ export default function AdminCaseDetail() {
             <h1 className="font-display text-3xl font-black text-foreground">{clientName}</h1>
             <p className="text-sm text-muted-foreground font-mono">{caseData.case_number}</p>
           </div>
-          <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${status.color}`}>
-            {status.label}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="outline" asChild>
+              <Link to={`/dashboard/personal?caseId=${caseData.id}`}>השלמת פרטים טלפונית</Link>
+            </Button>
+            {!caseData.payment_succeeded && (
+              <Button size="sm" variant="cta" asChild>
+                <Link to={`/dashboard/payment?caseId=${caseData.id}`}>תשלום טלפוני / קישור לתשלום</Link>
+              </Button>
+            )}
+            <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${status.color}`}>
+              {status.label}
+            </span>
+          </div>
         </div>
       </motion.div>
 
