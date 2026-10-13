@@ -55,7 +55,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <div className="font-semibold text-foreground">כתובת</div>
-                <div className="text-sm text-muted-foreground">תל אביב, ישראל</div>
+                <div className="text-sm text-muted-foreground">טרומפלדור 11, כפר סבא</div>
               </div>
             </div>
           </motion.div>
