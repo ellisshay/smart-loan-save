@@ -210,6 +210,25 @@ export default function DashboardPayment() {
         </p>
       </motion.div>
 
+      {staffMode && (
+        <Card className="border-primary/40">
+          <CardContent className="p-4 space-y-3 text-right">
+            <p className="text-sm font-bold text-foreground">תשלום טלפוני (מנהל)</p>
+            <p className="text-xs text-muted-foreground">אפשר להקליד את פרטי הכרטיס שהלקוח מקריא בטופס המאובטח למטה. הפרטים לא נשמרים אצלנו. אפשר גם לשלוח ללקוח קישור לתשלום עצמי.</p>
+            <div className="flex flex-wrap gap-2">
+              {clientPhone.length >= 11 && (
+                <Button size="sm" variant="outline" asChild>
+                  <a href={waLink} target="_blank" rel="noopener noreferrer">שליחת קישור בוואטסאפ</a>
+                </Button>
+              )}
+              <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(clientPayLink); setLinkCopied(true); }}>
+                {linkCopied ? "הקישור הועתק" : "העתקת קישור לתשלום"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Pending confirmation banner — Tranzila returned success, waiting for webhook */}
       {paymentState === "pending" && (
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
