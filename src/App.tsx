@@ -168,7 +168,10 @@ export const AppRoutes = () => (
         <Route path="/for-advisors" element={<Navigate to="/" replace />} />
         <Route path="/privacy" element={<Layout><LegalPage page="privacy" /></Layout>} />
         <Route path="/terms" element={<Layout><LegalPage page="terms" /></Layout>} />
-        <Route path="/legal/:page" element={<Layout><LegalPage /></Layout>} />
+        <Route path="/cookies" element={<Layout><LegalPage page="cookies" /></Layout>} />
+        <Route path="/accessibility" element={<Layout><LegalPage page="accessibility" /></Layout>} />
+        <Route path="/cancel" element={<Layout><CancelPage /></Layout>} />
+        <Route path="/legal/:page" element={<LegalRedirect />} />
         <Route path="*" element={<Layout><NotFound /></Layout>} />
       </Routes>
     </Suspense>
