@@ -266,8 +266,8 @@ export default function AdminCaseDetail() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <InfoRow icon={User} label="שם" value={clientName} />
-              <InfoRow icon={Phone} label="טלפון" value={profile?.phone || "-"} />
-              <InfoRow icon={Mail} label="אימייל" value={profile?.email || "-"} />
+              <InfoRow icon={Phone} label="טלפון" value={clientPhone} />
+              <InfoRow icon={Mail} label="אימייל" value={clientEmail} />
               <InfoRow icon={Target} label="יעד" value={caseData.goal || "-"} />
               <InfoRow icon={FolderOpen} label="סוג תיק" value={caseData.case_type === "refi" ? "מיחזור משכנתא" : "משכנתא חדשה"} />
               <InfoRow icon={Clock} label="נוצר" value={new Date(caseData.created_at).toLocaleDateString("he-IL")} />
