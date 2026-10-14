@@ -136,7 +136,8 @@ export default function AdminCaseDetail() {
   const profileName = profile
     ? [profile.first_name, profile.last_name].filter(Boolean).join(" ")
     : "";
-  const clientName = profileName || b1.name || "ללא שם";
+  const b1Name = [b1.firstName, b1.lastName].filter(Boolean).join(" ");
+  const clientName = profileName || b1Name || b1.name || "ללא שם";
   const clientPhone = profile?.phone || b1.phone || "-";
   const clientEmail = profile?.email || b1.email || "-";
 
