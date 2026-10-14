@@ -6,7 +6,7 @@ import { clientCardHtml, clientEmail, STATUS_LABELS, borrowers } from "../_share
 
 const Body = z.object({
   case_id: z.string().uuid(),
-  event: z.enum(["case_opened", "status_update", "intake_complete", "tender_proceed", "tender_question", "tender_update"]),
+  event: z.enum(["case_opened", "status_update", "intake_complete", "tender_proceed", "tender_question", "tender_update", "payment_confirmed"]),
   message: z.string().max(2000).optional(),
 });
 
@@ -70,6 +70,17 @@ Deno.serve(async (req) => {
     if (event === "tender_update" && to) {
       await sendEmail(to, `עדכון במכרז המשכנתא שלך, תיק ${c.case_number}`, wrapClient(`שלום ${name}, יש עדכון במכרז הבנקים`, `<p>${esc(message || "יש עדכון חדש בתיק שלך.")}</p>`, "למכרז המשכנתא שלי", `${SITE_URL}/dashboard/tender`));
       results.push("tender_update");
+    }
+
+    if (event === "payment_confirmed" && c.payment_succeeded) {
+      if (to && !sent.client_payment) {
+        await sendEmail(to, `התשלום התקבל, תיק ${c.case_number}`, wrapClient(`שלום ${name}, התשלום אושר`, `<p>התשלום עבור תיק <b>${esc(c.case_number)}</b> אושר.</p><p>לאחר שהתיק מלא (פרטים ומסמכים), נבדוק אותו תוך עד 72 שעות.</p>`, "לאזור האישי", `${SITE_URL}/dashboard/status`));
+        await mark("client_payment"); results.push("client_payment");
+      }
+      if (!sent.admin_payment) {
+        await sendEmail(ADMIN_EMAIL, `תשלום אושר: ${c.case_number}`, wrap("תשלום אושר בתיק", clientCardHtml(c, profile), "לצפייה בתיק", `${SITE_URL}/admin/cases/${c.id}`));
+        await mark("admin_payment");
+      }
     }
 
     if (event === "intake_complete") {
