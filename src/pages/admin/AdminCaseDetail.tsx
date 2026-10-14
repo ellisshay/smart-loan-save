@@ -129,12 +129,16 @@ export default function AdminCaseDetail() {
     );
   }
 
-  const clientName = profile
-    ? [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "ללא שם"
-    : "ללא שם";
-
   const status = CASE_STATUSES[caseData.status];
   const intake = caseData.intake_data;
+  const b1 = intake?.personal?.borrower1 || {};
+
+  const profileName = profile
+    ? [profile.first_name, profile.last_name].filter(Boolean).join(" ")
+    : "";
+  const clientName = profileName || b1.name || "ללא שם";
+  const clientPhone = profile?.phone || b1.phone || "-";
+  const clientEmail = profile?.email || b1.email || "-";
 
   const handleStatusChange = async (newStatus: CaseStatus) => {
     const { error } = await supabase
