@@ -1,85 +1,53 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Calculator, TrendingDown, BarChart3, ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, Home, TrendingDown, Wallet, PiggyBank, Activity, Layers, Coins, Scale, type LucideIcon } from "lucide-react";
 
-const calculators = [
+/** Every calculator answers one question. Links use the canonical routes (no redirects). */
+const groups: { title: string; items: { q: string; desc: string; href: string; icon: LucideIcon }[] }[] = [
   {
-    title: "מדד בזבוז משכנתא",
-    desc: "גלה האם המשכנתא שלך עולה לך יותר מדי. קבל ציון 1-100 והמלצות.",
-    icon: BarChart3,
-    href: "/calculators/waste",
-    emoji: "",
-    color: "bg-destructive/10 text-destructive",
+    title: "קונים דירה",
+    items: [
+      { q: "כמה משכנתא אני יכול לקחת?", desc: "טווח סביר מול גבול אפשרי, לפי ההכנסה וההון העצמי.", href: "/calculators/affordability", icon: Wallet },
+      { q: "כמה תעלה לי משכנתא חדשה?", desc: "החזר חודשי, אחוז מימון ועלות כוללת משוערת.", href: "/mortgage-calculator", icon: Home },
+      { q: "איך נראים תמהילים שונים?", desc: "שלושה תמהילים לדוגמה לפי ריביות השוק היום.", href: "/calculators/mix", icon: Layers },
+    ],
   },
   {
-    title: "סימולטור מיחזור",
-    desc: "בדוק אם מיחזור משכנתא ישתלם לך, ותוך כמה חודשים תגיע לנקודת איזון.",
-    icon: TrendingDown,
-    href: "/calculators/refinance",
-    emoji: "",
-    color: "bg-success/10 text-success",
-  },
-  {
-    title: "השוואת תמהילים",
-    desc: "קבל 3 תמהילים, שמרני, מאוזן ואגרסיבי, מותאמים לפרופיל הסיכון שלך.",
-    icon: Calculator,
-    href: "/calculators/mix",
-    emoji: "️",
-    color: "bg-gold/10 text-gold-dark",
-  },
-  {
-    title: "מחשבון משכנתא חדשה",
-    desc: "חשב את ההחזר החודשי וגלה כמה תוכל ללוות לבית הראשון שלך.",
-    icon: Home,
-    href: "/calculators/new-mortgage",
-    emoji: "",
-    color: "bg-violet-500/10 text-violet-400",
+    title: "כבר יש לי משכנתא",
+    items: [
+      { q: "האם מחזור יכול להשתלם לי?", desc: "ההחזר היום מול ריבית אחרת, אחרי עלויות המחזור.", href: "/refinance-calculator", icon: TrendingDown },
+      { q: "האם אני משלם יותר מהשוק?", desc: "הריבית שלכם מול ממוצע השוק העדכני.", href: "/calculators/waste", icon: Scale },
+      { q: "כמה אפשר לחסוך?", desc: "מחזור, תוספת להחזר או קיצור תקופה, זה לצד זה.", href: "/calculators/savings", icon: PiggyBank },
+      { q: "מה יקרה אם אחזיר חלק מהמשכנתא?", desc: "הקטנת ההחזר מול קיצור התקופה.", href: "/calculators/early-repayment", icon: Coins },
+      { q: "מה קורה אם הריבית משתנה?", desc: "סליידר מ-2%- עד 3%+ והשפעה מיידית על ההחזר.", href: "/calculators/rate-sensitivity", icon: Activity },
+    ],
   },
 ];
 
 export default function CalculatorsHub() {
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section className="py-10 md:py-16 bg-background" dir="rtl">
       <div className="container max-w-4xl">
-        <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
-            מחשבוני משכנתא <span className="text-gradient-gold">מקצועיים</span>
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-            בחר מחשבון, הזן את הנתונים שלך, וקבל תוצאה מיידית, בלי רישום ובלי שיחות.
-          </p>
-        </motion.div>
-
-        <div className="space-y-5">
-          {calculators.map((calc, i) => (
-            <motion.div
-              key={calc.href}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <Link
-                to={calc.href}
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-5 bg-card rounded-2xl p-6 md:p-8 shadow-card hover:shadow-card-hover transition-all duration-300 group border border-transparent hover:border-gold/20"
-              >
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0 ${calc.color}`}>
-                  {calc.emoji}
-                </div>
-                <div className="flex-1">
-                  <h2 className="font-display font-bold text-xl text-foreground mb-1 group-hover:text-gold transition-colors">
-                    {calc.title}
-                  </h2>
-                  <p className="text-muted-foreground text-sm">{calc.desc}</p>
-                </div>
-                <ArrowLeft size={20} className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 hidden sm:block" />
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+        <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground">מחשבוני משכנתא</h1>
+        <p className="text-muted-foreground mt-2 max-w-xl">שאלה אחת, תשובה מיידית. בלי הרשמה. כל התוצאות הן הערכה ולא הצעה של בנק.</p>
+        {groups.map((g) => (
+          <div key={g.title} className="mt-8">
+            <h2 className="font-display text-lg font-bold text-foreground mb-3">{g.title}</h2>
+            <ul className="grid sm:grid-cols-2 gap-3">
+              {g.items.map(({ q, desc, href, icon: Icon }) => (
+                <li key={href}>
+                  <Link to={href} className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 sm:p-5 min-h-20 hover:border-primary transition-colors">
+                    <span className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0"><Icon size={20} aria-hidden /></span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block font-semibold text-foreground">{q}</span>
+                      <span className="block text-sm text-muted-foreground mt-0.5">{desc}</span>
+                    </span>
+                    <ArrowLeft size={18} className="text-muted-foreground group-hover:text-primary shrink-0" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </section>
   );

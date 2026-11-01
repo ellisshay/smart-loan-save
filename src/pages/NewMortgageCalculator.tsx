@@ -1,165 +1,71 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Home, Calculator, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CalculatorShell, NumberField, BigResult, ResultGrid } from "@/components/calculators/CalculatorShell";
+import { BalanceChart } from "@/components/mortgage/charts";
+import { nis, pct } from "@/components/mortgage/primitives";
+import { schedule } from "@/lib/mortgage/amortization";
+import { REASONABLE_RATIO, LTV_CAP, dtiBand } from "@/lib/mortgage/affordability";
+import { useMarketRates } from "@/hooks/useMarketRates";
 
 export default function NewMortgageCalculator() {
-  const [propertyPrice, setPropertyPrice] = useState("");
-  const [equity, setEquity] = useState("");
-  const [years, setYears] = useState("25");
-  const [rate, setRate] = useState("4.5");
-  const [result, setResult] = useState<{
-    loanAmount: number;
-    monthlyPayment: number;
-    totalPayment: number;
-    totalInterest: number;
-    ltv: number;
-  } | null>(null);
+  const { reference } = useMarketRates();
+  const [price, setPrice] = useState<number | null>(1_800_000);
+  const [equity, setEquity] = useState<number | null>(450_000);
+  const [loanOverride, setLoanOverride] = useState<number | null>(null);
+  const [yrs, setYrs] = useState<number | null>(25);
+  const [rate, setRateState] = useState<number | null>(4.8);
+  const touched = useRef(false);
+  const setRate = (v: number | null) => { touched.current = true; setRateState(v); };
+  const [income, setIncome] = useState<number | null>(null);
+  // Use today's market reference once it loads, unless the user already typed a rate.
+  useEffect(() => { if (reference && !touched.current) setRateState(reference); }, [reference]);
 
-  const calculate = () => {
-    const price = parseFloat(propertyPrice);
-    const eq = parseFloat(equity);
-    const y = parseFloat(years);
-    const r = parseFloat(rate);
-    if (!price || !eq || !y || !r || eq >= price) return;
-
-    const loan = price - eq;
-    const ltv = (loan / price) * 100;
-    const monthlyRate = r / 100 / 12;
-    const months = y * 12;
-    const monthly = loan * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-    const total = monthly * months;
-
-    setResult({
-      loanAmount: loan,
-      monthlyPayment: monthly,
-      totalPayment: total,
-      totalInterest: total - loan,
-      ltv,
-    });
-  };
+  const r = useMemo(() => {
+    const p = price || 0, e = equity || 0;
+    const loan = loanOverride ?? Math.max(0, p - e);
+    const months = Math.round((yrs || 0) * 12);
+    const rr = rate ?? 0;
+    if (!loan || !months) return null;
+    const s = schedule(loan, rr, months);
+    const ltv = p ? loan / p : null;
+    return {
+      loan, ltv, s, rr,
+      incomeLow: s.monthly / REASONABLE_RATIO.high, incomeHigh: s.monthly / REASONABLE_RATIO.low,
+      dti: income ? s.monthly / income : null,
+    };
+  }, [price, equity, loanOverride, yrs, rate, income]);
 
   return (
-    <section className="py-16 md:py-24 bg-background">
-      <div className="container max-w-2xl">
-        <motion.div className="text-center mb-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-4">
-            <Home className="text-violet-400" size={28} />
-          </div>
-          <h1 className="font-display text-3xl md:text-4xl font-black text-foreground mb-3">
-            מחשבון משכנתא חדשה
-          </h1>
-          <p className="text-muted-foreground">חשב את ההחזר החודשי למשכנתא חדשה לפי מחיר הנכס וההון העצמי שלך</p>
-        </motion.div>
-
-        <motion.div
-          className="bg-card rounded-2xl p-8 shadow-card border border-border"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
-            <div>
-              <Label>מחיר הנכס (₪)</Label>
-              <Input
-                type="number"
-                placeholder="1,800,000"
-                value={propertyPrice}
-                onChange={(e) => setPropertyPrice(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>הון עצמי (₪)</Label>
-              <Input
-                type="number"
-                placeholder="450,000"
-                value={equity}
-                onChange={(e) => setEquity(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>תקופת המשכנתא (שנים)</Label>
-              <Input
-                type="number"
-                placeholder="25"
-                value={years}
-                onChange={(e) => setYears(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>ריבית שנתית ממוצעת (%)</Label>
-              <Input
-                type="number"
-                step="0.1"
-                placeholder="4.5"
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <Button variant="cta" className="w-full" size="lg" onClick={calculate}>
-            <Calculator size={18} />
-            חשב את המשכנתא שלי
-          </Button>
-
-          {result && (
-            <motion.div
-              className="mt-8 space-y-4"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-xl p-4 text-center">
-                  <div className="text-sm text-muted-foreground mb-1">סכום המשכנתא</div>
-                  <div className="font-display font-black text-2xl text-foreground">
-                    ₪{result.loanAmount.toLocaleString()}
-                  </div>
-                </div>
-                <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-xl p-4 text-center border border-emerald-500/20">
-                  <div className="text-sm text-muted-foreground mb-1">החזר חודשי</div>
-                  <div className="font-display font-black text-2xl text-emerald-400">
-                    ₪{Math.round(result.monthlyPayment).toLocaleString()}
-                  </div>
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4 text-center">
-                  <div className="text-sm text-muted-foreground mb-1">סה״כ תשלום</div>
-                  <div className="font-display font-bold text-lg text-foreground">
-                    ₪{Math.round(result.totalPayment).toLocaleString()}
-                  </div>
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4 text-center">
-                  <div className="text-sm text-muted-foreground mb-1">סה״כ ריבית</div>
-                  <div className="font-display font-bold text-lg text-foreground">
-                    ₪{Math.round(result.totalInterest).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 bg-gold/5 rounded-xl border border-gold/10 text-center">
-                <p className="text-sm text-muted-foreground">
-                  שיעור מימון (LTV): <span className="font-bold text-gold">{result.ltv.toFixed(0)}%</span>
-                  {result.ltv > 75 && (
-                    <span className="text-amber-400 mr-2">· מימון גבוה, ייתכן שתצטרך ביטוח משכנתא</span>
-                  )}
-                </p>
-              </div>
-
-              <div className="text-center pt-2">
-                <Link to="/mortgage-check">
-                  <Button variant="cta" size="lg">
-                    רוצה דוח מלא עם 3 תמהילים?
-                    <ArrowLeft size={16} />
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </motion.div>
-      </div>
-    </section>
+    <CalculatorShell
+      question="כמה תעלה לי משכנתא חדשה?"
+      intro="הזינו מחיר נכס והון עצמי וקבלו מיד החזר חודשי משוער, אחוז מימון ועלות כוללת."
+      inputs={<>
+        <NumberField label="מחיר הנכס" suffix="₪" value={price} onChange={setPrice} max={100_000_000} />
+        <NumberField label="הון עצמי" suffix="₪" value={equity} onChange={setEquity} max={100_000_000} />
+        <NumberField label="סכום המשכנתא" suffix="₪" value={loanOverride} onChange={setLoanOverride} max={100_000_000} optional
+          placeholder={price ? Math.max(0, (price || 0) - (equity || 0)).toLocaleString("en-US") : ""} hint="ריק = מחיר הנכס פחות ההון העצמי" />
+        <NumberField label="תקופה" suffix="שנים" value={yrs} onChange={setYrs} min={1} max={30} />
+        <NumberField label="ריבית ממוצעת משוערת" suffix="%" value={rate} onChange={setRate} decimals max={15}
+          hint={reference ? `ברירת מחדל: ממוצע ריביות השוק במסלולים לא צמודים (${reference}%)` : "ערך התחלתי לדוגמה. אפשר לשנות"} />
+        <NumberField label="הכנסה חודשית נטו של משק הבית" suffix="₪" value={income} onChange={setIncome} optional max={10_000_000} />
+      </>}
+      result={r ? <>
+        <BigResult label="החזר חודשי משוער" value={nis(r.s.monthly)} sub={`למשכנתא של ${nis(r.loan)} ל-${yrs} שנים בריבית ממוצעת של ${r.rr}%`} />
+        <ResultGrid items={[
+          { label: "אחוז מימון", value: pct(r.ltv), hint: r.ltv !== null && r.ltv > LTV_CAP.single ? "מעל 75%, המימון המרבי לדירה יחידה" : "מתוך מחיר הנכס" },
+          { label: "סך ההחזרים", value: nis(r.s.totalPaid) },
+          { label: "עלות הריבית", value: nis(r.s.totalInterest), hint: "הערכה בריבית אחת לא צמודה" },
+          r.dti !== null
+            ? { label: "החזר מתוך ההכנסה", value: pct(r.dti), hint: dtiBand(r.dti)?.short }
+            : { label: "הכנסה נדרשת", value: `${nis(r.incomeLow)}–${nis(r.incomeHigh)}`, hint: "כדי שההחזר יהיה 25%–33% מההכנסה" },
+        ]} />
+      </> : <p className="text-muted-foreground">הזינו מחיר נכס, הון עצמי ותקופה כדי לראות את התוצאה.</p>}
+      visual={r && <><p className="text-sm font-semibold mb-2">יתרת המשכנתא לאורך השנים</p><BalanceChart points={r.s.points} /></>}
+      explanation={r && <p>
+        ההחזר מחושב בשיטת שפיצר (החזר חודשי קבוע) לפי ריבית ממוצעת אחת. במשכנתא אמיתית יש כמה מסלולים, וחלקם צמודים למדד או בריבית משתנה, ולכן ההחזר בפועל יכול להיות שונה.
+        {r.dti === null && " הוסיפו הכנסה כדי לראות כמה מההכנסה ילך להחזר."}
+      </p>}
+      cta={{ text: "רוצים לראות את המספרים לפי הנתונים שלכם ו-3 תמהילים לדוגמה?", label: "לבדיקת משכנתא חינם", href: "/mortgage-check" }}
+      note="החישוב הוא הערכה כללית בלבד, לא הצעה של בנק ולא אישור עקרוני. הריבית, התמהיל והתנאים בפועל נקבעים על ידי הבנק."
+    />
   );
 }

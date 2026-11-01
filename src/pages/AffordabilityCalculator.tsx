@@ -1,167 +1,101 @@
-import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Home, Wallet, Banknote, Calculator, Sparkles, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { CalculatorShell, NumberField } from "@/components/calculators/CalculatorShell";
+import { nis, pct } from "@/components/mortgage/primitives";
+import { affordability, CAUTION_RATIO, MAX_PTI, REASONABLE_RATIO, type Purpose } from "@/lib/mortgage/affordability";
+import { useMarketRates } from "@/hooks/useMarketRates";
+import { cn } from "@/lib/utils";
 
-const fmt = (n: number) =>
-  "₪" + Math.round(n).toLocaleString("he-IL");
+const PURPOSES: { key: Purpose; label: string }[] = [
+  { key: "single", label: "דירה יחידה" },
+  { key: "upgrade", label: "משפרי דיור" },
+  { key: "investment", label: "דירה להשקעה" },
+];
+
+/** Repayment-to-income scale 0%-50%, comfortable zone emphasized, ceiling shown as context only. */
+function RatioScale() {
+  const zones = [
+    { from: 0, to: REASONABLE_RATIO.low, cls: "bg-success/25", label: "" },
+    { from: REASONABLE_RATIO.low, to: REASONABLE_RATIO.high, cls: "bg-success", label: "נוח" },
+    { from: REASONABLE_RATIO.high, to: CAUTION_RATIO, cls: "bg-warning/70", label: "זהירות" },
+    { from: CAUTION_RATIO, to: MAX_PTI, cls: "bg-destructive/40", label: "סיכון גבוה" },
+  ];
+  return (
+    <div>
+      <p className="text-sm font-semibold mb-3">כמה מההכנסה הולך להחזר</p>
+      <div className="flex h-8 rounded-full overflow-hidden" role="img" aria-label="טווח נוח 25% עד 33%, זהירות 33% עד 40%, סיכון גבוה 40% עד 50%, 50% מגבלה רגולטורית">
+        {zones.map((z) => (
+          <div key={z.from} className={cn("h-full flex items-center justify-center text-[11px] font-semibold", z.cls, z.label === "נוח" ? "text-white" : "text-foreground/80")} style={{ width: `${((z.to - z.from) / MAX_PTI) * 100}%` }}>{z.label}</div>
+        ))}
+      </div>
+      <div className="relative h-5 mt-1 text-[11px] text-muted-foreground tabular-nums" dir="ltr">
+        {[0, 0.25, 0.33, 0.4, 0.5].map((v) => <span key={v} className="absolute -translate-x-1/2" style={{ right: `${(v / MAX_PTI) * 100}%`, transform: "translateX(50%)" }}>{Math.round(v * 100)}%</span>)}
+      </div>
+      <p className="text-xs text-muted-foreground mt-2">50% היא המגבלה הכללית של בנק ישראל, לא המלצה. מעל 40% בנק ישראל מגדיר את ההלוואה כסיכון גבוה.</p>
+    </div>
+  );
+}
 
 export default function AffordabilityCalculator() {
-  const navigate = useNavigate();
-  const [price, setPrice] = useState<number>(1800000);
+  const { reference } = useMarketRates();
+  const [income, setIncome] = useState<number | null>(20_000);
+  const [obligations, setObligations] = useState<number | null>(0);
+  const [equity, setEquity] = useState<number | null>(500_000);
+  const [yrs, setYrs] = useState<number | null>(25);
+  const [purpose, setPurpose] = useState<Purpose>("single");
+  const rate = reference ?? 4.8;
 
-  const { equity, salary, monthly } = useMemo(() => {
-    const p = Math.max(0, price || 0);
-    return {
-      equity: p * 0.2795 + 15000,
-      salary: p * 0.00975,
-      monthly: p * 0.0039,
-    };
-  }, [price]);
-
-  const cards = [
-    {
-      icon: Wallet,
-      label: "הון עצמי דרוש",
-      value: equity,
-      sub: "מחיר הדירה × 27.95% + ₪15,000",
-      iconBg: "bg-primary/10 text-primary",
-    },
-    {
-      icon: Banknote,
-      label: "משכורת חודשית נדרשת",
-      value: salary,
-      sub: "מחיר הדירה × 0.975%",
-      iconBg: "bg-success/10 text-success",
-    },
-    {
-      icon: Home,
-      label: "החזר חודשי משוער",
-      value: monthly,
-      sub: "מחיר הדירה × 0.39%",
-      iconBg: "bg-secondary text-primary",
-    },
-  ];
+  const a = useMemo(() => affordability({ netIncome: income || 0, obligations: obligations || 0, equity: equity || 0, years: yrs || 0, rate, purpose }),
+    [income, obligations, equity, yrs, rate, purpose]);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-hero py-12 md:py-20 relative overflow-hidden">
-
-      <div className="absolute inset-0 bg-grain opacity-60 pointer-events-none" />
-
-      <div className="container relative max-w-3xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-5 border border-primary/25">
-            <Sparkles size={14} /> מחשבון חכם
-          </span>
-          <h1 className="font-display text-3xl md:text-5xl font-extrabold text-foreground mb-3">
-            כמה דירה אתה באמת יכול לקנות?
-          </h1>
-          <p className="text-muted-foreground text-base md:text-lg">
-            הכנס מחיר דירה, נחשב לך הון עצמי, משכורת והחזר חודשי
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="rounded-2xl shadow-card border border-border mb-6">
-            <CardContent className="p-6 md:p-8 space-y-6">
-              <div className="space-y-3">
-                <label className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span className="flex items-center gap-2">
-                    <Calculator size={16} className="text-primary" />
-                    מחיר הדירה
-                  </span>
-                  <span className="font-bold text-foreground text-lg">{fmt(price)}</span>
-                </label>
-                <Input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  className="text-right text-lg font-bold"
-                  dir="ltr"
-                />
-                <input
-                  type="range"
-                  min={500000}
-                  max={8000000}
-                  step={50000}
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  className="w-full h-2 rounded-full appearance-none cursor-pointer bg-muted accent-primary"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>₪500K</span>
-                  <span>₪8M</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {cards.map((c, i) => {
-            const Icon = c.icon;
-            return (
-              <motion.div
-                key={c.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + i * 0.1 }}
-              >
-                <Card className="rounded-2xl shadow-card border border-border hover:shadow-card-hover transition-shadow h-full">
-                  <CardContent className="p-5 space-y-3">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${c.iconBg}`}>
-                      <Icon size={20} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">{c.label}</p>
-                      <motion.p
-                        key={c.value}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-2xl md:text-3xl font-extrabold text-foreground"
-                      >
-                        {fmt(c.value)}
-                      </motion.p>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">{c.sub}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
+    <CalculatorShell
+      question="כמה משכנתא אני יכול לקחת?"
+      intro="מה אפשר לקבל מהבנק אינו בהכרח מה שכדאי לקחת. כאן רואים קודם כל את הטווח הנוח."
+      inputs={<>
+        <NumberField label="הכנסה חודשית נטו של משק הבית" suffix="₪" value={income} onChange={setIncome} max={10_000_000} />
+        <NumberField label="התחייבויות חודשיות קיימות" suffix="₪" value={obligations} onChange={setObligations} max={10_000_000} hint="הלוואות, ליסינג, מזונות" />
+        <NumberField label="הון עצמי זמין" suffix="₪" value={equity} onChange={setEquity} max={100_000_000} />
+        <NumberField label="תקופת החזר רצויה" suffix="שנים" value={yrs} onChange={setYrs} min={4} max={30} />
+        <div>
+          <p className="text-sm font-medium mb-1.5">סוג הרכישה</p>
+          <div className="grid grid-cols-3 gap-2" role="radiogroup">
+            {PURPOSES.map((p) => (
+              <button key={p.key} type="button" role="radio" aria-checked={purpose === p.key} onClick={() => setPurpose(p.key)}
+                className={cn("min-h-11 rounded-xl border text-sm", purpose === p.key ? "bg-navy text-white border-navy" : "bg-background border-input")}>{p.label}</button>
+            ))}
+          </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center"
-        >
-          <Button
-            variant="hero"
-            size="xl"
-            className="shadow-gold text-lg rounded-full px-10"
-            onClick={() => navigate("/")}
-          >
-            קבל ניתוח מלא חינם
-            <ArrowLeft size={18} />
-          </Button>
-          <p className="text-xs text-muted-foreground mt-4">
-            * החישוב מבוסס על מודל הערכה כללי. הניתוח המלא לוקח בחשבון את הפרופיל הפיננסי שלך.
-          </p>
-        </motion.div>
-      </div>
-    </div>
+      </>}
+      result={a ? <>
+        <div className="rounded-xl bg-success/10 border border-success/30 p-4">
+          <p className="text-sm font-semibold text-success">טווח סביר · 25%–33% מההכנסה</p>
+          <p className="font-display text-2xl sm:text-3xl font-bold tabular-nums mt-1 leading-tight">{nis(a.reasonable.from.loan)}–{nis(a.reasonable.to.loan)}</p>
+          <p className="text-sm text-muted-foreground mt-1">משכנתא בהחזר חודשי של {nis(a.reasonable.from.payment)}–{nis(a.reasonable.to.payment)} · דירה של כ-{nis(a.reasonable.from.price)}–{nis(a.reasonable.to.price)}</p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3 mt-3">
+          <div className="rounded-xl border border-border p-4">
+            <p className="text-sm font-semibold">החזר שמרני · כ-25%</p>
+            <p className="font-display text-xl font-bold tabular-nums mt-1">{nis(a.conservative.payment)} בחודש</p>
+            <p className="text-xs text-muted-foreground">משכנתא של כ-{nis(a.conservative.loan)}. משאיר מרווח לשינויים בהכנסה ובריבית.</p>
+          </div>
+          <div className="rounded-xl border border-warning/40 bg-warning/5 p-4">
+            <p className="text-sm font-semibold">טווח שדורש זהירות · 33%–40%</p>
+            <p className="font-display text-xl font-bold tabular-nums mt-1">עד {nis(a.caution.to.loan)}</p>
+            <p className="text-xs text-muted-foreground">החזר של עד {nis(a.caution.to.payment)}. אפשרי, אבל עם פחות מרווח לביטחון.</p>
+          </div>
+        </div>
+        <div className="rounded-xl bg-muted/40 p-3 mt-3 text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">גבול רגולטורי (לא המלצה):</span> החזר של עד {nis(a.regulatory.payment)} (50% מההכנסה). בנק ישראל מגדיר החזר מעל 40% כסיכון גבוה, ובנקים רבים מאשרים פחות.
+        </div>
+        {a.equityLimited && <p className="text-sm text-warning mt-3">ההון העצמי מגביל את גובה המשכנתא: במימון של עד {pct(a.ltvCap)} צריך הון עצמי של לפחות {pct(1 - a.ltvCap)} ממחיר הדירה.</p>}
+        {a.reasonable.to.payment === 0 && <p className="text-sm text-warning mt-3">ההתחייבויות הקיימות גבוהות ביחס להכנסה, ולכן לא נשאר מרווח להחזר משכנתא בטווח הנוח.</p>}
+      </> : <p className="text-muted-foreground">הזינו הכנסה ותקופה כדי לראות את התוצאה.</p>}
+      visual={a && <RatioScale />}
+      explanation={<p>
+        מה אפשר לקבל מהבנק אינו בהכרח מה שכדאי לקחת. "טווח סביר" מבוסס על המלצה מקובלת שההחזר לא יעלה על כשליש מההכנסה. בין 33% ל-40% ההחזר אפשרי אבל דורש זהירות. מעל 40% בנק ישראל מגדיר את ההלוואה כסיכון גבוה, ו-50% היא המגבלה הכללית. מימון: עד 75% לדירה יחידה, 70% למשפרי דיור ו-50% לדירה להשקעה.
+        {` החישוב משתמש בריבית ממוצעת משוערת של ${rate}%${reference ? " (ממוצע ריביות השוק במסלולים לא צמודים)" : ""} ואינו כולל הצמדה למדד.`}
+      </p>}
+      cta={{ text: "רוצים לדעת מה נכון לכם לפי הנתונים המלאים?", label: "לבדיקת משכנתא חינם", href: "/mortgage-check" }}
+    />
   );
 }

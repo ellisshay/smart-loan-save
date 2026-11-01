@@ -1,4 +1,4 @@
-import { Gavel, Check, type LucideIcon } from "lucide-react";
+import { Gavel, Check, ListChecks, type LucideIcon } from "lucide-react";
 import { EXTERNAL_ADVISORS_ENABLED } from "@/lib/features";
 import { DashboardCaseProvider, useDashboardCase } from "@/hooks/useDashboardCase";
 import { completedIntakeSteps } from "@/lib/intakeCompletion";
@@ -31,6 +31,7 @@ export const sideLinks: SideLink[] = [
   { label: "תשלום", href: "/dashboard/payment", icon: PayIcon },
   ...(EXTERNAL_ADVISORS_ENABLED ? [{ label: "הצעות", href: "/dashboard/offers", icon: Gift }] : []),
   { label: "מכרז המשכנתא שלי", href: "/dashboard/tender", icon: Gavel },
+  { label: "התקדמות התיק", href: "/dashboard/status", icon: ListChecks },
   { label: "הפרטיות שלי", href: "/dashboard/privacy", icon: Shield },
 ];
 
@@ -90,7 +91,8 @@ function DashboardWorkspace() {
     navigate("/");
   };
 
-  const isDashboardStep = location.pathname !== "/dashboard" && location.pathname.startsWith("/dashboard/");
+  // Only short form steps get the "90 seconds" banner (not tender, progress, documents or privacy screens).
+  const isDashboardStep = ["personal", "property", "income", "liabilities", "mortgage", "declarations"].some((k) => location.pathname === `/dashboard/${k}`);
 
   return (
     <AuthGuard>
@@ -105,7 +107,7 @@ function DashboardWorkspace() {
             <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 text-xs gap-1 shrink-0"><LogOut className="h-3.5 w-3.5" />התנתקות</Button>
           </div>
         </div>
-        <div className="flex flex-1">
+        <div className="flex flex-col md:flex-row flex-1">
           {/* Sidebar */}
           <aside className="hidden md:flex flex-col w-52 border-l border-border bg-card/50 py-4 px-2 gap-0.5">
             {links.map((link) => {
