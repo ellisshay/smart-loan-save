@@ -33,8 +33,14 @@ export async function isTrustedJobCaller(req: Request, admin: SupabaseClient): P
   const token = bearer(req);
   const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (token && service && token === service) return true;
-  const cron = Deno.env.get("CRON_SECRET");
-  if (cron && req.headers.get("x-cron-secret") === cron) return true;
+  const given = req.headers.get("x-cron-secret");
+  if (given && (await tokenMatches(admin, "cron", given))) return true;
   const uid = await getCallerId(req, admin);
   return !!uid && (await isAdminUser(admin, uid));
+}
+
+export async function tokenMatches(admin: SupabaseClient, name: string, given: string | null): Promise<boolean> {
+  if (!given || given.length < 32) return false;
+  const { data } = await admin.from("internal_job_tokens").select("token").eq("name", name).maybeSingle();
+  return !!data?.token && data.token === given;
 }

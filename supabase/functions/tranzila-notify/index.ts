@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { tokenMatches } from "../_shared/auth.ts";
 
 // Tranzila server-to-server notify endpoint.
 // Tranzila POSTs form fields after a successful charge, including any custom
@@ -54,6 +55,17 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+
+    // Only Tranzila knows the secret token configured in its server notify URL (?token=...).
+    // Never place this URL in browser code.
+    const given = new URL(req.url).searchParams.get("token");
+    if (!(await tokenMatches(supabase as any, "tranzila_notify", given))) {
+      console.error("tranzila-notify: invalid or missing token");
+      return new Response(JSON.stringify({ ok: false, reason: "unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Fetch the case and make sure it is still awaiting payment
     const { data: caseRow, error: caseErr } = await supabase
