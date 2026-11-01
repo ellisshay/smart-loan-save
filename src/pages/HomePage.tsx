@@ -38,10 +38,12 @@ const steps = [
 
 // ─── Sample offers preview ───
 const sampleOffers = [
-  { bank: "בנק א'", rate: "4.62%", monthly: "4,980", best: true },
-  { bank: "בנק ב'", rate: "4.85%", monthly: "5,210", best: false },
-  { bank: "בנק ג'", rate: "5.11%", monthly: "5,640", best: false },
+  { bank: "בנק א'", rate: "4.62%", monthly: "4,980", monthlyNum: 4980, best: true },
+  { bank: "בנק ב'", rate: "4.85%", monthly: "5,210", monthlyNum: 5210, best: false },
+  { bank: "בנק ג'", rate: "5.11%", monthly: "5,640", monthlyNum: 5640, best: false },
 ];
+const maxMonthly = Math.max(...sampleOffers.map((o) => o.monthlyNum));
+const bestMonthly = Math.min(...sampleOffers.map((o) => o.monthlyNum));
 
 // ─── Pain Cards Data ───
 const painCards = [

@@ -157,6 +157,18 @@
     background-image: radial-gradient(hsl(var(--foreground) / 0.03) 1px, transparent 1px);
     background-size: 22px 22px;
   }
+  .ledger-paper {
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.055) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .ledger-paper-dark {
+    background-image:
+      linear-gradient(hsl(0 0% 100% / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(0 0% 100% / 0.045) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
   .gold-rule {
     background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.7), transparent);
     height: 1px;
