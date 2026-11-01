@@ -126,6 +126,7 @@ export default function AccessibilityWidget() {
               onClick={() => setOpen(false)}
             />
             <motion.div
+              data-floating-cta-blocker
               className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-6 md:right-auto md:top-1/2 md:-translate-y-1/2 md:w-80 z-50 bg-card rounded-t-2xl md:rounded-2xl shadow-2xl border border-border max-h-[80vh] overflow-y-auto"
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
