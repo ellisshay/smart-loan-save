@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Check, CheckCircle, X, ChevronLeft, ShieldCheck, Landmark,
-  FileText, Upload, Handshake, Home, BadgeCheck, Laptop,
+  FileText, Upload, Handshake, Home, BadgeCheck, Laptop, ListChecks, PieChart,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
@@ -47,6 +47,22 @@ const weDont = [
 // ─── Ways of working, qualitative only (no market numbers without a source) ───
 const oldWay = ["פגישות", "שיחות", "איסוף מסמכים לכל בנק בנפרד", "מעקב עצמאי מול הבנקים"];
 const newWay = ["תהליך דיגיטלי", "תיק אחד", "סטטוס במקום אחד", "טיפול מרוכז"];
+
+// ─── Personal area features (all implemented in the client dashboard) ───
+const commandCenter = [
+  { icon: ListChecks, title: "סטטוס והשלב הבא", desc: "בכל רגע רואים איפה התיק עומד ומה נדרש מכם, אם בכלל." },
+  { icon: FileText, title: "מרכז מסמכים", desc: "מה התקבל, מה בבדיקה ומה חסר. מעלים ומחליפים מסמך בלחיצה." },
+  { icon: PieChart, title: "תמונת המשכנתא", desc: "החזר חודשי, אחוז מימון, מבנה המסלולים ותחזית היתרה, כהערכה." },
+  { icon: Landmark, title: "השוואת הצעות", desc: "כשמגיעות הצעות מהבנקים, משווים ביניהן בשפה פשוטה." },
+];
+
+// ─── Free tools ───
+const tools = [
+  { q: "כמה משכנתא אני יכול לקחת?", cta: "לחישוב", href: "/calculators/affordability" },
+  { q: "כמה תעלה לי משכנתא חדשה?", cta: "לחישוב", href: "/mortgage-calculator" },
+  { q: "האם מחזור יכול להשתלם לי?", cta: "בדיקת אפשרות למחזור", href: "/refinance-calculator" },
+  { q: "יש לכם דוח יתרות לסילוק?", cta: "העלאת דוח יתרות", href: "/balance-check" },
+];
 
 // ─── Security & privacy: only what the product actually does ───
 const security = [
@@ -222,6 +238,9 @@ export default function HomePage() {
 
       </section>
 
+      {/* ═══════ Trust points (verified facts only) ═══════ */}
+      <StatsSection />
+
       {/* ═══════ How it works ═══════ */}
       <section className="py-14 md:py-20 bg-background">
         <div className="container max-w-5xl">
@@ -258,35 +277,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ What we do / don't ═══════ */}
-      <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">מה אנחנו עושים, ומה לא</h2>
-          <p className="text-center text-muted-foreground mb-10">EasyMorte מרכזת את התהליך מולכם ומול הגורמים הרלוונטיים</p>
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="rounded-2xl border-primary/30">
-              <CardContent className="p-6 space-y-3">
-                <p className="font-bold text-foreground">מה אנחנו עושים</p>
-                {weDo.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-foreground"><Check size={16} className="text-primary shrink-0 mt-0.5" aria-hidden />{t}</p>)}
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardContent className="p-6 space-y-3">
-                <p className="font-bold text-foreground">מה אנחנו לא</p>
-                {weDont.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-muted-foreground"><X size={16} className="shrink-0 mt-0.5" aria-hidden />{t}</p>)}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      {/* ═══════ Bank Logos (identification only) ═══════ */}
+      <BankLogosSection />
 
-      {/* ═══════ Stats Section (verified facts only) ═══════ */}
-      <StatsSection />
-
-      {/* ═══════ Ways of working (qualitative) ═══════ */}
+      {/* ═══════ Why EasyMorte (qualitative, no market numbers) ═══════ */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">להתרוצץ לבד, או לנהל את הכל במקום אחד</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-3 text-foreground">למה EasyMorte</h2>
+          <p className="text-center text-muted-foreground mb-8">במקום להתרוצץ לבד בין בנקים, מנהלים את הכל במקום אחד</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="rounded-2xl bg-muted/40">
               <CardContent className="p-6 space-y-3">
@@ -300,6 +298,42 @@ export default function HomePage() {
                 {newWay.map((t) => <p key={t} className="flex items-center gap-2 text-sm text-foreground"><CheckCircle size={16} className="text-primary shrink-0" aria-hidden />{t}</p>)}
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ Digital experience (features that exist in the personal area) ═══════ */}
+      <section className="py-14 md:py-20 bg-background">
+        <div className="container max-w-5xl">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">כל המשכנתא במסך אחד</h2>
+          <p className="text-center text-muted-foreground mb-10">אחרי שפותחים תיק, האזור האישי מראה איפה הדברים עומדים ומה השלב הבא</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {commandCenter.map((x) => (
+              <Card key={x.title} className="rounded-2xl">
+                <CardContent className="p-5">
+                  <x.icon size={22} className="text-primary mb-3" aria-hidden />
+                  <p className="font-bold text-sm text-foreground">{x.title}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{x.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-6">גישה לאזור האישי דורשת התחברות. החישובים באזור האישי הם הערכה ואינם הצעה של בנק.</p>
+        </div>
+      </section>
+
+      {/* ═══════ Calculators & free check ═══════ */}
+      <section className="py-14 md:py-20 bg-secondary/50">
+        <div className="container max-w-5xl">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">רוצים לבדוק לבד קודם?</h2>
+          <p className="text-center text-muted-foreground mb-10">מחשבונים ובדיקה מהירה, בחינם. התוצאות הן הערכה כללית בלבד.</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {tools.map((t) => (
+              <Link key={t.href} to={t.href} className="group rounded-2xl border border-border bg-card p-5 hover:border-primary transition-colors min-h-24">
+                <p className="font-bold text-sm text-foreground">{t.q}</p>
+                <p className="text-sm text-primary mt-2 font-semibold">{t.cta} ←</p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -337,6 +371,28 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ═══════ What we do / don't ═══════ */}
+      <section className="py-14 md:py-20 bg-secondary/50">
+        <div className="container max-w-4xl">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">מה אנחנו עושים, ומה לא</h2>
+          <p className="text-center text-muted-foreground mb-10">EasyMorte מרכזת את התהליך מולכם ומול הגורמים הרלוונטיים</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="rounded-2xl border-primary/30">
+              <CardContent className="p-6 space-y-3">
+                <p className="font-bold text-foreground">מה אנחנו עושים</p>
+                {weDo.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-foreground"><Check size={16} className="text-primary shrink-0 mt-0.5" aria-hidden />{t}</p>)}
+              </CardContent>
+            </Card>
+            <Card className="rounded-2xl">
+              <CardContent className="p-6 space-y-3">
+                <p className="font-bold text-foreground">מה אנחנו לא</p>
+                {weDont.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-muted-foreground"><X size={16} className="shrink-0 mt-0.5" aria-hidden />{t}</p>)}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════ Security & privacy ═══════ */}
       <section className="py-14 md:py-20 bg-secondary/50">
         <div className="container max-w-4xl">
@@ -370,9 +426,6 @@ export default function HomePage() {
           </motion.section>
         )}
       </AnimatePresence>
-
-       {/* ═══════ Bank Logos ═══════ */}
-      <BankLogosSection />
 
       {/* ═══════ FAQ Section ═══════ */}
       <section className="py-12 md:py-16 bg-background">
