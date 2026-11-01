@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ArrowLeft, Check, ChevronLeft } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
-import heroLifestyle from "@/assets/home-everyday-couple.jpg";
+import heroLifestyle from "@/assets/home-modern-couple.jpg";
 import homeBalcony from "@/assets/home-balcony.jpg";
 import ctaLight from "@/assets/cta-light.jpg";
 import founderImage from "@/assets/shay-ellis-founder.png";
