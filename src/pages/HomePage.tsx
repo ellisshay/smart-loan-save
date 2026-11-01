@@ -189,8 +189,9 @@ export default function HomePage() {
               className="absolute -bottom-5 right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex flex-col items-center text-center gap-2"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-                <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
+              <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center ring-1 ring-inset ring-primary/25">
+                <TrendingDown size={20} strokeWidth={1.9} className="text-primary" />
+                <span aria-hidden className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-gold-gradient ring-2 ring-card" />
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
@@ -203,8 +204,9 @@ export default function HomePage() {
             className="hidden lg:flex absolute bottom-10 left-16 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex-col items-center text-center gap-2"
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-              <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
+            <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center ring-1 ring-inset ring-primary/25">
+              <TrendingDown size={20} strokeWidth={1.9} className="text-primary" />
+              <span aria-hidden className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-gold-gradient ring-2 ring-card" />
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
@@ -223,10 +225,17 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover transition-shadow"
+                className="group relative overflow-hidden bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0">
-                  <item.icon size={22} strokeWidth={2.2} className="text-primary" />
+                {/* diagonal sheen */}
+                <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "var(--card-shine)" }} />
+                {/* icon medallion: soft tile + offset ghost frame + gradient accent dot */}
+                <div className="relative mt-1">
+                  <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] border border-dashed border-primary/25 rotate-2 group-hover:rotate-3 transition-transform duration-500" />
+                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center ring-1 ring-inset ring-primary/25 shadow-sm">
+                    <item.icon size={24} strokeWidth={1.8} className="text-primary" />
+                  </div>
+                  <span aria-hidden className="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-gold-gradient ring-2 ring-card" />
                 </div>
                 <div>
                   <p className="font-bold text-sm text-foreground">{item.title}</p>
@@ -245,21 +254,25 @@ export default function HomePage() {
           <p className="text-center text-muted-foreground mb-12">תהליך פשוט, שקוף ומהיר עד לקבלת המשכנתא הטובה ביותר עבורכם</p>
 
           <div className="relative">
-            {/* connector line */}
-            <div className="hidden md:block absolute top-7 right-[10%] left-[10%] h-0.5 bg-border" />
+            {/* connector: soft gradient track */}
+            <div className="hidden md:block absolute top-7 right-[10%] left-[10%] h-px" style={{ background: "linear-gradient(to left, transparent, hsl(var(--primary) / 0.35) 15%, hsl(var(--primary) / 0.35) 85%, transparent)" }} />
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-4">
               {steps.map((step, i) => (
                 <motion.div
                   key={i}
-                  className="flex md:flex-col items-center gap-4 md:gap-3 md:text-center relative"
+                  className="group flex md:flex-col items-center gap-4 md:gap-3 md:text-center relative"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <div className="relative z-10 w-14 h-14 rounded-full bg-card border-2 border-primary/40 flex items-center justify-center shadow-card shrink-0">
-                    <step.icon size={22} className="text-primary" />
-                    <span className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                  {/* step marker: squircle tile + gradient number chip (no balloons) */}
+                  <div className="relative z-10 shrink-0">
+                    <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300" />
+                    <div className="relative w-14 h-14 rounded-2xl bg-card shadow-card ring-1 ring-inset ring-border flex items-center justify-center group-hover:shadow-card-hover group-hover:-translate-y-0.5 transition-all duration-300">
+                      <step.icon size={22} strokeWidth={1.9} className="text-primary" />
+                    </div>
+                    <span className="absolute -top-2 -left-2 w-6 h-6 rounded-lg bg-gold-gradient text-primary-foreground text-xs font-bold flex items-center justify-center shadow-sm ring-2 ring-background">
                       {i + 1}
                     </span>
                   </div>
@@ -342,8 +355,8 @@ export default function HomePage() {
               >
                 <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
                   <CardContent className="p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                      <card.icon size={18} className="text-destructive" />
+                    <div className="w-11 h-11 rounded-2xl bg-destructive/10 ring-1 ring-inset ring-destructive/20 flex items-center justify-center shrink-0">
+                      <card.icon size={19} strokeWidth={1.9} className="text-destructive" />
                     </div>
                     <div>
                       <p className="font-bold text-sm text-foreground">{card.title}</p>
