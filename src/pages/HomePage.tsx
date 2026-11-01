@@ -1,533 +1,583 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  ArrowLeft, Check, CheckCircle, X, ChevronLeft, ShieldCheck, Landmark,
-  FileText, Upload, Handshake, Home, BadgeCheck, Laptop, ListChecks, PieChart,
-} from "lucide-react";
+import { ArrowLeft, Check, ChevronLeft } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
-import SmartAssessment from "@/components/home/SmartAssessment";
-import { QuizData } from "@/types/quiz";
-import heroHouse from "@/assets/hero-house.webp";
+import heroLifestyle from "@/assets/hero-lifestyle.webp";
+import homeBalcony from "@/assets/home-balcony.webp";
+import ctaLight from "@/assets/cta-light.webp";
+import founderImage from "@/assets/shay-ellis-founder.webp";
 
-// ─── Hero facts (all verified: fixed price, digital EasyMorte process, no unnecessary meetings) ───
-const heroFacts = [
-  { icon: Laptop, text: "תהליך EasyMorte מתנהל דיגיטלית" },
-  { icon: Handshake, text: "בלי פגישות מיותרות" },
-  { icon: BadgeCheck, text: "3,450 ₪ מחיר קבוע" },
-];
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.5, ease: "easeOut" as const },
+};
 
-// ─── How it works (4 steps). 72h = our handling window after a complete file + payment. ───
+// ─── How it works: 4 editorial steps ───
 const steps = [
-  { icon: FileText, title: "פותחים תיק", desc: "כ-10 דקות לפתיחת התיק והשלמת הפרטים הראשוניים." },
-  { icon: Upload, title: "מעלים מסמכים", desc: "במקום אחד, מהטלפון או מהמחשב. פותחים תיק ומעלים מסמכים מכל מקום ובכל זמן." },
-  { icon: ShieldCheck, title: "אנחנו מטפלים בתיק", desc: "בדיקה מקצועית ובניית תמהילים, בתוך עד 72 שעות מרגע שהתיק מלא והתשלום התקבל." },
-  { icon: Landmark, title: "פנייה לבנקים והשוואה", desc: "פונים לעד 3 בנקים רלוונטיים ומציגים לכם באזור האישי השוואה ברורה בין ההצעות." },
+  { title: "פותחים תיק", desc: "כמה דקות של פרטים ראשוניים." },
+  { title: "מעלים פעם אחת", desc: "מסמכים ונתונים במקום אחד." },
+  { title: "אנחנו נכנסים לעבודה", desc: "בדיקה, בניית חלופות ופנייה לבנקים הרלוונטיים." },
+  { title: "רואים הכול ברור", desc: "הצעות, השוואה והשלב הבא במקום אחד." },
 ];
 
-// ─── What EasyMorte does / does not do ───
-const weDo = [
-  "מרכזים את הפרטים והמסמכים של התיק במקום אחד",
-  "בודקים את כושר ההחזר ובונים תמהילים",
-  "פונים לעד 3 בנקים רלוונטיים ומשווים בין ההצעות",
-  "מציגים באזור האישי איפה התיק עומד ומה השלב הבא",
-];
-const weDont = [
-  "אנחנו לא בנק ולא מאשרים משכנתאות",
-  "אנחנו לא מקבלים עמלות מהבנקים",
-  "אנחנו לא מבטיחים אישור, ריבית או תנאים מסוימים",
-];
-
-// ─── Ways of working, qualitative only (no market numbers without a source) ───
-const oldWay = ["פגישות", "שיחות", "איסוף מסמכים לכל בנק בנפרד", "מעקב עצמאי מול הבנקים"];
-const newWay = ["תהליך דיגיטלי", "תיק אחד", "סטטוס במקום אחד", "טיפול מרוכז"];
-
-// ─── Personal area features (all implemented in the client dashboard) ───
-const commandCenter = [
-  { icon: ListChecks, title: "סטטוס והשלב הבא", desc: "בכל רגע רואים איפה התיק עומד ומה נדרש מכם, אם בכלל." },
-  { icon: FileText, title: "מרכז מסמכים", desc: "מה התקבל, מה בבדיקה ומה חסר. מעלים ומחליפים מסמך בלחיצה." },
-  { icon: PieChart, title: "תמונת המשכנתא", desc: "החזר חודשי, אחוז מימון, מבנה המסלולים ותחזית היתרה, כהערכה." },
-  { icon: Landmark, title: "השוואת הצעות", desc: "כשמגיעות הצעות מהבנקים, משווים ביניהן בשפה פשוטה." },
-];
-
-// ─── Free tools ───
-const tools = [
-  { q: "כמה משכנתא אני יכול לקחת?", cta: "לחישוב", href: "/calculators/affordability" },
-  { q: "כמה תעלה לי משכנתא חדשה?", cta: "לחישוב", href: "/mortgage-calculator" },
-  { q: "האם מחזור יכול להשתלם לי?", cta: "בדיקת אפשרות למחזור", href: "/refinance-calculator" },
-  { q: "יש לכם דוח יתרות לסילוק?", cta: "העלאת דוח יתרות", href: "/balance-check" },
-];
-
-// ─── Security & privacy: only what the product actually does ───
-const security = [
-  { title: "אחסון פרטי", desc: "המסמכים נשמרים באחסון פרטי עם הרשאות גישה, ולא בתיבת דואר." },
-  { title: "חיבור מוצפן", desc: "האתר והאזור האישי עובדים בחיבור מוצפן (HTTPS)." },
-  { title: "יומן צפייה", desc: "צפייה במסמכים נרשמת ביומן ביקורת." },
-  { title: "שליטה בפרטיות", desc: "מדיניות פרטיות גלויה, הסכמה לפני שמירת נתונים, ואפשרות לבקש מחיקת מידע מהאזור האישי." },
-];
-
-// ─── FAQ ───
 const faqItems = [
-  { q: "כמה זה עולה?", a: "הבדיקה הראשונית והמחשבונים בחינם. התהליך המלא עולה 3,450 ₪, מחיר קבוע. אנחנו לא מקבלים עמלות מהבנקים." },
-  { q: "מה קורה בתוך 72 השעות?", a: "חלון ה-72 שעות הוא זמן הטיפול המקצועי שלנו, והוא מתחיל רק אחרי שהתשלום התקבל והתיק מלא ותקין. זמני האישור והמענה של הבנקים אינם בשליטת EasyMorte." },
+  { q: "כמה זמן זה לוקח?", a: "פתיחת התיק והעלאת המסמכים לוקחות בערך 10 דקות. מרגע שהתיק מלא ושולם, אנחנו מטפלים בו בחלון של עד 72 שעות. זמני האישור והמענה של הבנקים אינם בשליטת EasyMorte." },
   { q: "האם צריך להגיע לפגישה?", a: "רוב התהליך מול EasyMorte מתנהל אונליין. בהתאם לבנק ולעסקה, ייתכן שבהמשך תידרשו לזיהוי, חתימה או פעולה מול הבנק." },
-  { q: "האם המסמכים שלי מאובטחים?", a: "המסמכים נשמרים באחסון פרטי עם הרשאות גישה, ונגישים רק לכם ולמי שמטפל בתיק לפי הצורך. צפייה במסמכים נרשמת ביומן ביקורת." },
-  { q: "האם אתם מבטיחים אישור או ריבית מסוימת?", a: "לא. אישור המשכנתא, הריבית והתנאים נקבעים על ידי הבנק. אנחנו מכינים את התיק, פונים לבנקים ומשווים בין ההצעות." },
-  { q: "האם אני חייב לבחור באחת ההצעות?", a: "לא. הבחירה שלכם." },
+  { q: "מתי משלמים?", a: "הבדיקה הראשונית חינם. תשלום אחד של ₪3,450 משלמים אחרי שמילאתם את השאלון, לפני שהטיפול המקצועי מתחיל. אפשר להשלים מסמכים גם אחרי התשלום." },
+  { q: "האם אתם מבטיחים אישור?", a: "לא, ואף אחד לא יכול. את המשכנתא מאשרים הבנקים. אנחנו מבטיחים תהליך מסודר, שקוף ומקצועי — ושתדעו בדיוק איפה הדברים עומדים." },
+  { q: "מה כולל המחיר?", a: "ניתוח הנתונים, בניית חלופות, טיפול מול בנקים רלוונטיים, השוואת הצעות וסטטוס דיגיטלי לאורך כל הדרך." },
+  { q: "מה אם עדיין חסרים לי מסמכים?", a: "פותחים תיק וממשיכים. אפשר להשלים מסמכים בהמשך — המערכת מסמנת בדיוק מה חסר, ואנחנו עוזרים לסדר את זה." },
 ];
 
-// ─── Main Component ───
+// ─── Product mockup: the case command center (illustrative) ───
+function CommandCenterMockup() {
+  const stages = ["פתיחת תיק", "מסמכים", "בנקים", "חתימה"];
+  const activeStage = 2;
+  // Generic illustration only: no amounts, no rates, no "winning" bank.
+  const kpis = ["החזר חודשי", "סכום המשכנתא", "אחוז מימון"];
+  const offers = ["הצעה 1", "הצעה 2", "הצעה 3"];
+  return (
+    <div className="relative rounded-2xl border border-border bg-card shadow-card-hover overflow-hidden text-right">
+      {/* window bar */}
+      <div className="flex items-center gap-1.5 border-b border-border px-4 py-2.5">
+        <span className="w-2.5 h-2.5 rounded-full bg-border" aria-hidden />
+        <span className="w-2.5 h-2.5 rounded-full bg-border/70" aria-hidden />
+        <span className="w-2.5 h-2.5 rounded-full bg-border/40" aria-hidden />
+        <span className="mx-auto font-ticker text-[11px] text-muted-foreground" dir="ltr">easymorte.co.il/dashboard</span>
+      </div>
+      <div className="grid grid-cols-[auto_1fr]">
+        {/* sidebar */}
+        <div className="hidden sm:flex flex-col gap-3.5 border-l border-border p-4" aria-hidden>
+          <span className="w-20 h-2 rounded-full bg-primary/40" />
+          <span className="w-16 h-2 rounded-full bg-muted" />
+          <span className="w-24 h-2 rounded-full bg-muted" />
+          <span className="w-14 h-2 rounded-full bg-muted" />
+          <span className="w-20 h-2 rounded-full bg-muted" />
+        </div>
+        {/* main panel */}
+        <div className="p-4 md:p-6 space-y-5">
+          {/* case status */}
+          <div>
+            <p className="text-xs text-muted-foreground">מצב התיק</p>
+            <div className="mt-2.5 flex items-center gap-2 sm:gap-3 flex-wrap">
+              {stages.map((stage, i) => (
+                <span key={stage} className="flex items-center gap-2">
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center ${i < activeStage ? "bg-primary/20" : i === activeStage ? "bg-primary" : "bg-border/60"}`}>
+                    {i < activeStage ? <Check size={10} strokeWidth={3} className="text-primary" /> : null}
+                  </span>
+                  <span className={`text-[11px] ${i === activeStage ? "font-bold text-foreground" : "text-muted-foreground"}`}>{stage}</span>
+                  {i < stages.length - 1 && <span className="hidden sm:block w-4 h-px bg-border" aria-hidden />}
+                </span>
+              ))}
+            </div>
+          </div>
+          {/* KPI row */}
+          <div className="grid grid-cols-3 gap-2.5">
+            {kpis.map((label) => (
+              <div key={label} className="rounded-xl border border-border bg-background/60 p-3">
+                <p className="text-[11px] text-muted-foreground">{label}</p>
+                <span className="block mt-2 h-2.5 w-3/4 rounded-full bg-primary/20" aria-hidden />
+              </div>
+            ))}
+          </div>
+          {/* structure bar */}
+          <div>
+            <p className="text-xs text-muted-foreground">תמהיל המשכנתא</p>
+            <div className="mt-2 flex h-2.5 gap-1 rounded-full overflow-hidden" aria-hidden>
+              <span className="bg-primary" style={{ width: "38%" }} />
+              <span className="bg-primary/50" style={{ width: "26%" }} />
+              <span className="bg-gold-gradient" style={{ width: "18%" }} />
+              <span className="bg-border flex-1" />
+            </div>
+          </div>
+          {/* offers */}
+          <div className="grid sm:grid-cols-3 gap-2.5">
+            {offers.map((offer) => (
+              <div key={offer} className="rounded-xl border border-border p-3">
+                <p className="text-[11px] text-muted-foreground">{offer}</p>
+                <span className="block mt-2 h-2 w-2/3 rounded-full bg-primary/25" aria-hidden />
+                <span className="block mt-1.5 h-1.5 w-1/2 rounded-full bg-muted" aria-hidden />
+              </div>
+            ))}
+          </div>
+          {/* next action */}
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-primary/10 border border-primary/20 px-4 py-3">
+            <p className="text-xs font-medium text-foreground">השלב הבא: השלמת מסמך אחד</p>
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step visuals: each step looks different ───
+function StepVisual({ i }: { i: number }) {
+  if (i === 0) {
+    return (
+      <div className="mt-4 w-40" aria-hidden>
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+          <span>בקצב שלכם</span>
+          <span className="font-ticker tabular-nums">~10 דק'</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-border overflow-hidden">
+          <div className="h-full rounded-full bg-primary/60" style={{ width: "30%" }} />
+        </div>
+      </div>
+    );
+  }
+  if (i === 1) {
+    return (
+      <div className="mt-4 space-y-1.5" aria-hidden>
+        <span className="block w-40 h-2 rounded-full bg-primary/25" />
+        <span className="block w-32 h-2 rounded-full bg-border" />
+        <span className="block w-36 h-2 rounded-full bg-border/70" />
+      </div>
+    );
+  }
+  if (i === 2) {
+    return (
+      <div className="mt-4 flex items-center gap-2" aria-hidden>
+        {[0, 1, 2].map((j) => (
+          <span key={j} className={`w-8 h-8 rounded-full border flex items-center justify-center ${j === 1 ? "border-primary bg-primary/10" : "border-border"}`}>
+            <span className={`w-2.5 h-2.5 rounded-full ${j === 1 ? "bg-primary" : "bg-border"}`} />
+          </span>
+        ))}
+        <span className="text-[11px] text-muted-foreground">עד 3 בנקים רלוונטיים</span>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-4 space-y-1.5" aria-hidden>
+      {["הצעות", "השוואה", "השלב הבא"].map((row) => (
+        <span key={row} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <span className="w-3.5 h-3.5 rounded-full bg-primary/15 flex items-center justify-center"><Check size={9} strokeWidth={3} className="text-primary" /></span>
+          {row}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
-
-  const [showAssessment, setShowAssessment] = useState(false);
-  const [showRegModal, setShowRegModal] = useState(false);
-  const [regForm, setRegForm] = useState({ name: "", phone: "", email: "" });
-  const [submitting, setSubmitting] = useState(false);
-  const [completedScore, setCompletedScore] = useState(0);
-  const [completedData, setCompletedData] = useState<QuizData>({});
-
-  const assessmentRef = useRef<HTMLDivElement>(null);
-
-
-  const handleAssessmentComplete = useCallback((score: number, data: QuizData) => {
-    setCompletedScore(score);
-    setCompletedData(data);
-    localStorage.setItem("easymort_quiz", JSON.stringify(data));
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      window.location.href = session ? "/intake" : "/auth?next=/intake";
-    });
-  }, []);
-
-  const handleRegistration = async () => {
-    if (!regForm.name.trim() || !regForm.phone.trim()) return;
-    setSubmitting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("capture-lead", {
-        body: {
-          name: regForm.name.trim(),
-          phone: regForm.phone.trim(),
-          email: regForm.email.trim() || null,
-          quiz_answers: completedData,
-          property_price: completedData.property_price,
-          monthly_income: completedData.salary_net,
-          purpose: completedData.purpose,
-          score: completedScore,
-        },
-      });
-      if (error) throw error;
-      if (data?.lead_id) localStorage.setItem("easymort_lead_id", data.lead_id);
-      localStorage.setItem("easymort_score", String(completedScore));
-      localStorage.setItem("easymort_reg_time", new Date().toISOString());
-      navigate("/results?fresh=1");
-    } catch (err) {
-      console.error("Registration failed:", err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const handleBalanceClick = () => navigate("/balance-check");
+  const handleAffordabilityClick = () => navigate("/calculators/affordability");
 
   return (
     <div dir="rtl">
 
-      {/* ═══════ Hero ═══════ */}
+      {/* ═══════ Hero — emotional, editorial ═══════ */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-hero" />
-        <div className="absolute inset-0 bg-grain opacity-60" />
-
-        {/* House as a soft full-bleed atmospheric background */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none select-none"
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-        >
-          <img src={heroHouse} alt="" aria-hidden className="w-full h-full object-cover object-left" />
-          <div className="absolute inset-0 bg-gradient-to-l from-background via-background/85 to-background/10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
-        </motion.div>
-
-        <div className="container relative py-14 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
-          {/* Text side */}
+        <div className="absolute inset-0 bg-grain opacity-50" />
+        <div className="container relative grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-center py-12 md:py-20">
+          {/* text side */}
           <div className="max-w-xl">
-            <motion.h1
-              className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] mb-5 text-foreground"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            <motion.span
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 backdrop-blur px-4 py-1.5 text-sm font-medium text-muted-foreground mb-6"
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             >
-              10 דקות באתר. <span className="text-gradient-gold">ואנחנו נכנסים לעבודה.</span>
+              משכנתא בלי לעצור את החיים
+            </motion.span>
+            <motion.h1
+              className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] text-foreground"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
+            >
+              10 דקות באתר.<br />
+              <span className="text-gradient-gold">ואנחנו נכנסים לעבודה.</span>
             </motion.h1>
             <motion.p
-              className="text-lg text-muted-foreground mb-8 leading-relaxed"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              className="text-lg text-muted-foreground leading-relaxed mt-5"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
             >
               פותחים תיק, מעלים את הפרטים והמסמכים במקום אחד, ואנחנו מרכזים את העבודה המקצועית וההתקדמות מול הבנקים.
             </motion.p>
-
             <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="flex flex-col items-start gap-3"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-8"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}
             >
-              <ul className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-x-5 mb-2" aria-label="עובדות על השירות">
-                {heroFacts.map((f) => (
-                  <li key={f.text} className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <f.icon size={16} className="text-primary shrink-0" aria-hidden /> {f.text}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-col sm:flex-row items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
-                <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full h-auto min-h-14 px-8 sm:px-10 py-2 text-base sm:text-lg">
-                  <Link to="/intake">פתיחת תיק<ChevronLeft size={20} className="hidden sm:block" /></Link>
-                </Button>
-                <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 h-auto min-h-14 px-6 sm:px-7 py-2 text-base">
-                  <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">הבדיקה חינם וללא התחייבות · אנחנו לא מקבלים עמלות מהבנקים</p>
+              <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full min-h-14 px-9 text-base">
+                <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
+              </Button>
+              <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 min-h-14 px-7">
+                <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
+              </Button>
             </motion.div>
-
+            <motion.p
+              className="text-xs text-muted-foreground mt-4"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
+            >
+              הבדיקה חינם וללא התחייבות · אנחנו לא מקבלים עמלות מהבנקים
+            </motion.p>
           </div>
 
-          {/* Image side (mobile / tablet) */}
+          {/* image side: cropped lifestyle photo + floating product chip */}
           <motion.div
-            className="relative lg:hidden"
-            initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
+            className="relative"
+            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <div className="rounded-3xl overflow-hidden shadow-card-hover border border-border rotate-[-1.5deg]">
+            <span aria-hidden className="absolute -top-6 -left-6 w-56 h-56 rounded-full bg-primary/8 blur-2xl" />
+            <div className="relative rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-2xl rounded-br-2xl overflow-hidden shadow-card-hover border border-border">
               <img
-                src={heroHouse}
-                alt="בית מודרני"
-                width={1024}
-                height={768}
-                className="w-full h-auto object-cover"
+                src={heroLifestyle}
+                alt="זוג צעיר בדירה מוארת עם מפתחות לבית החדש"
+                width={1024} height={1280}
+                className="w-full h-full object-cover aspect-[4/5] max-h-[560px]"
               />
             </div>
-            {/* Floating badge */}
+            {/* floating mini product chip */}
             <motion.div
-              className="absolute -bottom-5 right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex flex-col items-center text-center gap-2"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+              className="absolute -bottom-6 right-4 md:-right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3.5 flex items-center gap-3"
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-                <BadgeCheck size={20} strokeWidth={2.2} className="text-primary" />
+              <div className="text-right">
+                <p className="text-[11px] text-muted-foreground">האזור האישי</p>
+                <p className="font-bold text-foreground leading-none mt-0.5">השלב הבא, ברור</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
-                <p className="text-xs text-muted-foreground">₪3,450 לשירות המלא</p>
+              <div className="flex items-end gap-1 h-8" aria-hidden>
+                <span className="w-1.5 h-4 rounded-sm bg-primary/20" />
+                <span className="w-1.5 h-5 rounded-sm bg-primary/35" />
+                <span className="w-1.5 h-6 rounded-sm bg-primary/60" />
+                <span className="w-1.5 h-8 rounded-sm bg-gold-gradient" />
               </div>
             </motion.div>
           </motion.div>
-          {/* Desktop: floating badge over the background house */}
-          <motion.div
-            className="hidden lg:flex absolute bottom-10 left-16 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3 flex-col items-center text-center gap-2"
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-              <BadgeCheck size={20} strokeWidth={2.2} className="text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
-              <p className="text-xs text-muted-foreground">₪3,450 לשירות המלא</p>
-            </div>
-          </motion.div>
         </div>
-
       </section>
 
-      {/* ═══════ Trust points (verified facts only) ═══════ */}
+      {/* ═══════ KPI strip — approved, unchanged ═══════ */}
       <StatsSection />
 
-      {/* ═══════ How it works ═══════ */}
-      <section className="py-14 md:py-20 bg-background">
-        <div className="container max-w-5xl">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">איך זה עובד?</h2>
-          <p className="text-center text-muted-foreground mb-12">ארבעה שלבים, ואתם רואים באזור האישי בכל רגע איפה התיק עומד</p>
+      {/* ═══════ How it works — editorial story ═══════ */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-4xl">
+          <motion.h2 {...fadeUp} className="text-3xl md:text-4xl font-extrabold text-foreground max-w-xl">
+            מהרגע שהחלטתם להתקדם, <span className="text-gradient-gold">אנחנו מסדרים את הדרך.</span>
+          </motion.h2>
 
-          <div className="relative">
-            {/* connector line */}
-            <div className="hidden md:block absolute top-7 right-[12%] left-[12%] h-0.5 bg-border" />
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
-              {steps.map((step, i) => (
-                <motion.div
-                  key={i}
-                  className="flex md:flex-col items-center gap-4 md:gap-3 md:text-center relative"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <div className="relative z-10 w-14 h-14 rounded-full bg-card border-2 border-primary/40 flex items-center justify-center shadow-card shrink-0">
-                    <step.icon size={22} className="text-primary" />
-                    <span className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                      {i + 1}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm text-foreground">{step.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{step.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          <div className="mt-12 md:mt-16 space-y-12 md:space-y-16">
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.06 }}
+                className="grid md:grid-cols-2 gap-4 md:gap-10 items-center relative"
+              >
+                {/* giant number */}
+                <div className={`flex items-baseline gap-5 ${i % 2 === 1 ? "md:order-2" : ""}`}>
+                  <span className="font-ticker text-7xl md:text-8xl font-bold text-primary/15 leading-none select-none" aria-hidden>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="flex-1 h-px bg-border/70 hidden md:block" aria-hidden />
+                </div>
+                {/* text */}
+                <div className={i % 2 === 1 ? "md:order-1 md:text-left" : ""}>
+                  <h3 className="text-xl md:text-2xl font-bold text-foreground">{step.title}</h3>
+                  <p className="text-muted-foreground mt-1.5">{step.desc}</p>
+                  <StepVisual i={i} />
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════ Bank Logos (identification only) ═══════ */}
+      {/* ═══════ The home is the goal — emotional, image-led ═══════ */}
+      <section className="relative py-16 md:py-28 overflow-hidden">
+        <div className="container grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16 items-center">
+          <motion.div {...fadeUp} className="relative z-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground">
+              המשכנתא היא רק הדרך.<br />
+              <span className="text-gradient-gold">הבית הוא המטרה.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mt-6 max-w-md">
+              פחות טלפונים, פחות התרוצציות, פחות סימני שאלה.
+            </p>
+            <p className="text-lg font-medium text-foreground mt-2 max-w-md">
+              יותר זמן לדירה, למשפחה ולחיים שמסביב.
+            </p>
+          </motion.div>
+          <motion.div {...fadeUp} className="relative">
+            <div className="rounded-tl-[3rem] rounded-br-[3rem] rounded-tr-2xl rounded-bl-2xl overflow-hidden shadow-card-hover border border-border lg:-mt-8">
+              <img
+                src={homeBalcony}
+                alt="מרפסת שקטה עם נוף שכונה שקיעה"
+                width={1400} height={900}
+                loading="lazy"
+                className="w-full object-cover aspect-[3/2]"
+              />
+            </div>
+            <div className="absolute -bottom-5 right-6 lg:right-10 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3">
+              <p className="text-sm font-medium text-foreground">פחות סימני שאלה. יותר שקט נפשי.</p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════ Command center — product-led ═══════ */}
+      <section className="py-16 md:py-24 bg-secondary/40">
+        <div className="container max-w-6xl">
+          <motion.div {...fadeUp} className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
+              כל המשכנתא שלכם <span className="text-gradient-gold">במקום אחד.</span>
+            </h2>
+            <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
+              מרכז השליטה שלכם: איפה התיק עומד, מה ההחזר, ואילו הצעות על השולחן.
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-[0.85fr_2fr_0.85fr] gap-8 lg:gap-10 items-center">
+            {/* annotations right */}
+            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-right order-1">
+              {[
+                { n: "01", t: "מסמכים פעם אחת", d: "מעלים פעם אחת, בלי לחזור על זה בכל בנק." },
+              ].map((a) => (
+                <div key={a.n}>
+                  <p className="font-ticker text-sm text-primary/60 tabular-nums" dir="ltr">{a.n}</p>
+                  <p className="font-bold text-foreground mt-1">{a.t}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{a.d}</p>
+                </div>
+              ))}
+            </motion.div>
+
+            <motion.div {...fadeUp} className="order-2 min-w-0">
+              <CommandCenterMockup />
+              <p className="text-center text-xs text-muted-foreground mt-4">דוגמה להמחשה בלבד</p>
+            </motion.div>
+
+            {/* annotations left */}
+            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-left order-3">
+              {[
+                { n: "02", t: "איפה התיק עומד", d: "סטטוס מעודכן והשלב הבא, בלי לחכות לטלפון." },
+                { n: "03", t: "הצעות בהשוואה", d: "מהבנקים הרלוונטיים — במקום אחד." },
+              ].map((a) => (
+                <div key={a.n}>
+                  <p className="font-ticker text-sm text-primary/60 tabular-nums" dir="ltr">{a.n}</p>
+                  <p className="font-bold text-foreground mt-1">{a.t}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{a.d}</p>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* mobile annotations */}
+          <div className="grid sm:grid-cols-3 gap-6 mt-10 lg:hidden">
+            {[
+              { t: "איפה התיק עומד", d: "סטטוס מעודכן והשלב הבא." },
+              { t: "מסמכים פעם אחת", d: "בלי לחזור על זה בכל בנק." },
+              { t: "הצעות בהשוואה", d: "מהבנקים הרלוונטיים, במקום אחד." },
+            ].map((a) => (
+              <div key={a.t}>
+                <p className="font-bold text-foreground">{a.t}</p>
+                <p className="text-sm text-muted-foreground mt-1">{a.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ Bank logos — real trust ═══════ */}
       <BankLogosSection />
 
-      {/* ═══════ Why EasyMorte (qualitative, no market numbers) ═══════ */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-3 text-foreground">למה EasyMorte</h2>
-          <p className="text-center text-muted-foreground mb-8">במקום להתרוצץ לבד בין בנקים, מנהלים את הכל במקום אחד</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="rounded-2xl bg-muted/40">
-              <CardContent className="p-6 space-y-3">
-                <p className="font-bold text-foreground">לבד מול הבנקים</p>
-                {oldWay.map((t) => <p key={t} className="flex items-center gap-2 text-sm text-muted-foreground"><X size={16} className="shrink-0" aria-hidden />{t}</p>)}
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl bg-primary/5 border-primary/30 border-2">
-              <CardContent className="p-6 space-y-3">
-                <p className="font-bold text-foreground">עם EasyMorte</p>
-                {newWay.map((t) => <p key={t} className="flex items-center gap-2 text-sm text-foreground"><CheckCircle size={16} className="text-primary shrink-0" aria-hidden />{t}</p>)}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════ Digital experience (features that exist in the personal area) ═══════ */}
-      <section className="py-14 md:py-20 bg-background">
+      {/* ═══════ Free check / calculators — playful tools ═══════ */}
+      <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">כל המשכנתא במסך אחד</h2>
-          <p className="text-center text-muted-foreground mb-10">אחרי שפותחים תיק, האזור האישי מראה איפה הדברים עומדים ומה השלב הבא</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {commandCenter.map((x) => (
-              <Card key={x.title} className="rounded-2xl">
-                <CardContent className="p-5">
-                  <x.icon size={22} className="text-primary mb-3" aria-hidden />
-                  <p className="font-bold text-sm text-foreground">{x.title}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{x.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <p className="text-center text-xs text-muted-foreground mt-6">גישה לאזור האישי דורשת התחברות. החישובים באזור האישי הם הערכה ואינם הצעה של בנק.</p>
-        </div>
-      </section>
-
-      {/* ═══════ Calculators & free check ═══════ */}
-      <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container max-w-5xl">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">רוצים לבדוק לבד קודם?</h2>
-          <p className="text-center text-muted-foreground mb-10">מחשבונים ובדיקה מהירה, בחינם. התוצאות הן הערכה כללית בלבד.</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {tools.map((t) => (
-              <Link key={t.href} to={t.href} className="group rounded-2xl border border-border bg-card p-5 hover:border-primary transition-colors min-h-24">
-                <p className="font-bold text-sm text-foreground">{t.q}</p>
-                <p className="text-sm text-primary mt-2 font-semibold">{t.cta} ←</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════ Pricing ═══════ */}
-      <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container max-w-3xl text-center">
-          <h2 className="text-2xl md:text-4xl font-extrabold mb-3 text-foreground">מחיר קבוע: 3,450 ₪</h2>
-          <p className="text-muted-foreground mb-6">משלמים פעם אחת על השירות המלא. הבדיקה הראשונית והמחשבונים בחינם.</p>
-          <ul className="grid sm:grid-cols-2 gap-2 text-sm text-right max-w-xl mx-auto mb-6">
-            {["בדיקה מקצועית של התיק ובניית תמהילים", "פנייה לעד 3 בנקים רלוונטיים", "השוואה בין ההצעות בשפה פשוטה", "אזור אישי עם סטטוס והשלב הבא"].map((t) => (
-              <li key={t} className="flex items-start gap-2"><Check size={16} className="text-primary shrink-0 mt-0.5" aria-hidden />{t}</li>
-            ))}
-          </ul>
-          <p className="text-xs text-muted-foreground mb-5">התשלום אינו הבטחה לאישור או לריבית מסוימת. אפשר לבטל עסקה לפי <Link to="/cancel" className="underline">מדיניות הביטול</Link>.</p>
-          <Button asChild variant="outline" className="rounded-full"><Link to="/pricing">מה כלול במחיר</Link></Button>
-        </div>
-      </section>
-
-      {/* ═══════ Founder (verified background only) ═══════ */}
-      <section className="py-14 md:py-20 bg-background">
-        <div className="container max-w-3xl">
-          <Card className="rounded-2xl">
-            <CardContent className="p-6 md:p-8">
-              <p className="text-sm text-muted-foreground mb-1">מי עומד מאחורי EasyMorte</p>
-              <h2 className="text-xl md:text-2xl font-extrabold text-foreground">שי אליס, מייסד</h2>
-              <p className="text-sm text-foreground/90 mt-3 leading-relaxed">
-                בעל תואר ראשון במנהל עסקים, עם רקע בפיננסים, שוק ההון, ייעוץ עסקי וטכנולוגיה, וניסיון במערכות פיננסיות ובתהליכים דיגיטליים.
-                את EasyMorte הקים כדי להפוך את תהליך המשכנתא לברור, מסודר ושקוף יותר.
-              </p>
-              <p className="text-xs text-muted-foreground mt-4">אליס שירותי ייעוץ · ע.מ 049025836 · טרומפלדור 11, כפר סבא</p>
-              <Link to="/about" className="inline-block mt-4 text-sm font-semibold text-primary">עוד עלינו</Link>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* ═══════ What we do / don't ═══════ */}
-      <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">מה אנחנו עושים, ומה לא</h2>
-          <p className="text-center text-muted-foreground mb-10">EasyMorte מרכזת את התהליך מולכם ומול הגורמים הרלוונטיים</p>
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="rounded-2xl border-primary/30">
-              <CardContent className="p-6 space-y-3">
-                <p className="font-bold text-foreground">מה אנחנו עושים</p>
-                {weDo.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-foreground"><Check size={16} className="text-primary shrink-0 mt-0.5" aria-hidden />{t}</p>)}
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardContent className="p-6 space-y-3">
-                <p className="font-bold text-foreground">מה אנחנו לא</p>
-                {weDont.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-muted-foreground"><X size={16} className="shrink-0 mt-0.5" aria-hidden />{t}</p>)}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════ Security & privacy ═══════ */}
-      <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">פרטיות ואבטחה</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {security.map((x) => (
-              <Card key={x.title} className="rounded-2xl">
-                <CardContent className="p-5 flex items-start gap-3">
-                  <ShieldCheck size={20} className="text-primary shrink-0 mt-0.5" aria-hidden />
-                  <div><p className="font-bold text-sm text-foreground">{x.title}</p><p className="text-sm text-muted-foreground mt-1">{x.desc}</p></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <p className="text-center text-sm mt-6"><Link to="/privacy" className="text-primary underline">מדיניות הפרטיות</Link></p>
-        </div>
-      </section>
-
-      {/* ═══════ Smart Assessment ═══════ */}
-      <AnimatePresence>
-        {showAssessment && (
-          <motion.section
-            ref={assessmentRef}
-            id="assessment"
-            className="py-16 md:py-24 bg-background scroll-mt-20"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          >
-            <div className="container max-w-2xl mx-auto">
-              <SmartAssessment onComplete={handleAssessmentComplete} />
-            </div>
-          </motion.section>
-        )}
-      </AnimatePresence>
-
-      {/* ═══════ FAQ Section ═══════ */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container max-w-2xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">שאלות נפוצות</h2>
-          <Accordion type="single" collapsible className="space-y-2">
-            {faqItems.map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="border rounded-xl px-4 bg-card">
-                <AccordionTrigger className="text-sm font-semibold text-right">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground">{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* ═══════ Final CTA ═══════ */}
-      <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container text-center space-y-5">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Home size={30} className="text-primary" />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">10 דקות באתר. ואנחנו נכנסים לעבודה.</h2>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild variant="hero" size="xl" className="shadow-gold text-lg px-10 rounded-full">
-              <Link to="/intake">פתיחת תיק<ArrowLeft size={18} /></Link>
-            </Button>
-            <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary">
-              <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">מחיר קבוע 3,450 ₪ · הבדיקה הראשונית חינם</p>
-        </div>
-      </section>
-
-      {/* ═══════ Registration Modal ═══════ */}
-      <AnimatePresence>
-        {showRegModal && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="bg-card rounded-2xl border border-border w-full max-w-md p-6 md:p-8 space-y-5"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              dir="rtl"
-            >
-              <div className="text-center space-y-2">
-                <h2 className="text-xl font-bold text-foreground">הציון שלך: {completedScore}, הניתוח מוכן!</h2>
-                <p className="text-sm text-muted-foreground">רק שם וטלפון כדי לשלוח לך את הדוח</p>
-              </div>
-
-              <div className="space-y-3">
-                <Input
-                  placeholder="שם פרטי"
-                  value={regForm.name}
-                  onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
-                  className="text-right"
-                />
-                <Input
-                  placeholder="טלפון"
-                  type="tel"
-                  value={regForm.phone}
-                  onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
-                  className="text-right"
-                  dir="ltr"
-                />
-                <Input
-                  placeholder="מייל (לא חובה)"
-                  type="email"
-                  value={regForm.email}
-                  onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                  className="text-right"
-                  dir="ltr"
-                />
-              </div>
-
-              <Button
-                className="w-full font-bold text-base rounded-full"
-                size="lg"
-                onClick={handleRegistration}
-                disabled={submitting || !regForm.name.trim() || !regForm.phone.trim()}
-              >
-                {submitting ? "שולח..." : "קבל ניתוח חינם ←"}
-              </Button>
-
-              <p className="text-center text-xs text-muted-foreground">
-                ללא ספאם &nbsp; לא נמכור את הפרטים שלך
-              </p>
-
-              <button
-                onClick={() => setShowRegModal(false)}
-                className="block mx-auto text-xs text-muted-foreground underline hover:text-foreground"
-              >
-                חזור
-              </button>
-            </motion.div>
+          <motion.div {...fadeUp} className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
+              רוצים להתחיל <span className="text-gradient-gold">בלי להתחייב?</span>
+            </h2>
+            <p className="text-muted-foreground mt-3">שתי דרכים להתחיל — שתיהן חינם, ושתיהן לוקחות דקות.</p>
           </motion.div>
-        )}
-      </AnimatePresence>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {/* tool 1: existing mortgage */}
+            <motion.button
+              {...fadeUp}
+              onClick={handleBalanceClick}
+              className="group text-right rounded-3xl border border-border bg-card p-7 md:p-9 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            >
+              <span className="inline-flex rounded-full bg-muted px-3.5 py-1 text-xs font-medium text-muted-foreground">למשכנתא קיימת או מיחזור</span>
+              <h3 className="text-2xl font-extrabold text-foreground mt-4">בדיקת המשכנתא שלי</h3>
+              <p className="text-muted-foreground text-sm mt-2">מה המשכנתא הנוכחית עולה לכם, והאם יש פוטנציאל לחיסכון.</p>
+              {/* fake interactive field */}
+              <div className="mt-6 rounded-2xl border border-border bg-background/70 p-4" aria-hidden>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">יתרת המשכנתא שלכם</span>
+                  <span className="text-xs text-muted-foreground/70" dir="ltr">₪ ———</span>
+                </div>
+                <div className="relative h-1.5 rounded-full bg-border mt-4">
+                  <div className="h-full rounded-full bg-primary/50" style={{ width: "62%" }} />
+                  <span className="absolute top-1/2 -translate-y-1/2 right-[62%] w-4 h-4 rounded-full bg-card border-2 border-primary shadow" />
+                </div>
+              </div>
+              <span className="mt-6 inline-flex items-center gap-2 text-primary font-bold text-sm">
+                לבדיקה חינם
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              </span>
+            </motion.button>
+
+            {/* tool 2: new purchase */}
+            <motion.button
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.08 }}
+              onClick={handleAffordabilityClick}
+              className="group text-right rounded-3xl border border-primary/25 bg-primary/5 p-7 md:p-9 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            >
+              <span className="inline-flex rounded-full bg-card px-3.5 py-1 text-xs font-medium text-primary border border-primary/20">לרכישה חדשה</span>
+              <h3 className="text-2xl font-extrabold text-foreground mt-4">כמה משכנתא אני יכול לקחת?</h3>
+              <p className="text-muted-foreground text-sm mt-2">תמונת מצב מהירה לפי ההכנסות וההון העצמי שלכם.</p>
+              <div className="mt-6 rounded-2xl border border-primary/20 bg-card p-4" aria-hidden>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">הכנסה והון עצמי</span>
+                  <span className="text-xs text-muted-foreground/70" dir="ltr">₪ ———</span>
+                </div>
+                <div className="relative h-1.5 rounded-full bg-border mt-4">
+                  <div className="h-full rounded-full bg-gold-gradient" style={{ width: "74%" }} />
+                  <span className="absolute top-1/2 -translate-y-1/2 right-[74%] w-4 h-4 rounded-full bg-card border-2 border-primary shadow" />
+                </div>
+              </div>
+              <span className="mt-6 inline-flex items-center gap-2 text-primary font-bold text-sm">
+                לבדיקה חינם
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              </span>
+            </motion.button>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ Pricing — transparent, typographic ═══════ */}
+      <section className="py-16 md:py-24 bg-secondary/40">
+        <div className="container max-w-3xl text-center">
+          <motion.div {...fadeUp}>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">מחיר אחד. יודעים מראש.</h2>
+            <p className="font-ticker text-6xl md:text-8xl font-black text-foreground tabular-nums mt-6" dir="ltr">₪3,450</p>
+            <p className="text-muted-foreground mt-3">שירות מקצועי במחיר קבוע. תשלום אחד, בלי הפתעות.</p>
+          </motion.div>
+
+          <motion.ul {...fadeUp} className="grid sm:grid-cols-2 gap-x-12 gap-y-3 mt-10 text-right max-w-xl mx-auto">
+            {["ניתוח הנתונים", "בניית חלופות", "טיפול מול בנקים רלוונטיים", "השוואת הצעות", "סטטוס דיגיטלי לאורך הדרך"].map((item) => (
+              <li key={item} className="flex items-center gap-2.5 text-sm font-medium text-foreground">
+                <span className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <Check size={12} strokeWidth={3} className="text-primary" />
+                </span>
+                {item}
+              </li>
+            ))}
+          </motion.ul>
+
+          <motion.p {...fadeUp} className="text-xs text-muted-foreground mt-8">
+            חלון טיפול של עד 72 שעות מרגע שהתיק מלא ושולם. זמני האישור של הבנקים אינם בשליטתנו.
+            <br />התשלום אינו הבטחה לאישור או לריבית מסוימת. <Link to="/pricing" className="underline">מה כלול במחיר</Link> · <Link to="/cancel" className="underline">מדיניות ביטול</Link>
+          </motion.p>
+          <motion.div {...fadeUp} className="mt-8">
+            <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full px-10">
+              <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════ Founder — personal, editorial ═══════ */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-5xl grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16 items-center">
+          <motion.div {...fadeUp} className="order-2 lg:order-1">
+            <div className="max-w-xs mx-auto lg:mx-0">
+              <div className="rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-2xl rounded-br-2xl overflow-hidden shadow-card border border-border">
+                <img
+                  src={founderImage}
+                  alt="שי אליס, מייסד EASY MORTE"
+                  loading="lazy"
+                  className="w-full object-cover aspect-[4/5]"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mt-4 text-center lg:text-right">שי אליס, מייסד EASY MORTE</p>
+            </div>
+          </motion.div>
+          <motion.div {...fadeUp} className="order-1 lg:order-2">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
+              יש גם בן אדם <span className="text-gradient-gold">מאחורי המערכת.</span>
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mt-5 max-w-lg">
+              בעל תואר ראשון במנהל עסקים, עם רקע בפיננסים, שוק ההון, ייעוץ עסקי וטכנולוגיה, וניסיון במערכות פיננסיות ובתהליכים דיגיטליים. את EasyMorte הקים כדי להפוך את תהליך המשכנתא לברור, מסודר ושקוף יותר.
+            </p>
+            <p className="text-foreground font-medium leading-relaxed mt-4 max-w-lg">
+              בלי שיחות מכירה ובלי סודות. אתם יודעים איפה הדברים עומדים, בכל שלב.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════ Trust without badges ═══════ */}
+      <section className="py-16 md:py-24 bg-secondary/40">
+        <div className="container max-w-3xl">
+          <motion.h2 {...fadeUp} className="text-2xl md:text-3xl font-extrabold text-foreground mb-6">בלי אותיות קטנות.</motion.h2>
+          <div>
+            {["EasyMorte אינה בנק.", "הבנקים הם שמאשרים את המשכנתא.", "EasyMorte אינה מקבלת עמלות מהבנקים.", "גישה לתיק דורשת התחברות, והמסמכים נשמרים באחסון פרטי.", "אפשר לנהל בקשות פרטיות, כולל מחיקת מידע, דרך האזור האישי."].map((line, i) => (
+              <motion.p
+                key={line}
+                {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.06 }}
+                className="text-xl md:text-2xl font-semibold text-foreground py-6 border-b border-border/60 last:border-0"
+              >
+                {line}
+              </motion.p>
+            ))}
+          </div>
+          <p className="text-sm text-muted-foreground mt-6">אליס שירותי ייעוץ · ע.מ 049025836 · טרומפלדור 11, כפר סבא · <Link to="/privacy" className="text-primary underline">מדיניות הפרטיות</Link></p>
+        </div>
+      </section>
+
+      {/* ═══════ FAQ — light ═══════ */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-2xl">
+          <motion.h2 {...fadeUp} className="text-2xl md:text-3xl font-extrabold text-center text-foreground mb-10">שאלות נפוצות</motion.h2>
+          <motion.div {...fadeUp}>
+            <Accordion type="single" collapsible className="divide-y divide-border/60">
+              {faqItems.map((item, i) => (
+                <AccordionItem key={i} value={`faq-${i}`} className="border-0 px-0">
+                  <AccordionTrigger className="text-sm font-semibold text-right hover:no-underline">{item.q}</AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground leading-relaxed">{item.a}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════ Final CTA — emotional ═══════ */}
+      <section className="relative overflow-hidden">
+        <img
+          src={ctaLight}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/20" />
+        <div className="container relative py-20 md:py-28">
+          <motion.div {...fadeUp} className="max-w-xl">
+            <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground">
+              יש בית שאתם רוצים להגיע אליו.<br />
+              <span className="text-gradient-gold">בואו נסדר את הדרך לשם.</span>
+            </h2>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-8">
+              <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full min-h-14 px-9 text-base">
+                <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
+              </Button>
+              <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 min-h-14 px-7 bg-card/60">
+                <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
     </div>
   );
 }

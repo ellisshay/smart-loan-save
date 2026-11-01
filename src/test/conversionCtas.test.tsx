@@ -29,13 +29,15 @@ describe("homepage CTAs", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("10 דקות באתר.");
     expect(hrefsFor("פתיחת תיק").every((h) => h === "/intake")).toBe(true);
     expect(hrefsFor("בדיקת המשכנתא שלי בחינם").every((h) => h === "/mortgage-check")).toBe(true);
-    expect(hrefsFor("פתיחת תיק").length).toBeGreaterThanOrEqual(2); // hero + final CTA
+    expect(hrefsFor("פתיחת תיק").length).toBeGreaterThanOrEqual(3); // hero, pricing, final CTA
   });
 
-  it("has no sample bank offers or winning-bank label", () => {
-    render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.queryByText(/ההצעה הטובה ביותר|בחירת הצעה|ריבית ממוצעת/)).toBeNull();
-    expect(screen.queryByText(/הצעות מהבנקים$/)).toBeNull();
+  it("has no sample bank offers, rates, illustrative amounts or winning-bank label", () => {
+    const { container } = render(<MemoryRouter><HomePage /></MemoryRouter>);
+    const text = container.textContent || "";
+    expect(screen.queryByText(/ההצעה הטובה ביותר|בחירת הצעה|ריבית ממוצעת|אישור ההצעה של בנק/)).toBeNull();
+    expect(text).not.toMatch(/\d\.\d{1,2}%/);
+    expect(text.replace(/₪3,450|3,450 ₪/g, "")).not.toMatch(/₪\s?\d|\d[\d,]{3,}\s?₪/);
     cleanup();
   });
 });
