@@ -50,40 +50,62 @@ export function monthsToRepay(balance: number, annualRatePct: number, payment: n
 
 export interface YearPoint {
   year: number;          // 0 = today
-  balance: number;       // balance at the end of the year
-  principalPaid: number; // cumulative
-  interestPaid: number;  // cumulative
+  balance: number;       // nominal balance at the end of the year (after indexation)
+  principalPaid: number; // cumulative principal repaid (original principal + indexation added to it)
+  interestPaid: number;  // cumulative interest
+  indexationPaid: number; // cumulative CPI indexation added to the principal
 }
 
 export interface Schedule {
   monthly: number;       // first monthly payment (incl. extra)
+  lastMonthly: number;   // last full monthly payment (grows with CPI on linked tracks)
   months: number;        // months until repaid
-  totalPaid: number;
+  totalPaid: number;     // nominal shekels
   totalInterest: number;
+  totalIndexation: number; // CPI linkage added to the principal over the life of the loan (0 when unlinked)
   points: YearPoint[];
 }
 
+/** Monthly CPI factor from an assumed constant annual CPI (percent). */
+export const monthlyIndexFactor = (cpiAnnualPct: number) => Math.pow(1 + Math.max(signed(cpiAnnualPct), 0) / 100, 1 / 12);
+
 /**
  * Month-by-month simulation, aggregated per year for charts.
- * `extraMonthly` is added to every payment (shortens the term, payment stays fixed).
+ *
+ * Unlinked track (cpiAnnualPct = 0): classic Spitzer, fixed payment = pmt + extra.
+ *
+ * CPI-linked track (cpiAnnualPct > 0), modelled the way Israeli linked Spitzer loans work:
+ *  1. at the start of every month the outstanding principal is indexed by the assumed monthly CPI
+ *     factor f = (1 + cpi)^(1/12); the increase is recorded as indexation (not interest);
+ *  2. interest = indexed principal x (real annual rate / 12);
+ *  3. the payment is the real annuity payment indexed by the same factor: (pmt + extra) x f^t,
+ *     so in real terms it stays constant and in nominal shekels it grows with CPI;
+ *  4. principal part = payment - interest.
+ * Total paid = original principal + total interest + total indexation.
+ * The annual CPI is an assumption (constant every year); actual CPI will differ.
  */
-export function schedule(principal: number, annualRatePct: number, months: number, extraMonthly = 0): Schedule {
+export function schedule(principal: number, annualRatePct: number, months: number, extraMonthly = 0, cpiAnnualPct = 0): Schedule {
   const p = num(principal), n = Math.round(num(months));
-  const base = pmt(p, annualRatePct, n);
-  const payment = base + num(extraMonthly);
+  const base = pmt(p, annualRatePct, n) + num(extraMonthly);
   const r = Math.max(signed(annualRatePct), 0) / 1200;
-  const points: YearPoint[] = [{ year: 0, balance: p, principalPaid: 0, interestPaid: 0 }];
-  if (!p || !n) return { monthly: 0, months: 0, totalPaid: 0, totalInterest: 0, points };
-  let bal = p, paidP = 0, paidI = 0, m = 0;
+  const f = monthlyIndexFactor(cpiAnnualPct);
+  const points: YearPoint[] = [{ year: 0, balance: p, principalPaid: 0, interestPaid: 0, indexationPaid: 0 }];
+  if (!p || !n) return { monthly: 0, lastMonthly: 0, months: 0, totalPaid: 0, totalInterest: 0, totalIndexation: 0, points };
+  let bal = p, paidP = 0, paidI = 0, paidX = 0, m = 0, idx = 1, first = 0, last = 0;
   while (bal > 0.005 && m < n) {
+    const indexation = bal * (f - 1);
+    bal += indexation; idx *= f; paidX += indexation;
     const interest = bal * r;
+    const payment = base * idx;
     const principalPart = Math.min(bal, payment - interest);
     bal -= principalPart; paidP += principalPart; paidI += interest; m += 1;
+    if (m === 1) first = principalPart + interest;
+    last = principalPart + interest;
     if (m % 12 === 0 || bal <= 0.005) {
-      points.push({ year: Math.ceil(m / 12), balance: Math.max(bal, 0), principalPaid: paidP, interestPaid: paidI });
+      points.push({ year: Math.ceil(m / 12), balance: Math.max(bal, 0), principalPaid: paidP, interestPaid: paidI, indexationPaid: paidX });
     }
   }
-  return { monthly: payment, months: m, totalPaid: paidP + paidI, totalInterest: paidI, points };
+  return { monthly: first, lastMonthly: last, months: m, totalPaid: paidP + paidI, totalInterest: paidI, totalIndexation: paidX, points };
 }
 
 /** Adds months to a date and returns it (does not mutate). */

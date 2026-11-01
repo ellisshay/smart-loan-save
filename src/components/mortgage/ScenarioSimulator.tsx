@@ -24,8 +24,8 @@ export default function ScenarioSimulator({ tracks, cpi }: { tracks: NormalizedT
   const [values, setValues] = useState<Record<string, number>>(() => {
     const init: Record<string, number> = Object.fromEntries(PRESETS.map((p) => [p.key, p.slider?.def ?? 0]));
     const total = tracks.reduce((s, t) => s + t.amount, 0);
-    // Start the refinance slider half a point below today's weighted rate (incl. CPI for linked tracks).
-    if (total) init.refi = Math.min(8, Math.max(1.5, Math.round((tracks.reduce((s, t) => s + (t.rate + (t.linked ? cpi : 0)) * t.amount, 0) / total - 0.5) * 10) / 10));
+    // Start the refinance slider half a point below today's weighted rate (rates only, no CPI).
+    if (total) init.refi = Math.min(8, Math.max(1.5, Math.round((tracks.reduce((s, t) => s + t.rate * t.amount, 0) / total - 0.5) * 10) / 10));
     return init;
   });
   const v = values[key];
@@ -58,15 +58,17 @@ export default function ScenarioSimulator({ tracks, cpi }: { tracks: NormalizedT
 
       <div className="grid grid-cols-2 gap-3 mt-5">
         <Stat label="החזר חודשי" value={nis(res.monthly)} diff={res.monthlyDiff} />
-        <Stat label="סך ריבית והצמדה" value={nis(res.totalInterest)} diff={res.interestDiff} />
+        <Stat label="ריבית (הערכה)" value={nis(res.totalInterest)} diff={res.interestDiff} sub={res.totalIndexation > 0.5 || base.totalIndexation > 0.5 ? `הצמדה למדד: ${nis(res.totalIndexation)}` : undefined} />
         <Stat label="סיום המשכנתא" value={res.months ? monthYear(res.endDate) : "—"} sub={monthsSaved > 0 ? `${Math.round(monthsSaved / 12 * 10) / 10} שנים מוקדם יותר` : monthsSaved < 0 ? "מאוחר יותר" : "ללא שינוי"} />
-        <Stat label={res.interestDiff <= 0 ? "חיסכון משוער" : "עלות נוספת משוערת"} value={nis(Math.abs(res.interestDiff))} tone={res.interestDiff < -1 ? "good" : res.interestDiff > 1 ? "warn" : undefined} />
+        <Stat label={res.costDiff <= 0 ? "חיסכון משוער בעלות הכוללת" : "תוספת משוערת לעלות הכוללת"} value={nis(Math.abs(res.costDiff))} tone={res.costDiff < -1 ? "good" : res.costDiff > 1 ? "warn" : undefined} sub="ריבית + הצמדה" />
       </div>
       {res.note && <p className="text-sm text-muted-foreground mt-3">{res.note}</p>}
       {key === "refi" && <p className="text-sm text-muted-foreground mt-3">הריבית בסליידר היא ריבית ממוצעת משוערת לכל היתרה, לפני עמלות פירעון ועלויות מחזור. לבדיקה מדויקת צריך דוח יתרות לסילוק.</p>}
       {key === "lump" && <p className="text-sm text-muted-foreground mt-3">בחישוב הזה ההחזר החודשי נשאר דומה והתקופה מתקצרת. בפירעון מוקדם בפועל ייתכנו עמלות.</p>}
       <EstimateNote>
-        חישוב משוער לפי המסלולים והריביות הידועים כרגע{cpi ? `, בהנחת מדד שנתי של ${cpi}%` : ""}. שינוי ריבית מחושב רק על מסלולים בריבית משתנה, ממועד החישוב. ההחזר הבסיסי בחישוב: {nis(base.monthly)}.
+        חישוב משוער לפי המסלולים והריביות הידועים כרגע. שינוי ריבית מחושב רק על מסלולים בריבית משתנה, ממועד החישוב.
+        {tracks.some((t) => t.linked) && cpi > 0 ? ` במסלולים הצמודים הקרן מתעדכנת לפי הנחת מדד שנתית של ${cpi}%, וההצמדה מוצגת בנפרד מהריבית.` : ""}
+        {key === "refi" ? " במחזור החישוב מניח הלוואה לא צמודה, ולכן אין בה הצמדה." : ""} ההחזר הבסיסי בחישוב: {nis(base.monthly)}.
       </EstimateNote>
     </div>
   );

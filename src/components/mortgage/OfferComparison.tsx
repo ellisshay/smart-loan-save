@@ -38,6 +38,8 @@ export default function OfferComparison({ offers, cpi, selectedId }: { offers: O
             </ul>
 
             <dl className="grid grid-cols-2 gap-x-3 gap-y-2 mt-4 text-sm">
+              <dt className="text-muted-foreground">ריבית (הערכה)</dt><dd className="font-semibold tabular-nums text-left">{nis(o.totalInterest)}</dd>
+              <dt className="text-muted-foreground">הצמדה למדד (הערכה)</dt><dd className="font-semibold tabular-nums text-left">{o.totalIndexation > 0.5 ? nis(o.totalIndexation) : "אין"}</dd>
               <dt className="text-muted-foreground">עלות כוללת משוערת</dt><dd className="font-semibold tabular-nums text-left">{nis(o.totalCost)}</dd>
               <dt className="text-muted-foreground">תקופה</dt><dd className="font-semibold text-left">{years(o.months)}</dd>
               <dt className="text-muted-foreground">חשיפה לריבית משתנה</dt><dd className="font-semibold text-left">{pct(o.summary.variableShare)}</dd>
@@ -49,7 +51,8 @@ export default function OfferComparison({ offers, cpi, selectedId }: { offers: O
       </div>
 
       <EstimateNote>
-        העלות הכוללת היא הערכה: קרן, ריבית לפי הריביות בהצעה{cpi ? `, הנחת מדד שנתי של ${cpi}% במסלולים צמודים` : ""} ועלויות נוספות אם דווחו.
+        העלות הכוללת היא הערכה בשקלים נומינליים: קרן, ריבית לפי הריביות בהצעה, הצמדה למדד ועלויות נוספות אם דווחו.
+        {cpi ? ` במסלולים הצמודים הקרן מתעדכנת לפי הנחת מדד שנתית קבועה של ${cpi}%, והריבית מחושבת על הקרן המעודכנת. ההצמדה מוצגת בנפרד ואינה ריבית.` : ""}
         ההחזר המרבי הוא תרחיש של עליית ריבית ב-{STRESS_DELTA}% במסלולים המשתנים, לא תחזית. "גמישות" מבוססת על סוגי המסלולים, ותנאי הפירעון המדויקים נקבעים בהצעת הבנק.
       </EstimateNote>
     </section>

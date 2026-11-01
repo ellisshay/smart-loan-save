@@ -23,7 +23,7 @@ export default function SavingsCalculator() {
   }, [balance, yrs, rate, reference]);
 
   const levers = r ? [
-    r.refi && { title: "מחזור לריבית השוק הממוצעת", sub: `בריבית ממוצעת של כ-${reference}%`, monthly: r.refi.monthlyDiff, saving: -r.refi.interestDiff, extra: "לפני עמלות פירעון ועלויות מחזור" },
+    r.refi && { title: "מחזור לריבית השוק הממוצעת", sub: `ממוצע מסלולים לא צמודים, כ-${reference}%`, monthly: r.refi.monthlyDiff, saving: -r.refi.interestDiff, extra: "לפני עמלות פירעון ועלויות מחזור" },
     { title: "תוספת של 500 ₪ להחזר", sub: "ההחזר עולה, התקופה מתקצרת", monthly: r.extra.monthlyDiff, saving: -r.extra.interestDiff, extra: r.extra.monthsDiff < 0 ? `מסיימים כ-${Math.round(-r.extra.monthsDiff / 12 * 10) / 10} שנים מוקדם יותר` : "" },
     r.shorten && { title: "קיצור התקופה ב-5 שנים", sub: "ההחזר עולה, הריבית הכוללת יורדת", monthly: r.shorten.monthlyDiff, saving: -r.shorten.interestDiff, extra: "" },
   ].filter(Boolean) as { title: string; sub: string; monthly: number; saving: number; extra: string }[] : [];

@@ -46,7 +46,7 @@ export function BalanceChart({ points, height = 200 }: { points: { year: number;
           <CartesianGrid stroke={CHART.light} vertical={false} />
           <XAxis dataKey="year" reversed tickLine={false} axisLine={false} tick={{ fontSize: 11 }} tickFormatter={(y) => (y === 0 ? "היום" : `${y}`)} interval="preserveStartEnd" minTickGap={16} />
           <YAxis orientation="right" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} tickFormatter={short} width={40} />
-          <Tooltip formatter={(v: number) => [nis(v), "יתרה משוערת"]} labelFormatter={(y) => (y === 0 ? "היום" : `בעוד ${y} שנים`)} />
+          <Tooltip formatter={(v: number) => [nis(v), "יתרה משוערת (נומינלית)"]} labelFormatter={(y) => (y === 0 ? "היום" : `בעוד ${y} שנים`)} />
           <Area type="monotone" dataKey="balance" stroke={CHART.teal} strokeWidth={2} fill="url(#balFill)" isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
@@ -54,31 +54,40 @@ export function BalanceChart({ points, height = 200 }: { points: { year: number;
   );
 }
 
-/** E. Total principal vs estimated total interest, as a simple proportional bar. */
-export function PrincipalInterest({ principal, interest }: { principal: number; interest: number }) {
-  const total = principal + interest;
+/**
+ * E. What the mortgage costs over its life: principal / interest / CPI linkage, plus the total.
+ * Interest and linkage are shown separately: linkage is not interest.
+ */
+export function CostBreakdown({ principal, interest, indexation, extra = 0 }: { principal: number; interest: number; indexation: number; extra?: number }) {
+  const parts = [
+    { label: "קרן", value: principal, color: CHART.navy },
+    { label: "ריבית (הערכה)", value: interest, color: CHART.teal },
+    ...(indexation > 0.5 ? [{ label: "הצמדה למדד (הערכה)", value: indexation, color: CHART.gold }] : []),
+    ...(extra > 0.5 ? [{ label: "עלויות נוספות", value: extra, color: CHART.grey }] : []),
+  ];
+  const total = parts.reduce((s, p) => s + p.value, 0);
   if (!total) return null;
-  const p = principal / total;
   return (
     <div>
-      <div className="flex h-4 rounded-full overflow-hidden" role="img" aria-label={`קרן ${nis(principal)}, ריבית משוערת ${nis(interest)}`}>
-        <div style={{ width: `${p * 100}%`, background: CHART.navy }} />
-        <div style={{ width: `${(1 - p) * 100}%`, background: CHART.gold }} />
+      <div className="flex h-4 rounded-full overflow-hidden" role="img" aria-label={parts.map((p) => `${p.label} ${nis(p.value)}`).join(", ")}>
+        {parts.map((p) => <div key={p.label} style={{ width: `${(p.value / total) * 100}%`, background: p.color }} />)}
       </div>
-      <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
-        <div><span className="inline-block w-2.5 h-2.5 rounded-sm ml-1.5" style={{ background: CHART.navy }} />קרן<p className="font-bold tabular-nums">{nis(principal)}</p></div>
-        <div><span className="inline-block w-2.5 h-2.5 rounded-sm ml-1.5" style={{ background: CHART.gold }} />ריבית והצמדה (הערכה)<p className="font-bold tabular-nums">{nis(interest)}</p></div>
-      </div>
+      <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-sm">
+        {parts.map((p) => (
+          <div key={p.label}><dt className="text-muted-foreground"><span className="inline-block w-2.5 h-2.5 rounded-sm ml-1.5" style={{ background: p.color }} />{p.label}</dt><dd className="font-bold tabular-nums">{nis(p.value)}</dd></div>
+        ))}
+        <div className="col-span-2 sm:col-span-4 border-t border-border pt-2 flex justify-between"><dt className="font-semibold">עלות כוללת משוערת</dt><dd className="font-bold tabular-nums">{nis(total)}</dd></div>
+      </dl>
     </div>
   );
 }
 
-/** B. First-month payment split: principal / interest / estimated CPI effect. */
-export function PaymentBreakdown({ principal, interest, cpi }: { principal: number; interest: number; cpi: number }) {
+/** B. First-month payment split: principal / interest / payment uplift from CPI linkage. */
+export function PaymentBreakdown({ principal, interest, index }: { principal: number; interest: number; index: number }) {
   const rows = [
     { label: "החזר קרן", value: principal, color: CHART.navy },
     { label: "ריבית", value: interest, color: CHART.teal },
-    ...(cpi > 0.5 ? [{ label: "השפעת מדד (הערכה)", value: cpi, color: CHART.gold }] : []),
+    ...(index > 0.5 ? [{ label: "תוספת להחזר בגלל ההצמדה (הערכה)", value: index, color: CHART.gold }] : []),
   ];
   const total = rows.reduce((s, r) => s + r.value, 0);
   if (!total) return null;

@@ -1,6 +1,6 @@
 // Track normalization: case_tracks rows, intake current_mortgage.tracks, tender offer tracks
 // and quick-check mixes all become the same NormalizedTrack shape.
-import { num, pmt, schedule } from "./amortization";
+import { monthlyIndexFactor, num, pmt, schedule } from "./amortization";
 import type { Loose } from "./amortization";
 
 export type TrackKind = "prime" | "fixed_unlinked" | "fixed_linked" | "variable_unlinked" | "variable_linked" | "fx" | "other";
@@ -97,8 +97,12 @@ export function fromMixTracks(tracks: Loose[] | null | undefined, cpi = 0): Norm
   }).filter((t) => t.amount > 0);
 }
 
-/** Rate used for cost estimates: CPI-linked tracks add the expected annual CPI. */
-export const effectiveRate = (t: NormalizedTrack, cpi: number) => t.rate + (t.linked ? num(cpi) : 0);
+/** CPI assumption that applies to a track: only CPI-linked tracks are indexed. */
+export const trackCpi = (t: NormalizedTrack, cpi: number) => (t.linked ? num(cpi) : 0);
+
+/** Full schedule of one track. Linked tracks index the principal (see schedule()). Rate is never inflated by CPI. */
+export const trackSchedule = (t: NormalizedTrack, cpi: number, rateDelta = 0, extra = 0) =>
+  schedule(t.amount, Math.max(t.rate + rateDelta, 0), t.months, extra, trackCpi(t, cpi));
 
 export interface TrackSummary {
   total: number;
@@ -121,8 +125,10 @@ export function summarizeTracks(tracks: NormalizedTrack[], cpi = 0): TrackSummar
   const byKind = [...map.entries()].sort((a, b) => b[1] - a[1])
     .map(([kind, amount]) => ({ kind, label: KIND_LABEL[kind], amount, share: amount / total, color: KIND_COLOR[kind] }));
   const share = (pred: (t: NormalizedTrack) => boolean) => valid.filter(pred).reduce((s, t) => s + t.amount, 0) / total;
+  // First-month payment. A bank-reported first payment wins; otherwise the modelled payment
+  // (for linked tracks this already includes one month of indexation).
   const monthlyOf = (withCpi: boolean) => valid.reduce((s, t) =>
-    s + (t.firstPayment && withCpi ? t.firstPayment : pmt(t.amount, withCpi ? effectiveRate(t, cpi) : t.rate, t.months)), 0);
+    s + (t.firstPayment && withCpi ? t.firstPayment : withCpi ? trackSchedule(t, cpi).monthly : pmt(t.amount, t.rate, t.months)), 0);
   return {
     total, byKind,
     variableShare: share((t) => t.variable),
@@ -135,37 +141,50 @@ export function summarizeTracks(tracks: NormalizedTrack[], cpi = 0): TrackSummar
   };
 }
 
-/** Combined yearly balance/interest projection across tracks (estimate; CPI as a flat rate add-on). */
+/**
+ * Combined yearly projection across tracks (nominal shekels). Interest and CPI indexation are
+ * tracked separately; indexation applies only to linked tracks under a constant annual CPI assumption.
+ */
 export function projectTracks(tracks: NormalizedTrack[], cpi = 0) {
-  const scheds = tracks.filter((t) => t.amount > 0 && t.months > 0).map((t) => schedule(t.amount, effectiveRate(t, cpi), t.months));
+  const scheds = tracks.filter((t) => t.amount > 0 && t.months > 0).map((t) => trackSchedule(t, cpi));
   const years = Math.max(0, ...scheds.map((s) => s.points[s.points.length - 1]?.year || 0));
   const points = Array.from({ length: years + 1 }, (_, y) => {
-    let balance = 0, interestPaid = 0, principalPaid = 0;
+    let balance = 0, interestPaid = 0, principalPaid = 0, indexationPaid = 0;
     scheds.forEach((s) => {
-      const p = s.points.find((q) => q.year === y) || (y === 0 ? s.points[0] : s.points[s.points.length - 1]);
-      const ended = y > (s.points[s.points.length - 1]?.year || 0);
-      balance += ended ? 0 : p.balance;
-      interestPaid += p.interestPaid;
-      principalPaid += p.principalPaid;
+      const lastPt = s.points[s.points.length - 1];
+      const p = s.points.find((q) => q.year === y) || lastPt;
+      balance += y > (lastPt?.year || 0) ? 0 : p.balance;
+      interestPaid += p.interestPaid; principalPaid += p.principalPaid; indexationPaid += p.indexationPaid;
     });
-    return { year: y, balance, interestPaid, principalPaid };
+    return { year: y, balance, interestPaid, principalPaid, indexationPaid };
   });
+  const totalInterest = scheds.reduce((s, x) => s + x.totalInterest, 0);
+  const totalIndexation = scheds.reduce((s, x) => s + x.totalIndexation, 0);
+  const originalPrincipal = tracks.filter((t) => t.amount > 0 && t.months > 0).reduce((s, t) => s + t.amount, 0);
   return {
     points,
-    totalInterest: scheds.reduce((s, x) => s + x.totalInterest, 0),
-    totalPrincipal: scheds.reduce((s, x) => s + (x.totalPaid - x.totalInterest), 0),
+    totalInterest,
+    totalIndexation,
+    totalPrincipal: originalPrincipal,
+    totalCost: originalPrincipal + totalInterest + totalIndexation,
     months: Math.max(0, ...scheds.map((s) => s.months)),
+    lastMonthly: scheds.reduce((s, x) => s + x.lastMonthly, 0),
   };
 }
 
-/** First-month split of the estimated payment into principal / interest / CPI effect (linked tracks). */
+/**
+ * First-month payment split: principal / interest / indexation effect.
+ * For linked tracks the "indexation effect" is how much higher the payment is than the same
+ * track without CPI (small in month 1, it grows over time). It is not interest.
+ */
 export function firstMonthSplit(tracks: NormalizedTrack[], cpi = 0) {
   let principal = 0, interest = 0, index = 0;
   for (const t of tracks.filter((x) => x.amount > 0 && x.months > 0)) {
-    const payment = pmt(t.amount, effectiveRate(t, cpi), t.months);
-    const i = (t.amount * t.rate) / 1200;
-    const c = t.linked ? (t.amount * num(cpi)) / 1200 : 0;
-    interest += i; index += c; principal += Math.max(0, payment - i - c);
+    const s = trackSchedule(t, cpi);
+    const f = monthlyIndexFactor(trackCpi(t, cpi));
+    const i = (t.amount * f * t.rate) / 1200;          // interest on the indexed principal
+    const c = s.monthly - pmt(t.amount, t.rate, t.months); // payment uplift from indexation
+    interest += i; index += Math.max(0, c); principal += Math.max(0, s.monthly - i - Math.max(0, c));
   }
   return { principal, interest, index };
 }

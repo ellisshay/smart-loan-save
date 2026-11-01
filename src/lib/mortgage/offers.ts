@@ -42,8 +42,9 @@ export interface OfferMetrics {
   summary: TrackSummary;
   firstPayment: number;
   maxPayment: number | null;     // only when the offer has variable tracks
-  totalCost: number;             // principal + estimated interest + extra costs
+  totalCost: number;             // principal + estimated interest + estimated indexation + extra costs
   totalInterest: number;
+  totalIndexation: number;       // CPI linkage on linked tracks, under the CPI assumption
   months: number;
   flexibility: number;           // share of prime/variable tracks (0..1)
   categories: OfferCategory[];
@@ -61,7 +62,8 @@ export function analyzeOffer(o: OfferInput, cpi: number): OfferMetrics | null {
     id: o.id, bank: o.bank, tracks, summary, firstPayment,
     maxPayment: stress !== null ? Math.max(stress, firstPayment) : null,
     totalInterest: proj.totalInterest,
-    totalCost: summary.total + proj.totalInterest + num(o.extra_costs),
+    totalIndexation: proj.totalIndexation,
+    totalCost: summary.total + proj.totalInterest + proj.totalIndexation + num(o.extra_costs),
     months: summary.maxMonths,
     flexibility: summary.variableShare,
     categories: [],

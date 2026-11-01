@@ -5,11 +5,13 @@ import { buildMixes } from "@/lib/quickCheck";
 import { fromMixTracks, projectTracks, summarizeTracks } from "@/lib/mortgage/tracks";
 import { useMarketRates } from "@/hooks/useMarketRates";
 
-/** Risk label from the composition (variable + half of CPI-linked share), never from the cost. */
-const riskOf = (variable: number, linked: number) => {
-  const r = variable + linked * 0.5;
-  return r <= 0.35 ? { label: "יציבות גבוהה", hint: "רוב המשכנתא בריבית קבועה" } : r <= 0.55 ? { label: "איזון", hint: "שילוב של קבוע ומשתנה" } : { label: "גמישות גבוהה", hint: "חלק גדול בריבית משתנה" };
-};
+/** Labels by rank of composition (variable share + half the CPI-linked share), never by cost. */
+const LABELS = [
+  { label: "יציב יותר", hint: "החלק הגדול ביותר בריבית קבועה" },
+  { label: "מאוזן", hint: "שילוב של קבוע ומשתנה" },
+  { label: "גמיש יותר", hint: "החלק הגדול ביותר בריבית משתנה" },
+];
+const exposure = (variable: number, linked: number) => variable + linked * 0.5;
 
 export default function MixCalculator() {
   const { rates, failed, cpi } = useMarketRates();
@@ -22,8 +24,9 @@ export default function MixCalculator() {
       const tracks = fromMixTracks(m.tracks, cpi);
       const s = summarizeTracks(tracks, cpi)!;
       const p = projectTracks(tracks, cpi);
-      return { s, total: s.total + p.totalInterest, risk: riskOf(s.variableShare, s.linkedShare) };
-    }).sort((a, b) => (a.s.variableShare + a.s.linkedShare * 0.5) - (b.s.variableShare + b.s.linkedShare * 0.5));
+      return { s, p };
+    }).sort((a, b) => exposure(a.s.variableShare, a.s.linkedShare) - exposure(b.s.variableShare, b.s.linkedShare))
+      .map((m, i, arr) => ({ ...m, risk: LABELS[arr.length === 3 ? i : Math.min(i, 2)] }));
   }, [rates, loan, yrs, cpi]);
 
   return (
@@ -46,7 +49,9 @@ export default function MixCalculator() {
               <div className="flex h-2.5 rounded-full overflow-hidden mt-3" aria-hidden>{m.s.byKind.map((k) => <div key={k.kind} style={{ width: `${k.share * 100}%`, background: k.color }} />)}</div>
               <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">{m.s.byKind.map((k) => <li key={k.kind} className="flex justify-between"><span>{k.label}</span><span className="tabular-nums">{pct(k.share)}</span></li>)}</ul>
               <dl className="mt-3 space-y-1 text-sm">
-                <div className="flex justify-between"><dt className="text-muted-foreground">עלות כוללת משוערת</dt><dd className="font-semibold tabular-nums">{nis(m.total)}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">ריבית (הערכה)</dt><dd className="font-semibold tabular-nums">{nis(m.p.totalInterest)}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">הצמדה למדד (הערכה)</dt><dd className="font-semibold tabular-nums">{m.p.totalIndexation > 0.5 ? nis(m.p.totalIndexation) : "אין"}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">עלות כוללת משוערת</dt><dd className="font-semibold tabular-nums">{nis(m.p.totalCost)}</dd></div>
                 <div className="flex justify-between"><dt className="text-muted-foreground">בריבית משתנה</dt><dd className="font-semibold">{pct(m.s.variableShare)}</dd></div>
               </dl>
             </article>
@@ -54,7 +59,7 @@ export default function MixCalculator() {
         </div> : <p className="text-muted-foreground">הזינו סכום ותקופה כדי לראות את התמהילים.</p>}
       explanation={rates && <p>
         תמהיל עם יותר ריבית קבועה צפוי ויציב יותר, אבל לרוב ההחזר בו גבוה יותר בהתחלה. תמהיל עם יותר ריבית משתנה זול יותר כרגע, אבל ההחזר בו עלול לעלות.
-        העלות הכוללת היא הערכה לפי הריביות הנוכחיות{cpi ? ` והנחת אינפלציה של ${cpi}% בשנה במסלולים צמודים` : ""}. אלה תמהילים לדוגמה, לא הצעה של בנק.
+        העלות הכוללת היא הערכה בשקלים נומינליים: קרן, ריבית לפי הריביות הנוכחיות והצמדה למדד.{cpi ? ` במסלול הצמוד הקרן מתעדכנת כל חודש לפי הנחת מדד שנתית קבועה של ${cpi}%, והריבית מחושבת על הקרן המעודכנת, כך שגם ההחזר עולה עם הזמן.` : ""} אלה תמהילים לדוגמה, לא הצעה של בנק.
         {rates.updated_at && ` ריביות עודכנו ב-${new Date(rates.updated_at).toLocaleDateString("he-IL")}.`}
       </p>}
       cta={{ text: "רוצים תמהילים לפי הנתונים וההעדפות שלכם?", label: "לבדיקת משכנתא חינם", href: "/mortgage-check" }}
