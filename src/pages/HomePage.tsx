@@ -225,10 +225,17 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover transition-shadow"
+                className="group relative overflow-hidden bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0">
-                  <item.icon size={22} strokeWidth={2.2} className="text-primary" />
+                {/* diagonal sheen */}
+                <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "var(--card-shine)" }} />
+                {/* icon medallion: soft tile + offset ghost frame + gradient accent dot */}
+                <div className="relative mt-1">
+                  <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] border border-dashed border-primary/25 rotate-2 group-hover:rotate-3 transition-transform duration-500" />
+                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center ring-1 ring-inset ring-primary/25 shadow-sm">
+                    <item.icon size={24} strokeWidth={1.8} className="text-primary" />
+                  </div>
+                  <span aria-hidden className="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-gold-gradient ring-2 ring-card" />
                 </div>
                 <div>
                   <p className="font-bold text-sm text-foreground">{item.title}</p>
