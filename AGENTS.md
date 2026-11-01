@@ -1,6 +1,7 @@
 - Use the shared BrandLogo component for site and workspace branding so every header displays the same identity and tagline.
 - Derive the browser favicon from the same brand symbol so the tab and site remain visually consistent.
 - Scope homepage editorial hero styles and quieter header presentation to the home route; keep shared navigation destinations and other page layouts unchanged so visual passes cannot alter customer flows.
+- Keep homepage persistent actions in HomeFloatingActions, observing the hero boundary and suppressing them for overlays or mobile input; preserve other routes' floating actions so presentation changes remain homepage-only.
 - Bank tender data lives in tenders/tender_banks/tender_offers; clients read only via get_client_tender RPC — keeps internal notes and unapproved offers hidden.
 - tender_offers are append-only versions (content-protect trigger) — offer history must never be overwritten.
 - Use wrapClient for customer-facing transactional emails and wrap for internal notifications — keeps customer branding and contact information consistent without changing staff alerts.

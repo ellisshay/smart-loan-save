@@ -204,14 +204,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <RouteSeoFooterContent />
       </main>
-      <FloatingApplyButton />
+      <FloatingApplyButton blocked={mobileOpen} />
 
       {/* Floating widgets */}
       <FloatingWhatsApp />
       <AccessibilityWidget />
 
       {/* Footer */}
-      <footer className="bg-navy text-primary-foreground" role="contentinfo">
+      <footer className={`bg-navy text-primary-foreground ${isHome ? "home-cta-footer" : ""}`} role="contentinfo">
         <div className="container py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>

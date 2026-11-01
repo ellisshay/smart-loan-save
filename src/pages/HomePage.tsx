@@ -205,14 +205,14 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-7 md:mt-9">
               <Button
-                variant="default" size="xl"
-                className="rounded-lg min-h-14 px-8 text-base"
+                variant="default" size="default"
+                className="rounded-lg h-12 min-h-12 px-6 text-base"
                 onClick={handleCTAClick}
               >
                 פתיחת תיק
                 <ChevronLeft size={20} />
               </Button>
-              <Button asChild variant="outline" size="xl" className="rounded-lg border-foreground/25 bg-transparent text-foreground hover:bg-card/70 hover:text-foreground min-h-14 px-5 text-base">
+              <Button asChild variant="outline" size="default" className="rounded-lg border-foreground/25 bg-transparent text-foreground hover:bg-card/70 hover:text-foreground h-12 min-h-12 px-5 text-base">
                 <Link to="/balance-check">בדיקת המשכנתא שלי בחינם</Link>
               </Button>
             </div>
