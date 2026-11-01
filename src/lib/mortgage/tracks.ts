@@ -156,3 +156,15 @@ export function projectTracks(tracks: NormalizedTrack[], cpi = 0) {
     months: Math.max(0, ...scheds.map((s) => s.months)),
   };
 }
+
+/** First-month split of the estimated payment into principal / interest / CPI effect (linked tracks). */
+export function firstMonthSplit(tracks: NormalizedTrack[], cpi = 0) {
+  let principal = 0, interest = 0, index = 0;
+  for (const t of tracks.filter((x) => x.amount > 0 && x.months > 0)) {
+    const payment = pmt(t.amount, effectiveRate(t, cpi), t.months);
+    const i = (t.amount * t.rate) / 1200;
+    const c = t.linked ? (t.amount * num(cpi)) / 1200 : 0;
+    interest += i; index += c; principal += Math.max(0, payment - i - c);
+  }
+  return { principal, interest, index };
+}

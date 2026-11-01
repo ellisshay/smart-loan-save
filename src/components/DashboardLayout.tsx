@@ -1,4 +1,4 @@
-import { Gavel, Check, type LucideIcon } from "lucide-react";
+import { Gavel, Check, ListChecks, type LucideIcon } from "lucide-react";
 import { EXTERNAL_ADVISORS_ENABLED } from "@/lib/features";
 import { DashboardCaseProvider, useDashboardCase } from "@/hooks/useDashboardCase";
 import { completedIntakeSteps } from "@/lib/intakeCompletion";
@@ -31,6 +31,7 @@ export const sideLinks: SideLink[] = [
   { label: "תשלום", href: "/dashboard/payment", icon: PayIcon },
   ...(EXTERNAL_ADVISORS_ENABLED ? [{ label: "הצעות", href: "/dashboard/offers", icon: Gift }] : []),
   { label: "מכרז המשכנתא שלי", href: "/dashboard/tender", icon: Gavel },
+  { label: "התקדמות התיק", href: "/dashboard/status", icon: ListChecks },
   { label: "הפרטיות שלי", href: "/dashboard/privacy", icon: Shield },
 ];
 

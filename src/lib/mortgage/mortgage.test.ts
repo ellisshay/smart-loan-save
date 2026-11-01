@@ -288,3 +288,15 @@ describe("model", () => {
     expect(rows.find((r) => r.type === "purchase_contract")!.deferred).toBe(true);
   });
 });
+
+import { firstMonthSplit } from "./tracks";
+describe("first month split", () => {
+  it("sums to the estimated payment", () => {
+    const t = [track({ amount: 600000, rate: 4, months: 300 }), track({ amount: 400000, rate: 3, months: 300, kind: "fixed_linked", linked: true })];
+    const s = firstMonthSplit(t, 2.5);
+    const total = summarizeTracks(t, 2.5)!.monthly;
+    expect(s.principal + s.interest + s.index).toBeCloseTo(total, 4);
+    expect(s.index).toBeCloseTo((400000 * 2.5) / 1200, 4);
+    expect(firstMonthSplit([], 2)).toEqual({ principal: 0, interest: 0, index: 0 });
+  });
+});
