@@ -191,7 +191,10 @@ serve(async (req) => {
 
     const { event_name, case_id, payload } = await req.json();
 
-    if (!event_name || !case_id) {
+    const ALLOWED_EVENTS = new Set(["case_created","case_submitted","docs_uploaded","doc_uploaded","intake_updated","mix_selected","offer_submitted","status_changed","lead_created"]);
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const safePayload = payload && typeof payload === "object" && !Array.isArray(payload) && JSON.stringify(payload).length <= 8192 ? payload : {};
+    if (typeof event_name !== "string" || !ALLOWED_EVENTS.has(event_name) || typeof case_id !== "string" || !uuidRe.test(case_id)) {
       return new Response(
         JSON.stringify({ error: "Missing event_name or case_id" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -243,6 +246,8 @@ serve(async (req) => {
     const currentMortgage = intakeData.current_mortgage || {};
 
     const webhookPayload: Record<string, any> = {
+      ...safePayload,
+      payload: safePayload,
       event_name,
       timestamp: new Date().toISOString(),
       case_id,
@@ -267,7 +272,6 @@ serve(async (req) => {
       risk_level: liabilities.riskLevel || "",
       missing_docs_list: [],
       status: caseData?.status || "Draft",
-      ...payload,
     };
 
     // Calculate DTI
