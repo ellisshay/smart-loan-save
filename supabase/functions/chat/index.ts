@@ -20,11 +20,36 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { user_id, message, conversation_history = [] } = await req.json();
-
-    if (!user_id || !message) {
+    // Identify the caller from their session token. Never trust a user_id from the
+    // request body: this function reads profile/case data with the service role.
+    const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
+    const { data: authData } = token
+      ? await supabase.auth.getUser(token)
+      : { data: { user: null } };
+    const user_id = authData?.user?.id;
+    if (!user_id) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: user_id, message" }),
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const message = typeof body?.message === "string" ? body.message.trim().slice(0, 2000) : "";
+    // Only user/assistant turns from the client; a client-supplied "system" turn
+    // could override the instructions above.
+    type ChatTurn = { role: "user" | "assistant"; content: string };
+    const rawHistory: unknown[] = Array.isArray(body?.conversation_history) ? body.conversation_history : [];
+    const conversation_history: ChatTurn[] = rawHistory
+      .filter((m: unknown): m is ChatTurn =>
+        !!m && typeof m === "object" &&
+        ((m as { role?: unknown }).role === "user" || (m as { role?: unknown }).role === "assistant") &&
+        typeof (m as { content?: unknown }).content === "string")
+      .map((m: ChatTurn) => ({ role: m.role, content: m.content.slice(0, 2000) }));
+
+    if (!message) {
+      return new Response(
+        JSON.stringify({ error: "Missing required field: message" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

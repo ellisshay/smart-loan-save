@@ -66,14 +66,18 @@ export default function AIMortgageChat() {
     }));
 
     try {
+      // The function identifies the user from this session token, not from the body.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not signed in");
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          user_id: userId,
           message: text,
           conversation_history: conversationHistory,
         }),
