@@ -254,21 +254,25 @@ export default function HomePage() {
           <p className="text-center text-muted-foreground mb-12">תהליך פשוט, שקוף ומהיר עד לקבלת המשכנתא הטובה ביותר עבורכם</p>
 
           <div className="relative">
-            {/* connector line */}
-            <div className="hidden md:block absolute top-7 right-[10%] left-[10%] h-0.5 bg-border" />
+            {/* connector: soft gradient track */}
+            <div className="hidden md:block absolute top-7 right-[10%] left-[10%] h-px" style={{ background: "linear-gradient(to left, transparent, hsl(var(--primary) / 0.35) 15%, hsl(var(--primary) / 0.35) 85%, transparent)" }} />
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-4">
               {steps.map((step, i) => (
                 <motion.div
                   key={i}
-                  className="flex md:flex-col items-center gap-4 md:gap-3 md:text-center relative"
+                  className="group flex md:flex-col items-center gap-4 md:gap-3 md:text-center relative"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <div className="relative z-10 w-14 h-14 rounded-full bg-card border-2 border-primary/40 flex items-center justify-center shadow-card shrink-0">
-                    <step.icon size={22} className="text-primary" />
-                    <span className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                  {/* step marker: squircle tile + gradient number chip (no balloons) */}
+                  <div className="relative z-10 shrink-0">
+                    <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300" />
+                    <div className="relative w-14 h-14 rounded-2xl bg-card shadow-card ring-1 ring-inset ring-border flex items-center justify-center group-hover:shadow-card-hover group-hover:-translate-y-0.5 transition-all duration-300">
+                      <step.icon size={22} strokeWidth={1.9} className="text-primary" />
+                    </div>
+                    <span className="absolute -top-2 -left-2 w-6 h-6 rounded-lg bg-gold-gradient text-primary-foreground text-xs font-bold flex items-center justify-center shadow-sm ring-2 ring-background">
                       {i + 1}
                     </span>
                   </div>
