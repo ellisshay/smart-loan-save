@@ -88,7 +88,7 @@ function CommandCenterMockup() {
             {kpis.map((kpi) => (
               <div key={kpi.label} className="rounded-xl border border-border bg-background/60 p-3">
                 <p className="text-[11px] text-muted-foreground">{kpi.label}</p>
-                <p className="font-ticker font-bold text-sm md:text-base text-foreground tabular-nums leading-tight mt-0.5" dir="ltr">{kpi.value}</p>
+                <p className="font-ticker font-bold text-sm md:text-base text-foreground tabular-nums leading-tight mt-0.5 whitespace-nowrap" dir="ltr">{kpi.value}</p>
               </div>
             ))}
           </div>
@@ -348,7 +348,7 @@ export default function HomePage() {
 
           <div className="grid lg:grid-cols-[0.85fr_2fr_0.85fr] gap-8 lg:gap-10 items-center">
             {/* annotations right */}
-            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-left order-3">
+            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-right order-1">
               {[
                 { n: "01", t: "מסמכים פעם אחת", d: "מעלים פעם אחת, בלי לחזור על זה בכל בנק." },
               ].map((a) => (
@@ -360,13 +360,13 @@ export default function HomePage() {
               ))}
             </motion.div>
 
-            <motion.div {...fadeUp}>
+            <motion.div {...fadeUp} className="order-2 min-w-0">
               <CommandCenterMockup />
               <p className="text-center text-xs text-muted-foreground mt-4">* הנתונים בתמונה להמחשה בלבד.</p>
             </motion.div>
 
             {/* annotations left */}
-            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 order-1">
+            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-left order-3">
               {[
                 { n: "02", t: "איפה התיק עומד", d: "סטטוס חי בכל רגע, בלי לחכות לטלפון." },
                 { n: "03", t: "הצעות בהשוואה", d: "מהבנקים הרלוונטיים — במקום אחד." },
