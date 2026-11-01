@@ -34,7 +34,9 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const { message, conversation_history = [] } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const message = typeof body?.message === "string" ? body.message.trim().slice(0, 1000) : "";
+    const conversation_history = Array.isArray(body?.conversation_history) ? body.conversation_history : [];
 
     if (!message) {
       return new Response(
@@ -43,9 +45,14 @@ serve(async (req) => {
       );
     }
 
+    // Only user/assistant turns are accepted from the caller; system role is fixed server-side.
+    const history = conversation_history.slice(-10)
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .map((m: any) => ({ role: m.role, content: m.content.slice(0, 1000) }));
+
     const aiMessages = [
       { role: "system", content: SYSTEM_PROMPT },
-      ...conversation_history.slice(-10),
+      ...history,
       { role: "user", content: message },
     ];
 

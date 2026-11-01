@@ -1,12 +1,14 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { sendEmail, wrapClient, SITE_URL } from "../_shared/gmail.ts";
+import { isTrustedJobCaller } from "../_shared/auth.ts";
 import { clientEmail, progressOf, borrowers } from "../_shared/caseInfo.ts";
 
 // Runs on a schedule: one reminder per case, 48h after last activity, if still incomplete.
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  if (!(await isTrustedJobCaller(req, admin as any))) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
   const cutoff = new Date(Date.now() - 48 * 3600 * 1000).toISOString();
   const { data: cases, error } = await admin.from("cases")
     .select("id, user_id, case_number, intake_data, emails_sent")

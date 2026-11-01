@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCallerId } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,9 +21,18 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { user_id, message, conversation_history = [] } = await req.json();
+    const user_id = await getCallerId(req, supabase as any);
+    if (!user_id) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const body = await req.json().catch(() => ({}));
+    const message = typeof body?.message === "string" ? body.message.trim().slice(0, 2000) : "";
+    const conversation_history = (Array.isArray(body?.conversation_history) ? body.conversation_history : [])
+      .slice(-10)
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .map((m: any) => ({ role: m.role, content: m.content.slice(0, 2000) }));
 
-    if (!user_id || !message) {
+    if (!message) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: user_id, message" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -114,7 +124,7 @@ DTI: ${aiAnalysis?.dti || "בחישוב"}%
     // Build messages with history
     const aiMessages = [
       { role: "system", content: systemPrompt },
-      ...conversation_history.slice(-10),
+      ...conversation_history,
       { role: "user", content: message },
     ];
 

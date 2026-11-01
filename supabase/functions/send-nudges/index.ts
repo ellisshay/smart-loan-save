@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { isTrustedJobCaller } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,6 +35,9 @@ Deno.serve(async (req: Request) => {
     const n8nWebhookUrl = Deno.env.get("N8N_WEBHOOK_NUDGE");
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+    if (!(await isTrustedJobCaller(req, supabase as any))) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    }
 
     // Find users who:
     // 1. Registered (have a profile)

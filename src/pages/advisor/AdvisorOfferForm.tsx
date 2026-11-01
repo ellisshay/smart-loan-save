@@ -49,7 +49,7 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.from("offers" as any).insert({
+      const { data: inserted, error } = await supabase.from("offers" as any).insert({
         lead_id: leadId,
         advisor_id: advisorId,
         bank_name: form.bank_name,
@@ -61,7 +61,7 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
         advisor_fee: form.advisor_fee ? parseFloat(form.advisor_fee) : 0,
         notes: form.notes || null,
         validity_date: form.validity_date || null,
-      });
+      }).select("id").single();
       if (error) throw error;
 
       // Fire webhook for new offer
@@ -70,13 +70,8 @@ export default function AdvisorOfferForm({ leadId, advisorId, onBack, onSuccess 
       // Notify client via email
       await supabase.functions.invoke("notify-client-offer", {
         body: {
-          offer_id: "new",
+          offer_id: (inserted as any)?.id,
           lead_id: leadId,
-          bank_name: form.bank_name,
-          interest_rate: form.interest_rate,
-          monthly_payment: form.monthly_payment,
-          track_type: form.track_type,
-          loan_period: form.loan_period,
         },
       });
 
