@@ -370,7 +370,6 @@ export default function HomePage() {
                     </Button>
                   </CardContent>
                 </Card>
-                </Card>
               </motion.div>
             ))}
           </div>
@@ -395,6 +394,7 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+              >
                 <Card className="bg-destructive/5 border-destructive/20 rounded-2xl relative overflow-hidden">
                   <span aria-hidden className="absolute top-0 bottom-0 right-0 w-0.5 bg-destructive/30" />
                   <CardContent className="p-5 flex items-start gap-4 relative">
@@ -411,7 +411,6 @@ export default function HomePage() {
                       <path d="M36.5 3 H43 V9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </CardContent>
-                </Card>
                 </Card>
               </motion.div>
             ))}
