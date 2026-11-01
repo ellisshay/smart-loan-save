@@ -26,7 +26,9 @@ const hrefsFor = (name: string) =>
 describe("homepage CTAs", () => {
   it("hero leads with 'פתיחת תיק' to /intake and the free check to /mortgage-check", () => {
     render(<MemoryRouter><HomePage /></MemoryRouter>);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("10 דקות באתר.");
+    const h1 = (screen.getByRole("heading", { level: 1 }).textContent || "").replace(/\s+/g, " ");
+    expect(h1).toContain("10 דקות באתר.");
+    expect(h1).toMatch(/ואנחנו נכנסים ?לעבודה\./);
     expect(hrefsFor("פתיחת תיק").every((h) => h === "/intake")).toBe(true);
     expect(hrefsFor("בדיקת המשכנתא שלי בחינם").every((h) => h === "/mortgage-check")).toBe(true);
     expect(hrefsFor("פתיחת תיק").length).toBeGreaterThanOrEqual(3); // hero, pricing, final CTA

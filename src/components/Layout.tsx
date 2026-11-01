@@ -27,6 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const location = useLocation();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
@@ -78,7 +79,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <a href="#main-content" className="skip-to-content">דלג לתוכן הראשי</a>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border" role="banner">
+      <header className={`sticky top-0 z-50 border-b border-border ${isHome ? "bg-card/95 backdrop-blur-md" : "bg-background/85 backdrop-blur-xl"}`} role="banner">
         <MarketTicker />
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="text-foreground" aria-label="EASY MORTE - לוקחים משכנתא בקלות">
@@ -86,14 +87,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className={`hidden ${isHome ? "xl:flex" : "md:flex"} items-center gap-1`}>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`${isHome ? "px-2.5 py-2" : "px-4 py-2 rounded-lg"} text-sm font-medium transition-colors ${
                   location.pathname === link.href
-                    ? "bg-primary/10 text-primary"
+                    ? isHome ? "text-foreground underline decoration-primary underline-offset-8" : "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
@@ -102,7 +103,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-2">
+          <div className={`hidden ${isHome ? "xl:flex" : "md:flex"} items-center gap-2`}>
             <ThemeToggle />
             {isAdmin && (
               <Link to="/admin">
@@ -113,7 +114,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             )}
             <Link to="/my-cases">
-              <Button variant="outline" size="sm">האזור שלי</Button>
+              <Button variant={isHome ? "ghost" : "outline"} size="sm">האזור שלי</Button>
             </Link>
             {loggedIn && (
               <Button variant="ghost" size="sm" className="gap-1.5" onClick={handleLogout}>
@@ -122,17 +123,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Button>
             )}
             <Link to="/calculators">
-              <Button variant="cta" size="default">בדוק את המשכנתא שלך</Button>
+              <Button variant={isHome ? "outline" : "cta"} size="default" className={isHome ? "bg-transparent border-border text-foreground" : undefined}>בדוק את המשכנתא שלך</Button>
             </Link>
           </div>
 
           {/* Mobile Toggle */}
-          <button
+          <Button
+            variant="ghost" size="icon" aria-label={mobileOpen ? "סגירת תפריט" : "פתיחת תפריט"}
+            aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-muted text-foreground"
+            className={`${isHome ? "xl:hidden" : "md:hidden"} p-2 rounded-lg hover:bg-muted text-foreground`}
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          </Button>
         </div>
 
         {/* Mobile Menu */}
@@ -142,7 +145,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden overflow-hidden bg-card border-b border-border"
+              className={`${isHome ? "xl:hidden" : "md:hidden"} overflow-hidden bg-card border-b border-border`}
             >
               <div className="container py-4 space-y-2">
                 {navLinks.map((link) => (

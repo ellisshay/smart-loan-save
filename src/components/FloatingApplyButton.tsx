@@ -9,15 +9,29 @@ const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance",
 
 export default function FloatingApplyButton() {
   const { pathname } = useLocation();
-  // Appear only after the visitor scrolls past the first screen, so it never covers the hero CTAs.
+  // Homepage: hidden while the editorial hero (with its own CTAs) is on screen.
+  // Other pages: appears only after the visitor scrolls past the first screen.
+  const [heroVisible, setHeroVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
+    if (pathname !== "/") return;
+    const hero = document.querySelector(".home-editorial-hero");
+    if (!hero) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setHeroVisible(entry?.isIntersecting ?? false);
+    });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [pathname]);
+  useEffect(() => {
+    if (pathname === "/") return;
     const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
-  if (HIDDEN.some((p) => pathname.startsWith(p)) || !scrolled) return null;
+  if (HIDDEN.some((p) => pathname.startsWith(p))) return null;
+  if (pathname === "/" ? heroVisible : !scrolled) return null;
 
   const showCheck = CHECK_FIRST.some((p) => pathname.startsWith(p));
 

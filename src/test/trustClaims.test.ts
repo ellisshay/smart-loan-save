@@ -55,7 +55,7 @@ describe("trust claims in customer-facing copy", () => {
   it("homepage carries the approved primary message and CTAs", () => {
     const home = sources.find((s) => s.path === "pages/HomePage.tsx")!.lines.join("\n");
     expect(home).toContain("10 דקות באתר.");
-    expect(home).toContain("ואנחנו נכנסים לעבודה.");
+    expect(home).toMatch(/ואנחנו נכנסים[\s\S]{0,120}לעבודה\./); // the H1 may split the line with markup
     expect(home).toContain("פתיחת תיק");
     expect(home).toContain("בדיקת המשכנתא שלי בחינם");
     expect(home).not.toMatch(/sampleOffers|ההצעה הטובה ביותר/);
