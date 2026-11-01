@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { CATEGORY_HINT, CATEGORY_LABEL, STRESS_DELTA, compareOffers, explainDifferences, type OfferInput } from "@/lib/mortgage/offers";
 import { EstimateNote, nis, pct, years } from "./primitives";
+import { trackOnce } from "@/lib/analytics";
 
 const level = (v: number) => (v >= 0.5 ? "גבוהה" : v >= 0.25 ? "בינונית" : "נמוכה");
 
@@ -8,6 +9,7 @@ const level = (v: number) => (v >= 0.5 ? "גבוהה" : v >= 0.25 ? "בינונ�
 export default function OfferComparison({ offers, cpi, selectedId }: { offers: OfferInput[]; cpi: number; selectedId?: string | null }) {
   const list = useMemo(() => compareOffers(offers, cpi), [offers, cpi]);
   const explanation = useMemo(() => explainDifferences(list), [list]);
+  useEffect(() => { if (list.length >= 2) trackOnce("offer_comparison_viewed", "offer_comparison_viewed"); }, [list.length]);
   if (list.length < 2) return null;
 
   return (

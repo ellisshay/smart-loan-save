@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { CaseType } from "@/types/intake";
+import { track } from "@/lib/analytics";
 
 export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null) {
   const [caseId, setCaseId] = useState<string | null>(null);
@@ -80,6 +81,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
           
           // Fire webhook
           await fireWebhook("case_created", newCase.id, { case_type: caseType });
+          track("case_opened", { case_type: caseType });
           supabase.functions.invoke("case-email", { body: { case_id: newCase.id, event: "case_opened" } }).catch(console.error);
         }
       } catch (error: any) {
@@ -179,6 +181,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
     }
 
     fireWebhook("intake_step_completed", caseId!, { step: stepKey }).catch(console.error);
+    track("intake_step_completed", { step: stepKey, case_type: caseType });
     setCurrentStep(next);
   };
 
@@ -197,6 +200,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
       supabase.functions.invoke("generate-financial-score", { body: { case_id: caseId } }).catch(console.error);
       // Side notifications must never block the client
       Promise.allSettled([
+        Promise.resolve(track("intake_completed", { case_type: caseType })),
         fireWebhook("case_submitted", caseId, {}),
         fireWebhook("lead_created", caseId, {
           property_area: intakeData.property?.area || intakeData.property_area || "",
