@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ArrowLeft, Check, ChevronLeft } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
-import heroLifestyle from "@/assets/hero-lifestyle.jpg";
+import heroLifestyle from "@/assets/home-everyday-couple.jpg";
 import homeBalcony from "@/assets/home-balcony.jpg";
 import ctaLight from "@/assets/cta-light.jpg";
 import founderImage from "@/assets/shay-ellis-founder.png";
@@ -182,86 +182,43 @@ export default function HomePage() {
     <div dir="rtl">
 
       {/* ═══════ Hero — emotional, editorial ═══════ */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero" />
-        <div className="absolute inset-0 bg-grain opacity-50" />
-        <div className="container relative grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 items-center py-12 md:py-20">
-          {/* text side */}
-          <div className="max-w-xl">
-            <motion.span
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 backdrop-blur px-4 py-1.5 text-sm font-medium text-muted-foreground mb-6"
-              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-            >
-              משכנתא בלי לעצור את החיים
-            </motion.span>
-            <motion.h1
-              className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] text-foreground"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-            >
+      <section className="home-editorial-hero relative overflow-hidden bg-card" aria-labelledby="home-headline">
+        <img
+          src={heroLifestyle}
+          alt="זוג פורק יחד ספרים ושתיל בדירה חדשה, באור יום טבעי"
+          width={1920} height={1120}
+          fetchPriority="high"
+          className="home-editorial-photo dark:brightness-50"
+        />
+        <div className="container relative home-editorial-content">
+          <div className="home-editorial-copy">
+            <p className="text-lg md:text-xl font-medium text-foreground mb-5 md:mb-8">
+              משכנתא בלי לעצור את החיים.
+            </p>
+            <h1 id="home-headline" className="font-display text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.16] text-foreground">
               10 דקות באתר.<br />
-              <span className="text-gradient-gold">ואנחנו נכנסים לעבודה.</span>
-            </motion.h1>
-            <motion.p
-              className="text-lg text-muted-foreground leading-relaxed mt-5"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-            >
+              ואנחנו נכנסים<br className="hidden lg:block" /> <span className="decoration-primary/60 underline underline-offset-8 decoration-2">לעבודה.</span>
+            </h1>
+            <p className="text-base md:text-lg text-foreground/80 leading-relaxed mt-6 max-w-md">
               פותחים תיק, מעלים את הפרטים והמסמכים במקום אחד, ואנחנו מרכזים את העבודה המקצועית וההתקדמות מול הבנקים.
-            </motion.p>
-            <motion.div
-              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-8"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}
-            >
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-7 md:mt-9">
               <Button
-                variant="hero" size="xl"
-                className="shadow-gold rounded-full min-h-14 px-9 text-base"
+                variant="default" size="xl"
+                className="rounded-lg min-h-14 px-8 text-base"
                 onClick={handleCTAClick}
               >
                 פתיחת תיק
                 <ChevronLeft size={20} />
               </Button>
-              <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 min-h-14 px-7">
+              <Button asChild variant="outline" size="xl" className="rounded-lg border-foreground/25 bg-transparent text-foreground hover:bg-card/70 hover:text-foreground min-h-14 px-5 text-base">
                 <Link to="/balance-check">בדיקת המשכנתא שלי בחינם</Link>
               </Button>
-            </motion.div>
-            <motion.p
-              className="text-xs text-muted-foreground mt-4"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
-            >
-              לוקח 2 דקות בלבד, ללא התחייבות
-            </motion.p>
-          </div>
-
-          {/* image side: cropped lifestyle photo + floating product chip */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            <span aria-hidden className="absolute -top-6 -left-6 w-56 h-56 rounded-full bg-primary/8 blur-2xl" />
-            <div className="relative rounded-tr-[3rem] rounded-bl-[3rem] rounded-tl-2xl rounded-br-2xl overflow-hidden shadow-card-hover border border-border">
-              <img
-                src={heroLifestyle}
-                alt="זוג צעיר בדירה מוארת עם מפתחות לבית החדש"
-                width={1024} height={1280}
-                className="w-full h-full object-cover aspect-[4/5] max-h-[560px]"
-              />
             </div>
-            {/* floating mini product chip */}
-            <motion.div
-              className="absolute -bottom-6 right-4 md:-right-6 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3.5 flex items-center gap-3"
-              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
-            >
-              <div className="text-right">
-                <p className="text-[11px] text-muted-foreground">החזר חודשי להמחשה</p>
-                <p className="font-ticker font-bold text-foreground tabular-nums leading-none mt-0.5" dir="ltr">₪4,980</p>
-              </div>
-              <div className="flex items-end gap-1 h-8" aria-hidden>
-                <span className="w-1.5 h-4 rounded-sm bg-primary/20" />
-                <span className="w-1.5 h-5 rounded-sm bg-primary/35" />
-                <span className="w-1.5 h-6 rounded-sm bg-primary/60" />
-                <span className="w-1.5 h-8 rounded-sm bg-gold-gradient" />
-              </div>
-            </motion.div>
-          </motion.div>
+            <p className="text-xs text-foreground/70 mt-4">
+              לוקח 2 דקות בלבד, ללא התחייבות
+            </p>
+          </div>
         </div>
       </section>
 
