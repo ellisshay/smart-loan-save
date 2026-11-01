@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const HIDDEN = ["/mortgage-check", "/intake", "/auth", "/dashboard", "/admin", "/advisor"];
 
@@ -8,7 +9,19 @@ const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance",
 
 export default function FloatingApplyButton() {
   const { pathname } = useLocation();
+  const [heroVisible, setHeroVisible] = useState(true);
+  useEffect(() => {
+    if (pathname !== "/") return;
+    const hero = document.querySelector(".home-editorial-hero");
+    if (!hero) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setHeroVisible(entry?.isIntersecting ?? false);
+    });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [pathname]);
   if (HIDDEN.some((p) => pathname.startsWith(p))) return null;
+  if (pathname === "/" && heroVisible) return null;
 
   const showCheck = CHECK_FIRST.some((p) => pathname.startsWith(p));
 
