@@ -21,8 +21,8 @@ export function TrackDonut({ summary }: { summary: TrackSummary }) {
         {summary.byKind.map((k) => (
           <li key={k.kind} className="flex items-center gap-2 text-sm">
             <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: k.color }} aria-hidden />
-            <span className="flex-1 text-foreground">{k.label}</span>
-            <span className="tabular-nums text-muted-foreground">{nis(k.amount)}</span>
+            <span className="flex-1 min-w-0 text-foreground">{k.label}</span>
+            <span className="tabular-nums text-muted-foreground whitespace-nowrap">{nis(k.amount)}</span>
             <span className="tabular-nums font-semibold w-12 text-left">{pct(k.share)}</span>
           </li>
         ))}
