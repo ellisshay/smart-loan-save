@@ -1,28 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import HomeFloatingActions from "@/components/home/HomeFloatingActions";
 
 const HIDDEN = ["/mortgage-check", "/intake", "/auth", "/dashboard", "/admin", "/advisor"];
 
 // Routes where the free mortgage check is the more relevant primary action
 const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance", "/mix", "/affordability", "/waste"];
 
-export default function FloatingApplyButton() {
+export default function FloatingApplyButton({ blocked = false }: { blocked?: boolean }) {
   const { pathname } = useLocation();
-  // Homepage: hidden while the editorial hero (with its own CTAs) is on screen.
+  // Homepage: compact two-action bar after the hero (HomeFloatingActions).
   // Other pages: appears only after the visitor scrolls past the first screen.
-  const [heroVisible, setHeroVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    if (pathname !== "/") return;
-    const hero = document.querySelector(".home-editorial-hero");
-    if (!hero) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setHeroVisible(entry?.isIntersecting ?? false);
-    });
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, [pathname]);
   useEffect(() => {
     if (pathname === "/") return;
     const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
@@ -31,7 +21,8 @@ export default function FloatingApplyButton() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
   if (HIDDEN.some((p) => pathname.startsWith(p))) return null;
-  if (pathname === "/" ? heroVisible : !scrolled) return null;
+  if (pathname === "/") return <HomeFloatingActions blocked={blocked} />;
+  if (!scrolled) return null;
 
   const showCheck = CHECK_FIRST.some((p) => pathname.startsWith(p));
 

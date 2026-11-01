@@ -6,7 +6,7 @@ import { ArrowLeft, Check, ChevronLeft } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
 import heroLifestyle from "@/assets/home-modern-couple.webp";
-import homeBalcony from "@/assets/home-balcony.webp";
+import architecturalCrop from "@/assets/luxury-building.webp";
 import ctaLight from "@/assets/cta-light.webp";
 import founderImage from "@/assets/shay-ellis-founder.webp";
 
@@ -17,11 +17,11 @@ const fadeUp = {
   transition: { duration: 0.5, ease: "easeOut" as const },
 };
 
-// ─── How it works: 4 editorial steps ───
+// ─── The journey: 4 moments along one path ───
 const steps = [
   { title: "פותחים תיק", desc: "כמה דקות של פרטים ראשוניים." },
-  { title: "מעלים פעם אחת", desc: "מסמכים ונתונים במקום אחד." },
-  { title: "אנחנו נכנסים לעבודה", desc: "בדיקה, בניית חלופות ופנייה לבנקים הרלוונטיים." },
+  { title: "מעלים פעם אחת", desc: "המסמכים והמידע במקום אחד." },
+  { title: "אנחנו נכנסים לעבודה", desc: "בודקים, בונים חלופות ופונים לבנקים הרלוונטיים." },
   { title: "רואים הכול ברור", desc: "הצעות, השוואה והשלב הבא במקום אחד." },
 ];
 
@@ -116,11 +116,11 @@ function CommandCenterMockup() {
   );
 }
 
-// ─── Step visuals: each step looks different ───
-function StepVisual({ i }: { i: number }) {
+// ─── Tiny product snippets woven into the journey ───
+function StepSnippet({ i }: { i: number }) {
   if (i === 0) {
     return (
-      <div className="mt-4 w-40" aria-hidden>
+      <div className="w-44" aria-hidden>
         <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
           <span>בקצב שלכם</span>
           <span className="font-ticker tabular-nums">~10 דק'</span>
@@ -133,7 +133,7 @@ function StepVisual({ i }: { i: number }) {
   }
   if (i === 1) {
     return (
-      <div className="mt-4 space-y-1.5" aria-hidden>
+      <div className="space-y-1.5" aria-hidden>
         <span className="block w-40 h-2 rounded-full bg-primary/25" />
         <span className="block w-32 h-2 rounded-full bg-border" />
         <span className="block w-36 h-2 rounded-full bg-border/70" />
@@ -142,7 +142,7 @@ function StepVisual({ i }: { i: number }) {
   }
   if (i === 2) {
     return (
-      <div className="mt-4 flex items-center gap-2" aria-hidden>
+      <div className="flex items-center gap-2" aria-hidden>
         {[0, 1, 2].map((j) => (
           <span key={j} className={`w-8 h-8 rounded-full border flex items-center justify-center ${j === 1 ? "border-primary bg-primary/10" : "border-border"}`}>
             <span className={`w-2.5 h-2.5 rounded-full ${j === 1 ? "bg-primary" : "bg-border"}`} />
@@ -153,7 +153,7 @@ function StepVisual({ i }: { i: number }) {
     );
   }
   return (
-    <div className="mt-4 space-y-1.5" aria-hidden>
+    <div className="space-y-1.5" aria-hidden>
       {["הצעות", "השוואה", "השלב הבא"].map((row) => (
         <span key={row} className="flex items-center gap-2 text-[11px] text-muted-foreground">
           <span className="w-3.5 h-3.5 rounded-full bg-primary/15 flex items-center justify-center"><Check size={9} strokeWidth={3} className="text-primary" /></span>
@@ -172,11 +172,11 @@ export default function HomePage() {
   return (
     <div dir="rtl">
 
-      {/* ═══════ Hero — emotional, editorial ═══════ */}
+      {/* ═══════ A · Hero — one composition: image + editorial type ═══════ */}
       <section className="home-editorial-hero relative overflow-hidden bg-card" aria-labelledby="home-headline">
         <img
           src={heroLifestyle}
-          alt="זוג צעיר בסלון של דירה חדשה ומודרנית, מול מרפסת מלאת עציצים עם מסגרות שחורות, באור יום טבעי"
+          alt="זוג צעיר בסלון של דירה חדשה ומודרנית, מול מרפסת עם פינת ישיבה ועציצים, באור יום טבעי"
           width={1920} height={1376}
           fetchPriority="high"
           className="home-editorial-photo dark:brightness-50"
@@ -184,21 +184,21 @@ export default function HomePage() {
         <div aria-hidden className="home-editorial-scrim hidden lg:block absolute inset-0 pointer-events-none" />
         <div className="container relative home-editorial-content">
           <div className="home-editorial-copy">
-            <p className="text-lg md:text-xl font-medium text-foreground mb-5 md:mb-8">
-              פותחים תיק משכנתא אונליין, בלי פגישות מיותרות.
+            <p className="text-sm md:text-base font-medium tracking-wide text-muted-foreground mb-4 md:mb-6">
+              משכנתא בלי לעצור את החיים.
             </p>
             <h1 id="home-headline" className="font-display text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.16] text-foreground">
               10 דקות באתר.<br />
-              ואנחנו נכנסים<br className="hidden lg:block" /> <span className="decoration-primary/60 underline underline-offset-8 decoration-2">לעבודה.</span>
+              ואנחנו נכנסים <span className="decoration-primary/60 underline underline-offset-8 decoration-2">לעבודה.</span>
             </h1>
             <p className="text-base md:text-lg text-foreground/80 leading-relaxed mt-6 max-w-md">
               פותחים תיק, מעלים את הפרטים והמסמכים במקום אחד, ואנחנו מרכזים את העבודה המקצועית וההתקדמות מול הבנקים.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-7 md:mt-9">
-              <Button asChild variant="default" size="xl" className="rounded-lg min-h-14 px-8 text-base">
+              <Button asChild variant="default" size="default" className="rounded-lg h-12 min-h-12 px-6 text-base">
                 <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
               </Button>
-              <Button asChild variant="outline" size="xl" className="rounded-lg border-foreground/25 bg-transparent text-foreground hover:bg-card/70 hover:text-foreground min-h-14 px-5 text-base">
+              <Button asChild variant="outline" size="default" className="rounded-lg border-foreground/25 bg-transparent text-foreground hover:bg-card/70 hover:text-foreground h-12 min-h-12 px-5 text-base">
                 <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
               </Button>
             </div>
@@ -212,130 +212,99 @@ export default function HomePage() {
       {/* ═══════ KPI strip — approved, unchanged ═══════ */}
       <StatsSection />
 
-      {/* ═══════ How it works — editorial story ═══════ */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-4xl">
+      {/* ═══════ B · Emotional transition — a breathing moment ═══════ */}
+      <section className="relative overflow-hidden" aria-label="פחות בירוקרטיה, יותר התקדמות">
+        <img
+          src={architecturalCrop}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-background via-background/85 to-background/30" aria-hidden />
+        <div className="container relative py-20 md:py-32">
+          <motion.div {...fadeUp} className="max-w-xl">
+            <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground">
+              פחות להתעסק במשכנתא.<br />
+              <span className="text-gradient-gold">יותר להתקדם לבית.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mt-6 max-w-md">
+              בלי לרדוף אחרי מסמכים, בלי לזכור למי התקשרתם ובלי לנחש מה השלב הבא.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════ C · The journey — one path, four moments ═══════ */}
+      <section className="py-20 md:py-28 bg-background">
+        <div className="container max-w-5xl">
           <motion.h2 {...fadeUp} className="text-3xl md:text-4xl font-extrabold text-foreground max-w-xl">
             מהרגע שהחלטתם להתקדם, <span className="text-gradient-gold">אנחנו מסדרים את הדרך.</span>
           </motion.h2>
 
-          <div className="mt-12 md:mt-16 space-y-12 md:space-y-16">
-            {steps.map((step, i) => (
-              <motion.div
-                key={i}
-                {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: i * 0.06 }}
-                className="grid md:grid-cols-2 gap-4 md:gap-10 items-center relative"
-              >
-                {/* giant number */}
-                <div className={`flex items-baseline gap-5 ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                  <span className="font-ticker text-7xl md:text-8xl font-bold text-primary/15 leading-none select-none" aria-hidden>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="flex-1 h-px bg-border/70 hidden md:block" aria-hidden />
-                </div>
-                {/* text */}
-                <div className={i % 2 === 1 ? "md:order-1 md:text-left" : ""}>
-                  <h3 className="text-xl md:text-2xl font-bold text-foreground">{step.title}</h3>
-                  <p className="text-muted-foreground mt-1.5">{step.desc}</p>
-                  <StepVisual i={i} />
-                </div>
-              </motion.div>
-            ))}
+          <div className="relative mt-14 md:mt-20">
+            {/* the thread connecting the four moments */}
+            <span aria-hidden className="absolute top-0 bottom-0 right-[7px] md:right-1/2 md:translate-x-1/2 w-px bg-border" />
+            <div className="space-y-16 md:space-y-24">
+              {steps.map((step, i) => (
+                <motion.div
+                  key={i}
+                  {...fadeUp}
+                  transition={{ ...fadeUp.transition, delay: i * 0.05 }}
+                  className="relative grid md:grid-cols-2 gap-6 md:gap-16 items-center"
+                >
+                  {/* node on the thread */}
+                  <span aria-hidden className="absolute right-0 md:right-1/2 md:translate-x-1/2 top-1.5 w-[15px] h-[15px] rounded-full border-2 border-primary bg-background" />
+                  {/* text block — alternating sides */}
+                  <div className={`pr-8 md:pr-0 ${i % 2 === 1 ? "md:order-2 md:pr-16" : "md:pl-16 md:text-left"}`}>
+                    <p className="font-ticker text-xs text-primary/70 tabular-nums" dir="ltr">{String(i + 1).padStart(2, "0")}</p>
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-foreground mt-2">{step.title}</h3>
+                    <p className="text-muted-foreground mt-2 max-w-xs md:max-w-none md:inline-block">{step.desc}</p>
+                  </div>
+                  {/* snippet block */}
+                  <div className={`pr-8 md:pr-0 ${i % 2 === 1 ? "md:order-1 md:pl-16 md:flex md:justify-start" : "md:pr-16 md:flex md:justify-end"}`}>
+                    <StepSnippet i={i} />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════ The home is the goal — emotional, image-led ═══════ */}
-      <section className="relative py-16 md:py-28 overflow-hidden">
-        <div className="container grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16 items-center">
-          <motion.div {...fadeUp} className="relative z-10">
-            <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground">
-              המשכנתא היא רק הדרך.<br />
-              <span className="text-gradient-gold">הבית הוא המטרה.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mt-6 max-w-md">
-              פחות טלפונים, פחות התרוצציות, פחות סימני שאלה.
-            </p>
-            <p className="text-lg font-medium text-foreground mt-2 max-w-md">
-              יותר זמן לדירה, למשפחה ולחיים שמסביב.
-            </p>
-          </motion.div>
-          <motion.div {...fadeUp} className="relative">
-            <div className="rounded-tl-[3rem] rounded-br-[3rem] rounded-tr-2xl rounded-bl-2xl overflow-hidden shadow-card-hover border border-border lg:-mt-8">
-              <img
-                src={homeBalcony}
-                alt="מרפסת שקטה עם נוף שכונה שקיעה"
-                width={1400} height={900}
-                loading="lazy"
-                className="w-full object-cover aspect-[3/2]"
-              />
-            </div>
-            <div className="absolute -bottom-5 right-6 lg:right-10 bg-card rounded-2xl shadow-card-hover border border-border px-5 py-3">
-              <p className="text-sm font-medium text-foreground">פחות סימני שאלה. יותר שקט נפשי.</p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══════ Command center — product-led ═══════ */}
-      <section className="py-16 md:py-24 bg-secondary/40">
+      {/* ═══════ D · Product reveal — "סוף סוף אני מבין מה קורה" ═══════ */}
+      <section className="py-20 md:py-28 bg-secondary/40">
         <div className="container max-w-6xl">
-          <motion.div {...fadeUp} className="text-center mb-12">
+          <motion.div {...fadeUp} className="mb-10 md:mb-14 max-w-xl">
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
               כל המשכנתא שלכם <span className="text-gradient-gold">במקום אחד.</span>
             </h2>
-            <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-              מרכז השליטה שלכם: איפה התיק עומד, מה ההחזר, ואילו הצעות על השולחן.
+            <p className="text-muted-foreground mt-3">
+              מרכז השליטה שלכם — בלי לחכות לטלפון, בלי לנחש.
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-[0.85fr_2fr_0.85fr] gap-8 lg:gap-10 items-center">
-            {/* annotations right */}
-            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-right order-1">
-              {[
-                { n: "01", t: "מסמכים פעם אחת", d: "מעלים פעם אחת, בלי לחזור על זה בכל בנק." },
-              ].map((a) => (
-                <div key={a.n}>
-                  <p className="font-ticker text-sm text-primary/60 tabular-nums" dir="ltr">{a.n}</p>
-                  <p className="font-bold text-foreground mt-1">{a.t}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{a.d}</p>
-                </div>
-              ))}
-            </motion.div>
-
-            <motion.div {...fadeUp} className="order-2 min-w-0">
+          <div className="grid lg:grid-cols-[2fr_1fr] gap-10 lg:gap-14 items-center">
+            {/* the product, large and off-center */}
+            <motion.div {...fadeUp} className="min-w-0">
               <CommandCenterMockup />
-              <p className="text-center text-xs text-muted-foreground mt-4">דוגמה להמחשה בלבד</p>
+              <p className="text-xs text-muted-foreground mt-4">דוגמה להמחשה בלבד</p>
             </motion.div>
 
-            {/* annotations left */}
-            <motion.div {...fadeUp} className="hidden lg:flex flex-col gap-12 text-left order-3">
+            {/* only 3 annotations */}
+            <motion.div {...fadeUp} className="flex flex-col gap-10">
               {[
-                { n: "02", t: "איפה התיק עומד", d: "סטטוס מעודכן והשלב הבא, בלי לחכות לטלפון." },
-                { n: "03", t: "הצעות בהשוואה", d: "מהבנקים הרלוונטיים — במקום אחד." },
+                { n: "01", t: "איפה התיק עומד", d: "סטטוס מעודכן והשלב הבא." },
+                { n: "02", t: "מה קורה עם ההחזר", d: "המספרים שלכם, תמיד מול העיניים." },
+                { n: "03", t: "מה הפעולה הבאה", d: "צעד אחד ברור, בלי סימני שאלה." },
               ].map((a) => (
-                <div key={a.n}>
-                  <p className="font-ticker text-sm text-primary/60 tabular-nums" dir="ltr">{a.n}</p>
-                  <p className="font-bold text-foreground mt-1">{a.t}</p>
+                <div key={a.n} className="border-r-2 border-primary/30 pr-5">
+                  <p className="font-ticker text-xs text-primary/70 tabular-nums" dir="ltr">{a.n}</p>
+                  <p className="font-bold text-lg text-foreground mt-1">{a.t}</p>
                   <p className="text-sm text-muted-foreground mt-1">{a.d}</p>
                 </div>
               ))}
             </motion.div>
-          </div>
-
-          {/* mobile annotations */}
-          <div className="grid sm:grid-cols-3 gap-6 mt-10 lg:hidden">
-            {[
-              { t: "איפה התיק עומד", d: "סטטוס מעודכן והשלב הבא." },
-              { t: "מסמכים פעם אחת", d: "בלי לחזור על זה בכל בנק." },
-              { t: "הצעות בהשוואה", d: "מהבנקים הרלוונטיים, במקום אחד." },
-            ].map((a) => (
-              <div key={a.t}>
-                <p className="font-bold text-foreground">{a.t}</p>
-                <p className="text-sm text-muted-foreground mt-1">{a.d}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -343,10 +312,10 @@ export default function HomePage() {
       {/* ═══════ Bank logos — real trust ═══════ */}
       <BankLogosSection />
 
-      {/* ═══════ Free check / calculators — playful tools ═══════ */}
-      <section className="py-16 md:py-24 bg-background">
+      {/* ═══════ E · Free tools — split, interactive ═══════ */}
+      <section className="py-20 md:py-28 bg-background">
         <div className="container max-w-5xl">
-          <motion.div {...fadeUp} className="text-center mb-12">
+          <motion.div {...fadeUp} className="mb-12 max-w-xl">
             <h2 className="text-3xl md:text-4xl font-extrabold text-foreground">
               רוצים להתחיל <span className="text-gradient-gold">בלי להתחייב?</span>
             </h2>
@@ -409,8 +378,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ Pricing — transparent, typographic ═══════ */}
-      <section className="py-16 md:py-24 bg-secondary/40">
+      {/* ═══════ F · Pricing — large typography, no card ═══════ */}
+      <section className="py-20 md:py-28 bg-secondary/40">
         <div className="container max-w-3xl text-center">
           <motion.div {...fadeUp}>
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">מחיר אחד. יודעים מראש.</h2>
@@ -442,7 +411,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════ Founder — personal, editorial ═══════ */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-20 md:py-28 bg-background">
         <div className="container max-w-5xl grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16 items-center">
           <motion.div {...fadeUp} className="order-2 lg:order-1">
             <div className="max-w-xs mx-auto lg:mx-0">
@@ -472,7 +441,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════ Trust without badges ═══════ */}
-      <section className="py-16 md:py-24 bg-secondary/40">
+      <section className="py-20 md:py-28 bg-secondary/40">
         <div className="container max-w-3xl">
           <motion.h2 {...fadeUp} className="text-2xl md:text-3xl font-extrabold text-foreground mb-6">בלי אותיות קטנות.</motion.h2>
           <div>
@@ -492,7 +461,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════ FAQ — light ═══════ */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-20 md:py-28 bg-background">
         <div className="container max-w-2xl">
           <motion.h2 {...fadeUp} className="text-2xl md:text-3xl font-extrabold text-center text-foreground mb-10">שאלות נפוצות</motion.h2>
           <motion.div {...fadeUp}>
@@ -508,7 +477,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ Final CTA — emotional ═══════ */}
+      {/* ═══════ Final CTA — the home is the reward ═══════ */}
       <section className="relative overflow-hidden">
         <img
           src={ctaLight}
@@ -518,11 +487,11 @@ export default function HomePage() {
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/20" />
-        <div className="container relative py-20 md:py-28">
+        <div className="container relative py-24 md:py-36">
           <motion.div {...fadeUp} className="max-w-xl">
             <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground">
-              יש בית שאתם רוצים להגיע אליו.<br />
-              <span className="text-gradient-gold">בואו נסדר את הדרך לשם.</span>
+              הבית הוא המטרה.<br />
+              <span className="text-gradient-gold">אנחנו מסדרים את הדרך.</span>
             </h2>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-8">
               <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full min-h-14 px-9 text-base">
