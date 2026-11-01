@@ -1,6 +1,7 @@
 // Track normalization: case_tracks rows, intake current_mortgage.tracks, tender offer tracks
 // and quick-check mixes all become the same NormalizedTrack shape.
 import { num, pmt, schedule } from "./amortization";
+import type { Loose } from "./amortization";
 
 export type TrackKind = "prime" | "fixed_unlinked" | "fixed_linked" | "variable_unlinked" | "variable_linked" | "fx" | "other";
 
@@ -63,7 +64,7 @@ const make = (kind: TrackKind, label: string, amount: unknown, rate: unknown, mo
 });
 
 /** Rows from the case_tracks table (refinance). */
-export function fromCaseTrackRows(rows: any[] | null | undefined): NormalizedTrack[] {
+export function fromCaseTrackRows(rows: Loose[] | null | undefined): NormalizedTrack[] {
   return (rows || []).map((r) => {
     const kind = classifyTrack(String(r.track_type || ""), { indexed: r.is_indexed });
     const months = num(r.remaining_months) || num(r.remaining_years) * 12;
@@ -72,7 +73,7 @@ export function fromCaseTrackRows(rows: any[] | null | undefined): NormalizedTra
 }
 
 /** intake_data.current_mortgage.tracks (refinance, before the normalized table existed). */
-export function fromIntakeTracks(tracks: any[] | null | undefined): NormalizedTrack[] {
+export function fromIntakeTracks(tracks: Loose[] | null | undefined): NormalizedTrack[] {
   return (tracks || []).map((t) => {
     const kind = classifyTrack(String(t.trackType || ""), { indexed: t.isIndexed });
     return make(kind, String(t.trackType || ""), t.principalBalance, t.interestRate, num(t.remainingYears) * 12, { exitDate: t.exitDate || undefined });
@@ -80,7 +81,7 @@ export function fromIntakeTracks(tracks: any[] | null | undefined): NormalizedTr
 }
 
 /** Tracks of a tender offer: {type, amount, months, rate, rate_type, indexation, first_payment}. */
-export function fromOfferTracks(tracks: any[] | null | undefined): NormalizedTrack[] {
+export function fromOfferTracks(tracks: Loose[] | null | undefined): NormalizedTrack[] {
   return (tracks || []).map((t) => {
     const kind = classifyTrack(String(t.type || ""), { indexation: t.indexation, rateType: t.rate_type });
     return make(kind, String(t.type || ""), t.amount, t.rate, t.months, { firstPayment: num(t.first_payment) || undefined });
@@ -88,7 +89,7 @@ export function fromOfferTracks(tracks: any[] | null | undefined): NormalizedTra
 }
 
 /** Quick-check mix tracks ({key, amount, years, rate}); rate there already includes CPI for linked tracks. */
-export function fromMixTracks(tracks: any[] | null | undefined, cpi = 0): NormalizedTrack[] {
+export function fromMixTracks(tracks: Loose[] | null | undefined, cpi = 0): NormalizedTrack[] {
   return (tracks || []).map((t) => {
     const kind = classifyTrack(String(t.key || ""));
     const rate = kind === "fixed_linked" ? Math.max(num(t.rate) - num(cpi), 0) : num(t.rate);

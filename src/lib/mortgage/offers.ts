@@ -1,5 +1,6 @@
 // Bank offer comparison. No single "best" label; offers earn categories instead.
 import { num } from "./amortization";
+import type { Loose } from "./amortization";
 import { fromOfferTracks, projectTracks, summarizeTracks, type NormalizedTrack, type TrackSummary } from "./tracks";
 import { simulate } from "./scenarios";
 
@@ -9,7 +10,7 @@ export const STRESS_DELTA = 2;
 export interface OfferInput {
   id: string;
   bank: string;
-  tracks: any[];
+  tracks: Loose[];
   first_payment?: number | null;
   total_amount?: number | null;
   extra_costs?: number | null;

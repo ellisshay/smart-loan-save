@@ -23,8 +23,8 @@ describe("amortization", () => {
     expect(pmt(120000, 0, 120)).toBe(1000);
     expect(pmt(0, 5, 300)).toBe(0);
     expect(pmt(100000, 5, 0)).toBe(0);
-    expect(pmt(NaN as any, 5, 300)).toBe(0);
-    expect(pmt("abc" as any, 5, 300)).toBe(0);
+    expect(pmt(NaN, 5, 300)).toBe(0);
+    expect(pmt("abc" as unknown as number, 5, 300)).toBe(0);
     expect(pmt(100000, -3, 120)).toBeCloseTo(100000 / 120);
     expect(num("1,500,000")).toBe(1_500_000);
     expect(num(Infinity)).toBe(0);

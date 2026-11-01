@@ -23,7 +23,7 @@ export default function DashboardTender() {
   const load = async () => {
     if (!caseId) { setLoading(false); return; }
     const [{ data }, { data: r }] = await Promise.all([
-      (supabase as any).rpc("get_client_tender", { _case_id: caseId }),
+      (supabase as unknown as { rpc: (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown }> }).rpc("get_client_tender", { _case_id: caseId }),
       supabase.from("market_rates").select("cpi_annual").order("updated_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
     setCpi(Number((r as { cpi_annual?: number } | null)?.cpi_annual) || 0);

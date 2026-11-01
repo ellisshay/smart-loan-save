@@ -1,5 +1,9 @@
 // Pure amortization math (Spitzer / annuity). All functions are NaN/Infinity safe.
 
+/** Untyped JSON from the database (intake_data, tender payloads). Values are always coerced with num()/String(). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Loose = any;
+
 /** Coerces any input to a finite, non-negative number (0 otherwise). */
 export const num = (v: unknown): number => {
   const n = typeof v === "string" ? Number(v.replace(/,/g, "")) : Number(v);

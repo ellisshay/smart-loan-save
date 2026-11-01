@@ -5,6 +5,7 @@ import { levelOf, isDocSettled } from "@/lib/docValidation";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI, NEW_CASE_STEPS, REFI_CASE_STEPS } from "@/types/intake";
 import { buildMixes, type Rates } from "@/lib/quickCheck";
 import { num, pmt } from "./amortization";
+import type { Loose } from "./amortization";
 import { fromCaseTrackRows, fromIntakeTracks, fromMixTracks, fromOfferTracks, summarizeTracks, type NormalizedTrack, type TrackSummary } from "./tracks";
 import { healthScore, type HealthResult } from "./health";
 import { caseProgress, type ProgressStep } from "./caseProgress";
@@ -13,14 +14,14 @@ import { REASONABLE_RATIO } from "./affordability";
 
 export interface RawCaseData {
   caseType: "new" | "refi";
-  intakeData: Record<string, any>;
+  intakeData: Record<string, Loose>;
   intakeComplete: boolean;
   status: string;
   paymentSucceeded: boolean;
-  caseTrackRows?: any[] | null;
+  caseTrackRows?: Loose[] | null;
   rates?: (Rates & { updated_at?: string | null }) | null;
-  tender?: any | null;                 // get_client_tender payload
-  documents?: { doc_type: string; ai_extracted_data: any }[] | null;
+  tender?: Loose | null;                 // get_client_tender payload
+  documents?: { doc_type: string; ai_extracted_data: Loose }[] | null;
   slaDueAt?: string | null;
 }
 
@@ -61,7 +62,7 @@ export interface MortgageModel {
   missingDocs: number;
   docsNeedUpdate: number;
   rateChangeDate: string | null;
-  offers: { id: string; bank: string; tracks: any[]; first_payment?: number; total_amount?: number; extra_costs?: number; kind?: string; valid_until?: string; advisor_explanation?: string }[];
+  offers: { id: string; bank: string; tracks: Loose[]; first_payment?: number; total_amount?: number; extra_costs?: number; kind?: string; valid_until?: string; advisor_explanation?: string }[];
 }
 
 const STEP_HREF: Record<string, string> = {
@@ -73,17 +74,17 @@ const STEP_HREF: Record<string, string> = {
 const positiveOrNull = (v: unknown) => (num(v) > 0 ? num(v) : null);
 
 /** Latest client-visible offer per bank from the tender payload. */
-export function latestOffers(tender: any): MortgageModel["offers"] {
-  const banks: any[] = Array.isArray(tender?.banks) ? tender.banks : [];
+export function latestOffers(tender: Loose): MortgageModel["offers"] {
+  const banks: Loose[] = Array.isArray(tender?.banks) ? tender.banks : [];
   return banks.flatMap((b) => {
-    const offers: any[] = Array.isArray(b?.offers) ? b.offers : [];
+    const offers: Loose[] = Array.isArray(b?.offers) ? b.offers : [];
     if (!offers.length) return [];
     const latest = [...offers].sort((a, c) => num(c.version) - num(a.version))[0];
     return [{ ...latest, bank: b.bank_name || `בנק ${b.slot ?? ""}`.trim() }];
   });
 }
 
-export function documentRows(caseType: "new" | "refi", intake: Record<string, any>, documents: RawCaseData["documents"]): DocRow[] {
+export function documentRows(caseType: "new" | "refi", intake: Record<string, Loose>, documents: RawCaseData["documents"]): DocRow[] {
   const list = caseType === "refi" ? REQUIRED_DOCS_REFI : REQUIRED_DOCS_NEW;
   const deferred: string[] = Array.isArray(intake?.deferred_docs) ? intake.deferred_docs : [];
   const docs = documents || [];

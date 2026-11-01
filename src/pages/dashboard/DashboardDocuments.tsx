@@ -344,8 +344,8 @@ export default function DashboardDocuments() {
 
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         {!paymentSucceeded && (
-          <Button variant="cta" size="lg" onClick={() => navigate(`/dashboard/payment?caseId=${caseId}`)}>
-            <DollarSign size={18} /> לתשלום — את המסמכים אשלח במועד מאוחר יותר
+          <Button variant="cta" size="lg" className="h-auto min-h-12 py-3 whitespace-normal text-center leading-snug" onClick={() => navigate(`/dashboard/payment?caseId=${caseId}`)}>
+            <DollarSign size={18} className="shrink-0" /> לתשלום — את המסמכים אשלח במועד מאוחר יותר
           </Button>
         )}
         <Button variant="outline" size="lg" onClick={() => navigate(`/dashboard?caseId=${caseId}`)}>חזרה לאזור האישי</Button>
