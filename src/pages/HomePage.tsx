@@ -14,7 +14,7 @@ import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
 import SmartAssessment from "@/components/home/SmartAssessment";
 import { QuizData } from "@/types/quiz";
-import heroHouse from "@/assets/hero-house.jpg";
+import heroHouse from "@/assets/hero-house.webp";
 
 // ─── Hero facts (all verified: fixed price, digital EasyMorte process, no unnecessary meetings) ───
 const heroFacts = [

@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import leumiLogo from "@/assets/banks/leumi.png";
-import hapoalimLogo from "@/assets/banks/hapoalim.png";
-import discountLogo from "@/assets/banks/discount.png";
-import mizrahiLogo from "@/assets/banks/mizrahi.png";
-import beinleumiLogo from "@/assets/banks/beinleumi.png";
+import leumiLogo from "@/assets/banks/leumi.webp";
+import hapoalimLogo from "@/assets/banks/hapoalim.webp";
+import discountLogo from "@/assets/banks/discount.webp";
+import mizrahiLogo from "@/assets/banks/mizrahi.webp";
+import beinleumiLogo from "@/assets/banks/beinleumi.webp";
 
 const banks = [
   { name: "בנק הפועלים", logo: hapoalimLogo },

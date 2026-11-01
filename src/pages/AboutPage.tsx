@@ -7,7 +7,7 @@ import {
   TrendingDown,
   Clock,
 } from "lucide-react";
-import founderImage from "@/assets/shay-ellis-founder.png";
+import founderImage from "@/assets/shay-ellis-founder.webp";
 
 const values = [
   {
