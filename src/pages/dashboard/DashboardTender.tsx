@@ -143,16 +143,16 @@ export default function DashboardTender() {
           {done ? (
             <>
               <DialogHeader><DialogTitle>{dialog?.mode === "proceed" ? "הבקשה התקבלה" : "השאלה נשלחה"}</DialogTitle>
-                <DialogDescription>{dialog?.mode === "proceed" ? "קיבלנו את הבקשה ונחזור אליכם לאישור הצעדים הבאים. שום דבר לא נחתם עדיין." : "היועץ שלכם יחזור אליכם בהקדם."}</DialogDescription></DialogHeader>
+                <DialogDescription>{dialog?.mode === "proceed" ? "קיבלנו את הבקשה ונחזור אליכם לאישור הצעדים הבאים. שום דבר לא נחתם עדיין." : "נחזור אליכם בהקדם."}</DialogDescription></DialogHeader>
               <DialogFooter><Button onClick={() => setDialog(null)}>סגירה</Button></DialogFooter>
             </>
           ) : (
             <>
               <DialogHeader>
                 <DialogTitle>{dialog?.mode === "proceed" ? `להתקדם עם ההצעה של ${dialog?.bank}?` : `שאלה על ההצעה של ${dialog?.bank}`}</DialogTitle>
-                <DialogDescription>{dialog?.mode === "proceed" ? "זו אינה חתימה ואינה התחייבות. נאשר איתכם את הפרטים לפני כל פעולה מול הבנק." : "כתבו את השאלה והיועץ יחזור אליכם."}</DialogDescription>
+                <DialogDescription>{dialog?.mode === "proceed" ? "זו אינה חתימה ואינה התחייבות. נאשר איתכם את הפרטים לפני כל פעולה מול הבנק." : "כתבו את השאלה ונחזור אליכם."}</DialogDescription>
               </DialogHeader>
-              <Textarea rows={3} placeholder={dialog?.mode === "proceed" ? "הערה ליועץ (לא חובה)" : "השאלה שלכם"} value={msg} onChange={(e) => setMsg(e.target.value)} />
+              <Textarea rows={3} placeholder={dialog?.mode === "proceed" ? "הערה עבורנו (לא חובה)" : "השאלה שלכם"} value={msg} onChange={(e) => setMsg(e.target.value)} />
               <DialogFooter className="gap-2">
                 <Button variant="outline" onClick={() => setDialog(null)}>ביטול</Button>
                 <Button disabled={sending || (dialog?.mode === "question" && !msg.trim())} onClick={submit}>{sending ? <Loader2 className="animate-spin" size={16} /> : dialog?.mode === "proceed" ? "כן, אני רוצה להתקדם" : "שליחה"}</Button>

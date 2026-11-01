@@ -27,8 +27,7 @@ const FORBIDDEN: { re: RegExp; why: string; allow?: string[] }[] = [
   { re: /חיסכון ממוצע|חוסכים בממוצע|בממוצע ₪/, why: "unsupported savings statistic" },
   { re: /הצעות מכל הבנקים|כל הבנקים המובילים/, why: "use 'עד 3 בנקים רלוונטיים'" },
   { re: /100% דיגיטלי|כל תהליך המשכנתא.*דיגיטלי|לא צריך להגיע לפגישה|אף פעם לא צריך להגיע/, why: "the bank may require ID or signing" },
-  // DashboardPayment.tsx is excluded by the owner (only one approved copy line may change there); tracked separately.
-  { re: /צוות (המומחים|היועצים|יועצי)|עשרות מומחים/, why: "no verified advisor team", allow: ["pages/dashboard/DashboardPayment.tsx"] },
+  { re: /צוות (המומחים|היועצים|יועצי)|עשרות מומחים|היועץ שלכם|היועץ שלך/, why: "no verified advisor team" },
   { re: /24\/7|זמינים תמיד|מענה בכל שעה/, why: "no documented support hours" },
   { re: /נבנה על ידי|About Digital/, why: "no third-party credits on EasyMorte" },
   { re: /תשלום רק אחרי שהמסמכים/, why: "payment can happen before documents" },

@@ -206,7 +206,7 @@ export default function DashboardPayment() {
         </div>
         <h2 className="font-display text-2xl font-bold text-foreground">טיפול מקצועי בתוך עד 72 שעות, אחרי תיק מלא ותשלום</h2>
         <p className="text-sm text-muted-foreground mt-2">
-          צוות המומחים שלנו יבנה עבורך תמהיל אופטימלי
+          נבדוק את התיק ונבנה עבורכם תמהילים מותאמים
         </p>
       </motion.div>
 
