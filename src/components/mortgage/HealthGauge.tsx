@@ -4,9 +4,11 @@ import { CHART, EmptyState, EstimateNote } from "./primitives";
 const BAND_COLOR = { good: CHART.teal, check: CHART.gold, review: "hsl(15 70% 50%)" } as const;
 
 /** "מדד מצב המשכנתא": circular gauge + plain-Hebrew reasons. Not a credit score. */
-export default function HealthGauge({ health, missingHref }: { health: HealthResult | null; missingHref?: string }) {
+export default function HealthGauge({ health, missingHref, emptyText, emptyCta, estimateNote }: {
+  health: HealthResult | null; missingHref?: string; emptyText?: string; emptyCta?: string; estimateNote?: string;
+}) {
   if (!health) {
-    return <EmptyState text="חסרים נתונים כדי להציג את מדד מצב המשכנתא. השלימו הכנסה, שווי נכס וסכום משכנתא." cta="להשלמת הפרטים" href={missingHref} />;
+    return <EmptyState text={emptyText ?? "חסרים נתונים כדי להציג את מדד מצב המשכנתא. השלימו הכנסה, שווי נכס וסכום משכנתא."} cta={emptyCta ?? "להשלמת הפרטים"} href={missingHref} />;
   }
   const r = 52, c = 2 * Math.PI * r, arc = c * 0.75;
   const filled = (health.score / 100) * arc;
@@ -30,7 +32,7 @@ export default function HealthGauge({ health, missingHref }: { health: HealthRes
         </ul>
         <EstimateNote>
           הציון מבוסס על הנתונים הזמינים כרגע ({health.factors.map((f) => f.label).join(", ")}).
-          {health.missing.length > 0 && ` לא נכללו: ${health.missing.join(", ")}.`} זה לא ציון אשראי ולא אישור בנקאי.
+          {health.missing.length > 0 && ` לא נכללו: ${health.missing.join(", ")}.`}{estimateNote ? ` ${estimateNote}` : ""} זה לא ציון אשראי, לא ציון בנקאי ולא סיכוי לאישור.
         </EstimateNote>
       </div>
     </div>

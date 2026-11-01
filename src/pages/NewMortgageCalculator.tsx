@@ -3,7 +3,7 @@ import { CalculatorShell, NumberField, BigResult, ResultGrid } from "@/component
 import { BalanceChart } from "@/components/mortgage/charts";
 import { nis, pct } from "@/components/mortgage/primitives";
 import { schedule } from "@/lib/mortgage/amortization";
-import { REASONABLE_RATIO, LTV_CAP } from "@/lib/mortgage/affordability";
+import { REASONABLE_RATIO, LTV_CAP, dtiBand } from "@/lib/mortgage/affordability";
 import { useMarketRates } from "@/hooks/useMarketRates";
 
 export default function NewMortgageCalculator() {
@@ -45,7 +45,7 @@ export default function NewMortgageCalculator() {
           placeholder={price ? Math.max(0, (price || 0) - (equity || 0)).toLocaleString("en-US") : ""} hint="ריק = מחיר הנכס פחות ההון העצמי" />
         <NumberField label="תקופה" suffix="שנים" value={yrs} onChange={setYrs} min={1} max={30} />
         <NumberField label="ריבית ממוצעת משוערת" suffix="%" value={rate} onChange={setRate} decimals max={15}
-          hint={reference ? `ברירת מחדל: ממוצע תמהיל מאוזן לפי ריביות השוק (${reference}%)` : "ערך התחלתי לדוגמה. אפשר לשנות"} />
+          hint={reference ? `ברירת מחדל: ממוצע ריביות השוק במסלולים לא צמודים (${reference}%)` : "ערך התחלתי לדוגמה. אפשר לשנות"} />
         <NumberField label="הכנסה חודשית נטו של משק הבית" suffix="₪" value={income} onChange={setIncome} optional max={10_000_000} />
       </>}
       result={r ? <>
@@ -53,9 +53,9 @@ export default function NewMortgageCalculator() {
         <ResultGrid items={[
           { label: "אחוז מימון", value: pct(r.ltv), hint: r.ltv !== null && r.ltv > LTV_CAP.single ? "מעל 75%, המימון המרבי לדירה יחידה" : "מתוך מחיר הנכס" },
           { label: "סך ההחזרים", value: nis(r.s.totalPaid) },
-          { label: "עלות הריבית", value: nis(r.s.totalInterest), hint: "הערכה, ללא הצמדה למדד" },
+          { label: "עלות הריבית", value: nis(r.s.totalInterest), hint: "הערכה בריבית אחת לא צמודה" },
           r.dti !== null
-            ? { label: "החזר מתוך ההכנסה", value: pct(r.dti), hint: r.dti > 0.4 ? "גבוה יחסית" : r.dti <= 0.33 ? "בטווח נוח" : "אפשרי, עם פחות מרווח" }
+            ? { label: "החזר מתוך ההכנסה", value: pct(r.dti), hint: dtiBand(r.dti)?.short }
             : { label: "הכנסה נדרשת", value: `${nis(r.incomeLow)}–${nis(r.incomeHigh)}`, hint: "כדי שההחזר יהיה 25%–33% מההכנסה" },
         ]} />
       </> : <p className="text-muted-foreground">הזינו מחיר נכס, הון עצמי ותקופה כדי לראות את התוצאה.</p>}

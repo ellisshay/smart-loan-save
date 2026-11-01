@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { pmt, principalFromPayment, monthsToRepay, schedule, num } from "./amortization";
-import { classifyTrack, fromOfferTracks, fromCaseTrackRows, summarizeTracks, projectTracks, type NormalizedTrack } from "./tracks";
+import { pmt, principalFromPayment, monthsToRepay, schedule, num, monthlyIndexFactor } from "./amortization";
+import { classifyTrack, fromOfferTracks, fromCaseTrackRows, fromMixTracks, summarizeTracks, projectTracks, type NormalizedTrack } from "./tracks";
 import { healthScore } from "./health";
 import { simulate, refinanceCompare } from "./scenarios";
-import { affordability, repaymentRatio } from "./affordability";
+import { affordability, repaymentRatio, dtiBand } from "./affordability";
 import { compareOffers, explainDifferences } from "./offers";
 import { caseProgress } from "./caseProgress";
 import { nextAction } from "./nextAction";
-import { buildMortgageModel, documentRows } from "./model";
+import { buildMortgageModel, documentRows, balancedByComposition } from "./model";
 import { firstMonthSplit } from "./tracks";
 import { marketReferenceRate } from "./affordability";
 
@@ -163,24 +163,42 @@ describe("scenarios", () => {
 });
 
 describe("affordability", () => {
-  it("separates reasonable range from possible limit", () => {
-    const a = affordability({ netIncome: 20000, obligations: 1000, equity: 600000, years: 25, rate: 4.8 })!;
-    expect(a.reasonable.paymentLow).toBe(4000);
-    expect(a.reasonable.paymentHigh).toBeCloseTo(5600);
-    expect(a.possible.payment).toBe(9000);
-    expect(a.possible.loan).toBeGreaterThan(a.reasonable.loanHigh);
+  it("returns conservative, reasonable, caution and regulatory points in order", () => {
+    const a = affordability({ netIncome: 20000, obligations: 1000, equity: 2_000_000, years: 25, rate: 4.8 })!;
+    expect(a.conservative.payment).toBe(4000);           // 25% of income minus obligations
+    expect(a.reasonable.from.payment).toBe(4000);
+    expect(a.reasonable.to.payment).toBeCloseTo(5600);   // 33%
+    expect(a.caution.to.payment).toBeCloseTo(7000);      // 40%
+    expect(a.regulatory.payment).toBe(9000);             // 50%, ceiling only
+    expect(a.reasonable.to.loan).toBeGreaterThan(a.reasonable.from.loan);
+    expect(a.caution.to.loan).toBeGreaterThan(a.reasonable.to.loan);
+    expect(a.regulatory.loan).toBeGreaterThan(a.caution.to.loan);
+  });
+  it("caps every point by the LTV limit for the given equity", () => {
+    const a = affordability({ netIncome: 60000, obligations: 0, equity: 600000, years: 25, rate: 4.8 })!;
     // single home: LTV 75% -> equity 600k caps the loan at 1.8M
-    expect(a.possible.loan).toBeLessThanOrEqual(1_800_000 + 1);
+    expect(a.regulatory.loan).toBeLessThanOrEqual(1_800_000 + 1);
+    expect(a.equityLimited).toBe(true);
   });
   it("returns null without income and floors negative payments", () => {
     expect(affordability({ netIncome: 0, obligations: 0, equity: 0, years: 25, rate: 5 })).toBeNull();
     const a = affordability({ netIncome: 5000, obligations: 4000, equity: 0, years: 25, rate: 5 })!;
-    expect(a.reasonable.paymentHigh).toBe(0);
-    expect(a.reasonable.loanHigh).toBe(0);
+    expect(a.reasonable.to.payment).toBe(0);
+    expect(a.reasonable.to.loan).toBe(0);
   });
   it("repayment ratio", () => {
     expect(repaymentRatio(5000, 0)).toBeNull();
     expect(repaymentRatio(5000, 20000, 1000)).toBeCloseTo(0.3);
+  });
+  it("dtiBand: comfortable <=33%, caution <=40%, high-risk <=50%, over the ceiling above", () => {
+    expect(dtiBand(0.2)!.key).toBe("comfortable");
+    expect(dtiBand(0.33)!.key).toBe("comfortable");
+    expect(dtiBand(0.36)!.key).toBe("caution");
+    expect(dtiBand(0.45)!.key).toBe("high");
+    expect(dtiBand(0.45)!.text).toMatch(/בנק ישראל/);
+    expect(dtiBand(0.55)!.key).toBe("over");
+    expect(dtiBand(null)).toBeNull();
+    expect(dtiBand(NaN)).toBeNull();
   });
 });
 
@@ -292,21 +310,146 @@ describe("model", () => {
 });
 
 describe("first month split", () => {
-  it("sums to the estimated payment", () => {
+  it("sums to the modelled first payment; linkage uplift is not interest", () => {
     const t = [track({ amount: 600000, rate: 4, months: 300 }), track({ amount: 400000, rate: 3, months: 300, kind: "fixed_linked", linked: true })];
     const s = firstMonthSplit(t, 2.5);
     const total = summarizeTracks(t, 2.5)!.monthly;
     expect(s.principal + s.interest + s.index).toBeCloseTo(total, 4);
-    expect(s.index).toBeCloseTo((400000 * 2.5) / 1200, 4);
+    const f = monthlyIndexFactor(2.5);
+    // uplift = linked payment indexed once minus the unindexed payment
+    expect(s.index).toBeCloseTo(pmt(400000, 3, 300) * (f - 1), 4);
+    // interest: unlinked on principal, linked on the indexed principal, at the real rate
+    expect(s.interest).toBeCloseTo((600000 * 4) / 1200 + (400000 * f * 3) / 1200, 4);
     expect(firstMonthSplit([], 2)).toEqual({ principal: 0, interest: 0, index: 0 });
   });
 });
 
 describe("market reference rate", () => {
-  it("is a weighted average within the range of track rates, or null", () => {
-    const r = marketReferenceRate({ prime: 5.5, fixed_not_linked: 4.9, fixed_linked: 3.3, variable_5: 4.6, cpi_annual: 2.6 })!;
-    expect(r).toBeGreaterThan(4.6);
-    expect(r).toBeLessThan(5.9);
+  it("averages unlinked market rates only (no CPI blended into a rate)", () => {
+    const rates = { prime: 5.5, fixed_not_linked: 4.9, fixed_linked: 3.3, variable_5: 4.6, cpi_annual: 2.6 };
+    expect(marketReferenceRate(rates)).toBeCloseTo((5.5 + 4.9 + 4.6) / 3, 2);
+    // changing CPI or the linked rate does not move the reference
+    expect(marketReferenceRate({ ...rates, cpi_annual: 6, fixed_linked: 1 })).toBe(marketReferenceRate(rates));
     expect(marketReferenceRate(null)).toBeNull();
+  });
+});
+
+describe("CPI-linked tracks: indexation modelled separately from interest", () => {
+  const P = 500_000, RATE = 3, N = 240, CPI = 3;
+  it("unlinked schedule is unchanged by the CPI parameter being 0", () => {
+    const a = schedule(P, 4, N), b = schedule(P, 4, N, 0, 0);
+    expect(b.monthly).toBeCloseTo(a.monthly, 8);
+    expect(b.totalIndexation).toBe(0);
+    expect(b.lastMonthly).toBeCloseTo(b.monthly, 6); // fixed Spitzer payment
+  });
+  it("total paid = original principal + interest + indexation, and the loan ends at zero", () => {
+    const s = schedule(P, RATE, N, 0, CPI);
+    expect(s.months).toBe(N);
+    expect(s.points[s.points.length - 1].balance).toBeLessThan(1);
+    expect(s.totalIndexation).toBeGreaterThan(0);
+    expect(s.totalPaid).toBeCloseTo(P + s.totalInterest + s.totalIndexation, 2);
+  });
+  it("first month: principal is indexed first, interest is charged on the indexed principal at the real rate", () => {
+    const s = schedule(P, RATE, N, 0, CPI);
+    const f = monthlyIndexFactor(CPI);
+    expect(f).toBeCloseTo(Math.pow(1.03, 1 / 12), 12);
+    expect(s.monthly).toBeCloseTo(pmt(P, RATE, N) * f, 6);
+    expect(s.points[1].indexationPaid).toBeGreaterThan(0);
+  });
+  it("payment grows with CPI in nominal terms but is constant in real terms", () => {
+    const s = schedule(P, RATE, N, 0, CPI);
+    const f = monthlyIndexFactor(CPI);
+    expect(s.lastMonthly).toBeGreaterThan(s.monthly * 1.5);
+    expect(s.lastMonthly / Math.pow(f, N)).toBeCloseTo(pmt(P, RATE, N), 4);
+  });
+  it("is NOT the same as adding CPI to the interest rate", () => {
+    const linked = schedule(P, RATE, N, 0, CPI);
+    const naive = schedule(P, RATE + CPI, N);
+    // naive model books all of it as interest and keeps the payment flat
+    expect(linked.totalInterest).toBeLessThan(naive.totalInterest);
+    expect(Math.abs(linked.monthly - naive.monthly)).toBeGreaterThan(100);
+    expect(naive.totalIndexation).toBe(0);
+  });
+  it("early-year nominal balance can rise when indexation exceeds the principal repaid", () => {
+    const s = schedule(1_000_000, 1, 360, 0, 4);
+    expect(s.points[1].balance).toBeGreaterThan(1_000_000);
+  });
+  it("track summary and projection keep interest and indexation apart; unlinked tracks never index", () => {
+    const tr = [track({ amount: 300000, rate: 5, months: 240 }), track({ amount: 200000, rate: 3, months: 240, kind: "fixed_linked", linked: true })];
+    const p = projectTracks(tr, 2.5);
+    const linkedOnly = schedule(200000, 3, 240, 0, 2.5);
+    expect(p.totalIndexation).toBeCloseTo(linkedOnly.totalIndexation, 4);
+    expect(p.totalCost).toBeCloseTo(500000 + p.totalInterest + p.totalIndexation, 2);
+    expect(projectTracks([track({ amount: 300000 })], 5).totalIndexation).toBe(0);
+  });
+  it("scenarios: rate shock leaves fixed linked tracks alone; extra payment cuts indexation too; refi removes indexation", () => {
+    const linkedFixed = [track({ amount: 400000, rate: 3, months: 240, kind: "fixed_linked", linked: true })];
+    expect(simulate(linkedFixed, 3, { kind: "rate", delta: 1 }).monthlyDiff).toBeCloseTo(0, 6);
+    const extra = simulate(linkedFixed, 3, { kind: "extra", amount: 1000 });
+    expect(extra.indexationDiff).toBeLessThan(0);
+    expect(extra.costDiff).toBeCloseTo(extra.interestDiff + extra.indexationDiff, 4);
+    const base = simulate(linkedFixed, 3, { kind: "base" });
+    const refi = simulate(linkedFixed, 3, { kind: "refi", rate: 4.5, costs: 0 });
+    expect(refi.totalIndexation).toBe(0);
+    expect(refi.indexationDiff).toBeCloseTo(-base.totalIndexation, 4);
+  });
+  it("offers: linked offers carry indexation inside total cost, shown separately", () => {
+    const off = compareOffers([
+      { id: "l", bank: "צמודה", tracks: [{ type: "קבועה צמודה", amount: 1_000_000, months: 300, rate: 3.2, indexation: "צמוד מדד" }] },
+      { id: "u", bank: "לא צמודה", tracks: [{ type: "קבועה לא צמודה", amount: 1_000_000, months: 300, rate: 4.9 }] },
+    ], 2.6);
+    const l = off.find((o) => o.id === "l")!, u = off.find((o) => o.id === "u")!;
+    expect(l.totalIndexation).toBeGreaterThan(0);
+    expect(u.totalIndexation).toBe(0);
+    expect(l.totalCost).toBeCloseTo(1_000_000 + l.totalInterest + l.totalIndexation, 2);
+  });
+  it("example mixes from the quick check are converted back to real rates before indexing", () => {
+    const t = fromMixTracks([{ key: "fixed_linked", amount: 100000, years: 20, rate: 3.3 + 2.6 }], 2.6);
+    expect(t[0].rate).toBeCloseTo(3.3, 8);
+    expect(t[0].linked).toBe(true);
+  });
+  it("stays finite for zero / huge values with CPI", () => {
+    expect(schedule(0, 3, 240, 0, 3).totalIndexation).toBe(0);
+    const big = schedule(1e10, 3, 360, 0, 10);
+    expect([big.monthly, big.totalInterest, big.totalIndexation].every(Number.isFinite)).toBe(true);
+  });
+});
+
+describe("real-data audit rules", () => {
+  const rates = { prime: 5.5, fixed_not_linked: 4.9, fixed_linked: 3.3, variable_5: 4.6, cpi_annual: 2.6 };
+  it("example mix is picked by composition (middle variable share), not by the cost label", () => {
+    const mixes = [
+      { tracks: [{ key: "prime", amount: 500 }, { key: "variable_5", amount: 300 }, { key: "fixed_not_linked", amount: 200 }] }, // 80%
+      { tracks: [{ key: "fixed_not_linked", amount: 340 }, { key: "prime", amount: 330 }, { key: "variable_5", amount: 330 }] }, // 66%
+      { tracks: [{ key: "fixed_not_linked", amount: 500 }, { key: "fixed_linked", amount: 200 }, { key: "prime", amount: 300 }] }, // 30%
+    ];
+    expect(balancedByComposition(mixes).map((t: { key: string }) => t.key)).toEqual(["fixed_not_linked", "prime", "variable_5"]);
+    expect(balancedByComposition([])).toEqual([]);
+  });
+  it("never substitutes an example mix when real offers exist; shows the offers' payment range instead", () => {
+    const m = buildMortgageModel({
+      caseType: "new", status: "BankOfferReceived", intakeComplete: true, paymentSucceeded: true, rates,
+      intakeData: { property: { purchasePrice: 2400000, ownEquity: 800000, requestedMortgage: 1600000 }, income: { monthlyNetIncome: 30000 } },
+      tender: { stage: "offers", selected_offer_id: null, banks: [
+        { slot: 1, bank_name: "א", offers: [{ id: "o1", version: 1, first_payment: 8600, tracks: [{ type: "קבועה לא צמודה", amount: 1600000, months: 300, rate: 4.8 }] }] },
+        { slot: 2, bank_name: "ב", offers: [{ id: "o2", version: 1, first_payment: 9400, tracks: [{ type: "פריים", amount: 1600000, months: 300, rate: 5.4 }] }] },
+      ] },
+    });
+    expect(m.trackSource).toBeNull();
+    expect(m.tracks).toEqual([]);
+    expect(m.monthlyPayment).toBeNull();
+    expect(m.offerPaymentRange).toEqual({ min: 8600, max: 9400 });
+    expect(m.dtiRange!.min).toBeCloseTo(8600 / 30000);
+  });
+  it("unknown obligations are flagged instead of shown as a real 0", () => {
+    const m = buildMortgageModel({ caseType: "new", status: "Draft", intakeComplete: false, paymentSucceeded: false, intakeData: { property: { purchasePrice: 1900000 } } });
+    expect(m.obligationsKnown).toBe(false);
+    expect(m.ltv).toBeNull();
+    expect(m.propertyValue).toBe(1900000);
+  });
+  it("presented offers mean the rate negotiation step is done; choosing is the action", () => {
+    const s = caseProgress({ status: "BankOfferReceived", intakeStarted: true, intakeComplete: true, paymentSucceeded: true, missingDocs: 0, docsNeedUpdate: 0, tenderStage: "offers", offersCount: 3, selectedOffer: false });
+    expect(s.find((x) => x.key === "negotiation")!.state).toBe("done");
+    expect(s.find((x) => x.state !== "done")!.key).toBe("choose");
   });
 });

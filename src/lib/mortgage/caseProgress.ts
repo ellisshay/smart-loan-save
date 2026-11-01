@@ -66,7 +66,9 @@ export function caseProgress(i: ProgressInput): ProgressStep[] {
   push("offers", "הצעות התקבלו", i.offersCount > 0 ? "done" : "waiting",
     i.offersCount > 0 ? `התקבלו ${i.offersCount} הצעות.` : "נעדכן ברגע שתגיע הצעה.");
 
-  const negDone = st >= 6 || i.selectedOffer || closedWon;
+  // In the tender flow the rate negotiation ("מכרז ריביות") happens before offers are presented,
+  // so presented offers (stage "offers") mean negotiation is done.
+  const negDone = st >= 5 || i.selectedOffer || closedWon;
   push("negotiation", "משא ומתן", negDone ? "done" : i.tenderStage === "negotiation" || s === 9 ? "active" : "waiting",
     negDone ? "שלב המשא ומתן הסתיים." : i.tenderStage === "negotiation" || s === 9 ? "אנחנו עובדים מול הבנקים על שיפור התנאים." : "מתחיל כשמגיעות הצעות.");
 

@@ -1,5 +1,8 @@
-// "מדד מצב המשכנתא": a product heuristic (0-100) describing how efficient / resilient the
-// mortgage looks from the data we have. It is NOT a bank approval score or a credit score.
+// "מדד מצב המשכנתא": EasyMorte's internal product heuristic (0-100) describing how efficient /
+// resilient the mortgage looks from the data we have. It is NOT a credit score, a bank score or an
+// approval probability, and must never be labelled as one.
+// NOTE: the weights and thresholds below are an internal heuristic that still needs validation
+// against real cases before they are tuned. Do not change them without that validation.
 
 export interface HealthInput {
   dti?: number | null;            // (mortgage payment + obligations) / net income, 0..1
@@ -38,9 +41,9 @@ export function healthScore(input: HealthInput): HealthResult | null {
 
   add("dti", "יחס החזר להכנסה", 25, input.dti, (v) =>
     v <= 0.3 ? [100, `ההחזר החודשי הוא כ-${pct(v)} מההכנסה, טווח נוח.`]
-    : v <= 0.4 ? [70, `ההחזר החודשי הוא כ-${pct(v)} מההכנסה. אפשרי, אבל משאיר פחות מרווח.`]
-    : v <= 0.5 ? [35, `ההחזר החודשי הוא כ-${pct(v)} מההכנסה, גבוה יחסית.`]
-    : [10, `ההחזר החודשי גבוה מחצי מההכנסה (${pct(v)}). כדאי לבדוק מבנה אחר.`]);
+    : v <= 0.4 ? [70, `ההחזר החודשי הוא כ-${pct(v)} מההכנסה. טווח שדורש זהירות.`]
+    : v <= 0.5 ? [35, `ההחזר החודשי הוא כ-${pct(v)} מההכנסה. בנק ישראל מגדיר החזר מעל 40% כסיכון גבוה.`]
+    : [10, `ההחזר החודשי גבוה מחצי מההכנסה (${pct(v)}), מעל המגבלה הכללית של בנק ישראל.`]);
 
   add("ltv", "אחוז מימון", 15, input.ltv, (v) =>
     v <= 0.5 ? [100, `המשכנתא היא כ-${pct(v)} משווי הנכס.`]

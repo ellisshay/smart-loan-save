@@ -40,7 +40,8 @@ export interface MortgageModel {
   equity: number | null;
   loanAmount: number | null;           // requested (new) or outstanding balance (refi)
   income: number | null;               // monthly net household income
-  obligations: number;                 // other monthly obligations
+  obligations: number;                 // other monthly obligations (0 when unknown; see obligationsKnown)
+  obligationsKnown: boolean;
   monthlyPayment: number | null;
   paymentIsEstimate: boolean;
   recommendedMaxPayment: number | null;
@@ -62,6 +63,10 @@ export interface MortgageModel {
   missingDocs: number;
   docsNeedUpdate: number;
   rateChangeDate: string | null;
+  /** Real offers exist but none is selected yet: payment / ratio ranges across the offers. */
+  offerPaymentRange: { min: number; max: number } | null;
+  dtiRange: { min: number; max: number } | null;
+  hasLinkedTracks: boolean;
   offers: { id: string; bank: string; tracks: Loose[]; first_payment?: number; total_amount?: number; extra_costs?: number; kind?: string; valid_until?: string; advisor_explanation?: string }[];
 }
 
@@ -102,6 +107,21 @@ export function documentRows(caseType: "new" | "refi", intake: Record<string, Lo
   });
 }
 
+/**
+ * Picks the example mix with the middle variable-rate share (prime + variable tracks), so the
+ * example is "balanced" by composition. The quick check orders mixes by cost, which is not the same.
+ */
+export function balancedByComposition(mixes: Loose[] | null | undefined): Loose[] {
+  const list = (Array.isArray(mixes) ? mixes : []).filter((m) => Array.isArray(m?.tracks) && m.tracks.length);
+  if (!list.length) return [];
+  const varShare = (m: Loose) => {
+    const tot = m.tracks.reduce((a: number, t: Loose) => a + num(t.amount), 0) || 1;
+    return m.tracks.filter((t: Loose) => t.key === "prime" || t.key === "variable_5").reduce((a: number, t: Loose) => a + num(t.amount), 0) / tot;
+  };
+  const sorted = [...list].sort((a, b) => varShare(a) - varShare(b));
+  return sorted[Math.floor((sorted.length - 1) / 2)].tracks;
+}
+
 export function buildMortgageModel(raw: RawCaseData): MortgageModel {
   const d = raw.intakeData || {};
   const refi = raw.caseType === "refi";
@@ -114,6 +134,7 @@ export function buildMortgageModel(raw: RawCaseData): MortgageModel {
   const income = incomeSum > 0 ? incomeSum : null;
   const liab = d.liabilities || {};
   const obligations = num(liab.existingLoanPayments) + num(liab.creditCardMonthly) + num(liab.alimonyPaid);
+  const obligationsKnown = !!d.liabilities && Object.keys(d.liabilities).length > 0;
 
   const offers = latestOffers(raw.tender);
   const selectedId = raw.tender?.selected_offer_id || null;
@@ -144,16 +165,15 @@ export function buildMortgageModel(raw: RawCaseData): MortgageModel {
     if (positiveOrNull(d.mortgage_request?.desiredYears)) termMonths = Math.round(num(d.mortgage_request.desiredYears) * 12);
     const chosen = selectedOffer || null;
     if (chosen) { tracks = fromOfferTracks(chosen.tracks); trackSource = tracks.length ? "offer" : null; }
-    if (!tracks.length && d.quick_check?.mixes?.length) {
+    // When real bank offers exist, never substitute an example mix for them.
+    const hasRealOffers = offers.some((o) => Array.isArray(o.tracks) && o.tracks.length);
+    if (!tracks.length && !hasRealOffers && d.quick_check?.mixes?.length) {
       // Example mix from the quick check (clearly labeled as an example in the UI).
-      const mixes = d.quick_check.mixes;
-      const mix = mixes[Math.floor(mixes.length / 2)] || mixes[0];
-      tracks = fromMixTracks(mix?.tracks, cpi); trackSource = tracks.length ? "example" : null;
+      tracks = fromMixTracks(balancedByComposition(d.quick_check.mixes), cpi); trackSource = tracks.length ? "example" : null;
     }
-    if (!tracks.length && loanAmount && raw.rates) {
+    if (!tracks.length && !hasRealOffers && loanAmount && raw.rates) {
       const mixes = buildMixes(loanAmount, termMonths ? termMonths / 12 : 25, raw.rates);
-      const balanced = mixes.find((m) => m.risk === "בינוני") || mixes[0];
-      if (balanced) { tracks = fromMixTracks(balanced.tracks, cpi); trackSource = tracks.length ? "example" : null; }
+      tracks = fromMixTracks(balancedByComposition(mixes), cpi); trackSource = tracks.length ? "example" : null;
     }
     if (!termMonths && tracks.length) { termMonths = Math.max(...tracks.map((t) => t.months)); termIsAssumption = trackSource === "example"; }
   }
@@ -161,11 +181,14 @@ export function buildMortgageModel(raw: RawCaseData): MortgageModel {
   const trackSummary = summarizeTracks(tracks, cpi);
   if (monthlyPayment === null) {
     if (trackSummary) { monthlyPayment = trackSummary.monthly; paymentIsEstimate = trackSource !== "offer" || !selectedOffer?.first_payment; }
-    else if (loanAmount && termMonths && raw.rates) { monthlyPayment = pmt(loanAmount, num(raw.rates.fixed_not_linked), termMonths); }
+    else if (loanAmount && termMonths && raw.rates && !offers.length) { monthlyPayment = pmt(loanAmount, num(raw.rates.fixed_not_linked), termMonths); }
   }
   if (selectedOffer?.first_payment) { monthlyPayment = num(selectedOffer.first_payment); paymentIsEstimate = false; }
 
   const dti = income && monthlyPayment ? (monthlyPayment + obligations) / income : null;
+  const offerPays = !selectedOffer ? offers.map((o) => num(o.first_payment) || (summarizeTracks(fromOfferTracks(o.tracks), cpi)?.monthly ?? 0)).filter((v) => v > 0) : [];
+  const offerPaymentRange = offerPays.length ? { min: Math.min(...offerPays), max: Math.max(...offerPays) } : null;
+  const dtiRange = offerPaymentRange && income ? { min: (offerPaymentRange.min + obligations) / income, max: (offerPaymentRange.max + obligations) / income } : null;
   const ltv = propertyValue && loanAmount ? loanAmount / propertyValue : null;
   const recommendedMaxPayment = income ? Math.max(0, Math.round(income * REASONABLE_RATIO.high - obligations)) : null;
   const clientMaxPayment = positiveOrNull(liab.maxDesiredPayment) ?? positiveOrNull(d.mortgage_request?.maxPayment);
@@ -203,9 +226,10 @@ export function buildMortgageModel(raw: RawCaseData): MortgageModel {
 
   const common = { status: raw.status, intakeComplete: raw.intakeComplete, paymentSucceeded: raw.paymentSucceeded, missingDocs, docsNeedUpdate, tenderStage: raw.tender?.stage ?? null, offersCount, selectedOffer: !!selectedId };
   return {
-    caseType: raw.caseType, propertyValue, equity, loanAmount, income, obligations,
+    caseType: raw.caseType, propertyValue, equity, loanAmount, income, obligations, obligationsKnown,
     monthlyPayment, paymentIsEstimate, recommendedMaxPayment, clientMaxPayment, dti, ltv,
     termMonths, termIsAssumption, offersCount, tracks, trackSource, trackSummary, cpi,
+    offerPaymentRange, dtiRange, hasLinkedTracks: tracks.some((t) => t.linked),
     ratesUpdatedAt: raw.rates?.updated_at ?? null,
     health,
     progress: caseProgress({ ...common, intakeStarted }),
