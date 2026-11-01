@@ -407,7 +407,7 @@ export default function HomePage() {
                       <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
                     </div>
                     {/* cost trend marker */}
-                    <svg width="46" height="26" viewBox="0 0 46 26" fill="none" aria-hidden className="shrink-0 self-center text-destructive/60">
+                    <svg width="40" height="22" viewBox="0 0 46 26" fill="none" aria-hidden className="shrink-0 self-center text-destructive/45">
                       <path d="M3 22 L13 18 L23 19 L33 11 L43 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       <path d="M36.5 3 H43 V9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
