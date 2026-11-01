@@ -321,10 +321,11 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+              >
                 <Card className={`rounded-2xl shadow-card hover:shadow-card-hover transition-shadow overflow-hidden ${offer.best ? "border-2 border-primary relative" : "border border-border"}`}>
                   {offer.best && (
                     <span className="absolute -top-3 right-5 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full z-10">
-                      ההצעה טובה ביותר
+                      ההצעה הטובה ביותר
                     </span>
                   )}
                   <CardContent className="p-6 pt-7 space-y-4">
