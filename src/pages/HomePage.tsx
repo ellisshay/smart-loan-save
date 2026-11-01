@@ -190,6 +190,7 @@ export default function HomePage() {
           fetchPriority="high"
           className="home-editorial-photo dark:brightness-50"
         />
+        <div aria-hidden className="home-editorial-scrim hidden lg:block absolute inset-0 pointer-events-none" />
         <div className="container relative home-editorial-content">
           <div className="home-editorial-copy">
             <p className="text-lg md:text-xl font-medium text-foreground mb-5 md:mb-8">
