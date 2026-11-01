@@ -210,10 +210,10 @@ export default function HowItWorksPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/intake">
-                <Button variant="hero" size="xl">פתיחת תיק</Button>
+                <Button variant="hero" size="xl" className="w-full sm:w-auto">פתיחת תיק</Button>
               </Link>
               <Link to="/mortgage-check">
-                <Button variant="outline-light" size="xl">
+                <Button variant="outline-light" size="xl" className="w-full sm:w-auto h-auto min-h-14 py-3 whitespace-normal">
                   בדיקת המשכנתא שלי בחינם
                   <ArrowLeft size={18} />
                 </Button>

@@ -23,7 +23,7 @@ export default function FaqPage() {
         ]}
       />
       <div className="text-center">
-        <Link to="/mortgage-check"><Button variant="cta" size="lg">הגש בקשה עכשיו</Button></Link>
+        <Link to="/intake"><Button variant="cta" size="lg">פתיחת תיק</Button></Link> <Link to="/mortgage-check"><Button variant="outline" size="lg">בדיקת המשכנתא שלי בחינם</Button></Link>
       </div>
     </div>
   );

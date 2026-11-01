@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 
@@ -8,7 +9,15 @@ const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance",
 
 export default function FloatingApplyButton() {
   const { pathname } = useLocation();
-  if (HIDDEN.some((p) => pathname.startsWith(p))) return null;
+  // Appear only after the visitor scrolls past the first screen, so it never covers the hero CTAs.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [pathname]);
+  if (HIDDEN.some((p) => pathname.startsWith(p)) || !scrolled) return null;
 
   const showCheck = CHECK_FIRST.some((p) => pathname.startsWith(p));
 
@@ -24,10 +33,10 @@ export default function FloatingApplyButton() {
         </Link>
       ) : (
         <Link
-          to="/mortgage-check"
+          to="/intake"
           className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-display font-bold text-sm md:text-base shadow-gold hover:scale-105 transition-transform whitespace-nowrap"
         >
-          הגש בקשה עכשיו
+          פתיחת תיק
           <ChevronLeft size={18} />
         </Link>
       )}

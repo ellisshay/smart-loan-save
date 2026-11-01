@@ -4,14 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  ArrowLeft, Check, CheckCircle, X, ChevronLeft,
-  Coins, Zap, Building2, ShieldCheck, Landmark,
-  FileText, Upload, Handshake, TrendingDown, Home, Calendar, Hourglass,
-  BadgeCheck, Timer, Gavel, Laptop,
+  ArrowLeft, Check, CheckCircle, X, ChevronLeft, ShieldCheck, Landmark,
+  FileText, Upload, Handshake, Home, BadgeCheck, Laptop,
 } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
@@ -19,45 +16,54 @@ import SmartAssessment from "@/components/home/SmartAssessment";
 import { QuizData } from "@/types/quiz";
 import heroHouse from "@/assets/hero-house.jpg";
 
-// ─── Trust strip ───
-const trustItems = [
-  { icon: BadgeCheck, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצועי מקצה לקצה" },
-  { icon: Timer, title: "עד 72 שעות", desc: "לטיפול מקצועי מרגע שהתיק מלא ושולם" },
-  { icon: Gavel, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך" },
-  { icon: Laptop, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין" },
+// ─── Hero facts (all verified: fixed price, digital EasyMorte process, no unnecessary meetings) ───
+const heroFacts = [
+  { icon: Laptop, text: "תהליך EasyMorte מתנהל דיגיטלית" },
+  { icon: Handshake, text: "בלי פגישות מיותרות" },
+  { icon: BadgeCheck, text: "3,450 ₪ מחיר קבוע" },
 ];
 
-// ─── How it works steps ───
+// ─── How it works (4 steps). 72h = our handling window after a complete file + payment. ───
 const steps = [
-  { icon: FileText, title: "ממלאים פרטים", desc: "שאלון קצר אונליין" },
-  { icon: Upload, title: "מעלים מסמכים", desc: "בקלות ובביטחה" },
-  { icon: Handshake, title: "אנחנו משווים", desc: "ומנהלים משא ומתן" },
-  { icon: Landmark, title: "מקבלים הצעות", desc: "מהבנקים המובילים" },
-  { icon: CheckCircle, title: "חותמים ומשכנתא מאושרת", desc: "בקלות ובלי בלאגן" },
+  { icon: FileText, title: "פותחים תיק", desc: "כ-10 דקות לפתיחת התיק והשלמת הפרטים הראשוניים." },
+  { icon: Upload, title: "מעלים מסמכים", desc: "במקום אחד, מהטלפון או מהמחשב. פותחים תיק ומעלים מסמכים מכל מקום ובכל זמן." },
+  { icon: ShieldCheck, title: "אנחנו מטפלים בתיק", desc: "בדיקה מקצועית ובניית תמהילים, בתוך עד 72 שעות מרגע שהתיק מלא והתשלום התקבל." },
+  { icon: Landmark, title: "פנייה לבנקים והשוואה", desc: "פונים לעד 3 בנקים רלוונטיים ומציגים לכם באזור האישי השוואה ברורה בין ההצעות." },
 ];
 
-// ─── Sample offers preview ───
-const sampleOffers = [
-  { bank: "בנק א'", rate: "4.62%", monthly: "4,980", best: true },
-  { bank: "בנק ב'", rate: "4.85%", monthly: "5,210", best: false },
-  { bank: "בנק ג'", rate: "5.11%", monthly: "5,640", best: false },
+// ─── What EasyMorte does / does not do ───
+const weDo = [
+  "מרכזים את הפרטים והמסמכים של התיק במקום אחד",
+  "בודקים את כושר ההחזר ובונים תמהילים",
+  "פונים לעד 3 בנקים רלוונטיים ומשווים בין ההצעות",
+  "מציגים באזור האישי איפה התיק עומד ומה השלב הבא",
+];
+const weDont = [
+  "אנחנו לא בנק ולא מאשרים משכנתאות",
+  "אנחנו לא מקבלים עמלות מהבנקים",
+  "אנחנו לא מבטיחים אישור, ריבית או תנאים מסוימים",
 ];
 
-// ─── Pain Cards Data ───
-const painCards = [
-  { icon: Calendar, title: "5-8 פגישות בבנקים", desc: "כל פגישה שונה, הצעות שלא ניתן להשוות" },
-  { icon: FileText, title: "מסמכים שוב ושוב", desc: "כל בנק מבקש מהתחלה" },
-  { icon: Coins, title: "₪5,000-8,000 ליועץ", desc: "לפני שיודעים אם ההצעה טובה" },
-  { icon: Hourglass, title: "3-6 שבועות המתנה", desc: "בזמן שהעסקה מחכה" },
+// ─── Ways of working, qualitative only (no market numbers without a source) ───
+const oldWay = ["פגישות", "שיחות", "איסוף מסמכים לכל בנק בנפרד", "מעקב עצמאי מול הבנקים"];
+const newWay = ["תהליך דיגיטלי", "תיק אחד", "סטטוס במקום אחד", "טיפול מרוכז"];
+
+// ─── Security & privacy: only what the product actually does ───
+const security = [
+  { title: "אחסון פרטי", desc: "המסמכים נשמרים באחסון פרטי עם הרשאות גישה, ולא בתיבת דואר." },
+  { title: "חיבור מוצפן", desc: "האתר והאזור האישי עובדים בחיבור מוצפן (HTTPS)." },
+  { title: "יומן צפייה", desc: "צפייה במסמכים נרשמת ביומן ביקורת." },
+  { title: "שליטה בפרטיות", desc: "מדיניות פרטיות גלויה, הסכמה לפני שמירת נתונים, ואפשרות לבקש מחיקת מידע מהאזור האישי." },
 ];
 
-// ─── FAQ Data ───
+// ─── FAQ ───
 const faqItems = [
-  { q: "האם השירות באמת חינם?", a: "הבדיקה והניתוח הראשוני חינמים לחלוטין. השירות המלא עולה 3,450 ₪ קבועים, בלי הפתעות." },
-  { q: "האם המסמכים שלי מאובטחים?", a: "המסמכים נשמרים באחסון פרטי עם בקרת הרשאות, ונגישים רק למשתמש ולצוות מורשה לפי הצורך." },
-  { q: "מה מתחייבים בתוך 72 שעות?", a: "חלון ה-72 שעות הוא זמן הטיפול המקצועי שלנו מרגע שהתיק מלא ושולם. זמני האישור והמענה של הבנקים אינם בשליטת EasyMorte." },
-  { q: "האם אני מחויב לבחור מהרשימה?", a: "לא. אתה חופשי לבחור כל הצעה או לא לבחור. ללא מחויבות." },
-  { q: "מה ההבדל מיועץ משכנתאות רגיל?", a: "EASY MORTE מנהלת מכרז בין בנקים ומביאה לך 3 הצעות תחרותיות במקום הצעה אחת." },
+  { q: "כמה זה עולה?", a: "הבדיקה הראשונית והמחשבונים בחינם. התהליך המלא עולה 3,450 ₪, מחיר קבוע. אנחנו לא מקבלים עמלות מהבנקים." },
+  { q: "מה קורה בתוך 72 השעות?", a: "חלון ה-72 שעות הוא זמן הטיפול המקצועי שלנו, והוא מתחיל רק אחרי שהתשלום התקבל והתיק מלא ותקין. זמני האישור והמענה של הבנקים אינם בשליטת EasyMorte." },
+  { q: "האם צריך להגיע לפגישה?", a: "רוב התהליך מול EasyMorte מתנהל אונליין. בהתאם לבנק ולעסקה, ייתכן שבהמשך תידרשו לזיהוי, חתימה או פעולה מול הבנק." },
+  { q: "האם המסמכים שלי מאובטחים?", a: "המסמכים נשמרים באחסון פרטי עם הרשאות גישה, ונגישים רק לכם ולמי שמטפל בתיק לפי הצורך. צפייה במסמכים נרשמת ביומן ביקורת." },
+  { q: "האם אתם מבטיחים אישור או ריבית מסוימת?", a: "לא. אישור המשכנתא, הריבית והתנאים נקבעים על ידי הבנק. אנחנו מכינים את התיק, פונים לבנקים ומשווים בין ההצעות." },
+  { q: "האם אני חייב לבחור באחת ההצעות?", a: "לא. הבחירה שלכם." },
 ];
 
 // ─── Main Component ───
@@ -73,7 +79,6 @@ export default function HomePage() {
 
   const assessmentRef = useRef<HTMLDivElement>(null);
 
-  const handleCTAClick = () => navigate("/mortgage-check");
 
   const handleAssessmentComplete = useCallback((score: number, data: QuizData) => {
     setCompletedScore(score);
@@ -139,33 +144,35 @@ export default function HomePage() {
               className="font-display text-4xl md:text-6xl font-extrabold leading-[1.08] mb-5 text-foreground"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             >
-              לוקחים משכנתא <span className="text-gradient-gold">בקלות.</span>
+              10 דקות באתר. <span className="text-gradient-gold">ואנחנו נכנסים לעבודה.</span>
             </motion.h1>
             <motion.p
               className="text-lg text-muted-foreground mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             >
-              אנחנו עושים את כל העבודה בשבילך, משווים הצעות מהבנקים, מנהלים משא ומתן וחוסכים לך זמן וכסף.
+              פותחים תיק, מעלים את הפרטים והמסמכים במקום אחד, ואנחנו מרכזים את העבודה המקצועית וההתקדמות מול הבנקים.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
               className="flex flex-col items-start gap-3"
             >
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
-                <Button
-                  variant="hero" size="xl"
-                  className="shadow-gold rounded-full h-auto min-h-14 px-2 sm:px-10 py-2 text-sm sm:text-lg whitespace-normal text-center leading-tight"
-                  onClick={handleCTAClick}
-                >
-                  הגש בקשה עכשיו
-                  <ChevronLeft size={20} className="hidden sm:block" />
+              <ul className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-x-5 mb-2" aria-label="עובדות על השירות">
+                {heroFacts.map((f) => (
+                  <li key={f.text} className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <f.icon size={16} className="text-primary shrink-0" aria-hidden /> {f.text}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-col sm:flex-row items-stretch gap-2 sm:gap-3 w-full sm:w-auto">
+                <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full h-auto min-h-14 px-8 sm:px-10 py-2 text-base sm:text-lg">
+                  <Link to="/intake">פתיחת תיק<ChevronLeft size={20} className="hidden sm:block" /></Link>
                 </Button>
-                <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 h-auto min-h-14 px-2 sm:px-7 py-2 text-sm sm:text-base whitespace-normal text-center leading-tight">
-                  <Link to="/balance-check">בדיקת משכנתא קיימת חינם</Link>
+                <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 h-auto min-h-14 px-6 sm:px-7 py-2 text-base">
+                  <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
+              <p className="text-xs text-muted-foreground">הבדיקה חינם וללא התחייבות · אנחנו לא מקבלים עמלות מהבנקים</p>
             </motion.div>
 
           </div>
@@ -190,11 +197,11 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-                <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
+                <BadgeCheck size={20} strokeWidth={2.2} className="text-primary" />
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
-                <p className="text-xs text-muted-foreground">₪3,450 לתהליך המלא</p>
+                <p className="text-xs text-muted-foreground">₪3,450 לשירות המלא</p>
               </div>
             </motion.div>
           </motion.div>
@@ -204,50 +211,27 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-              <TrendingDown size={20} strokeWidth={2.2} className="text-primary" />
+              <BadgeCheck size={20} strokeWidth={2.2} className="text-primary" />
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">מחיר קבוע ושקוף</p>
-              <p className="text-xs text-muted-foreground">₪3,450 לתהליך המלא</p>
+              <p className="text-xs text-muted-foreground">₪3,450 לשירות המלא</p>
             </div>
           </motion.div>
         </div>
 
-        {/* Trust strip */}
-        <div className="container relative pb-14">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {trustItems.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover transition-shadow"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0">
-                  <item.icon size={22} strokeWidth={2.2} className="text-primary" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* ═══════ How it works ═══════ */}
       <section className="py-14 md:py-20 bg-background">
         <div className="container max-w-5xl">
           <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">איך זה עובד?</h2>
-          <p className="text-center text-muted-foreground mb-12">תהליך פשוט, שקוף ומהיר עד לקבלת המשכנתא הטובה ביותר עבורכם</p>
+          <p className="text-center text-muted-foreground mb-12">ארבעה שלבים, ואתם רואים באזור האישי בכל רגע איפה התיק עומד</p>
 
           <div className="relative">
             {/* connector line */}
-            <div className="hidden md:block absolute top-7 right-[10%] left-[10%] h-0.5 bg-border" />
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-4">
+            <div className="hidden md:block absolute top-7 right-[12%] left-[12%] h-0.5 bg-border" />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
               {steps.map((step, i) => (
                 <motion.div
                   key={i}
@@ -274,86 +258,100 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════ Offers preview ═══════ */}
+      {/* ═══════ What we do / don't ═══════ */}
       <section className="py-14 md:py-20 bg-secondary/50">
-        <div className="container max-w-5xl">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">הצעות מהבנקים</h2>
-          <p className="text-center text-muted-foreground mb-10">ככה נראות ההצעות שתקבלו, השוואה אמיתית, שקופה ופשוטה</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {sampleOffers.map((offer, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className={`rounded-2xl shadow-card hover:shadow-card-hover transition-shadow ${offer.best ? "border-2 border-primary relative" : "border border-border"}`}>
-                  {offer.best && (
-                    <span className="absolute -top-3 right-5 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-                      ההצעה הטובה ביותר
-                    </span>
-                  )}
-                  <CardContent className="p-6 text-center space-y-3">
-                    <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Landmark size={22} className="text-primary" />
-                    </div>
-                    <p className="font-bold text-foreground">{offer.bank}</p>
-                    <p className="text-3xl font-extrabold text-primary">{offer.rate}</p>
-                    <p className="text-xs text-muted-foreground">ריבית ממוצעת</p>
-                    <div className="border-t border-border pt-3">
-                      <p className="text-lg font-bold text-foreground">₪{offer.monthly}</p>
-                      <p className="text-xs text-muted-foreground">החזר חודשי משוער</p>
-                    </div>
-                    <Button
-                      variant={offer.best ? "hero" : "outline"}
-                      className="w-full rounded-full"
-                      onClick={handleCTAClick}
-                    >
-                      {offer.best ? "בחירת הצעה" : "פרטים נוספים"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+        <div className="container max-w-4xl">
+          <h2 className="text-2xl md:text-4xl font-extrabold text-center mb-3 text-foreground">מה אנחנו עושים, ומה לא</h2>
+          <p className="text-center text-muted-foreground mb-10">EasyMorte מרכזת את התהליך מולכם ומול הגורמים הרלוונטיים</p>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="rounded-2xl border-primary/30">
+              <CardContent className="p-6 space-y-3">
+                <p className="font-bold text-foreground">מה אנחנו עושים</p>
+                {weDo.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-foreground"><Check size={16} className="text-primary shrink-0 mt-0.5" aria-hidden />{t}</p>)}
+              </CardContent>
+            </Card>
+            <Card className="rounded-2xl">
+              <CardContent className="p-6 space-y-3">
+                <p className="font-bold text-foreground">מה אנחנו לא</p>
+                {weDont.map((t) => <p key={t} className="flex items-start gap-2 text-sm text-muted-foreground"><X size={16} className="shrink-0 mt-0.5" aria-hidden />{t}</p>)}
+              </CardContent>
+            </Card>
           </div>
-          <p className="text-center text-xs text-muted-foreground mt-6">* המספרים להמחשה בלבד. ההצעות שלך יתבססו על הפרופיל האישי שלך.</p>
         </div>
       </section>
 
-      {/* ═══════ Stats Section ═══════ */}
+      {/* ═══════ Stats Section (verified facts only) ═══════ */}
       <StatsSection />
 
-      {/* ═══════ Pain Section ═══════ */}
+      {/* ═══════ Ways of working (qualitative) ═══════ */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">
-            ככה נראה התהליך <span className="text-destructive">בלי</span> EASY MORTE
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {painCards.map((card, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
-                  <CardContent className="p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                      <card.icon size={18} className="text-destructive" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-foreground">{card.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">להתרוצץ לבד, או לנהל את הכל במקום אחד</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="rounded-2xl bg-muted/40">
+              <CardContent className="p-6 space-y-3">
+                <p className="font-bold text-foreground">לבד מול הבנקים</p>
+                {oldWay.map((t) => <p key={t} className="flex items-center gap-2 text-sm text-muted-foreground"><X size={16} className="shrink-0" aria-hidden />{t}</p>)}
+              </CardContent>
+            </Card>
+            <Card className="rounded-2xl bg-primary/5 border-primary/30 border-2">
+              <CardContent className="p-6 space-y-3">
+                <p className="font-bold text-foreground">עם EasyMorte</p>
+                {newWay.map((t) => <p key={t} className="flex items-center gap-2 text-sm text-foreground"><CheckCircle size={16} className="text-primary shrink-0" aria-hidden />{t}</p>)}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ Pricing ═══════ */}
+      <section className="py-14 md:py-20 bg-secondary/50">
+        <div className="container max-w-3xl text-center">
+          <h2 className="text-2xl md:text-4xl font-extrabold mb-3 text-foreground">מחיר קבוע: 3,450 ₪</h2>
+          <p className="text-muted-foreground mb-6">משלמים פעם אחת על השירות המלא. הבדיקה הראשונית והמחשבונים בחינם.</p>
+          <ul className="grid sm:grid-cols-2 gap-2 text-sm text-right max-w-xl mx-auto mb-6">
+            {["בדיקה מקצועית של התיק ובניית תמהילים", "פנייה לעד 3 בנקים רלוונטיים", "השוואה בין ההצעות בשפה פשוטה", "אזור אישי עם סטטוס והשלב הבא"].map((t) => (
+              <li key={t} className="flex items-start gap-2"><Check size={16} className="text-primary shrink-0 mt-0.5" aria-hidden />{t}</li>
+            ))}
+          </ul>
+          <p className="text-xs text-muted-foreground mb-5">התשלום אינו הבטחה לאישור או לריבית מסוימת. אפשר לבטל עסקה לפי <Link to="/cancel" className="underline">מדיניות הביטול</Link>.</p>
+          <Button asChild variant="outline" className="rounded-full"><Link to="/pricing">מה כלול במחיר</Link></Button>
+        </div>
+      </section>
+
+      {/* ═══════ Founder (verified background only) ═══════ */}
+      <section className="py-14 md:py-20 bg-background">
+        <div className="container max-w-3xl">
+          <Card className="rounded-2xl">
+            <CardContent className="p-6 md:p-8">
+              <p className="text-sm text-muted-foreground mb-1">מי עומד מאחורי EasyMorte</p>
+              <h2 className="text-xl md:text-2xl font-extrabold text-foreground">שי אליס, מייסד</h2>
+              <p className="text-sm text-foreground/90 mt-3 leading-relaxed">
+                בעל תואר ראשון במנהל עסקים, עם רקע בפיננסים, שוק ההון, ייעוץ עסקי וטכנולוגיה, וניסיון במערכות פיננסיות ובתהליכים דיגיטליים.
+                את EasyMorte הקים כדי להפוך את תהליך המשכנתא לברור, מסודר ושקוף יותר.
+              </p>
+              <p className="text-xs text-muted-foreground mt-4">אליס שירותי ייעוץ · ע.מ 049025836 · טרומפלדור 11, כפר סבא</p>
+              <Link to="/about" className="inline-block mt-4 text-sm font-semibold text-primary">עוד עלינו</Link>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* ═══════ Security & privacy ═══════ */}
+      <section className="py-14 md:py-20 bg-secondary/50">
+        <div className="container max-w-4xl">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">פרטיות ואבטחה</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {security.map((x) => (
+              <Card key={x.title} className="rounded-2xl">
+                <CardContent className="p-5 flex items-start gap-3">
+                  <ShieldCheck size={20} className="text-primary shrink-0 mt-0.5" aria-hidden />
+                  <div><p className="font-bold text-sm text-foreground">{x.title}</p><p className="text-sm text-muted-foreground mt-1">{x.desc}</p></div>
+                </CardContent>
+              </Card>
             ))}
           </div>
+          <p className="text-center text-sm mt-6"><Link to="/privacy" className="text-primary underline">מדיניות הפרטיות</Link></p>
         </div>
       </section>
 
@@ -376,52 +374,6 @@ export default function HomePage() {
        {/* ═══════ Bank Logos ═══════ */}
       <BankLogosSection />
 
-      {/* ═══════ Comparison Section ═══════ */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container max-w-4xl">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-center mb-8 text-foreground">
-            EASY MORTE מול השיטה הישנה
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
-              <CardContent className="p-6 space-y-4">
-                <Badge variant="destructive" className="mb-2">שיטה ישנה</Badge>
-                {[
-                  "5+ פגישות פיזיות",
-                  "ניירת כפולה לכל בנק",
-                  "₪5,000-8,000 ליועץ",
-                  "3-6 שבועות המתנה",
-                  "הצעה אחת בלבד",
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <X size={16} className="text-destructive shrink-0" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="bg-primary/5 border-primary/30 border-2 rounded-2xl">
-              <CardContent className="p-6 space-y-4">
-                <Badge className="mb-2 bg-primary text-primary-foreground">EASY MORTE </Badge>
-                {[
-                  "פרופיל אחד, הכל דיגיטלי",
-                  "מסמכים פעם אחת בלבד",
-                  "מחיר קבוע 3,450 ₪",
-                  "הצעות תוך 72 שעות",
-                  "3 הצעות במקביל",
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-foreground">
-                    <CheckCircle size={16} className="text-primary shrink-0" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* ═══════ FAQ Section ═══════ */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-2xl">
@@ -443,16 +395,16 @@ export default function HomePage() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
             <Home size={30} className="text-primary" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">מוכנים לבדוק כמה אפשר לחסוך?</h2>
-          <Button
-            variant="hero" size="xl"
-            className="shadow-gold text-lg px-10 rounded-full"
-            onClick={handleCTAClick}
-          >
-            הגש בקשה עכשיו
-            <ArrowLeft size={18} />
-          </Button>
-          <p className="text-xs text-muted-foreground">לוקח 2 דקות בלבד, ללא התחייבות</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">10 דקות באתר. ואנחנו נכנסים לעבודה.</h2>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild variant="hero" size="xl" className="shadow-gold text-lg px-10 rounded-full">
+              <Link to="/intake">פתיחת תיק<ArrowLeft size={18} /></Link>
+            </Button>
+            <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary">
+              <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">מחיר קבוע 3,450 ₪ · הבדיקה הראשונית חינם</p>
         </div>
       </section>
 

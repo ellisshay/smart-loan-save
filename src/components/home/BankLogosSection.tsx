@@ -23,7 +23,7 @@ export default function BankLogosSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          הצעות מכל הבנקים המובילים בישראל
+          פנייה לעד 3 בנקים רלוונטיים והשוואה בין ההצעות
         </motion.p>
 
         <motion.div
@@ -51,6 +51,7 @@ export default function BankLogosSection() {
             </motion.div>
           ))}
         </motion.div>
+        <p className="text-center text-xs text-muted-foreground mt-6">הלוגואים מוצגים לזיהוי הבנקים בלבד ואינם מעידים על שיתוף פעולה. EasyMorte אינה מקבלת עמלות מהבנקים.</p>
       </div>
     </section>
   );

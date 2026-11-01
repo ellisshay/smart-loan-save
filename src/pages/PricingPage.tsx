@@ -65,7 +65,7 @@ export default function PricingPage() {
               transition={{ delay: i * 0.08 }}
             >
               <Card className={plan.featured ? "border-2 border-gold shadow-gold h-full" : "border border-border h-full"}>
-                <CardContent className="p-7 md:p-8 h-full flex flex-col">
+                <CardContent className="p-5 sm:p-7 md:p-8 h-full flex flex-col">
                   {plan.featured && (
                     <div className="inline-flex self-start items-center gap-1.5 rounded-full bg-gold/10 text-gold text-xs font-bold px-3 py-1 mb-4">
                       <Zap size={13} />

@@ -1,10 +1,10 @@
 import { FileCheck2, Landmark, BadgeCheck, MonitorSmartphone } from "lucide-react";
 
 const facts = [
-  { icon: BadgeCheck, value: "₪3,450", label: "מחיר קבוע לתהליך המלא" },
-  { icon: Landmark, value: "עד 3 בנקים", label: "מכרז והשוואת הצעות" },
+  { icon: BadgeCheck, value: "₪3,450", label: "מחיר קבוע לשירות המלא" },
+  { icon: Landmark, value: "עד 3 בנקים", label: "פנייה לבנקים רלוונטיים והשוואת הצעות" },
   { icon: FileCheck2, value: "תיק אחד", label: "שאלון ומסמכים במקום אחד" },
-  { icon: MonitorSmartphone, value: "100% דיגיטלי", label: "ללא פגישות מיותרות" },
+  { icon: MonitorSmartphone, value: "אונליין", label: "תהליך EasyMorte מתנהל דיגיטלית, בלי פגישות מיותרות" },
 ];
 
 export default function StatsSection() {
