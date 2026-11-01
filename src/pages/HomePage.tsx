@@ -227,21 +227,34 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="group relative overflow-hidden bg-card rounded-2xl border border-border shadow-card p-5 flex flex-col items-center text-center gap-3 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
+                className="group relative overflow-hidden bg-card rounded-2xl border border-border shadow-card p-5 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
               >
-                {/* diagonal sheen */}
+                {/* ledger texture + sheen + top rule */}
+                <span aria-hidden className="pointer-events-none absolute inset-0 ledger-paper opacity-80" />
                 <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: "var(--card-shine)" }} />
-                {/* icon medallion: soft tile + offset ghost frame + gradient accent dot */}
-                <div className="relative mt-1">
-                  <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] border border-dashed border-primary/25 rotate-2 group-hover:rotate-3 transition-transform duration-500" />
-                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center ring-1 ring-inset ring-primary/25 shadow-sm">
-                    <item.icon size={24} strokeWidth={1.8} className="text-primary" />
+                <span aria-hidden className="absolute top-0 inset-x-5 gold-rule opacity-80" />
+                {/* figure row: medallion + mono figure */}
+                <div className="relative w-full flex items-center justify-between gap-3">
+                  <div className="relative shrink-0">
+                    <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] border border-dashed border-primary/25 rotate-2 group-hover:rotate-3 transition-transform duration-500" />
+                    <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent flex items-center justify-center ring-1 ring-inset ring-primary/25">
+                      <item.icon size={21} strokeWidth={1.8} className="text-primary" />
+                    </div>
+                    <span aria-hidden className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-gold-gradient ring-2 ring-card" />
                   </div>
-                  <span aria-hidden className="absolute -bottom-1 -left-1 w-3 h-3 rounded-full bg-gold-gradient ring-2 ring-card" />
+                  <div className="text-left">
+                    <p className="font-ticker text-xl font-bold text-foreground tabular-nums leading-none" dir="ltr">{item.stat}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">{item.note}</p>
+                  </div>
                 </div>
-                <div>
+                <div className="relative w-full">
                   <p className="font-bold text-sm text-foreground">{item.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                  <div className="mt-3 flex items-end gap-1 h-5" aria-hidden>
+                    {item.bars.map((h: number, j: number) => (
+                      <span key={j} className={`flex-1 rounded-sm transition-colors ${j === item.bars.length - 1 ? "bg-gold-gradient" : "bg-primary/15 group-hover:bg-primary/30"}`} style={{ height: `${h}%` }} />
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -268,19 +281,24 @@ export default function HomePage() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  {/* step marker: squircle tile + gradient number chip (no balloons) */}
+                  {/* step marker: squircle tile + ledger index + stage meter */}
                   <div className="relative z-10 shrink-0">
                     <span aria-hidden className="absolute -inset-1.5 rounded-[1.15rem] bg-primary/5 group-hover:bg-primary/10 transition-colors duration-300" />
                     <div className="relative w-14 h-14 rounded-2xl bg-card shadow-card ring-1 ring-inset ring-border flex items-center justify-center group-hover:shadow-card-hover group-hover:-translate-y-0.5 transition-all duration-300">
                       <step.icon size={22} strokeWidth={1.9} className="text-primary" />
                     </div>
-                    <span className="absolute -top-2 -left-2 w-6 h-6 rounded-lg bg-gold-gradient text-primary-foreground text-xs font-bold flex items-center justify-center shadow-sm ring-2 ring-background">
-                      {i + 1}
+                    <span className="absolute -top-2 -left-2 h-6 px-1.5 rounded-lg bg-gold-gradient text-primary-foreground text-[11px] font-bold font-ticker flex items-center justify-center shadow-sm ring-2 ring-background tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
                   </div>
-                  <div>
+                  <div className="md:w-full">
                     <p className="font-bold text-sm text-foreground">{step.title}</p>
                     <p className="text-xs text-muted-foreground mt-1">{step.desc}</p>
+                    <div className="hidden md:flex items-center gap-1 mt-2.5" aria-hidden>
+                      {steps.map((_, j) => (
+                        <span key={j} className={`h-1 flex-1 rounded-full ${j <= i ? "bg-primary/70" : "bg-border"}`} />
+                      ))}
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -303,24 +321,46 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-              >
-                <Card className={`rounded-2xl shadow-card hover:shadow-card-hover transition-shadow ${offer.best ? "border-2 border-primary relative" : "border border-border"}`}>
+                <Card className={`rounded-2xl shadow-card hover:shadow-card-hover transition-shadow overflow-hidden ${offer.best ? "border-2 border-primary relative" : "border border-border"}`}>
                   {offer.best && (
-                    <span className="absolute -top-3 right-5 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-                      ההצעה הטובה ביותר
+                    <span className="absolute -top-3 right-5 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full z-10">
+                      ההצעה טובה ביותר
                     </span>
                   )}
-                  <CardContent className="p-6 text-center space-y-3">
-                    <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Landmark size={22} className="text-primary" />
+                  <CardContent className="p-6 pt-7 space-y-4">
+                    {/* sheet header: bank + rate figure */}
+                    <div className="flex items-center justify-between border-b border-dashed border-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Landmark size={17} className="text-primary" />
+                        </div>
+                        <p className="font-bold text-sm text-foreground">{offer.bank}</p>
+                      </div>
+                      <div className="text-left">
+                        <p className="font-ticker text-2xl font-extrabold text-primary tabular-nums leading-none" dir="ltr">{offer.rate}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">ריבית ממוצעת</p>
+                      </div>
                     </div>
-                    <p className="font-bold text-foreground">{offer.bank}</p>
-                    <p className="text-3xl font-extrabold text-primary">{offer.rate}</p>
-                    <p className="text-xs text-muted-foreground">ריבית ממוצעת</p>
-                    <div className="border-t border-border pt-3">
-                      <p className="text-lg font-bold text-foreground">₪{offer.monthly}</p>
-                      <p className="text-xs text-muted-foreground">החזר חודשי משוער</p>
+
+                    {/* monthly payment ledger */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-baseline justify-between">
+                        <p className="text-xs text-muted-foreground">החזר חודשי משוער</p>
+                        <p className="font-ticker text-lg font-bold text-foreground tabular-nums" dir="ltr">₪{offer.monthly}</p>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden" aria-hidden>
+                        <div className={`h-full rounded-full ${offer.best ? "bg-gold-gradient" : "bg-primary/35"}`} style={{ width: `${(offer.monthlyNum / maxMonthly) * 100}%` }} />
+                      </div>
+                      <p className={`text-[11px] font-medium ${offer.best ? "text-primary" : "text-muted-foreground"}`}>
+                        {offer.best ? (
+                          ההחזר החודשי הנמוך בהמחשה
+                        ) : (
+                          <span dir="ltr" className="font-ticker tabular-nums">+₪{offer.monthlyNum - bestMonthly}</span>
+                        )}
+                        {!offer.best && " לחודש מול ההצעה המובילה"}
+                      </p>
                     </div>
+
                     <Button
                       variant={offer.best ? "hero" : "outline"}
                       className="w-full rounded-full"
@@ -329,6 +369,7 @@ export default function HomePage() {
                       {offer.best ? "בחירת הצעה" : "פרטים נוספים"}
                     </Button>
                   </CardContent>
+                </Card>
                 </Card>
               </motion.div>
             ))}
@@ -354,17 +395,23 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-              >
-                <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
-                  <CardContent className="p-5 flex items-start gap-4">
+                <Card className="bg-destructive/5 border-destructive/20 rounded-2xl relative overflow-hidden">
+                  <span aria-hidden className="absolute top-0 bottom-0 right-0 w-0.5 bg-destructive/30" />
+                  <CardContent className="p-5 flex items-start gap-4 relative">
                     <div className="w-11 h-11 rounded-2xl bg-destructive/10 ring-1 ring-inset ring-destructive/20 flex items-center justify-center shrink-0">
                       <card.icon size={19} strokeWidth={1.9} className="text-destructive" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold text-sm text-foreground">{card.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{card.desc}</p>
                     </div>
+                    {/* cost trend marker */}
+                    <svg width="46" height="26" viewBox="0 0 46 26" fill="none" aria-hidden className="shrink-0 self-center text-destructive/60">
+                      <path d="M3 22 L13 18 L23 19 L33 11 L43 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M36.5 3 H43 V9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </CardContent>
+                </Card>
                 </Card>
               </motion.div>
             ))}
@@ -399,7 +446,7 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-6 space-y-2">
                 <Badge variant="destructive" className="mb-2">שיטה ישנה</Badge>
                 {[
                   "5+ פגישות פיזיות",
@@ -408,16 +455,16 @@ export default function HomePage() {
                   "3-6 שבועות המתנה",
                   "הצעה אחת בלבד",
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <X size={16} className="text-destructive shrink-0" />
-                    <span>{item}</span>
+                  <div key={i} className="flex items-center gap-2.5 text-sm text-muted-foreground py-2.5 border-b border-dashed border-border/70 last:border-0">
+                    <X size={16} className="text-destructive/80 shrink-0" />
+                    <span className={item.includes("\u20aa") ? "font-ticker tabular-nums" : undefined}>{item}</span>
                   </div>
                 ))}
               </CardContent>
             </Card>
 
             <Card className="bg-primary/5 border-primary/30 border-2 rounded-2xl">
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-6 space-y-2">
                 <Badge className="mb-2 bg-primary text-primary-foreground">EASY MORTE </Badge>
                 {[
                   "פרופיל אחד, הכל דיגיטלי",
@@ -426,9 +473,9 @@ export default function HomePage() {
                   "הצעות תוך 72 שעות",
                   "3 הצעות במקביל",
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-foreground">
+                  <div key={i} className="flex items-center gap-2.5 text-sm text-foreground py-2.5 border-b border-dashed border-primary/15 last:border-0">
                     <CheckCircle size={16} className="text-primary shrink-0" />
-                    <span>{item}</span>
+                    <span className={item.includes("\u20aa") || item.includes("72") ? "font-ticker tabular-nums" : undefined}>{item}</span>
                   </div>
                 ))}
               </CardContent>
@@ -459,6 +506,18 @@ export default function HomePage() {
             <Home size={30} className="text-primary" />
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-foreground">מוכנים לבדוק כמה אפשר לחסוך?</h2>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[
+              "מחיר קבוע 3,450 ₪",
+              "עד 72 שעות לטיפול",
+              "מכרז בין בנקים",
+            ].map((chip) => (
+              <span key={chip} className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-card">
+                <span className="w-1.5 h-1.5 rounded-full bg-gold-gradient" aria-hidden />
+                <span className={chip.includes("\u20aa") || chip.includes("72") ? "font-ticker tabular-nums" : undefined}>{chip}</span>
+              </span>
+            ))}
+          </div>
           <Button
             variant="hero" size="xl"
             className="shadow-gold text-lg px-10 rounded-full"
