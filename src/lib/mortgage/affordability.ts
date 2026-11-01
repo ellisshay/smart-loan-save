@@ -1,5 +1,6 @@
 // "כמה משכנתא אני יכול לקחת?" Distinguishes a reasonable range from the possible limit.
 import { num, principalFromPayment } from "./amortization";
+import { buildMixes, type Rates } from "@/lib/quickCheck";
 
 /** Industry rule of thumb for a comfortable repayment (not a regulation). */
 export const REASONABLE_RATIO = { low: 0.25, high: 0.33 } as const;
@@ -56,4 +57,18 @@ export function repaymentRatio(payment: number, income: number, obligations = 0)
   const i = num(income);
   if (!i) return null;
   return (num(payment) + num(obligations)) / i;
+}
+
+/**
+ * Average market reference rate: the weighted effective rate (CPI included for linked tracks)
+ * of the balanced example mix built from today's market rates. null when rates are unknown.
+ */
+export function marketReferenceRate(rates: Rates | null | undefined): number | null {
+  if (!rates) return null;
+  const mixes = buildMixes(1_000_000, 25, rates);
+  const mix = mixes.find((m) => m.risk === "בינוני") || mixes[0];
+  if (!mix) return null;
+  const total = mix.tracks.reduce((s, t) => s + t.amount, 0);
+  const r = total ? mix.tracks.reduce((s, t) => s + t.rate * t.amount, 0) / total : 0;
+  return r > 0 ? Math.round(r * 100) / 100 : null;
 }

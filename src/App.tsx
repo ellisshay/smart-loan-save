@@ -29,6 +29,8 @@ const BalanceCheckPage = lazy(() => import("./pages/BalanceCheckPage"));
 const RefinanceCalculator = lazy(() => import("./pages/RefinanceCalculator"));
 const MixCalculator = lazy(() => import("./pages/MixCalculator"));
 const AffordabilityCalculator = lazy(() => import("./pages/AffordabilityCalculator"));
+const EarlyRepaymentCalculator = lazy(() => import("./pages/EarlyRepaymentCalculator"));
+const RateSensitivityCalculator = lazy(() => import("./pages/RateSensitivityCalculator"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -160,6 +162,8 @@ export const AppRoutes = () => (
         <Route path="/calculators/mix" element={<Layout><MixCalculator /></Layout>} />
         <Route path="/calculators/savings" element={<Layout><SavingsCalculator /></Layout>} />
         <Route path="/calculators/affordability" element={<Layout><AffordabilityCalculator /></Layout>} />
+        <Route path="/calculators/early-repayment" element={<Layout><EarlyRepaymentCalculator /></Layout>} />
+        <Route path="/calculators/rate-sensitivity" element={<Layout><RateSensitivityCalculator /></Layout>} />
         <Route path="/mortgage-calculator" element={<Layout><NewMortgageCalculator /></Layout>} />
         <Route path="/mortgage-check" element={<Layout><QuickCheckPage /></Layout>} />
         <Route path="/balance-check" element={<Layout><BalanceCheckPage /></Layout>} />

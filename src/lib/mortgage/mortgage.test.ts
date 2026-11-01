@@ -8,6 +8,8 @@ import { compareOffers, explainDifferences } from "./offers";
 import { caseProgress } from "./caseProgress";
 import { nextAction } from "./nextAction";
 import { buildMortgageModel, documentRows } from "./model";
+import { firstMonthSplit } from "./tracks";
+import { marketReferenceRate } from "./affordability";
 
 const finite = (v: unknown) => typeof v === "number" && Number.isFinite(v);
 const track = (p: Partial<NormalizedTrack>): NormalizedTrack => ({ kind: "fixed_unlinked", label: "", amount: 100000, rate: 5, months: 240, linked: false, variable: false, ...p });
@@ -289,7 +291,6 @@ describe("model", () => {
   });
 });
 
-import { firstMonthSplit } from "./tracks";
 describe("first month split", () => {
   it("sums to the estimated payment", () => {
     const t = [track({ amount: 600000, rate: 4, months: 300 }), track({ amount: 400000, rate: 3, months: 300, kind: "fixed_linked", linked: true })];
@@ -298,5 +299,14 @@ describe("first month split", () => {
     expect(s.principal + s.interest + s.index).toBeCloseTo(total, 4);
     expect(s.index).toBeCloseTo((400000 * 2.5) / 1200, 4);
     expect(firstMonthSplit([], 2)).toEqual({ principal: 0, interest: 0, index: 0 });
+  });
+});
+
+describe("market reference rate", () => {
+  it("is a weighted average within the range of track rates, or null", () => {
+    const r = marketReferenceRate({ prime: 5.5, fixed_not_linked: 4.9, fixed_linked: 3.3, variable_5: 4.6, cpi_annual: 2.6 })!;
+    expect(r).toBeGreaterThan(4.6);
+    expect(r).toBeLessThan(5.9);
+    expect(marketReferenceRate(null)).toBeNull();
   });
 });
