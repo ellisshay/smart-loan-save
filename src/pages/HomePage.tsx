@@ -176,15 +176,16 @@ export default function HomePage() {
       <section className="home-editorial-hero relative overflow-hidden bg-card" aria-labelledby="home-headline">
         <img
           src={heroLifestyle}
-          alt="זוג פורק יחד ספרים ושתיל בדירה חדשה, באור יום טבעי"
-          width={1920} height={1120}
+          alt="זוג צעיר בסלון של דירה חדשה ומודרנית, מול מרפסת מלאת עציצים עם מסגרות שחורות, באור יום טבעי"
+          width={1920} height={1376}
           fetchPriority="high"
           className="home-editorial-photo dark:brightness-50"
         />
+        <div aria-hidden className="home-editorial-scrim hidden lg:block absolute inset-0 pointer-events-none" />
         <div className="container relative home-editorial-content">
           <div className="home-editorial-copy">
             <p className="text-lg md:text-xl font-medium text-foreground mb-5 md:mb-8">
-              משכנתא בלי לעצור את החיים.
+              פותחים תיק משכנתא אונליין, בלי פגישות מיותרות.
             </p>
             <h1 id="home-headline" className="font-display text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.16] text-foreground">
               10 דקות באתר.<br />

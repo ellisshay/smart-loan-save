@@ -26,7 +26,7 @@ const FORBIDDEN: { re: RegExp; why: string; allow?: string[] }[] = [
   { re: /אלפי (לקוחות|משפחות|ישראלים)|חוסכים לישראלים/, why: "unsupported volume claim" },
   { re: /חיסכון ממוצע|חוסכים בממוצע|בממוצע ₪/, why: "unsupported savings statistic" },
   { re: /הצעות מכל הבנקים|כל הבנקים המובילים/, why: "use 'עד 3 בנקים רלוונטיים'" },
-  { re: /100% דיגיטלי|כל תהליך המשכנתא.*דיגיטלי|לא צריך להגיע לפגישה|אף פעם לא צריך להגיע/, why: "the bank may require ID or signing" },
+  { re: /100% דיגיטלי|כל תהליך המשכנתא.*דיגיטלי|לא צריך להגיע לפגישה|אף פעם לא צריך להגיע|משכנתא בקליק/, why: "the bank may require ID or signing" },
   { re: /צוות (המומחים|היועצים|יועצי)|עשרות מומחים|היועץ שלכם|היועץ שלך/, why: "no verified advisor team" },
   { re: /24\/7|זמינים תמיד|מענה בכל שעה/, why: "no documented support hours" },
   { re: /נבנה על ידי|About Digital/, why: "no third-party credits on EasyMorte" },
