@@ -355,8 +355,8 @@ export default function HomePage() {
               >
                 <Card className="bg-destructive/5 border-destructive/20 rounded-2xl">
                   <CardContent className="p-5 flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                      <card.icon size={18} className="text-destructive" />
+                    <div className="w-11 h-11 rounded-2xl bg-destructive/10 ring-1 ring-inset ring-destructive/20 flex items-center justify-center shrink-0">
+                      <card.icon size={19} strokeWidth={1.9} className="text-destructive" />
                     </div>
                     <div>
                       <p className="font-bold text-sm text-foreground">{card.title}</p>
