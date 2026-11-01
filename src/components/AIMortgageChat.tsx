@@ -75,7 +75,6 @@ export default function AIMortgageChat() {
           Authorization: `Bearer ${session?.access_token ?? ""}`,
         },
         body: JSON.stringify({
-          user_id: userId,
           message: text,
           conversation_history: conversationHistory,
         }),
