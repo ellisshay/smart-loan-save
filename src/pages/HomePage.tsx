@@ -21,10 +21,10 @@ import heroHouse from "@/assets/hero-house.jpg";
 
 // ─── Trust strip ───
 const trustItems = [
-  { icon: BadgeCheck, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצועי מקצה לקצה" },
-  { icon: Timer, title: "עד 72 שעות", desc: "לטיפול מקצועי מרגע שהתיק מלא ושולם" },
-  { icon: Gavel, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך" },
-  { icon: Laptop, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין" },
+  { icon: BadgeCheck, title: "3,450 ₪ מחיר קבוע", desc: "לשירות מקצה לקצה", stat: "₪3,450", note: "תשלום אחד, בלי הפתעות", bars: [45, 60, 75, 90, 100] },
+  { icon: Timer, title: "עד 72 שעות", desc: "לטיפול מקצועי מרגע שהתיק מלא ושולם", stat: "72h", note: "חלון טיפול מוגדר", bars: [30, 45, 60, 75, 90] },
+  { icon: Gavel, title: "מכרז בנקים", desc: "אנחנו משווים בשבילך", stat: "×3", note: "הצעות במקביל", bars: [55, 70, 85, 95, 100] },
+  { icon: Laptop, title: "ללא פגישות מיותרות", desc: "הכל מתנהל אונליין", stat: "0", note: "פגישות פיזיות", bars: [85, 65, 45, 28, 12] },
 ];
 
 // ─── How it works steps ───
