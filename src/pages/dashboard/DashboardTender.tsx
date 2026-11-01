@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "@/hooks/use-toast";
 import { Check, Landmark, Loader2 } from "lucide-react";
 import { BANK_STATUSES, CLIENT_STEPS, CHECKLIST, OFFER_KINDS, stageToStep, nis, Track } from "@/lib/tender";
+import OfferComparison from "@/components/mortgage/OfferComparison";
 
 export default function DashboardTender() {
   const { caseId, loading: caseLoading } = useDashboardCase();
@@ -17,10 +18,15 @@ export default function DashboardTender() {
   const [msg, setMsg] = useState("");
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
+  const [cpi, setCpi] = useState(0);
 
   const load = async () => {
     if (!caseId) { setLoading(false); return; }
-    const { data } = await (supabase as any).rpc("get_client_tender", { _case_id: caseId });
+    const [{ data }, { data: r }] = await Promise.all([
+      (supabase as any).rpc("get_client_tender", { _case_id: caseId }),
+      supabase.from("market_rates").select("cpi_annual").order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    setCpi(Number((r as { cpi_annual?: number } | null)?.cpi_annual) || 0);
     setT(data); setLoading(false);
   };
   useEffect(() => { if (!caseLoading) load(); }, [caseId, caseLoading]);
@@ -94,16 +100,11 @@ export default function DashboardTender() {
       </div>
 
       {withOffers.length > 1 && (
-        <div className="card-surface p-5 overflow-x-auto">
-          <h2 className="font-display text-lg font-bold mb-1">השוואה פשוטה</h2>
-          <p className="text-xs text-muted-foreground mb-3">ההחזר הנמוך ביותר אינו בהכרח ההצעה המתאימה ביותר. היועץ שלכם יסביר את ההבדלים במבנה ובסיכון.</p>
-          <table className="w-full text-sm">
-            <thead><tr className="text-right bg-muted/60">{["בנק", "סכום", "החזר חודשי התחלתי", "מספר מסלולים", "תוקף"].map((h) => <th key={h} className="p-2">{h}</th>)}</tr></thead>
-            <tbody>{withOffers.map((b: any) => { const o = b.offers[0]; return (
-              <tr key={b.slot} className="border-b border-border"><td className="p-2 font-semibold">{b.bank_name}</td><td className="p-2">{nis(o.total_amount)}</td><td className="p-2">{nis(o.first_payment)}</td><td className="p-2">{o.tracks.length}</td><td className="p-2">{o.valid_until ? new Date(o.valid_until).toLocaleDateString("he-IL") : "-"}</td></tr>
-            ); })}</tbody>
-          </table>
-        </div>
+        <OfferComparison
+          cpi={cpi}
+          selectedId={t.selected_offer_id}
+          offers={withOffers.map((b: any) => ({ ...b.offers[0], bank: b.bank_name || `בנק ${b.slot}` }))}
+        />
       )}
 
       {t.selected_offer_id && (

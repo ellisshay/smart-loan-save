@@ -10,6 +10,8 @@ import { Upload, CheckCircle2, AlertTriangle, FileText, User, DollarSign, Home, 
 import { Progress } from "@/components/ui/progress";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI } from "@/types/intake";
 import { LEVEL_UI, levelOf, isDocSettled } from "@/lib/docValidation";
+import DocumentSummary, { DocStateChip } from "@/components/mortgage/DocumentSummary";
+import { documentRows } from "@/lib/mortgage/model";
 import { useNavigate } from "react-router-dom";
 import { CASE_STATUSES } from "@/types/admin";
 
@@ -207,6 +209,8 @@ export default function DashboardDocuments() {
         <p className="text-sm text-muted-foreground">העלה את המסמכים הנדרשים · {uploadedRequired}/{totalRequired} חובה הועלו</p>
       </div>
 
+      <DocumentSummary rows={documentRows(caseType, { ...intakeData, deferred_docs: deferredDocs }, uploadedDocs)} />
+
       <section aria-label="סטטוס התיק והתשלום" className="space-y-3 border-y border-border py-5">
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">סטטוס התיק: {CASE_STATUSES[status].label}</Badge>
@@ -380,14 +384,14 @@ function DocRow({ doc, uploaded, uploading, verifying, deferred, onToggleDeferre
         <div className="flex-1 min-w-0">
           <span className="text-sm font-medium text-foreground block">{doc.label}</span>
           {uploaded && <span className="text-[11px] text-muted-foreground truncate block">{uploaded.file_name}</span>}
-          {!uploaded && doc.required && !deferred && <span className="text-[10px] text-destructive">חובה</span>}
+          {!uploaded && !deferred && <span className="inline-flex items-center gap-1.5 mt-0.5"><DocStateChip state="missing" />{doc.required && <span className="text-[10px] text-destructive">חובה</span>}</span>}
           {!uploaded && deferred && <span className="text-[10px] text-primary font-medium">ישלח במועד אחר</span>}
         </div>
         {uploaded ? (
           <div className="flex items-center gap-2">
             {isScanning ? <Badge variant="outline" className="text-[10px]">בסריקה...</Badge>
-              : st ? <Badge className={`${st.cls} text-[10px]`}>{st.clientLabel}</Badge>
-              : <Button size="sm" variant="outline" className="text-xs" onClick={() => onVerify(uploaded.id)}>אמת מסמך</Button>}
+              : lvl ? <DocStateChip state={lvl === "green" ? "ok" : lvl === "yellow" ? "review" : "update"} />
+              : <><DocStateChip state="received" /><Button size="sm" variant="outline" className="text-xs" onClick={() => onVerify(uploaded.id)}>אמת מסמך</Button></>}
             {lvl === "red" && !isScanning && (
               <Button size="sm" variant="ghost" className="text-xs" onClick={() => onReplace(uploaded)}><RefreshCw size={13} /> החלף</Button>
             )}
