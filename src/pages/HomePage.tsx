@@ -354,7 +354,7 @@ export default function HomePage() {
                       </div>
                       <p className={`text-[11px] font-medium ${offer.best ? "text-primary" : "text-muted-foreground"}`}>
                         {offer.best ? (
-                          ההחזר החודשי הנמוך בהמחשה
+                          "ההחזר החודשי הנמוך בהמחשה"
                         ) : (
                           <span dir="ltr" className="font-ticker tabular-nums">+₪{offer.monthlyNum - bestMonthly}</span>
                         )}
