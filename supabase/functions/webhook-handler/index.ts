@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { canAccessCase } from "../_shared/auth.ts";
+import { esc } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,7 +19,8 @@ function buildNotifications(
   eventName: string,
   data: Record<string, any>
 ): NotificationTemplate | null {
-  const name = data.user?.name || "לקוח/ה";
+  const name = String(data.user?.name || "לקוח/ה");
+  const nameH = esc(name); // HTML-escaped for email bodies
   const caseNumber = data.case_number || data.case_id?.slice(0, 8) || "";
   const caseType = data.case_type === "refi" ? "מיחזור משכנתא" : "משכנתא חדשה";
 
@@ -31,7 +34,7 @@ function buildNotifications(
           subject: `התיק שלך נפתח בהצלחה – ${caseNumber}`,
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
-              <h2 style="color:#1a1a2e;">שלום ${name} 👋</h2>
+              <h2 style="color:#1a1a2e;">שלום ${nameH} 👋</h2>
               <p>התיק שלך נפתח בהצלחה ב-<strong>EasyMorte</strong>!</p>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">מספר תיק</td><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">${caseNumber}</td></tr>
@@ -53,7 +56,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">השאלון הושלם בהצלחה! 🎉</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>כל הפרטים התקבלו עבור תיק <strong>${caseNumber}</strong>.</p>
               <h3>מה הלאה?</h3>
               <ol>
@@ -76,8 +79,8 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">מסמך הועלה בהצלחה 📄</h2>
-              <p>שלום ${name},</p>
-              <p>המסמך <strong>${data.payload?.file_name || "מסמך"}</strong> (${data.payload?.doc_type || ""}) הועלה בהצלחה לתיק ${caseNumber}.</p>
+              <p>שלום ${nameH},</p>
+              <p>המסמך <strong>${esc(data.payload?.file_name || "מסמך")}</strong> (${esc(data.payload?.doc_type || "")}) הועלה בהצלחה לתיק ${caseNumber}.</p>
               ${data.missing_docs_count ? `<p style="color:#e67e22;">נותרו <strong>${data.missing_docs_count}</strong> מסמכים להעלאה.</p>` : '<p style="color:#27ae60;font-weight:bold;">כל המסמכים הועלו! ✅</p>'}
               <a href="https://www.easymorte.co.il/dashboard/documents" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">נהל מסמכים →</a>
             </div>`,
@@ -114,7 +117,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">הצעת משכנתא חדשה! 💰</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>התקבלה הצעה חדשה עבורך:</p>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f9fa;border-radius:8px;">
                 <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">בנק</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">${data.payload?.bank_name || ""}</td></tr>
@@ -137,7 +140,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#27ae60;">התשלום התקבל בהצלחה ✅</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>התשלום עבור תיק <strong>${caseNumber}</strong> התקבל.</p>
               <p>אם כל מסמכי החובה כבר הושלמו, חלון הטיפול של עד <strong>72 שעות</strong> מתחיל כעת. אם חסרים מסמכים, התשלום נשמר והשעון יתחיל לאחר השלמתם.</p>
               <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">מעקב סטטוס →</a>
@@ -155,7 +158,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">עדכון סטטוס 🔔</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>סטטוס תיק <strong>${caseNumber}</strong> עודכן ל: <strong>${data.new_status || data.status || ""}</strong></p>
               <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפייה בתיק →</a>
             </div>`,
@@ -216,13 +219,9 @@ serve(async (req) => {
       });
     }
 
-    const [{ data: callerProfile }, { data: callerRoles }] = await Promise.all([
-      supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", user.id),
-    ]);
-    const staffRoles = new Set(["admin", "operations", "mortgage_advisor", "supervisor"]);
-    const isStaff = callerProfile?.role === "admin" || (callerRoles || []).some((r: any) => staffRoles.has(String(r.role)));
-    if (caseData.user_id !== user.id && !isStaff) {
+    // Owner, admin or the assigned advisor only (same rule as the database).
+    // deno-lint-ignore no-explicit-any
+    if (!(await canAccessCase(supabase as any, user.id, case_id))) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -257,7 +256,6 @@ serve(async (req) => {
         name: `${personal.firstName || profile?.first_name || ""} ${personal.lastName || profile?.last_name || ""}`.trim(),
         phone: personal.phone || profile?.phone || "",
         email: personal.email || profile?.email || "",
-        id_last4: personal.idNumber ? personal.idNumber.slice(-4) : "",
       },
       goal: caseData?.goal || "",
       mortgage_amount: property.requestedMortgage || currentMortgage.totalBalance || 0,
@@ -327,7 +325,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Webhook handler error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Webhook failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

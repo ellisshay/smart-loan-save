@@ -50,6 +50,13 @@
       "when": 1793541992491,
       "tag": "0006_internal_job_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793560188913,
+      "tag": "0007_security_p0",
+      "breakpoints": true
     }
   ]
 }

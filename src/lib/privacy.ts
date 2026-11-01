@@ -34,8 +34,13 @@ export async function logAudit(action: string, opts: { objectType?: string; obje
   }
 }
 
+/**
+ * Opens a private document through a short-lived signed URL (5 minutes), served as an attachment
+ * (Content-Disposition: attachment) so the file is never rendered on the storage domain.
+ * Note: a signed URL stays valid until it expires, even after logout or permission changes.
+ */
 export async function openDocumentSecure(filePath: string, caseId?: string) {
-  const { data, error } = await supabase.storage.from("case-documents").createSignedUrl(filePath, SIGNED_URL_TTL);
+  const { data, error } = await supabase.storage.from("case-documents").createSignedUrl(filePath, SIGNED_URL_TTL, { download: true });
   await logAudit("view_document", { objectType: "document", objectId: filePath, caseId, success: !error });
   if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   return !error;

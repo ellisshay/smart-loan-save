@@ -198,12 +198,12 @@ function BankSlot({ slot, banks, caseId, offers, selectedOfferId, onChange }: { 
   };
 
   const upload = async (file: File) => {
-    const { error } = await supabase.storage.from("case-documents").upload(`${folder}/${Date.now()}_${file.name.replace(/[^\w.\-]/g, "_")}`, file);
+    const { error } = await supabase.storage.from("case-documents").upload(`${folder}/${Date.now()}_${file.name.replace(/[^\w.\-]/g, "_")}`, file, { cacheControl: "60", upsert: false });
     if (error) return toast({ title: "שגיאה בהעלאה", description: error.message, variant: "destructive" });
     loadFiles();
   };
   const openFile = async (name: string) => {
-    const { data } = await supabase.storage.from("case-documents").createSignedUrl(`${folder}/${name}`, 300);
+    const { data } = await supabase.storage.from("case-documents").createSignedUrl(`${folder}/${name}`, 300, { download: true });
     if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
   };
 

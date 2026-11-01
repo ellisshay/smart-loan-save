@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { uploadCaseDocument, UPLOAD_ACCEPT } from "@/lib/uploadDocument";
 import { Upload, CheckCircle2, XCircle, FileText, Clock } from "lucide-react";
 
 interface DocDef {
@@ -35,27 +36,12 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
     if (!caseId) return;
     setUploading(docType);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      // Validated and stored by the server (type from file bytes, size limit, generated name).
+      const inserted = await uploadCaseDocument({
+        caseId, docType, file, isRequired: docs.find(d => d.type === docType)?.required ?? true,
+      });
+      const filePath = inserted.file_path;
 
-      const filePath = `${user.id}/${caseId}/${docType}_${Date.now()}_${file.name}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("case-documents")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Save document record
-      const { data: inserted, error: dbError } = await supabase.from("case_documents").insert({
-        case_id: caseId,
-        doc_type: docType,
-        file_name: file.name,
-        file_path: filePath,
-        is_required: docs.find(d => d.type === docType)?.required ?? true,
-      }).select("id").single();
-
-      if (dbError) throw dbError;
       // Run document verification so the file counts toward completion
       if (inserted) await supabase.functions.invoke("analyze-document", { body: { document_id: inserted.id } }).catch(console.error);
 
@@ -68,8 +54,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
 
       toast({ title: `${file.name} הועלה בהצלחה ` });
     } catch (error: any) {
-      console.error("Upload error:", error);
-      toast({ title: "שגיאה בהעלאה", description: error.message, variant: "destructive" });
+      toast({ title: "שגיאה בהעלאה", description: error?.message || "נסו שוב", variant: "destructive" });
     } finally {
       setUploading(null);
     }
@@ -132,7 +117,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
                   <input
                     type="file"
                     className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    accept={UPLOAD_ACCEPT}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleUpload(doc.type, file);

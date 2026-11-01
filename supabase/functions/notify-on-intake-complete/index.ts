@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCallerId, canAccessCase } from "../_shared/auth.ts";
+import { makeIntakePayload } from "../_shared/aiPayload.ts";
+import { SITE_URL } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,10 +44,11 @@ serve(async (req) => {
       );
     }
 
-    // Fetch full case data
+    // Only the fields needed for an internal alert. No intake data, names or contact details
+    // leave EasyMorte for Make.com; staff open the case in the admin via the link.
     const { data: caseData, error: caseErr } = await supabase
       .from("cases")
-      .select("*")
+      .select("id, case_number, case_type, status")
       .eq("id", case_id)
       .single();
 
@@ -56,28 +59,7 @@ serve(async (req) => {
       );
     }
 
-    // Fetch client profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", caseData.user_id)
-      .single();
-
-    const payload = {
-      event: "intake_complete",
-      timestamp: new Date().toISOString(),
-      case_id: caseData.id,
-      case_number: caseData.case_number,
-      case_type: caseData.case_type,
-      status: caseData.status,
-      goal: caseData.goal,
-      intake_data: caseData.intake_data,
-      client: {
-        name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim(),
-        email: profile?.email || "",
-        phone: profile?.phone || "",
-      },
-    };
+    const payload = makeIntakePayload(caseData, SITE_URL);
 
     // POST to Make.com webhook
     const response = await fetch(makeWebhookUrl, {
@@ -95,7 +77,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("notify-on-intake-complete error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Request failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

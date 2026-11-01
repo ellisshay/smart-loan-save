@@ -157,6 +157,7 @@ export default function QuickCheckPage() {
     try {
       const work = (async () => {
         const { data: token, error } = await supabase.rpc("save_quick_check_inquiry", { _answers: answers, _consent_version: CONSENT_VERSIONS.quick_check, _ua: navigator.userAgent });
+        if (error && /rate_limited/.test(error.message || "")) throw new Error("rate_limited");
         if (error || !token) throw new Error("create");
         const { data: r } = await supabase.from("market_rates").select("prime,fixed_not_linked,fixed_linked,variable_5,cpi_annual,updated_at").order("updated_at", { ascending: false }).limit(1).maybeSingle();
         if (!r) throw new Error("rates");
@@ -168,8 +169,10 @@ export default function QuickCheckPage() {
       await new Promise((res) => setTimeout(res, 300));
       setResult({ token, rates: r as unknown as Rates, updated: (r as { updated_at?: string }).updated_at });
       window.scrollTo({ top: 0 });
-    } catch {
-      setErr("לא הצלחנו להציג את התוצאה כרגע. נסו שוב בעוד רגע.");
+    } catch (e) {
+      setErr(e instanceof Error && e.message === "rate_limited"
+        ? "בוצעו הרבה בדיקות מהחיבור הזה בזמן קצר. נסו שוב בעוד כשעה, או פתחו תיק ונמשיך משם."
+        : "לא הצלחנו להציג את התוצאה כרגע. נסו שוב בעוד רגע.");
     } finally { setProcessing(-1); }
   };
 

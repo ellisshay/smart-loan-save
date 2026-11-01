@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { encodeBase64 } from "jsr:@std/encoding@1/base64";
+import { documentCheckDeclared, NO_AI_DOC_TYPES } from "../_shared/aiPayload.ts";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -8,7 +9,7 @@ const json = (body: unknown, status = 200) =>
 const DOC_GUIDE: Record<string, string> = {
   id_card: "תעודת זהות ישראלית כולל ספח. חלץ שם מלא, מספר ת.ז ותאריך לידה. בדוק סימני זיוף מובהקים בלבד: פונטים לא אחידים, תמונה מודבקת, עריכה דיגיטלית, ספרת ביקורת שגויה.",
   id_card_b2: "תעודת זהות של לווה שני. אותן בדיקות.",
-  payslips: "תלוש שכר. חלץ ברוטו, נטו, שם מעסיק, מספר ת.ז של העובד וחודש. שים לב שרכיבי שכר משתנים (שעות נוספות, בונוס, עמלות, הבראה, החזר הוצאות) גורמים לשונות חודשית לגיטימית.",
+  payslips: "תלוש שכר. חלץ ברוטו, נטו, שם העובד, שם מעסיק וחודש. אל תחלץ מספר תעודת זהות. שים לב שרכיבי שכר משתנים (שעות נוספות, בונוס, עמלות, הבראה, החזר הוצאות) גורמים לשונות חודשית לגיטימית.",
   bank_statements: "דף עובר ושב. זהה הפקדות שכר קבועות, החזרי הלוואות קבועים, חריגות מסגרת והחזרות צקים.",
   mortgage_report: "דוח יתרות לסילוק / פירוט משכנתא. חלץ בנק, יתרה כוללת, החזר חודשי וכל תת-הלוואה: סוג מסלול, יתרה, ריבית, הצמדה, שנים שנותרו, תחנת שינוי/יציאה ועמלת פירעון אם מופיעה. אין להמציא נתון שאינו מופיע בדוח.",
   settlement_report: "דוח סילוק למסלול משכנתא. חלץ יתרה, ריבית, הצמדה, תקופה שנותרה, עמלת פירעון מוקדם ותחנת שינוי אם מופיעים.",
@@ -20,7 +21,7 @@ const SYSTEM = `אתה מנוע אימות מסמכים פיננסיים לתי�
 כללי השוואה מחייבים:
 1. אל תשווה טקסט בהשוואה מדויקת. נרמל ערכים לפני השוואה: הסר רווחים כפולים, פיסוק, גרשיים, תארים וסיומות.
 2. שמות פרטיים: שמות חיבה מקובלים הם התאמה (דני/דניאל, יוסי/יוסף, אבי/אברהם, משה/מוישה, רפי/רפאל, חני/חנה). שינויי איות קלים אינם אי התאמה.
-3. מספר תעודת זהות זהה גובר על כל הבדל באיות השם. במקרה כזה הרמה היא green או לכל היותר yellow, לעולם לא red. מספר תעודת זהות שונה הוא red.
+3. מספר תעודת זהות אינו נמסר לך ואין לחלץ אותו או להחזיר אותו בתשובה. השוואת שם נעשית לפי הכללים בסעיף 2.
 4. מעסיקים: הסר סיומות תאגידיות לפני השוואה (בע"מ, בעמ, Ltd, Limited, Inc, ישראל, Israel, מערכות, שירותים, אחזקות, טכנולוגיות, גרופ). "אמדוקס" ו"אמדוקס מערכות בע"מ" הם אותו מעסיק, green. בספק החזר yellow. red רק כשמדובר בבירור בחברות שונות.
 5. הכנסה: אל תדרוש התאמה מדויקת. חשב אחוז סטייה מול המוצהר והסבר אותו ברכיבי שכר משתנים.
 6. לעולם אל תדחה מסמך רק בגלל אי התאמה טקסטואלית או סמנטית. red שמור לסתירה מהותית ומוכחת, לזיוף ברור או למסמך שאינו מהסוג המבוקש.
@@ -116,11 +117,22 @@ Deno.serve(async (req) => {
     if (typeof document_id !== "string") return json({ error: "document_id required" }, 400);
 
     const { data: doc } = await admin.from("case_documents")
-      .select("id, doc_type, file_path, case_id, cases!inner(user_id, intake_data)")
+      .select("id, doc_type, file_path, case_id, ai_extracted_data, cases!inner(user_id, intake_data)")
       .eq("id", document_id).single();
     // deno-lint-ignore no-explicit-any
     const c: any = (doc as any)?.cases;
     if (!doc || c.user_id !== user.id) return json({ error: "Not found" }, 404);
+    // The record must point inside the owner's own case folder (defence against a forged file_path).
+    const prefix = `${c.user_id}/${doc.case_id}/`;
+    if (typeof doc.file_path !== "string" || !doc.file_path.startsWith(prefix) || doc.file_path.includes("..")) {
+      return json({ error: "Not found" }, 404);
+    }
+    // A document with a staff decision is reviewed evidence: never re-analyze or overwrite it.
+    // deno-lint-ignore no-explicit-any
+    if ((doc as any).ai_extracted_data?.manual_review) {
+      // deno-lint-ignore no-explicit-any
+      return json({ success: true, result: (doc as any).ai_extracted_data, locked: true });
+    }
 
     const { data: settings } = await admin.from("validation_settings").select("key, value");
     const thresholds: Record<string, number> = {
@@ -139,7 +151,18 @@ Deno.serve(async (req) => {
     const mime = ({ pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" } as Record<string, string>)[ext];
     let result: Record<string, any>;
 
-    if (!mime) {
+    if ((NO_AI_DOC_TYPES as readonly string[]).includes(doc.doc_type)) {
+      // Identity documents are never sent to an AI provider. They are reviewed by staff.
+      result = {
+        overall: "review",
+        level: "yellow",
+        quality: { status: "fair", score: 0, issues: [] },
+        authenticity: { status: "unclear", confidence: 0, flags: [] },
+        cross_check: [],
+        summary: "מסמך זיהוי נבדק ידנית על ידי הצוות",
+        manual_only: true,
+      };
+    } else if (!mime) {
       result = {
         overall: "review",
         level: "yellow",
@@ -150,8 +173,8 @@ Deno.serve(async (req) => {
       };
     } else {
       const b64 = encodeBase64(new Uint8Array(await file.arrayBuffer()));
-      const intake = c.intake_data || {};
-      const declared = { personal: intake.personal, income: intake.income, liabilities: intake.liabilities };
+      // Allow-list: name and employment figures only. No ID number, birth date, contact details or address.
+      const declared = documentCheckDeclared(c.intake_data || {}, doc.doc_type);
       const ai = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -169,7 +192,7 @@ Deno.serve(async (req) => {
       });
       if (ai.status === 429) return json({ error: "עומס זמני, נסה שוב בעוד רגע" }, 429);
       if (ai.status === 402) return json({ error: "שירות האימות אינו זמין כרגע" }, 402);
-      if (!ai.ok) { console.error(await ai.text()); return json({ error: "Verification failed" }, 500); }
+      if (!ai.ok) { console.error("AI gateway error", ai.status); return json({ error: "Verification failed" }, 500); }
       const content = (await ai.json()).choices?.[0]?.message?.content ?? "";
       try { result = JSON.parse(content.match(/\{[\s\S]*\}/)?.[0] ?? content); }
       catch {
@@ -220,7 +243,7 @@ Deno.serve(async (req) => {
 
     return json({ success: true, result });
   } catch (e) {
-    console.error("analyze-document error:", e);
-    return json({ error: e instanceof Error ? e.message : "error" }, 500);
+    console.error("analyze-document error:", e instanceof Error ? e.name : "error");
+    return json({ error: "Verification failed" }, 500);
   }
 });
