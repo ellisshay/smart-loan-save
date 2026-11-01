@@ -125,7 +125,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Button>
             )}
             <Link to="/calculators">
-              <Button variant={isHome ? "outline" : "cta"} size="default" className={isHome ? "bg-transparent border-border text-foreground" : undefined}>בדוק את המשכנתא שלך</Button>
+              <Button variant="cta" size="default">בדוק את המשכנתא שלך</Button>
             </Link>
           </div>
 

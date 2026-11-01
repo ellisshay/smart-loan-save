@@ -201,7 +201,7 @@
 }
 @media (min-width: 1024px) {
   .home-editorial-photo { position: absolute; inset: 0; height: 100%; }
-  .home-editorial-scrim { background: linear-gradient(to left, hsl(var(--card) / 0.88) 0%, hsl(var(--card) / 0.72) 34%, hsl(var(--card) / 0) 62%); }
+  .home-editorial-scrim { background: linear-gradient(to left, hsl(var(--card) / 0.94) 0%, hsl(var(--card) / 0.68) 30%, hsl(var(--card) / 0.18) 52%, hsl(var(--card) / 0) 66%); }
   .home-editorial-content { min-height: 650px; display: flex; align-items: center; padding-top: 60px; padding-bottom: 70px; }
   .home-editorial-copy { width: 46%; margin-left: auto; }
 }
