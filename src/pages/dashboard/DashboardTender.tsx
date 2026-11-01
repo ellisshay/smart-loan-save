@@ -45,7 +45,7 @@ export default function DashboardTender() {
   if (!t) return (
     <div className="card-surface p-8 text-center" dir="rtl">
       <h1 className="font-display text-2xl font-black mb-2">מכרז המשכנתא שלי</h1>
-      <p className="text-muted-foreground">לאחר השלמת התיק והתשלום, היועץ שלכם יפתח מכרז מול 3 בנקים ותוכלו לעקוב כאן אחרי כל שלב.</p>
+      <p className="text-muted-foreground">לאחר השלמת התיק והתשלום נפנה לעד 3 בנקים רלוונטיים, ותוכלו לעקוב כאן אחרי כל שלב.</p>
     </div>
   );
 
@@ -70,7 +70,7 @@ export default function DashboardTender() {
         </ol>
       </div>
 
-      {t.advisor_summary && <div className="card-surface p-5"><p className="text-sm font-semibold mb-1">עדכון מהיועץ שלכם</p><p className="text-sm text-muted-foreground whitespace-pre-line">{t.advisor_summary}</p></div>}
+      {t.advisor_summary && <div className="card-surface p-5"><p className="text-sm font-semibold mb-1">עדכון מ-EasyMorte</p><p className="text-sm text-muted-foreground whitespace-pre-line">{t.advisor_summary}</p></div>}
 
       <div className="grid md:grid-cols-3 gap-4">
         {t.banks.map((b: any) => {
@@ -93,7 +93,7 @@ export default function DashboardTender() {
                   {!t.selected_offer_id && <Button size="sm" className="w-full" onClick={() => { setMsg(""); setDone(false); setDialog({ mode: "proceed", offer: o, bank: b.bank_name }); }}>אני רוצה להתקדם עם ההצעה</Button>}
                   {o.id === t.selected_offer_id && <p className="text-sm text-primary font-semibold text-center">בחרתם בהצעה זו</p>}
                 </>
-              ) : <p className="text-xs text-muted-foreground">ההצעה תוצג כאן לאחר אישור היועץ.</p>}
+              ) : <p className="text-xs text-muted-foreground">ההצעה תוצג כאן אחרי שנבדוק אותה.</p>}
             </div>
           );
         })}
@@ -133,7 +133,7 @@ export default function DashboardTender() {
               </div>
             ))}
             {open?.extra_costs && <p className="text-muted-foreground">{open.extra_costs}</p>}
-            {open?.advisor_explanation && <p className="rounded-lg border border-primary/30 p-3"><b>הסבר היועץ: </b>{open.advisor_explanation}</p>}
+            {open?.advisor_explanation && <p className="rounded-lg border border-primary/30 p-3"><b>ההסבר שלנו: </b>{open.advisor_explanation}</p>}
           </div>
         </DialogContent>
       </Dialog>
@@ -143,14 +143,14 @@ export default function DashboardTender() {
           {done ? (
             <>
               <DialogHeader><DialogTitle>{dialog?.mode === "proceed" ? "הבקשה התקבלה" : "השאלה נשלחה"}</DialogTitle>
-                <DialogDescription>{dialog?.mode === "proceed" ? "היועץ שלכם עודכן ויחזור אליכם לאישור הצעדים הבאים. שום דבר לא נחתם עדיין." : "היועץ שלכם יחזור אליכם בהקדם."}</DialogDescription></DialogHeader>
+                <DialogDescription>{dialog?.mode === "proceed" ? "קיבלנו את הבקשה ונחזור אליכם לאישור הצעדים הבאים. שום דבר לא נחתם עדיין." : "היועץ שלכם יחזור אליכם בהקדם."}</DialogDescription></DialogHeader>
               <DialogFooter><Button onClick={() => setDialog(null)}>סגירה</Button></DialogFooter>
             </>
           ) : (
             <>
               <DialogHeader>
                 <DialogTitle>{dialog?.mode === "proceed" ? `להתקדם עם ההצעה של ${dialog?.bank}?` : `שאלה על ההצעה של ${dialog?.bank}`}</DialogTitle>
-                <DialogDescription>{dialog?.mode === "proceed" ? "זו אינה חתימה ואינה התחייבות. היועץ יאשר איתכם את הפרטים לפני כל פעולה מול הבנק." : "כתבו את השאלה והיועץ יחזור אליכם."}</DialogDescription>
+                <DialogDescription>{dialog?.mode === "proceed" ? "זו אינה חתימה ואינה התחייבות. נאשר איתכם את הפרטים לפני כל פעולה מול הבנק." : "כתבו את השאלה והיועץ יחזור אליכם."}</DialogDescription>
               </DialogHeader>
               <Textarea rows={3} placeholder={dialog?.mode === "proceed" ? "הערה ליועץ (לא חובה)" : "השאלה שלכם"} value={msg} onChange={(e) => setMsg(e.target.value)} />
               <DialogFooter className="gap-2">

@@ -216,7 +216,7 @@ export default function QuickCheckPage() {
   return (
     <div className="container py-8 md:py-14 max-w-2xl space-y-6 pb-28 md:pb-14">
       <header className="text-center space-y-2">
-        <span className="inline-block px-3 py-1 rounded-full bg-success/15 text-foreground text-sm font-bold">חינם · בלי הרשמה</span>
+        <span className="inline-block px-3 py-1 rounded-full bg-success/15 text-foreground text-sm font-bold">חינם · כ-2 דקות</span>
         <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">בדיקת המשכנתא שלי</h1>
       </header>
       <div className="space-y-2" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="התקדמות בבדיקה">

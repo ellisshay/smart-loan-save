@@ -313,7 +313,7 @@ export default function DashboardDocuments() {
             מסמכים כלליים נוספים
           </h3>
           <p className="text-xs text-muted-foreground">
-            אפשר לצרף כל מסמך נוסף שרלוונטי לתיק — הסכם ממון, שמאות, מכתב הסבר, תדפיס נוסף ועוד. המסמכים נשמרים בתיק ונגישים לצוות המקצועי.
+            אפשר לצרף כל מסמך נוסף שרלוונטי לתיק — הסכם ממון, שמאות, מכתב הסבר, תדפיס נוסף ועוד. המסמכים נשמרים בתיק ונגישים רק לכם ולמי שמטפל בתיק.
           </p>
           {uploadedDocs.filter(d => d.doc_type === "general").map(d => (
             <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/20">

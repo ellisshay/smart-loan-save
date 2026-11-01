@@ -19,7 +19,7 @@ const steps = [
     num: "01",
     icon: BarChart3,
     title: "בדוק את המשכנתא שלך, חינם",
-    desc: "הזן את פרטי המשכנתא הנוכחית שלך באחד מהמחשבונים החכמים שלנו. תוך דקה תקבל ציון בזבוז, סימולציית חיסכון, או השוואת תמהילים, הכל חינם וללא רישום.",
+    desc: "הזן את פרטי המשכנתא הנוכחית שלך באחד מהמחשבונים החכמים שלנו. תוך דקות תקבל השוואה לריביות השוק, הערכת חיסכון או השוואת תמהילים. המחשבונים חינם וללא הרשמה. הבדיקה המהירה חינם ומבקשת שם וטלפון לפני הצגת התוצאה.",
     details: [
       "3 מחשבונים: מדד בזבוז, סימולטור מיחזור, השוואת תמהילים",
       "תוצאות מיידיות עם מספרים אמיתיים",
@@ -30,7 +30,7 @@ const steps = [
     num: "02",
     icon: Smartphone,
     title: "מלא טופס דיגיטלי קצר",
-    desc: "אם אתה רוצה דוח מקצועי מלא, פתח תיק פרימיום. מלא טופס דיגיטלי עם פרטי הנכס, ההכנסות וההתחייבויות שלך. הכל אונליין, בלי פגישות ובלי לחכות.",
+    desc: "כשרוצים טיפול מלא, פותחים תיק. כ-10 דקות לפתיחת התיק והשלמת הפרטים הראשוניים: פרטי הנכס, ההכנסות וההתחייבויות. התהליך מול EasyMorte מתנהל אונליין, בלי פגישות מיותרות.",
     details: [
       "טופס אינטייק מתקדם, פרטי נכס, הכנסות, התחייבויות",
       "בחירת יעד: הורדת החזר חודשי או קיצור תקופה",
@@ -41,18 +41,18 @@ const steps = [
     num: "03",
     icon: Upload,
     title: "העלה מסמכים בקליק",
-    desc: "העלה את המסמכים הנדרשים ישירות מהנייד או מהמחשב, דוח יתרות, תלושי שכר ותעודת זהות. המערכת מנהלת הכל בצורה מאובטחת.",
+    desc: "העלה את המסמכים הנדרשים ישירות מהנייד או מהמחשב, דוח יתרות, תלושי שכר ותעודת זהות. המסמכים נשמרים באחסון פרטי עם הרשאות גישה.",
     details: [
       "העלאה מהירה, גרור ושחרר",
-      "הצפנה מלאה של כל המסמכים",
-      "מעקב בזמן אמת על סטטוס המסמכים",
+      "אחסון פרטי עם הרשאות גישה",
+      "מעקב אחרי סטטוס כל מסמך באזור האישי",
     ],
   },
   {
     num: "04",
     icon: Zap,
     title: "אנחנו בונים לך 3 תמהילים",
-    desc: "הצוות המקצועי שלנו מנתח את הנתונים ומייצר 3 תמהילי משכנתא מותאמים אישית, שמרני, מאוזן ואגרסיבי, עם ניתוח רגישות, יתרונות וחסרונות, והמלצה.",
+    desc: "אנחנו מנתחים את הנתונים ובונים 3 תמהילי משכנתא מותאמים אישית, שמרני, מאוזן ואגרסיבי, עם ניתוח רגישות, יתרונות וחסרונות, והמלצה.",
     details: [
       "תמהיל שמרני, יציבות מקסימלית",
       "תמהיל מאוזן, איזון בין חיסכון לסיכון",
@@ -95,7 +95,7 @@ export default function HowItWorksPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 text-gold text-sm font-medium mb-6">
               <Clock size={14} />
-              תהליך מלא תוך 72 שעות
+              טיפול מקצועי בתוך עד 72 שעות מתיק מלא ותשלום
             </span>
             <h1 className="font-display text-4xl md:text-5xl font-black text-foreground mb-4">
               איך זה <span className="text-gradient-gold">עובד?</span>
@@ -163,8 +163,8 @@ export default function HowItWorksPage() {
               <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-3">
                 <Smartphone className="text-gold" size={24} />
               </div>
-              <h3 className="font-display font-bold text-foreground mb-1">הכל דיגיטלי</h3>
-              <p className="text-sm text-muted-foreground">ללא פגישות, ללא ניירת. הכל אונליין מהנייד או מהמחשב.</p>
+              <h3 className="font-display font-bold text-foreground mb-1">תהליך EasyMorte דיגיטלי</h3>
+              <p className="text-sm text-muted-foreground">בלי פגישות מיותרות. פותחים תיק ומנהלים את התהליך אונליין. ייתכן שהבנק ידרוש זיהוי או חתימה מולו.</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -175,7 +175,7 @@ export default function HowItWorksPage() {
               <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-3">
                 <Clock className="text-gold" size={24} />
               </div>
-              <h3 className="font-display font-bold text-foreground mb-1">72 שעות</h3>
+              <h3 className="font-display font-bold text-foreground mb-1">עד 72 שעות לטיפול שלנו</h3>
               <p className="text-sm text-muted-foreground">מרגע שהתיק מלא ושולם ועד לסיום הטיפול המקצועי שלנו.</p>
             </motion.div>
             <motion.div
@@ -187,8 +187,8 @@ export default function HowItWorksPage() {
               <div className="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center mx-auto mb-3">
                 <Shield className="text-gold" size={24} />
               </div>
-              <h3 className="font-display font-bold text-foreground mb-1">מאובטח לחלוטין</h3>
-              <p className="text-sm text-muted-foreground">כל המידע והמסמכים מוצפנים ומאובטחים.</p>
+              <h3 className="font-display font-bold text-foreground mb-1">פרטיות ואבטחה</h3>
+              <p className="text-sm text-muted-foreground">אחסון פרטי עם הרשאות גישה, חיבור מוצפן (HTTPS), וצפייה במסמכים נרשמת ביומן ביקורת.</p>
             </motion.div>
           </div>
         </div>
@@ -206,15 +206,15 @@ export default function HowItWorksPage() {
               מוכן להתחיל?
             </h2>
             <p className="text-foreground/70 mb-8 max-w-md mx-auto">
-              בדיקה ראשונית חינם. תיק מלא מטופל מקצועית בתוך עד 72 שעות.
+              בדיקה ראשונית חינם. הטיפול המקצועי שלנו מתבצע בתוך עד 72 שעות מרגע שהתיק מלא והתשלום התקבל.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/calculators">
-                <Button variant="hero" size="xl">בדוק חינם עכשיו</Button>
+              <Link to="/intake">
+                <Button variant="hero" size="xl">פתיחת תיק</Button>
               </Link>
-              <Link to="/pricing">
+              <Link to="/mortgage-check">
                 <Button variant="outline-light" size="xl">
-                  פתח תיק פרימיום
+                  בדיקת המשכנתא שלי בחינם
                   <ArrowLeft size={18} />
                 </Button>
               </Link>
