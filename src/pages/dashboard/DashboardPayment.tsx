@@ -7,10 +7,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass, Phone } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Zap, Shield, CheckCircle2, Loader2, FileUp, XCircle, Hourglass, Phone } from "lucide-react";
 
 
 export default function DashboardPayment() {
@@ -33,28 +30,6 @@ export default function DashboardPayment() {
   // Billing details for the invoice — prefillable from the borrower questionnaire
   const personal = (intakeData as any)?.personal ?? {};
   const borrower = personal.borrower1 ?? {};
-  const [sameAsBorrower, setSameAsBorrower] = useState(true);
-  const [billing, setBilling] = useState({ firstName: "", lastName: "", invoiceName: "", email: "", phone: "" });
-
-  useEffect(() => {
-    if (!sameAsBorrower) return;
-    setBilling({
-      firstName: borrower.firstName ?? "",
-      lastName: borrower.lastName ?? "",
-      invoiceName: [borrower.firstName, borrower.lastName].filter(Boolean).join(" "),
-      email: borrower.email ?? "",
-      phone: borrower.phone ?? "",
-    });
-  }, [sameAsBorrower, borrower.firstName, borrower.lastName, borrower.email, borrower.phone]);
-
-  const billingValid =
-    billing.firstName.trim().length > 0 &&
-    billing.lastName.trim().length > 0 &&
-    billing.invoiceName.trim().length > 0 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim()) &&
-    // Phone is optional, but when present it must look like a local Israeli number.
-    (billing.phone.trim() === "" || /^0?\d{8,10}$/.test(billing.phone.replace(/[\s-]/g, "")));
-
   // The payment page URL is created server-side (cardcom-payment-create edge function)
   // so the Cardcom terminal credentials never reach the browser. The client billing
   // details prefill the cardholder fields on the Cardcom page, and up to 4 installments
@@ -68,10 +43,10 @@ export default function DashboardPayment() {
           caseId,
           origin: window.location.origin,
           billing: {
-            firstName: billing.firstName.trim(),
-            lastName: billing.lastName.trim(),
-            email: billing.email.trim(),
-            phone: billing.phone.trim(),
+            firstName: String(borrower.firstName ?? "").trim(),
+            lastName: String(borrower.lastName ?? "").trim(),
+            email: String(borrower.email ?? "").trim(),
+            phone: String(borrower.phone ?? "").trim(),
           },
         },
       });
@@ -84,7 +59,7 @@ export default function DashboardPayment() {
     } finally {
       setCreatingPayment(false);
     }
-  }, [caseId, billing.firstName, billing.lastName, billing.email, billing.phone]);
+  }, [caseId, borrower.firstName, borrower.lastName, borrower.email, borrower.phone]);
   // Link the client opens on their own device (after signing in) to pay for this case.
   const clientPayLink = `${window.location.origin}/dashboard/payment?caseId=${caseId}`;
   const clientPhone = String(borrower.phone || "").replace(/\D/g, "").replace(/^0/, "972");
@@ -93,7 +68,7 @@ export default function DashboardPayment() {
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {
     if (paidParam && window.self !== window.top) {
-      try { window.top!.location.href = window.location.href; } catch { /* cross-origin guard */ }
+      try { if (window.top) window.top.location.href = window.location.href; } catch { /* cross-origin guard */ }
     }
   }, [paidParam]);
 
@@ -131,9 +106,8 @@ export default function DashboardPayment() {
     checkDocs();
   }, [caseId, caseType]);
 
-  // Payment is intentionally allowed once the questionnaire is complete, even if documents are still missing.
-  // This reduces abandonment. The 72-hour professional SLA starts only after payment AND required documents are complete.
-  const paymentReady = intakeComplete;
+  // A case can be paid before intake; completing intake and documents still gates professional review.
+  const paymentReady = Boolean(caseId);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
@@ -156,9 +130,9 @@ export default function DashboardPayment() {
           </div>
           <h2 className="font-display text-2xl font-bold text-foreground">התשלום אושר בהצלחה</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            {docsComplete
+            {docsComplete && intakeComplete
               ? "התיק שלך מלא והתשלום התקבל. חלון הטיפול של עד 72 שעות מתחיל עכשיו."
-              : `התשלום התקבל ונשמר. נשאר להשלים ${missingDocs || "את"} מסמכי החובה, ורק כשהתיק מלא מתחיל חלון הטיפול של עד 72 שעות.`}
+              : "התשלום התקבל ונשמר. אפשר להשלים את הפרטים והמסמכים בהמשך או בעזרת הצוות בטלפון. חלון הטיפול של עד 72 שעות מתחיל רק כשהתיק מלא."}
           </p>
         </motion.div>
         <Card className="border-primary/30">
@@ -169,7 +143,7 @@ export default function DashboardPayment() {
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">סטטוס תיק</span>
-              <Badge variant="default">{docsComplete ? "מוכן לניתוח" : "שולם · ממתין למסמכים"}</Badge>
+              <Badge variant="default">{docsComplete && intakeComplete ? "מוכן לניתוח" : "שולם · ממתין להשלמת התיק"}</Badge>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">אישור תשלום</span>
@@ -305,6 +279,12 @@ export default function DashboardPayment() {
         </Card>
       )}
 
+      {!intakeComplete && (
+        <p className="text-sm text-muted-foreground text-center">
+          אפשר לשלם עכשיו ולהשלים את הפרטים והמסמכים בהמשך, גם בשיחה עם הצוות. עד 72 שעות לבדיקת התיק מתחילות רק לאחר השלמת התיק ואישור התשלום.
+        </p>
+      )}
+
       {/* Price + CTA */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <Card className="border-primary/30 shadow-[var(--shadow-gold)]">
@@ -334,86 +314,18 @@ export default function DashboardPayment() {
                   </div>
                 ) : (
                   <div className="space-y-4 text-right">
-                    {/* Billing details for the invoice */}
-                    <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-                      <p className="text-sm font-bold text-foreground">פרטי חיוב לחשבונית</p>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <Checkbox
-                          checked={sameAsBorrower}
-                          onCheckedChange={(v) => setSameAsBorrower(v === true)}
-                        />
-                        <span className="text-sm text-muted-foreground">הפרטים זהים לפרטי הלווה מהשאלון</span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label htmlFor="bill-first" className="text-xs">שם פרטי</Label>
-                          <Input
-                            id="bill-first"
-                            value={billing.firstName}
-                            disabled={sameAsBorrower}
-                            onChange={(e) => setBilling((b) => ({ ...b, firstName: e.target.value }))}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="bill-last" className="text-xs">שם משפחה</Label>
-                          <Input
-                            id="bill-last"
-                            value={billing.lastName}
-                            disabled={sameAsBorrower}
-                            onChange={(e) => setBilling((b) => ({ ...b, lastName: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="bill-invoice" className="text-xs">שם לחשבונית</Label>
-                        <Input
-                          id="bill-invoice"
-                          value={billing.invoiceName}
-                          disabled={sameAsBorrower}
-                          onChange={(e) => setBilling((b) => ({ ...b, invoiceName: e.target.value }))}
-                          placeholder="שם מלא או שם חברה"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label htmlFor="bill-phone" className="text-xs">טלפון נייד (לאימות SMS)</Label>
-                          <Input
-                            id="bill-phone"
-                            type="tel"
-                            dir="ltr"
-                            className="text-left"
-                            value={billing.phone}
-                            disabled={sameAsBorrower}
-                            onChange={(e) => setBilling((b) => ({ ...b, phone: e.target.value }))}
-                            placeholder="050-0000000"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="bill-email" className="text-xs">כתובת מייל לחשבונית</Label>
-                          <Input
-                            id="bill-email"
-                            type="email"
-                            dir="ltr"
-                            className="text-left"
-                            value={billing.email}
-                            disabled={sameAsBorrower}
-                            onChange={(e) => setBilling((b) => ({ ...b, email: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-                    </div>
                     <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="cta"
                       size="lg"
                       className="w-full sm:flex-1 h-auto min-h-12 whitespace-normal text-base"
-                      disabled={!billingValid || creatingPayment}
+                      disabled={!paymentReady || creatingPayment}
                       onClick={async () => {
                         if (await createPaymentPage()) { setShowPayFrame(true); navigate(`/dashboard/payment?caseId=${caseId}`); }
                       }}
                     >
                       {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-                      שמור את התיק והמשך לתשלום
+                      לתשלום ₪3,450
                     </Button>
                     <Button variant="outline" size="lg" className="w-full sm:flex-1 h-auto min-h-12 whitespace-normal" asChild>
                       <a
@@ -429,32 +341,13 @@ export default function DashboardPayment() {
                     {payError && (
                       <p className="text-xs text-destructive text-center">{payError}</p>
                     )}
-                    {!billingValid && (
-                      <p className="text-xs text-warning text-center">יש למלא את כל פרטי החיוב לפני המעבר לתשלום</p>
-                    )}
                   </div>
                 )}
                 <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · פרטי הכרטיס אינם נשמרים ב-EasyMorte</p>
               </>
             ) : (
               <>
-                <Button variant="cta" size="lg" className="w-full text-base" disabled>
-                  <Lock size={18} />
-                  התשלום ייפתח לאחר השלמת התיק
-                </Button>
-                <div className="mt-4 space-y-2 text-right">
-                  {!intakeComplete && (
-                    <button
-                      onClick={() => navigate("/dashboard/mortgage")}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/40 hover:bg-muted transition-colors"
-                    >
-                      <ClipboardList size={16} className="text-warning shrink-0" />
-                      <span className="text-sm text-foreground">השלם את שאלון הפרטים האישיים</span>
-                    </button>
-                  )}
-
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-3">התשלום נפתח לאחר השלמת השאלון. אפשר להשלים מסמכים גם אחרי התשלום, אבל חלון ה־72 שעות מתחיל רק כשהתיק מלא.</p>
+                <p className="text-sm text-muted-foreground">התיק עדיין נטען. אפשר לנסות שוב בעוד רגע.</p>
               </>
             )}
           </CardContent>
