@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Upload, CheckCircle2, XCircle, FileText, Clock } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 interface DocDef {
   type: string;
@@ -61,6 +62,7 @@ export default function StepDocuments({ docs, caseId, uploadedDocs, onUploaded, 
 
       onUploaded({ type: docType, fileName: file.name, filePath });
       
+      track("documents_uploaded", { doc_type: docType, source: "intake" });
       // Fire webhook
       await supabase.functions.invoke("webhook-handler", {
         body: { event_name: "docs_uploaded", case_id: caseId, payload: { doc_type: docType, file_name: file.name } },

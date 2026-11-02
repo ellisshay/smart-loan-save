@@ -14,6 +14,7 @@ import DocumentSummary, { DocStateChip } from "@/components/mortgage/DocumentSum
 import { documentRows } from "@/lib/mortgage/model";
 import { useNavigate } from "react-router-dom";
 import { CASE_STATUSES } from "@/types/admin";
+import { track } from "@/lib/analytics";
 
 interface UploadedDoc {
   id: string;
@@ -126,6 +127,7 @@ export default function DashboardDocuments() {
         is_required: isRequired,
       }).select("id").single();
       if (insErr) throw insErr;
+      track("documents_uploaded", { doc_type: docType, source: "dashboard" });
 
       await supabase.functions.invoke("webhook-handler", {
         body: { event_name: "doc_uploaded", case_id: caseId, payload: { doc_type: docType } },
@@ -313,7 +315,7 @@ export default function DashboardDocuments() {
             מסמכים כלליים נוספים
           </h3>
           <p className="text-xs text-muted-foreground">
-            אפשר לצרף כל מסמך נוסף שרלוונטי לתיק — הסכם ממון, שמאות, מכתב הסבר, תדפיס נוסף ועוד. המסמכים נשמרים בתיק ונגישים לצוות המקצועי.
+            אפשר לצרף כל מסמך נוסף שרלוונטי לתיק — הסכם ממון, שמאות, מכתב הסבר, תדפיס נוסף ועוד. המסמכים נשמרים בתיק ונגישים רק לכם ולמי שמטפל בתיק.
           </p>
           {uploadedDocs.filter(d => d.doc_type === "general").map(d => (
             <div key={d.id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/20">

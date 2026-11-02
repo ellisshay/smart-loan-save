@@ -1,6 +1,6 @@
-import familyImg from "@/assets/knowledge/family-home.jpg";
-import apartmentsImg from "@/assets/knowledge/apartments.jpg";
-import houseImg from "@/assets/knowledge/dream-house.jpg";
+import familyImg from "@/assets/knowledge/family-home.webp";
+import apartmentsImg from "@/assets/knowledge/apartments.webp";
+import houseImg from "@/assets/knowledge/dream-house.webp";
 
 export const knowledgeImages: Record<string, { src: string; width: number; height: number }> = {
   family: { src: familyImg, width: 1600, height: 900 },

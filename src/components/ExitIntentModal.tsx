@@ -65,7 +65,7 @@ export default function ExitIntentModal({ progress, enabled = true }: Props) {
             רגע, התיק שלך הושלם רק ב-{progress}%
           </DialogTitle>
           <DialogDescription className="text-sm mt-2">
-            כדי לקבל תמהיל תוך 72 שעות צריך להגיע ל-85%
+            כשהתיק מלא והתשלום התקבל, הטיפול המקצועי שלנו מתבצע בתוך עד 72 שעות
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-4">

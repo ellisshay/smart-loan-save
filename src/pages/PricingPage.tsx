@@ -65,7 +65,7 @@ export default function PricingPage() {
               transition={{ delay: i * 0.08 }}
             >
               <Card className={plan.featured ? "border-2 border-gold shadow-gold h-full" : "border border-border h-full"}>
-                <CardContent className="p-7 md:p-8 h-full flex flex-col">
+                <CardContent className="p-5 sm:p-7 md:p-8 h-full flex flex-col">
                   {plan.featured && (
                     <div className="inline-flex self-start items-center gap-1.5 rounded-full bg-gold/10 text-gold text-xs font-bold px-3 py-1 mb-4">
                       <Zap size={13} />
@@ -103,7 +103,7 @@ export default function PricingPage() {
           {[
             { icon: FileSearch, title: "לא משלמים על סימולציה", text: "אפשר לבדוק ולהבין את הכיוון לפני פתיחת התיק המלא." },
             { icon: Landmark, title: "לא מוכרים ליד", text: "EasyMorte מנהלת את התהליך ומרכזת את העבודה מול הבנקים." },
-            { icon: Headphones, title: "72 שעות שלנו", text: "ה-SLA מתחיל רק אחרי שהתיק מלא והתשלום התקבל. זמן הבנק עצמו משתנה." },
+            { icon: Headphones, title: "עד 72 שעות לטיפול שלנו", text: "חלון הטיפול מתחיל רק אחרי שהתשלום התקבל והתיק מלא ותקין. זמני הבנקים אינם בשליטתנו." },
           ].map((item) => (
             <div key={item.title} className="rounded-xl border border-border bg-card/80 p-4">
               <item.icon size={19} className="text-gold mb-2" />

@@ -5,10 +5,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ArrowLeft, Check, ChevronLeft } from "lucide-react";
 import StatsSection from "@/components/home/StatsSection";
 import BankLogosSection from "@/components/home/BankLogosSection";
-import heroLifestyle from "@/assets/home-modern-couple.jpg";
-import architecturalCrop from "@/assets/luxury-building.jpg";
-import ctaLight from "@/assets/cta-light.jpg";
-import founderImage from "@/assets/shay-ellis-founder.png";
+import heroLifestyle from "@/assets/home-modern-couple.webp";
+import architecturalCrop from "@/assets/luxury-building.webp";
+import ctaLight from "@/assets/cta-light.webp";
+import founderImage from "@/assets/shay-ellis-founder.webp";
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
@@ -27,8 +27,8 @@ const steps = [
 
 const faqItems = [
   { q: "כמה זמן זה לוקח?", a: "פתיחת התיק והעלאת המסמכים לוקחות בערך 10 דקות. מרגע שהתיק מלא ושולם, אנחנו מטפלים בו בחלון של עד 72 שעות. זמני האישור והמענה של הבנקים אינם בשליטת EasyMorte." },
-  { q: "האם צריך להגיע לפגישה?", a: "לא. הכל מתנהל אונליין — פרטים, מסמכים והצעות — בלי פגישות מיותרות." },
-  { q: "מתי משלמים?", a: "הבדיקה הראשונית חינם. תשלום אחד של ₪3,450 משלמים כשפותחים תיק מלא, לפני שאנחנו נכנסים לעבודה." },
+  { q: "האם צריך להגיע לפגישה?", a: "רוב התהליך מול EasyMorte מתנהל אונליין. בהתאם לבנק ולעסקה, ייתכן שבהמשך תידרשו לזיהוי, חתימה או פעולה מול הבנק." },
+  { q: "מתי משלמים?", a: "הבדיקה הראשונית חינם. תשלום אחד של ₪3,450 משלמים אחרי שמילאתם את השאלון, לפני שהטיפול המקצועי מתחיל. אפשר להשלים מסמכים גם אחרי התשלום." },
   { q: "האם אתם מבטיחים אישור?", a: "לא, ואף אחד לא יכול. את המשכנתא מאשרים הבנקים. אנחנו מבטיחים תהליך מסודר, שקוף ומקצועי — ושתדעו בדיוק איפה הדברים עומדים." },
   { q: "מה כולל המחיר?", a: "ניתוח הנתונים, בניית חלופות, טיפול מול בנקים רלוונטיים, השוואת הצעות וסטטוס דיגיטלי לאורך כל הדרך." },
   { q: "מה אם עדיין חסרים לי מסמכים?", a: "פותחים תיק וממשיכים. אפשר להשלים מסמכים בהמשך — המערכת מסמנת בדיוק מה חסר, ואנחנו עוזרים לסדר את זה." },
@@ -38,16 +38,9 @@ const faqItems = [
 function CommandCenterMockup() {
   const stages = ["פתיחת תיק", "מסמכים", "בנקים", "חתימה"];
   const activeStage = 2;
-  const kpis = [
-    { label: "החזר חודשי", value: "₪4,980" },
-    { label: "סכום המשכנתא", value: "₪980,000" },
-    { label: "ריבית ממוצעת", value: "4.62%" },
-  ];
-  const offers = [
-    { bank: "בנק א'", rate: "4.62%", best: true },
-    { bank: "בנק ב'", rate: "4.85%", best: false },
-    { bank: "בנק ג'", rate: "5.11%", best: false },
-  ];
+  // Generic illustration only: no amounts, no rates, no "winning" bank.
+  const kpis = ["החזר חודשי", "סכום המשכנתא", "אחוז מימון"];
+  const offers = ["הצעה 1", "הצעה 2", "הצעה 3"];
   return (
     <div className="relative rounded-2xl border border-border bg-card shadow-card-hover overflow-hidden text-right">
       {/* window bar */}
@@ -85,10 +78,10 @@ function CommandCenterMockup() {
           </div>
           {/* KPI row */}
           <div className="grid grid-cols-3 gap-2.5">
-            {kpis.map((kpi) => (
-              <div key={kpi.label} className="rounded-xl border border-border bg-background/60 p-3">
-                <p className="text-[11px] text-muted-foreground">{kpi.label}</p>
-                <p className="font-ticker font-bold text-sm md:text-base text-foreground tabular-nums leading-tight mt-0.5 whitespace-nowrap" dir="ltr">{kpi.value}</p>
+            {kpis.map((label) => (
+              <div key={label} className="rounded-xl border border-border bg-background/60 p-3">
+                <p className="text-[11px] text-muted-foreground">{label}</p>
+                <span className="block mt-2 h-2.5 w-3/4 rounded-full bg-primary/20" aria-hidden />
               </div>
             ))}
           </div>
@@ -105,18 +98,16 @@ function CommandCenterMockup() {
           {/* offers */}
           <div className="grid sm:grid-cols-3 gap-2.5">
             {offers.map((offer) => (
-              <div key={offer.bank} className={`rounded-xl border p-3 ${offer.best ? "border-primary/40 bg-primary/5" : "border-border"}`}>
-                <p className="text-[11px] text-muted-foreground">{offer.bank}</p>
-                <p className="font-ticker font-bold text-foreground tabular-nums" dir="ltr">{offer.rate}</p>
-                <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden" aria-hidden>
-                  <div className={`h-full rounded-full ${offer.best ? "bg-gold-gradient" : "bg-primary/35"}`} style={{ width: offer.best ? "100%" : offer.bank === "בנק ב'" ? "82%" : "60%" }} />
-                </div>
+              <div key={offer} className="rounded-xl border border-border p-3">
+                <p className="text-[11px] text-muted-foreground">{offer}</p>
+                <span className="block mt-2 h-2 w-2/3 rounded-full bg-primary/25" aria-hidden />
+                <span className="block mt-1.5 h-1.5 w-1/2 rounded-full bg-muted" aria-hidden />
               </div>
             ))}
           </div>
           {/* next action */}
           <div className="flex items-center justify-between gap-3 rounded-xl bg-primary/10 border border-primary/20 px-4 py-3">
-            <p className="text-xs font-medium text-foreground">הפעולה הבאה: אישור ההצעה של בנק א'</p>
+            <p className="text-xs font-medium text-foreground">השלב הבא: השלמת מסמך אחד</p>
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden />
           </div>
         </div>
@@ -157,7 +148,7 @@ function StepSnippet({ i }: { i: number }) {
             <span className={`w-2.5 h-2.5 rounded-full ${j === 1 ? "bg-primary" : "bg-border"}`} />
           </span>
         ))}
-        <span className="text-[11px] text-muted-foreground">3 בנקים במקביל</span>
+        <span className="text-[11px] text-muted-foreground">עד 3 בנקים רלוונטיים</span>
       </div>
     );
   }
@@ -175,8 +166,8 @@ function StepSnippet({ i }: { i: number }) {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const handleCTAClick = () => navigate("/mortgage-check");
   const handleBalanceClick = () => navigate("/balance-check");
+  const handleAffordabilityClick = () => navigate("/calculators/affordability");
 
   return (
     <div dir="rtl">
@@ -204,20 +195,15 @@ export default function HomePage() {
               פותחים תיק, מעלים את הפרטים והמסמכים במקום אחד, ואנחנו מרכזים את העבודה המקצועית וההתקדמות מול הבנקים.
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-7 md:mt-9">
-              <Button
-                variant="default" size="default"
-                className="rounded-lg h-12 min-h-12 px-6 text-base"
-                onClick={handleCTAClick}
-              >
-                פתיחת תיק
-                <ChevronLeft size={20} />
+              <Button asChild variant="default" size="default" className="rounded-lg h-12 min-h-12 px-6 text-base">
+                <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
               </Button>
               <Button asChild variant="outline" size="default" className="rounded-lg border-foreground/25 bg-transparent text-foreground hover:bg-card/70 hover:text-foreground h-12 min-h-12 px-5 text-base">
-                <Link to="/balance-check">בדיקת המשכנתא שלי בחינם</Link>
+                <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
               </Button>
             </div>
             <p className="text-xs text-foreground/70 mt-4">
-              לוקח 2 דקות בלבד, ללא התחייבות
+              הבדיקה חינם וללא התחייבות · אנחנו לא מקבלים עמלות מהבנקים
             </p>
           </div>
         </div>
@@ -302,13 +288,13 @@ export default function HomePage() {
             {/* the product, large and off-center */}
             <motion.div {...fadeUp} className="min-w-0">
               <CommandCenterMockup />
-              <p className="text-xs text-muted-foreground mt-4">* הנתונים בתמונה להמחשה בלבד.</p>
+              <p className="text-xs text-muted-foreground mt-4">דוגמה להמחשה בלבד</p>
             </motion.div>
 
             {/* only 3 annotations */}
             <motion.div {...fadeUp} className="flex flex-col gap-10">
               {[
-                { n: "01", t: "איפה התיק עומד", d: "סטטוס חי בכל רגע." },
+                { n: "01", t: "איפה התיק עומד", d: "סטטוס מעודכן והשלב הבא." },
                 { n: "02", t: "מה קורה עם ההחזר", d: "המספרים שלכם, תמיד מול העיניים." },
                 { n: "03", t: "מה הפעולה הבאה", d: "צעד אחד ברור, בלי סימני שאלה." },
               ].map((a) => (
@@ -345,12 +331,12 @@ export default function HomePage() {
             >
               <span className="inline-flex rounded-full bg-muted px-3.5 py-1 text-xs font-medium text-muted-foreground">למשכנתא קיימת או מיחזור</span>
               <h3 className="text-2xl font-extrabold text-foreground mt-4">בדיקת המשכנתא שלי</h3>
-              <p className="text-muted-foreground text-sm mt-2">מה המשכנתא הנוכחית עולה לכם — ומה אפשר לחסוך.</p>
+              <p className="text-muted-foreground text-sm mt-2">מה המשכנתא הנוכחית עולה לכם, והאם יש פוטנציאל לחיסכון.</p>
               {/* fake interactive field */}
               <div className="mt-6 rounded-2xl border border-border bg-background/70 p-4" aria-hidden>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">יתרת המשכנתא שלכם</span>
-                  <span className="font-ticker font-bold text-foreground tabular-nums" dir="ltr">₪712,000</span>
+                  <span className="text-xs text-muted-foreground/70" dir="ltr">₪ ———</span>
                 </div>
                 <div className="relative h-1.5 rounded-full bg-border mt-4">
                   <div className="h-full rounded-full bg-primary/50" style={{ width: "62%" }} />
@@ -367,7 +353,7 @@ export default function HomePage() {
             <motion.button
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: 0.08 }}
-              onClick={handleCTAClick}
+              onClick={handleAffordabilityClick}
               className="group text-right rounded-3xl border border-primary/25 bg-primary/5 p-7 md:p-9 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             >
               <span className="inline-flex rounded-full bg-card px-3.5 py-1 text-xs font-medium text-primary border border-primary/20">לרכישה חדשה</span>
@@ -375,8 +361,8 @@ export default function HomePage() {
               <p className="text-muted-foreground text-sm mt-2">תמונת מצב מהירה לפי ההכנסות וההון העצמי שלכם.</p>
               <div className="mt-6 rounded-2xl border border-primary/20 bg-card p-4" aria-hidden>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">מחיר הנכס</span>
-                  <span className="font-ticker font-bold text-foreground tabular-nums" dir="ltr">₪1,850,000</span>
+                  <span className="text-xs text-muted-foreground">הכנסה והון עצמי</span>
+                  <span className="text-xs text-muted-foreground/70" dir="ltr">₪ ———</span>
                 </div>
                 <div className="relative h-1.5 rounded-full bg-border mt-4">
                   <div className="h-full rounded-full bg-gold-gradient" style={{ width: "74%" }} />
@@ -414,11 +400,11 @@ export default function HomePage() {
 
           <motion.p {...fadeUp} className="text-xs text-muted-foreground mt-8">
             חלון טיפול של עד 72 שעות מרגע שהתיק מלא ושולם. זמני האישור של הבנקים אינם בשליטתנו.
+            <br />התשלום אינו הבטחה לאישור או לריבית מסוימת. <Link to="/pricing" className="underline">מה כלול במחיר</Link> · <Link to="/cancel" className="underline">מדיניות ביטול</Link>
           </motion.p>
           <motion.div {...fadeUp} className="mt-8">
-            <Button variant="hero" size="xl" className="shadow-gold rounded-full px-10" onClick={handleCTAClick}>
-              פתיחת תיק
-              <ChevronLeft size={20} />
+            <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full px-10">
+              <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
             </Button>
           </motion.div>
         </div>
@@ -445,7 +431,7 @@ export default function HomePage() {
               יש גם בן אדם <span className="text-gradient-gold">מאחורי המערכת.</span>
             </h2>
             <p className="text-muted-foreground leading-relaxed mt-5 max-w-lg">
-              שי אליס הגיע מהחיבור שבין פיננסים, טכנולוגיה ועסקים — והקים את EasyMorte מתוך מטרה פשוטה: להפוך תהליך מסורבל לתהליך ברור.
+              בעל תואר ראשון במנהל עסקים, עם רקע בפיננסים, שוק ההון, ייעוץ עסקי וטכנולוגיה, וניסיון במערכות פיננסיות ובתהליכים דיגיטליים. את EasyMorte הקים כדי להפוך את תהליך המשכנתא לברור, מסודר ושקוף יותר.
             </p>
             <p className="text-foreground font-medium leading-relaxed mt-4 max-w-lg">
               בלי שיחות מכירה ובלי סודות. אתם יודעים איפה הדברים עומדים, בכל שלב.
@@ -459,7 +445,7 @@ export default function HomePage() {
         <div className="container max-w-3xl">
           <motion.h2 {...fadeUp} className="text-2xl md:text-3xl font-extrabold text-foreground mb-6">בלי אותיות קטנות.</motion.h2>
           <div>
-            {["EasyMorte אינה בנק.", "הבנקים הם שמאשרים את המשכנתא.", "EasyMorte אינה מקבלת עמלות מהבנקים."].map((line, i) => (
+            {["EasyMorte אינה בנק.", "הבנקים הם שמאשרים את המשכנתא.", "EasyMorte אינה מקבלת עמלות מהבנקים.", "גישה לתיק דורשת התחברות, והמסמכים נשמרים באחסון פרטי.", "אפשר לנהל בקשות פרטיות, כולל מחיקת מידע, דרך האזור האישי."].map((line, i) => (
               <motion.p
                 key={line}
                 {...fadeUp}
@@ -470,6 +456,7 @@ export default function HomePage() {
               </motion.p>
             ))}
           </div>
+          <p className="text-sm text-muted-foreground mt-6">אליס שירותי ייעוץ · ע.מ 049025836 · טרומפלדור 11, כפר סבא · <Link to="/privacy" className="text-primary underline">מדיניות הפרטיות</Link></p>
         </div>
       </section>
 
@@ -507,12 +494,11 @@ export default function HomePage() {
               <span className="text-gradient-gold">אנחנו מסדרים את הדרך.</span>
             </h2>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-8">
-              <Button variant="hero" size="xl" className="shadow-gold rounded-full min-h-14 px-9 text-base" onClick={handleCTAClick}>
-                פתיחת תיק
-                <ChevronLeft size={20} />
+              <Button asChild variant="hero" size="xl" className="shadow-gold rounded-full min-h-14 px-9 text-base">
+                <Link to="/intake">פתיחת תיק<ChevronLeft size={20} /></Link>
               </Button>
               <Button asChild variant="outline" size="xl" className="rounded-full border-primary text-primary hover:bg-primary/10 min-h-14 px-7 bg-card/60">
-                <Link to="/balance-check">בדיקת המשכנתא שלי בחינם</Link>
+                <Link to="/mortgage-check">בדיקת המשכנתא שלי בחינם</Link>
               </Button>
             </div>
           </motion.div>

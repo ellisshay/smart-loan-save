@@ -1,8 +1,9 @@
-import { useId, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useId, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { trackOnce } from "@/lib/analytics";
 
 /**
  * One layout for every calculator: a question, up to 6 inputs, an instant result,
@@ -12,6 +13,9 @@ export function CalculatorShell({ question, intro, inputs, result, visual, expla
   question: string; intro?: string; inputs: ReactNode; result: ReactNode; visual?: ReactNode;
   explanation?: ReactNode; cta?: { text?: string; label: string; href: string; secondary?: { label: string; href: string } }; note?: ReactNode;
 }) {
+  const { pathname } = useLocation();
+  const started = useRef(false);
+  const calculator = pathname.replace(/^\/(calculators\/)?/, "").replace(/[^a-z-]/g, "") || "calculator";
   return (
     <div className="container max-w-5xl py-8 sm:py-12" dir="rtl">
       <header className="mb-6 sm:mb-8">
@@ -20,7 +24,9 @@ export function CalculatorShell({ question, intro, inputs, result, visual, expla
         {intro && <p className="text-muted-foreground mt-2 max-w-2xl">{intro}</p>}
       </header>
       <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-4 sm:gap-6 items-start">
-        <section aria-label="נתונים" className="rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-4">{inputs}</section>
+        <section aria-label="נתונים" className="rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-4"
+          onInputCapture={() => { started.current = true; trackOnce(`calc-start-${calculator}`, "calculator_start", { calculator }); }}
+          onBlurCapture={() => { if (started.current) trackOnce(`calc-result-${calculator}`, "calculator_result", { calculator }); }}>{inputs}</section>
         <div className="space-y-4 sm:space-y-6 min-w-0">
           <section aria-label="תוצאה" aria-live="polite" className="rounded-2xl border border-border bg-card p-4 sm:p-6">{result}</section>
           {visual && <section aria-label="גרף" className="rounded-2xl border border-border bg-card p-4 sm:p-6">{visual}</section>}

@@ -1,4 +1,4 @@
-import logo from "@/assets/easy-morte-logo-concept-a.png";
+import logo from "@/assets/easy-morte-logo-concept-a.webp";
 
 /** The same identity is used in every site header and workspace. */
 export default function BrandLogo({ compact = false }: { compact?: boolean }) {

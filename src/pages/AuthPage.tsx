@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, LogIn, UserPlus, Chrome } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 type UserType = "client" | "advisor";
 
@@ -82,6 +83,7 @@ export default function AuthPage() {
           },
         });
         if (error) throw error;
+        track("sign_up", { source: userType === "advisor" ? "advisor" : "client" });
 
         const userId = data.user?.id;
         if (userId && userType === "advisor") {
