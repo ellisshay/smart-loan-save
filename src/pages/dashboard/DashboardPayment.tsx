@@ -213,7 +213,7 @@ export default function DashboardPayment() {
             className="w-full"
             disabled={!paymentReady || creatingPayment}
             onClick={async () => {
-              if (await createPaymentPage()) { setShowPayFrame(true); navigate("/dashboard/payment"); }
+              if (await createPaymentPage()) { setShowPayFrame(true); navigate(`/dashboard/payment?caseId=${caseId}`); }
             }}
           >
             {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
@@ -408,7 +408,7 @@ export default function DashboardPayment() {
                       className="w-full text-base"
                       disabled={!billingValid || creatingPayment}
                       onClick={async () => {
-                        if (await createPaymentPage()) { setShowPayFrame(true); navigate("/dashboard/payment"); }
+                        if (await createPaymentPage()) { setShowPayFrame(true); navigate(`/dashboard/payment?caseId=${caseId}`); }
                       }}
                     >
                       {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
