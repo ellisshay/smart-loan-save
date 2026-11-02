@@ -15,8 +15,8 @@ apply() {
 # Lovable used supabase/migrations until 2026-10-06 and drizzle/migrations from 2026-10-08 on.
 for f in $ROOT/supabase/migrations/*.sql; do apply "$f"; done
 for f in $ROOT/drizzle/migrations/0*.sql; do
-  [[ "${SKIP_SECURITY:-}" == 1 && "$f" == *0007_security_p0.sql ]] && continue
+  [[ "${SKIP_SECURITY:-}" == 1 && "$f" == *0008_security_p0.sql ]] && continue
   apply "$f"
-done   # 0000..0007 (0007 = SECURITY-B; SKIP_SECURITY=1 builds the pre-fix baseline)
+done   # 0000..0008 (0008 = SECURITY-B; SKIP_SECURITY=1 builds the pre-fix baseline)
 $PSQL -d em -f seed_synthetic.sql
 echo "staging database ready (synthetic data only)"

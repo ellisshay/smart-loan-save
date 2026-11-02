@@ -140,8 +140,8 @@ describe("send-nudges: disabled for launch", () => {
   it("does not log phone numbers or message text", () => {
     expect(src()).not.toMatch(/console\.log\([^)]*(profile\.phone|\$\{message\})/);
   });
-  it("migration 0007 removes the scheduled nudge job (guarded)", () => {
-    const sql = readFileSync(join(__dirname, "../../drizzle/migrations/0007_security_p0.sql"), "utf8");
+  it("migration 0008 removes the scheduled nudge job (guarded)", () => {
+    const sql = readFileSync(join(__dirname, "../../drizzle/migrations/0008_security_p0.sql"), "utf8");
     expect(sql).toMatch(/cron\.unschedule\(jobid\) FROM cron\.job WHERE jobname = 'send-nudges-every-30min'/);
     expect(sql).toMatch(/to_regclass\('cron\.job'\) IS NOT NULL/);
     expect(sql).not.toMatch(/send-reminders-every-3h/);

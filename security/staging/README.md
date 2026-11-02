@@ -8,7 +8,7 @@ Builds an isolated PostgreSQL database with a Supabase-compatible bootstrap (rol
 Each scenario runs inside `BEGIN … ROLLBACK` as a specific user, the same way PostgREST applies a JWT. This makes the RLS, storage policy and RPC results real for the database layer.
 
 ```bash
-PGHOST=<socket dir> PGPORT=<port> ./apply-local.sh                    # with SECURITY-B (0007)
+PGHOST=<socket dir> PGPORT=<port> ./apply-local.sh                    # with SECURITY-B (0008)
 SKIP_SECURITY=1 PGHOST=<socket dir> PGPORT=<port> ./apply-local.sh    # pre-fix baseline
 PGHOST=<socket dir> PGPORT=<port> node run-db-tests.mjs after
 ```
