@@ -34,7 +34,7 @@ serve(async (req) => {
 
     if (!message) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: user_id, message" }),
+        JSON.stringify({ error: "Missing required field: message" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
