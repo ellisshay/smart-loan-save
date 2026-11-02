@@ -24,6 +24,12 @@ describe("public privacy policy matches implementation", () => {
   it("AI disclosure matches behavior: identity data and signatures are not sent", () => {
     expect(PRIVACY).toMatch(/מסמכי זיהוי, מספרי תעודת זהות, תאריכי לידה, פרטי קשר וחתימות אינם מועברים/);
   });
+  it("chat disclosure says the customer's chat messages are sent to the AI provider", () => {
+    expect(PRIVACY).toMatch(/נשלחים תוכן ההודעות שכתבת בצ'אט/);
+  });
+  it("does not promise a fixed deletion time for the IP hash", () => {
+    expect(PRIVACY).not.toMatch(/עד כיומיים/);
+  });
   it("names external automation, email and AI processing", () => {
     expect(PRIVACY).toMatch(/Make\.com/);
     expect(PRIVACY).toMatch(/שליחת מיילים/);
