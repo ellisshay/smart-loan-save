@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass } from "lucide-react";
+import { Zap, Shield, CheckCircle2, Loader2, Lock, FileUp, ClipboardList, XCircle, Hourglass, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -402,10 +402,11 @@ export default function DashboardPayment() {
                         </div>
                       </div>
                     </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="cta"
                       size="lg"
-                      className="w-full text-base"
+                      className="w-full sm:flex-1 h-auto min-h-12 whitespace-normal text-base"
                       disabled={!billingValid || creatingPayment}
                       onClick={async () => {
                         if (await createPaymentPage()) { setShowPayFrame(true); navigate(`/dashboard/payment?caseId=${caseId}`); }
@@ -414,6 +415,17 @@ export default function DashboardPayment() {
                       {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
                       שמור את התיק והמשך לתשלום
                     </Button>
+                    <Button variant="outline" size="lg" className="w-full sm:flex-1 h-auto min-h-12 whitespace-normal" asChild>
+                      <a
+                        href={`https://wa.me/972559961997?text=${encodeURIComponent("שלום, אשמח לשוחח טלפונית עם יועץ")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Phone size={18} className="shrink-0" />
+                        אשמח לשוחח טלפונית עם יועץ
+                      </a>
+                    </Button>
+                    </div>
                     {payError && (
                       <p className="text-xs text-destructive text-center">{payError}</p>
                     )}
