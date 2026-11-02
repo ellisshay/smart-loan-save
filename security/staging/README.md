@@ -14,7 +14,7 @@ PGHOST=<socket dir> PGPORT=<port> node run-db-tests.mjs after
 ```
 
 - The cron jobs in `drizzle/migrations/0006` call the **production** function URL, so they are stripped from the local build.
-- Results (2026-11-02): original 29 scenarios **baseline 19/29 → after 29/29**; with the 4 staff bank-file scenarios **21/33 → 33/33**.
+- Results (2026-11-02): original 29 scenarios **baseline 19/29 → after 29/29**; with the staff bank-file and nudge-cron scenarios **21/34 → 34/34**.
 
 ## 2. Hosted staging (`run-hosted-tests.mjs`)
 For behavior that only a real Supabase project shows: signed-URL expiry, logout, deployed Edge Functions, and end-to-end uploads.

@@ -171,3 +171,42 @@ export const FORBIDDEN_KEYS = [
   "firstName", "lastName", "first_name", "last_name", "address", "fullName", "full_name",
   "ai_extracted_data", "extracted", "intake_data", "consent", "zipCode", "citizenshipDetails",
 ];
+
+// ── webhook-handler → WEBHOOK_URL (external automation) ─────────────────────────────
+/** Events that produce a message to the customer. Only these may carry contact details. */
+export const CUSTOMER_MESSAGE_EVENTS = [
+  "case_created", "case_submitted", "docs_uploaded", "offer_submitted", "payment_succeeded", "status_changed",
+] as const;
+
+/** Operational payload: no contact details, no financial data, no customer-supplied fields. */
+export function webhookBasePayload(event: string, c: { id: string; case_number?: unknown; case_type?: unknown; status?: unknown }, adminBaseUrl: string) {
+  return {
+    event,
+    timestamp: new Date().toISOString(),
+    case_id: c.id,
+    case_number: typeof c.case_number === "string" ? c.case_number : null,
+    case_type: s(c.case_type, ["new", "refi"]),
+    status: typeof c.status === "string" ? c.status : null,
+    admin_url: `${adminBaseUrl.replace(/\/$/, "")}/admin/cases/${c.id}`,
+  };
+}
+
+export interface PreparedMessage { whatsapp?: { body: string }; email?: { subject: string; body_html: string } }
+
+/**
+ * Outbound payload. A delivery object (recipient + prepared message) is attached only for events
+ * that message the customer, and only for channels that have both a recipient and a message.
+ */
+export function webhookOutboundPayload(
+  base: ReturnType<typeof webhookBasePayload>,
+  message: PreparedMessage | null,
+  contact: { phone?: unknown; email?: unknown },
+) {
+  if (!message || !(CUSTOMER_MESSAGE_EVENTS as readonly string[]).includes(base.event)) return base;
+  const phone = typeof contact.phone === "string" && contact.phone.trim() ? contact.phone.trim() : null;
+  const email = typeof contact.email === "string" && contact.email.trim() ? contact.email.trim() : null;
+  const notifications: Record<string, unknown> = {};
+  if (phone && message.whatsapp) notifications.whatsapp = { to: phone, body: message.whatsapp.body };
+  if (email && message.email) notifications.email = { to: email, subject: message.email.subject, body_html: message.email.body_html };
+  return Object.keys(notifications).length ? { ...base, notifications } : base;
+}

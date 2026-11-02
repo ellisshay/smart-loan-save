@@ -113,6 +113,9 @@ const S = [
   { id: "T4", t: "Unassigned advisor uploads to another case's tender folder", exp: "rejected",
     sql: `${as(U.advisor)} INSERT INTO storage.objects(bucket_id, name) VALUES ('case-documents','tender/${CASE_B}/offer.pdf') RETURNING 'inserted';`,
     pass: (r) => !r.ok },
+  { id: "N1", t: "Promotional nudge cron job is removed; reminders job untouched", exp: "nudges 0 / reminders 1",
+    sql: `SELECT (SELECT count(*) FROM cron.job WHERE jobname='send-nudges-every-30min') || ' / ' || (SELECT count(*) FROM cron.job WHERE jobname='send-reminders-every-3h');`,
+    pass: (r) => r.ok && r.out === "0 / 1", show: (r) => r.out },
 ];
 
 const label = process.argv[2] || "run";

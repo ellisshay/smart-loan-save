@@ -92,3 +92,38 @@ describe("Make.com intake alert", () => {
     assertClean(p);
   });
 });
+
+// ── webhook-handler → WEBHOOK_URL ───────────────────────────────────────────────
+import { webhookBasePayload, webhookOutboundPayload, CUSTOMER_MESSAGE_EVENTS } from "../../supabase/functions/_shared/aiPayload";
+
+describe("external webhook payload (webhook-handler)", () => {
+  const caseRow = { id: "22222222-2222-4222-8222-222222222222", case_number: "EM-2002", case_type: "new", status: "InAnalysis",
+    intake_data: intake, goal: "lower_payment", user_id: "u" } as unknown as { id: string };
+  const FINANCIAL = ["mortgage_amount", "current_balance", "monthly_payment", "income_total", "liabilities_monthly", "ltv", "dti", "risk_level", "goal", "payload", "user"];
+  const contact = { phone: "0500000001", email: "a@staging.invalid" };
+  const msg = { whatsapp: { body: "שלום" }, email: { subject: "s", body_html: "<p>שלום</p>" } };
+
+  it("base payload is exactly the operational allow-list", () => {
+    const base = webhookBasePayload("intake_updated", caseRow, "https://www.easymorte.co.il");
+    expect(Object.keys(base).sort()).toEqual(["admin_url", "case_id", "case_number", "case_type", "event", "status", "timestamp"]);
+    for (const k of FINANCIAL) expect(base).not.toHaveProperty(k);
+    assertClean(base);
+  });
+  it("events without a customer message never carry contact details", () => {
+    for (const ev of ["intake_updated", "mix_selected", "doc_uploaded", "lead_created"]) {
+      const out = webhookOutboundPayload(webhookBasePayload(ev, caseRow, "https://x"), msg, contact);
+      expect(out).not.toHaveProperty("notifications");
+      expect(JSON.stringify(out)).not.toMatch(/0500000001|staging\.invalid/);
+    }
+  });
+  it("message events carry only the recipient and prepared message, per channel", () => {
+    expect(CUSTOMER_MESSAGE_EVENTS).toContain("case_submitted");
+    const out = webhookOutboundPayload(webhookBasePayload("case_submitted", caseRow, "https://x"), msg, contact) as Record<string, any>;
+    expect(out.notifications).toEqual({ whatsapp: { to: "0500000001", body: "שלום" }, email: { to: "a@staging.invalid", subject: "s", body_html: "<p>שלום</p>" } });
+    for (const k of FINANCIAL) expect(out).not.toHaveProperty(k);
+    const phoneOnly = webhookOutboundPayload(webhookBasePayload("case_submitted", caseRow, "https://x"), msg, { phone: "0500000001" }) as Record<string, any>;
+    expect(Object.keys(phoneOnly.notifications)).toEqual(["whatsapp"]);
+    const noMessage = webhookOutboundPayload(webhookBasePayload("case_submitted", caseRow, "https://x"), null, contact);
+    expect(noMessage).not.toHaveProperty("notifications");
+  });
+});

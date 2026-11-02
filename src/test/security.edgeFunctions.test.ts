@@ -107,3 +107,43 @@ describe("Edge Functions: uploads", () => {
     expect(src).not.toMatch(/\$\{file\.name\}/);
   });
 });
+
+describe("webhook-handler: outbound data and logging", () => {
+  const src = () => fns.find((f) => f.name === "webhook-handler")!.src;
+  it("never logs the webhook URL", () => {
+    expect(src()).not.toMatch(/console\.(log|error|warn)\([^)]*webhookUrl/);
+    expect(src()).not.toMatch(/\$\{webhookUrl\}/);
+  });
+  it("sends only the allow-listed payload", () => {
+    expect(src()).toMatch(/body: JSON\.stringify\(outbound\)/);
+    expect(src()).toMatch(/webhookBasePayload\(/);
+    // The removed financial builder lines must not return (the outbound object itself is unit-tested
+    // in security.aiPayload.test.ts; offer display fields only feed the customer's own message).
+    for (const k of ["mortgage_amount:", "current_balance:", "income_total:", "liabilities_monthly:", "risk_level:", "ltv:", "dti:", "goal:", "\\.\\.\\.safePayload", "payload: safePayload"]) {
+      expect(src()).not.toMatch(new RegExp(k));
+    }
+  });
+  it("stores only the operational payload in case_events", () => {
+    expect(src()).toMatch(/case_events"\)\.insert\(\{ case_id, event_name, payload: base \}\)/);
+  });
+});
+
+describe("send-nudges: disabled for launch", () => {
+  const src = () => fns.find((f) => f.name === "send-nudges")!.src;
+  it("returns before reading or sending anything unless NUDGES_ENABLED=true", () => {
+    const s = src();
+    const gate = s.indexOf('Deno.env.get("NUDGES_ENABLED") !== "true"');
+    expect(gate).toBeGreaterThan(-1);
+    expect(gate).toBeLessThan(s.indexOf("createClient("));
+    expect(gate).toBeLessThan(s.indexOf("fetch("));
+  });
+  it("does not log phone numbers or message text", () => {
+    expect(src()).not.toMatch(/console\.log\([^)]*(profile\.phone|\$\{message\})/);
+  });
+  it("migration 0007 removes the scheduled nudge job (guarded)", () => {
+    const sql = readFileSync(join(__dirname, "../../drizzle/migrations/0007_security_p0.sql"), "utf8");
+    expect(sql).toMatch(/cron\.unschedule\(jobid\) FROM cron\.job WHERE jobname = 'send-nudges-every-30min'/);
+    expect(sql).toMatch(/to_regclass\('cron\.job'\) IS NOT NULL/);
+    expect(sql).not.toMatch(/send-reminders-every-3h/);
+  });
+});

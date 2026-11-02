@@ -225,3 +225,16 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.save_quick_check_inquiry(jsonb,text,text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.save_quick_check_inquiry(jsonb,text,text) TO anon, authenticated, service_role;
+
+-- ─────────────────────────────────────────────────────────────
+-- 6. Disable the promotional nudge job for launch.
+--    The messages are promotional, marketing consent is not checked, and the urgency claims are
+--    unsupported. The send-reminders job is unchanged. Guarded: no-op when pg_cron or the job is absent.
+--    (The send-nudges function also refuses to send unless NUDGES_ENABLED=true is set.)
+-- ─────────────────────────────────────────────────────────────
+DO $$
+BEGIN
+  IF to_regclass('cron.job') IS NOT NULL THEN
+    EXECUTE $q$SELECT cron.unschedule(jobid) FROM cron.job WHERE jobname = 'send-nudges-every-30min'$q$;
+  END IF;
+END $$;

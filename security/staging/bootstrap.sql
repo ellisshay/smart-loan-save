@@ -44,3 +44,12 @@ CREATE FUNCTION storage.foldername(name text) RETURNS text[] LANGUAGE sql IMMUTA
 $$ SELECT (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'),1)-1] $$;
 CREATE FUNCTION storage.filename(name text) RETURNS text LANGUAGE sql IMMUTABLE AS
 $$ SELECT (string_to_array(name, '/'))[array_length(string_to_array(name, '/'),1)] $$;
+
+-- Stub of pg_cron's catalog so the guarded unschedule in drizzle 0007 can be tested.
+-- Seeded with the two jobs that exist in production (names only; no URLs, nothing runs).
+CREATE SCHEMA IF NOT EXISTS cron;
+CREATE TABLE IF NOT EXISTS cron.job (jobid bigserial PRIMARY KEY, jobname text UNIQUE, schedule text);
+CREATE OR REPLACE FUNCTION cron.unschedule(job_id bigint) RETURNS boolean LANGUAGE sql AS
+$$ WITH d AS (DELETE FROM cron.job WHERE jobid = job_id RETURNING 1) SELECT EXISTS (SELECT 1 FROM d) $$;
+INSERT INTO cron.job(jobname, schedule) VALUES ('send-nudges-every-30min','*/30 * * * *'), ('send-reminders-every-3h','0 */3 * * *')
+ON CONFLICT DO NOTHING;

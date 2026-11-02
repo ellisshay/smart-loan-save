@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { canAccessCase } from "../_shared/auth.ts";
-import { esc } from "../_shared/gmail.ts";
+import { esc, SITE_URL } from "../_shared/gmail.ts";
+import { CUSTOMER_MESSAGE_EVENTS, webhookBasePayload, webhookOutboundPayload } from "../_shared/aiPayload.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -179,8 +180,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const webhookUrl = Deno.env.get("WEBHOOK_URL");
-
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
@@ -228,98 +227,60 @@ serve(async (req) => {
       });
     }
 
-    const { data: profile } = caseData
-      ? await supabase
-          .from("profiles")
-          .select("*")
-          .eq("user_id", caseData.user_id)
-          .single()
-      : { data: null };
-
-    // Build webhook payload
-    const intakeData = (caseData?.intake_data as Record<string, any>) || {};
-    const personal = { ...(intakeData.personal || {}), ...(intakeData.personal?.borrower1 || {}) };
-    const income = intakeData.income || {};
-    const liabilities = intakeData.liabilities || {};
-    const property = intakeData.property || {};
-    const currentMortgage = intakeData.current_mortgage || {};
-
-    const webhookPayload: Record<string, any> = {
-      ...safePayload,
-      payload: safePayload,
-      event_name,
-      timestamp: new Date().toISOString(),
-      case_id,
-      case_number: caseData?.case_number || "",
-      case_type: caseData?.case_type || "unknown",
-      user: {
-        name: `${personal.firstName || profile?.first_name || ""} ${personal.lastName || profile?.last_name || ""}`.trim(),
-        phone: personal.phone || profile?.phone || "",
-        email: personal.email || profile?.email || "",
-      },
-      goal: caseData?.goal || "",
-      mortgage_amount: property.requestedMortgage || currentMortgage.totalBalance || 0,
-      current_balance: currentMortgage.totalBalance || 0,
-      monthly_payment: currentMortgage.currentMonthlyPayment || 0,
-      income_total: (income.monthlyNetIncome || 0) + (income.b2MonthlyNetIncome || 0),
-      liabilities_monthly: liabilities.existingLoanPayments || 0,
-      ltv: property.purchasePrice
-        ? Math.round(((property.requestedMortgage || 0) / property.purchasePrice) * 100)
-        : 0,
-      dti: 0,
-      risk_level: liabilities.riskLevel || "",
-      missing_docs_list: [],
-      status: caseData?.status || "Draft",
-    };
-
-    // Calculate DTI
-    const totalIncome = webhookPayload.income_total;
-    if (totalIncome > 0) {
-      webhookPayload.dti = Math.round(
-        ((webhookPayload.liabilities_monthly + (liabilities.maxDesiredPayment || 0)) / totalIncome) * 100
-      );
+    // Explicit allow-list (SECURITY-B). The external automation receives an operational payload only:
+    // no financial data, no intake fields, no customer-supplied payload. Contact details are attached
+    // only for events that actually send the customer a message, and only for the channel used.
+    const base = webhookBasePayload(event_name, caseData, SITE_URL);
+    const isCustomerMessage = (CUSTOMER_MESSAGE_EVENTS as readonly string[]).includes(event_name);
+    let outbound: Record<string, unknown> = base;
+    if (isCustomerMessage) {
+      const b1 = (caseData?.intake_data as Record<string, any>)?.personal?.borrower1 || {};
+      const { data: profile } = await supabase
+        .from("profiles").select("first_name, phone, email").eq("user_id", caseData.user_id).maybeSingle();
+      // Template input: first name, case number/type and the event's own display fields only,
+      // coerced to short plain strings (no markup).
+      const str = (v: unknown) =>
+        typeof v === "string" || typeof v === "number" ? String(v).replace(/[<>"'`]/g, "").slice(0, 80) : undefined;
+      const message = buildNotifications(event_name, {
+        user: { name: String(b1.firstName || profile?.first_name || "").trim() },
+        case_number: caseData?.case_number || "",
+        case_id,
+        case_type: caseData?.case_type,
+        status: caseData?.status,
+        new_status: str(safePayload.new_status),
+        payload: {
+          file_name: str(safePayload.file_name), doc_type: str(safePayload.doc_type),
+          bank_name: str(safePayload.bank_name), interest_rate: str(safePayload.interest_rate),
+          monthly_payment: str(safePayload.monthly_payment), loan_period: str(safePayload.loan_period),
+        },
+      });
+      outbound = webhookOutboundPayload(base, message, {
+        phone: b1.phone || profile?.phone, email: b1.email || profile?.email,
+      });
     }
 
-    // Build notification payloads
-    const notifications = buildNotifications(event_name, webhookPayload);
-    if (notifications) {
-      webhookPayload.notifications = {
-        whatsapp: {
-          to: webhookPayload.user.phone,
-          ...notifications.whatsapp,
-        },
-        email: {
-          to: webhookPayload.user.email,
-          ...notifications.email,
-        },
-      };
-    }
+    // Internal event log: the operational payload only (no contact details or message bodies).
+    await supabase.from("case_events").insert({ case_id, event_name, payload: base });
 
-    // Log event to case_events
-    await supabase.from("case_events").insert({
-      case_id,
-      event_name,
-      payload: webhookPayload,
-    });
-
-    // Send to external webhook if configured
+    // Send to the external automation if configured. Never log the URL (it acts as a secret).
+    const webhookUrl = Deno.env.get("WEBHOOK_URL");
     if (webhookUrl) {
       try {
         const response = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(webhookPayload),
+          body: JSON.stringify(outbound),
         });
-        console.log(`Webhook sent to ${webhookUrl}: ${response.status}`);
+        console.log("External webhook sent:", event_name, response.status);
       } catch (webhookError) {
-        console.error("External webhook error:", webhookError);
+        console.error("External webhook error:", event_name, webhookError instanceof Error ? webhookError.name : "error");
       }
     } else {
-      console.log("No WEBHOOK_URL configured, event logged only:", event_name);
+      console.log("No external webhook configured, event logged only:", event_name);
     }
 
     return new Response(
-      JSON.stringify({ success: true, event_name, has_notifications: !!notifications }),
+      JSON.stringify({ success: true, event_name, has_notifications: "notifications" in outbound }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

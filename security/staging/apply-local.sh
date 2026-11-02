@@ -8,8 +8,9 @@ PSQL="psql -U postgres -v ON_ERROR_STOP=1 -q"
 $PSQL -d postgres -c "DROP DATABASE IF EXISTS em WITH (FORCE)" -c "CREATE DATABASE em"
 sed 's/ALTER DATABASE postgres/ALTER DATABASE em/' bootstrap.sql | $PSQL -d em -f - >/dev/null
 apply() {
-  # pg_cron/pg_net are unavailable locally; cron jobs that call the PRODUCTION URL are stripped.
-  sed -E '/CREATE EXTENSION IF NOT EXISTS (pg_cron|pg_net)/d; /cron\.(un)?schedule/d' "$1" | $PSQL -d em -f - >/dev/null
+  # pg_cron/pg_net are unavailable locally (a stub cron.job table stands in, see bootstrap.sql);
+  # the drizzle 0006 statements that schedule jobs against the PRODUCTION URL are stripped.
+  sed -E "/CREATE EXTENSION IF NOT EXISTS (pg_cron|pg_net)/d; /cron\\.schedule\\(/d; /cron\\.unschedule\\('/d" "$1" | $PSQL -d em -f - >/dev/null
 }
 # Lovable used supabase/migrations until 2026-10-06 and drizzle/migrations from 2026-10-08 on.
 for f in $ROOT/supabase/migrations/*.sql; do apply "$f"; done
