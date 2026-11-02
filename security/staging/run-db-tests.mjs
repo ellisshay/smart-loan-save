@@ -101,6 +101,18 @@ const S = [
     pass: (r) => r.ok && r.out === "t" },
   { id: "R7", t: "Rate-limit table is not readable by anon/customers", exp: "permission denied",
     sql: `${as(U.A)} SELECT count(*) FROM rate_limits;`, pass: (r) => !r.ok },
+  { id: "T1", t: "Assigned advisor uploads a PDF bank file to tender/<case>", exp: "allowed",
+    sql: `${as(U.advisor)} INSERT INTO storage.objects(bucket_id, name) VALUES ('case-documents','tender/${CASE_A}/offer.pdf') RETURNING 'inserted';`,
+    pass: (r) => r.ok },
+  { id: "T2", t: "Staff uploads a Word file to tender/<case>", exp: "rejected (V1: PDF/JPG/PNG only)",
+    sql: `${as(U.admin)} INSERT INTO storage.objects(bucket_id, name) VALUES ('case-documents','tender/${CASE_A}/offer.docx') RETURNING 'inserted';`,
+    pass: (r) => !r.ok },
+  { id: "T3", t: "Staff uploads an Excel file to tender/<case>", exp: "rejected",
+    sql: `${as(U.admin)} INSERT INTO storage.objects(bucket_id, name) VALUES ('case-documents','tender/${CASE_A}/rates.xlsx') RETURNING 'inserted';`,
+    pass: (r) => !r.ok },
+  { id: "T4", t: "Unassigned advisor uploads to another case's tender folder", exp: "rejected",
+    sql: `${as(U.advisor)} INSERT INTO storage.objects(bucket_id, name) VALUES ('case-documents','tender/${CASE_B}/offer.pdf') RETURNING 'inserted';`,
+    pass: (r) => !r.ok },
 ];
 
 const label = process.argv[2] || "run";

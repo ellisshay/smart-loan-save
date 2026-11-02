@@ -22,6 +22,17 @@ SET file_size_limit = 10485760,
     allowed_mime_types = ARRAY['application/pdf','image/jpeg','image/png','image/webp']
 WHERE id = 'case-documents';
 
+-- Staff bank files (tender/<case_id>/...): V1 allows PDF, JPG/JPEG and PNG only.
+-- Word/Excel are converted to PDF by staff before upload (smallest attack surface).
+-- Same access rule as before (can_manage_case); only the allowed file names are narrowed.
+DROP POLICY IF EXISTS "tender files staff" ON storage.objects;
+CREATE POLICY "tender files staff" ON storage.objects FOR ALL TO authenticated
+USING (bucket_id = 'case-documents' AND (storage.foldername(name))[1] = 'tender'
+       AND public.can_manage_case(((storage.foldername(name))[2])::uuid))
+WITH CHECK (bucket_id = 'case-documents' AND (storage.foldername(name))[1] = 'tender'
+       AND public.can_manage_case(((storage.foldername(name))[2])::uuid)
+       AND lower(name) ~ '\.(pdf|jpe?g|png)$');
+
 -- ─────────────────────────────────────────────────────────────
 -- 2. Reviewed documents are protected evidence.
 --    Locked when staff verified/approved the document, or once the case is with the banks.
