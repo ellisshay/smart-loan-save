@@ -107,6 +107,6 @@ export const DATA_MAP = [
   { category: "נתוני שאלון פיננסי", from: "הלקוח", purpose: "ניתוח כושר החזר ובניית תמהיל", storage: "מסד נתונים, מוגן בהרשאות לפי משתמש", access: "הלקוח, מנהל תיק", recipients: "בנקים, בהסכמה נפרדת", retention: "7 שנים מסגירת התיק", basis: "הסכמה וביצוע שירות", deletion: "לפי מדיניות השמירה" },
   { category: "טיוטה שלא הושלמה", from: "הלקוח", purpose: "שמירת התקדמות", storage: "מסד נתונים", access: "הלקוח, מנהל", recipients: "אין", retention: "12 חודשים ללא פעילות", basis: "הסכמה", deletion: "מחיקה אחרי 12 חודשים ללא פעילות" },
   { category: "פרופיל משכנתא אנונימי", from: "נגזר מתיקים", purpose: "סטטיסטיקה ושיפור הערכות", storage: "מסד נתונים, ללא מזהים", access: "מנהל", recipients: "אין", retention: "ללא הגבלה (אנונימי)", basis: "אינטרס לגיטימי", deletion: "לא רלוונטי" },
-  { category: "תשלום", from: "Tranzila", purpose: "אישור תשלום", storage: "סטטוס בלבד. פרטי אשראי לא נשמרים", access: "מנהל", recipients: "Tranzila", retention: "7 שנים (חובה חשבונאית)", basis: "חובה חוקית", deletion: "לפי חובה חשבונאית" },
+  { category: "תשלום", from: "קרדקום (Cardcom)", purpose: "אישור תשלום", storage: "סטטוס בלבד. פרטי אשראי לא נשמרים", access: "מנהל", recipients: "קרדקום (Cardcom)", retention: "7 שנים (חובה חשבונאית)", basis: "חובה חוקית", deletion: "לפי חובה חשבונאית" },
   { category: "יומן פעולות", from: "המערכת", purpose: "בקרה ואבטחה", storage: "מסד נתונים, לא ניתן לעריכה", access: "מנהל, מבקר פרטיות", recipients: "אין", retention: "7 שנים", basis: "אבטחת מידע", deletion: "לפי מדיניות השמירה" },
 ];
