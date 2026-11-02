@@ -406,12 +406,17 @@ export default function DashboardPayment() {
                       variant="cta"
                       size="lg"
                       className="w-full text-base"
-                      disabled={!billingValid}
-                      onClick={() => setShowPayFrame(true)}
+                      disabled={!billingValid || creatingPayment}
+                      onClick={async () => {
+                        if (await createPaymentPage()) { setShowPayFrame(true); navigate("/dashboard/payment"); }
+                      }}
                     >
-                      <Zap size={18} />
+                      {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
                       שמור את התיק והמשך לתשלום
                     </Button>
+                    {payError && (
+                      <p className="text-xs text-destructive text-center">{payError}</p>
+                    )}
                     {!billingValid && (
                       <p className="text-xs text-warning text-center">יש למלא את כל פרטי החיוב לפני המעבר לתשלום</p>
                     )}
