@@ -12,9 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Tranzila terminal name — provided by Tranzila when the merchant account is approved.
-// It appears in the public payment URL, so it is not a secret.
-const TRANZILA_TERMINAL = "ttxellisshay";
 
 export default function DashboardPayment() {
   const navigate = useNavigate();
@@ -26,9 +23,12 @@ export default function DashboardPayment() {
   const [caseStatus, setCaseStatus] = useState<string | null>(null);
   const [paymentSucceeded, setPaymentSucceeded] = useState(false);
 
-  // Tranzila redirects back with ?paid=1 (success) or ?paid=0 (failure)
+  // Cardcom redirects back with ?paid=1 (success) or ?paid=0 (failure)
   const paidParam = searchParams.get("paid");
   const [showPayFrame, setShowPayFrame] = useState(false);
+  const [payUrl, setPayUrl] = useState<string | null>(null);
+  const [creatingPayment, setCreatingPayment] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
   // Billing details for the invoice — prefillable from the borrower questionnaire
   const personal = (intakeData as any)?.personal ?? {};
@@ -55,9 +55,36 @@ export default function DashboardPayment() {
     // Phone is optional, but when present it must look like a local Israeli number.
     (billing.phone.trim() === "" || /^0?\d{8,10}$/.test(billing.phone.replace(/[\s-]/g, "")));
 
-  // cred_type=8 + maxpay=4: the Tranzila form offers the customer a choice of
-  // 1–4 installments (docs.tranzila.com — iframe integration / Lovable guide).
-  const payUrl = `https://direct.tranzila.com/${TRANZILA_TERMINAL}/iframenew.php?sum=3450&currency=1&cred_type=8&maxpay=4&lang=il&u1=${caseId}&contact=${encodeURIComponent(billing.invoiceName.trim())}&email=${encodeURIComponent(billing.email.trim())}&phone=${encodeURIComponent(billing.phone.replace(/[\s-]/g, "").trim())}&company=${encodeURIComponent(billing.invoiceName.trim())}&success_url_address=${encodeURIComponent(window.location.origin + `/dashboard/payment?paid=1&caseId=${caseId}`)}&fail_url_address=${encodeURIComponent(window.location.origin + `/dashboard/payment?paid=0&caseId=${caseId}`)}`;
+  // The payment page URL is created server-side (cardcom-payment-create edge function)
+  // so the Cardcom terminal credentials never reach the browser. The client billing
+  // details prefill the cardholder fields on the Cardcom page, and up to 4 installments
+  // are offered (AdvancedDefinition.MaxNumOfPayments).
+  const createPaymentPage = useCallback(async () => {
+    setCreatingPayment(true);
+    setPayError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("cardcom-payment-create", {
+        body: {
+          caseId,
+          origin: window.location.origin,
+          billing: {
+            firstName: billing.firstName.trim(),
+            lastName: billing.lastName.trim(),
+            email: billing.email.trim(),
+            phone: billing.phone.trim(),
+          },
+        },
+      });
+      if (error || !data?.url) throw new Error(error?.message || "no_url");
+      setPayUrl(String(data.url));
+      return true;
+    } catch {
+      setPayError("לא הצלחנו לפתוח את טופס התשלום. נסו שוב בעוד רגע.");
+      return false;
+    } finally {
+      setCreatingPayment(false);
+    }
+  }, [caseId, billing.firstName, billing.lastName, billing.email, billing.phone]);
   // Link the client opens on their own device (after signing in) to pay for this case.
   const clientPayLink = `${window.location.origin}/dashboard/payment?caseId=${caseId}`;
   const clientPhone = String(borrower.phone || "").replace(/\D/g, "").replace(/^0/, "972");
@@ -184,10 +211,12 @@ export default function DashboardPayment() {
             variant="cta"
             size="lg"
             className="w-full"
-            disabled={!paymentReady}
-            onClick={() => { setShowPayFrame(true); navigate("/dashboard/payment"); }}
+            disabled={!paymentReady || creatingPayment}
+            onClick={async () => {
+              if (await createPaymentPage()) { setShowPayFrame(true); navigate("/dashboard/payment"); }
+            }}
           >
-            <Zap size={18} />
+            {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
             נסה שוב לשלם ₪3,450
           </Button>
           <Button variant="outline" className="w-full" onClick={() => navigate("/dashboard")}>
@@ -286,7 +315,7 @@ export default function DashboardPayment() {
             </div>
             {paymentReady ? (
               <>
-                {showPayFrame ? (
+                {showPayFrame && payUrl ? (
                   <div className="space-y-3">
                     <iframe
                       title="טופס תשלום מאובטח"
@@ -377,12 +406,17 @@ export default function DashboardPayment() {
                       variant="cta"
                       size="lg"
                       className="w-full text-base"
-                      disabled={!billingValid}
-                      onClick={() => setShowPayFrame(true)}
+                      disabled={!billingValid || creatingPayment}
+                      onClick={async () => {
+                        if (await createPaymentPage()) { setShowPayFrame(true); navigate("/dashboard/payment"); }
+                      }}
                     >
-                      <Zap size={18} />
+                      {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
                       שמור את התיק והמשך לתשלום
                     </Button>
+                    {payError && (
+                      <p className="text-xs text-destructive text-center">{payError}</p>
+                    )}
                     {!billingValid && (
                       <p className="text-xs text-warning text-center">יש למלא את כל פרטי החיוב לפני המעבר לתשלום</p>
                     )}
