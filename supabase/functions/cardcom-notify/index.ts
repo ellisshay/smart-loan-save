@@ -101,14 +101,16 @@ serve(async (req) => {
 
     const { data: caseRow, error: caseErr } = await admin
       .from("cases")
-      .select("id, status")
+      .select("id, status, payment_succeeded")
       .eq("id", caseId)
       .single();
     if (caseErr || !caseRow) {
       console.error("cardcom-notify: case not found", caseId);
       return ack({ ok: false, reason: "case_not_found" });
     }
-    if (caseRow.status !== "WaitingForPayment") {
+    // Payment is allowed before intake completion, so the case may be in any pre-payment status.
+    if (caseRow.payment_succeeded) {
+      console.log("cardcom-notify: already paid", caseId);
       return ack({ ok: true, already: true });
     }
 
@@ -125,7 +127,7 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       })
       .eq("id", caseId)
-      .eq("status", "WaitingForPayment");
+      .eq("payment_succeeded", false);
     if (updateErr) throw updateErr;
 
     const { error: evErr } = await admin.from("case_events").insert({
@@ -145,12 +147,13 @@ serve(async (req) => {
     // Notify the client and admin by email (best-effort)
     try {
       await admin.functions.invoke("case-email", {
-        body: { case_id: caseId, event: "status_update" },
+        body: { case_id: caseId, event: "payment_confirmed" },
       });
     } catch (e) {
       console.error("case-email invoke failed", e);
     }
 
+    console.log("cardcom-notify: marked paid", { caseId, previousStatus: caseRow.status, lowProfileId });
     return ack({ ok: true });
   } catch (err) {
     console.error("cardcom-notify error", err);
