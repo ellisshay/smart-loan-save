@@ -212,7 +212,7 @@
   width: 100%;
   height: 280px;
   object-fit: cover;
-  object-position: left center;
+  object-position: left top;
 }
 .home-editorial-content { padding-top: 32px; padding-bottom: 36px; }
 .home-editorial-copy { max-width: 550px; }
