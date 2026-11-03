@@ -2,14 +2,30 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { CONTACT_EMAIL } from "@/lib/contactEmail";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSending(true);
+    const { data, error: invokeError } = await supabase.functions.invoke("contact-message", { body: form });
+    setSending(false);
+    if (invokeError || !data?.ok) {
+      setError("לא הצלחנו לשלוח את ההודעה. נסו שוב, או כתבו לנו ישירות למייל.");
+      return;
+    }
     setSent(true);
   };
+
+  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   return (
     <section className="py-16 md:py-24 bg-background">
@@ -46,7 +62,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <div className="font-semibold text-foreground">אימייל</div>
-                <div className="text-sm text-muted-foreground">info@easymorte.co.il</div>
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-muted-foreground hover:text-foreground" dir="ltr">{CONTACT_EMAIL}</a>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -72,24 +88,25 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 bg-card rounded-2xl p-6 shadow-card">
+                {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">שם מלא</label>
-                  <input required className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-foreground mb-2">שם מלא</label>
+                  <input id="contact-name" required value={form.name} onChange={set("name")} className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">טלפון</label>
-                  <input required type="tel" className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <label htmlFor="contact-phone" className="block text-sm font-medium text-foreground mb-2">טלפון</label>
+                  <input id="contact-phone" required type="tel" value={form.phone} onChange={set("phone")} className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">אימייל</label>
-                  <input required type="email" className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-foreground mb-2">אימייל</label>
+                  <input id="contact-email" required type="email" value={form.email} onChange={set("email")} className="w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">הודעה</label>
-                  <textarea required rows={4} className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-foreground mb-2">הודעה</label>
+                  <textarea id="contact-message" required rows={4} value={form.message} onChange={set("message")} className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" />
                 </div>
-                <Button variant="cta" size="lg" className="w-full" type="submit">
-                  שלח הודעה
+                <Button variant="cta" size="lg" className="w-full" type="submit" disabled={sending}>
+                  {sending ? "שולח..." : "שלח הודעה"}
                 </Button>
               </form>
             )}

@@ -1,3 +1,5 @@
+import { CONTACT_EMAIL } from "@/lib/contactEmail";
+
 export const CASE_STATUSES = {
   Draft: { label: "טיוטה", color: "bg-muted text-muted-foreground", order: 0 },
   WaitingForPayment: { label: "ממתין לתשלום", color: "bg-blue-100 text-blue-800", order: 1 },
@@ -36,4 +38,4 @@ export const BANK_EMAIL_TEMPLATE = `שלום רב,
 
 בברכה,
 צוות EASY MORTE
-info@easymorte.co.il`;
+${CONTACT_EMAIL}`;
