@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail, wrap, esc, ADMIN_EMAIL } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -142,6 +143,13 @@ serve(async (req) => {
       } catch (webhookErr) {
         console.error("Webhook error:", webhookErr);
       }
+    }
+
+    try {
+      const rows = `שם: ${esc(name)}<br>טלפון: ${esc(cleanPhone)}<br>אימייל: ${esc(email || "-")}<br>מטרה: ${esc(purpose || "-")}<br>ציון: ${esc(score ?? "-")}`;
+      await sendEmail(ADMIN_EMAIL, `ליד חדש – ${String(name).slice(0, 80)}`, wrap("ליד חדש נקלט באתר", rows), typeof email === "string" ? email : undefined);
+    } catch (mailErr) {
+      console.error("Lead mail error:", mailErr);
     }
 
     return new Response(

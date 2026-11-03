@@ -1,3 +1,5 @@
+import { CONTACT_EMAIL } from "@/lib/contactEmail";
+
 /** Single source of truth for the production domain used in canonical/og URLs. */
 export const SITE_URL = "https://easymorte.co.il";
 export const SITE_NAME = "EasyMorte";
@@ -15,11 +17,11 @@ export const organizationSchema = {
   legalName: "אליס שירותי ייעוץ",
   url: `${SITE_URL}/`,
   logo: LOGO_URL,
-  email: "info@easymorte.co.il",
+  email: CONTACT_EMAIL,
   contactPoint: {
     "@type": "ContactPoint",
     telephone: "+972-55-996-1997",
-    email: "info@easymorte.co.il",
+    email: CONTACT_EMAIL,
     contactType: "customer service",
     areaServed: "IL",
     availableLanguage: ["he"],

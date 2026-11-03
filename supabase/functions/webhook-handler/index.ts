@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { ADMIN_EMAIL } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -291,7 +292,7 @@ serve(async (req) => {
           ...notifications.whatsapp,
         },
         email: {
-          to: webhookPayload.user.email,
+          to: event_name === "lead_created" ? ADMIN_EMAIL : webhookPayload.user.email,
           ...notifications.email,
         },
       };
