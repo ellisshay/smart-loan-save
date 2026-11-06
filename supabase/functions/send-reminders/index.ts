@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
   const { data: cases, error } = await admin.from("cases")
     .select("id, user_id, case_number, intake_data, emails_sent")
     .eq("intake_complete", false).lt("updated_at", cutoff).limit(50);
-  if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+  if (error) return new Response(JSON.stringify({ error: "Request failed" }), { status: 500, headers: corsHeaders });
   let count = 0;
   for (const c of cases || []) {
     const sent = (c.emails_sent || {}) as Record<string, any>;

@@ -197,13 +197,20 @@ function BankSlot({ slot, banks, caseId, offers, selectedOfferId, onChange }: { 
     onChange();
   };
 
+  // V1 policy: bank files are PDF, JPG/JPEG or PNG only (no Word/Excel; convert to PDF first).
+  // Enforced again on the server by the storage policy and bucket type limits.
+  const STAFF_UPLOAD_TYPES = ["application/pdf", "image/jpeg", "image/png"];
   const upload = async (file: File) => {
-    const { error } = await supabase.storage.from("case-documents").upload(`${folder}/${Date.now()}_${file.name.replace(/[^\w.\-]/g, "_")}`, file);
-    if (error) return toast({ title: "שגיאה בהעלאה", description: error.message, variant: "destructive" });
+    if (!STAFF_UPLOAD_TYPES.includes(file.type) || !/\.(pdf|jpe?g|png)$/i.test(file.name)) {
+      return toast({ title: "סוג קובץ לא נתמך", description: "ניתן להעלות PDF, JPG או PNG בלבד. קובץ Word או Excel יש להמיר ל-PDF לפני ההעלאה.", variant: "destructive" });
+    }
+    if (file.size > 10 * 1024 * 1024) return toast({ title: "הקובץ גדול מדי (עד 10MB)", variant: "destructive" });
+    const { error } = await supabase.storage.from("case-documents").upload(`${folder}/${Date.now()}_${file.name.replace(/[^\w.\-]/g, "_")}`, file, { cacheControl: "60", upsert: false });
+    if (error) return toast({ title: "שגיאה בהעלאה", description: "ההעלאה נכשלה, נסו שוב", variant: "destructive" });
     loadFiles();
   };
   const openFile = async (name: string) => {
-    const { data } = await supabase.storage.from("case-documents").createSignedUrl(`${folder}/${name}`, 300);
+    const { data } = await supabase.storage.from("case-documents").createSignedUrl(`${folder}/${name}`, 300, { download: true });
     if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
   };
 
@@ -242,7 +249,7 @@ function BankSlot({ slot, banks, caseId, offers, selectedOfferId, onChange }: { 
         {files.map((x) => (
           <button key={x.name} onClick={() => openFile(x.name)} className="flex items-center gap-1 text-xs text-primary hover:underline"><Download size={12} />{x.name.replace(/^\d+_/, "")}</button>
         ))}
-        <input type="file" className="text-xs" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+        <input type="file" className="text-xs" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
       </div>
 
       <div className="border-t border-border pt-3 space-y-2">

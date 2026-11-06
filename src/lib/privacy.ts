@@ -7,7 +7,7 @@ export const CONTROLLER = {
 };
 
 export const CONSENT_VERSIONS = {
-  privacy_notice: "2026-10-v2",
+  privacy_notice: "2026-11-v3",
   bank_data_transfer: "2026-10-v2",
   automated_processing: "2026-10-v2",
   quick_check: "2026-10-contact-v3",
@@ -34,8 +34,13 @@ export async function logAudit(action: string, opts: { objectType?: string; obje
   }
 }
 
+/**
+ * Opens a private document through a short-lived signed URL (5 minutes), served as an attachment
+ * (Content-Disposition: attachment) so the file is never rendered on the storage domain.
+ * Note: a signed URL stays valid until it expires, even after logout or permission changes.
+ */
 export async function openDocumentSecure(filePath: string, caseId?: string) {
-  const { data, error } = await supabase.storage.from("case-documents").createSignedUrl(filePath, SIGNED_URL_TTL);
+  const { data, error } = await supabase.storage.from("case-documents").createSignedUrl(filePath, SIGNED_URL_TTL, { download: true });
   await logAudit("view_document", { objectType: "document", objectId: filePath, caseId, success: !error });
   if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   return !error;
@@ -101,12 +106,12 @@ export const FIELD_REGISTRY: { field: string; cls: FieldClass; purpose: string }
 ];
 
 export const DATA_MAP = [
-  { category: "צילום תעודת זהות", from: "הלקוח", purpose: "אימות זהות", storage: "אחסון מסמכים פרטי", access: "מנהל תיק, תפעול", recipients: "בנקים, בהסכמה נפרדת", retention: "7 שנים מסגירת התיק", basis: "הסכמה וביצוע שירות", deletion: "מחיקה אוטומטית בתום התקופה, אלא אם יש הקפאה משפטית" },
-  { category: "תלושי שכר", from: "הלקוח", purpose: "אימות הכנסה", storage: "אחסון מסמכים פרטי", access: "מנהל תיק, יועץ משכנתא שהוקצה", recipients: "בנקים, בהסכמה נפרדת", retention: "7 שנים מסגירת התיק", basis: "הסכמה וביצוע שירות", deletion: "לפי מדיניות השמירה" },
-  { category: "דפי עו\"ש", from: "הלקוח", purpose: "אימות הכנסות והתחייבויות", storage: "אחסון מסמכים פרטי", access: "מנהל תיק, יועץ משכנתא שהוקצה", recipients: "בנקים, בהסכמה נפרדת", retention: "7 שנים מסגירת התיק", basis: "הסכמה וביצוע שירות", deletion: "לפי מדיניות השמירה" },
-  { category: "נתוני שאלון פיננסי", from: "הלקוח", purpose: "ניתוח כושר החזר ובניית תמהיל", storage: "מסד נתונים, מוגן בהרשאות לפי משתמש", access: "הלקוח, מנהל תיק", recipients: "בנקים, בהסכמה נפרדת", retention: "7 שנים מסגירת התיק", basis: "הסכמה וביצוע שירות", deletion: "לפי מדיניות השמירה" },
-  { category: "טיוטה שלא הושלמה", from: "הלקוח", purpose: "שמירת התקדמות", storage: "מסד נתונים", access: "הלקוח, מנהל", recipients: "אין", retention: "12 חודשים ללא פעילות", basis: "הסכמה", deletion: "מחיקה אחרי 12 חודשים ללא פעילות" },
+  { category: "צילום תעודת זהות", from: "הלקוח", purpose: "אימות זהות", storage: "אחסון מסמכים פרטי", access: "מנהל תיק, תפעול", recipients: "בנקים, בהסכמה נפרדת", retention: "טרם נקבע (ממתין לאישור משפטי)", basis: "הסכמה וביצוע שירות", deletion: "ידני, לפי בקשה ובכפוף לחובות שמירה (אין מחיקה אוטומטית)" },
+  { category: "תלושי שכר", from: "הלקוח", purpose: "אימות הכנסה", storage: "אחסון מסמכים פרטי", access: "מנהל תיק, יועץ משכנתא שהוקצה", recipients: "בנקים, בהסכמה נפרדת", retention: "טרם נקבע (ממתין לאישור משפטי)", basis: "הסכמה וביצוע שירות", deletion: "ידני, לפי בקשה (אין מחיקה אוטומטית)" },
+  { category: "דפי עו\"ש", from: "הלקוח", purpose: "אימות הכנסות והתחייבויות", storage: "אחסון מסמכים פרטי", access: "מנהל תיק, יועץ משכנתא שהוקצה", recipients: "בנקים, בהסכמה נפרדת", retention: "טרם נקבע (ממתין לאישור משפטי)", basis: "הסכמה וביצוע שירות", deletion: "ידני, לפי בקשה (אין מחיקה אוטומטית)" },
+  { category: "נתוני שאלון פיננסי", from: "הלקוח", purpose: "ניתוח כושר החזר ובניית תמהיל", storage: "מסד נתונים, מוגן בהרשאות לפי משתמש", access: "הלקוח, מנהל תיק", recipients: "בנקים, בהסכמה נפרדת", retention: "טרם נקבע (ממתין לאישור משפטי)", basis: "הסכמה וביצוע שירות", deletion: "ידני, לפי בקשה (אין מחיקה אוטומטית)" },
+  { category: "טיוטה שלא הושלמה", from: "הלקוח", purpose: "שמירת התקדמות", storage: "מסד נתונים", access: "הלקוח, מנהל", recipients: "אין", retention: "טרם נקבע (ממתין לאישור משפטי)", basis: "הסכמה", deletion: "ידני, לפי בקשה (אין מחיקה אוטומטית)" },
   { category: "פרופיל משכנתא אנונימי", from: "נגזר מתיקים", purpose: "סטטיסטיקה ושיפור הערכות", storage: "מסד נתונים, ללא מזהים", access: "מנהל", recipients: "אין", retention: "ללא הגבלה (אנונימי)", basis: "אינטרס לגיטימי", deletion: "לא רלוונטי" },
-  { category: "תשלום", from: "קרדקום (Cardcom)", purpose: "אישור תשלום", storage: "סטטוס בלבד. פרטי אשראי לא נשמרים", access: "מנהל", recipients: "קרדקום (Cardcom)", retention: "7 שנים (חובה חשבונאית)", basis: "חובה חוקית", deletion: "לפי חובה חשבונאית" },
-  { category: "יומן פעולות", from: "המערכת", purpose: "בקרה ואבטחה", storage: "מסד נתונים, לא ניתן לעריכה", access: "מנהל, מבקר פרטיות", recipients: "אין", retention: "7 שנים", basis: "אבטחת מידע", deletion: "לפי מדיניות השמירה" },
+  { category: "תשלום", from: "קרדקום (Cardcom)", purpose: "אישור תשלום", storage: "סטטוס בלבד. פרטי אשראי לא נשמרים", access: "מנהל", recipients: "קרדקום (Cardcom)", retention: "לפי חובה חשבונאית (תקופה לאישור משפטי)", basis: "חובה חוקית", deletion: "לפי חובה חשבונאית" },
+  { category: "יומן פעולות", from: "המערכת", purpose: "בקרה ואבטחה", storage: "מסד נתונים, לא ניתן לעריכה", access: "מנהל, מבקר פרטיות", recipients: "אין", retention: "טרם נקבע (ממתין לאישור משפטי)", basis: "אבטחת מידע", deletion: "ידני, לפי בקשה (אין מחיקה אוטומטית)" },
 ];
