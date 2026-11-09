@@ -801,7 +801,7 @@ function StepObligations({ data, update }: StepProps) {
           ))}
         </div>
         {data.credit_history === "active_issues" && (
-          <StepNote variant="info">זה קורה לאנשים רבים. יש לנו יועצים שמתמחים בדיוק במקרים כאלה.</StepNote>
+          <StepNote variant="info">זה קורה לאנשים רבים. נבדוק את התיק לגופו ונסביר מה האפשרויות.</StepNote>
         )}
       </div>
     </div>

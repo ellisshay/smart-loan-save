@@ -1,10 +1,10 @@
 import { FileCheck2, Landmark, BadgeCheck, MonitorSmartphone } from "lucide-react";
 
 const facts = [
-  { icon: BadgeCheck, value: "\u20aa3,450", label: "\u05de\u05d7\u05d9\u05e8 \u05e7\u05d1\u05d5\u05e2 \u05dc\u05ea\u05d4\u05dc\u05d9\u05da \u05d4\u05de\u05dc\u05d0" },
-  { icon: Landmark, value: "\u05e2\u05d3 3 \u05d1\u05e0\u05e7\u05d9\u05dd", label: "\u05de\u05db\u05e8\u05d6 \u05d5\u05d4\u05e9\u05d5\u05d5\u05d0\u05ea \u05d4\u05e6\u05e2\u05d5\u05ea" },
-  { icon: FileCheck2, value: "\u05ea\u05d9\u05e7 \u05d0\u05d7\u05d3", label: "\u05e9\u05d0\u05dc\u05d5\u05df \u05d5\u05de\u05e1\u05de\u05db\u05d9\u05dd \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3" },
-  { icon: MonitorSmartphone, value: "100% \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9", label: "\u05dc\u05dc\u05d0 \u05e4\u05d2\u05d9\u05e9\u05d5\u05ea \u05de\u05d9\u05d5\u05ea\u05e8\u05d5\u05ea" },
+  { icon: BadgeCheck, value: "₪3,450", label: "מחיר קבוע לתהליך המלא" },
+  { icon: Landmark, value: "עד 3 בנקים", label: "מכרז והשוואת הצעות" },
+  { icon: FileCheck2, value: "תיק אחד", label: "שאלון ומסמכים במקום אחד" },
+  { icon: MonitorSmartphone, value: "אונליין", label: "תהליך EasyMorte מתנהל דיגיטלית, בלי פגישות מיותרות" },
 ];
 
 export default function StatsSection() {

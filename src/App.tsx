@@ -13,7 +13,8 @@ import { isPrivatePath } from "@/seo/config";
 import { redirects } from "@/seo/pages";
 import type { ReactNode } from "react";
 import Layout from "@/components/Layout";
-import NudgeBanner from "@/components/results/NudgeBanner";
+import ResumeBanner from "@/components/app/ResumeBanner";
+import RouteTracker from "@/components/app/RouteTracker";
 import AdminLayout from "@/components/AdminLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import AdvisorLayout from "@/components/AdvisorLayout";
@@ -99,7 +100,8 @@ export const AppProviders = ({ children }: { children: ReactNode }) => (
 export const AppRoutes = () => (
   <>
     <RobotsGuard />
-    <NudgeBanner />
+    <RouteTracker />
+    <ResumeBanner />
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Auth */}

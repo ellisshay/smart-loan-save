@@ -207,9 +207,9 @@ export default function DashboardPayment() {
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
           <Zap size={32} className="text-primary" />
         </div>
-        <h2 className="font-display text-2xl font-bold text-foreground">פתיחת תיק לניתוח תוך 72 שעות</h2>
+        <h2 className="font-display text-2xl font-bold text-foreground">טיפול מקצועי בתוך עד 72 שעות, אחרי תיק מלא ותשלום</h2>
         <p className="text-sm text-muted-foreground mt-2">
-          צוות המומחים שלנו יבנה עבורך תמהיל אופטימלי
+          נבדוק את התיק ונבנה עבורכם תמהילים מותאמים
         </p>
       </motion.div>
 

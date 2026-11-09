@@ -18,7 +18,7 @@ export default function IntakeSuccessPage() {
         <h1 className="font-display text-3xl font-black text-foreground mb-3">
           התיק הוגש בהצלחה! </h1>
         <p className="text-muted-foreground mb-6 leading-relaxed">
-          קיבלנו את כל הפרטים שלך. הצוות שלנו מתחיל לעבוד על התיק.
+          קיבלנו את הפרטים שלך. הטיפול המקצועי שלנו מתחיל כשהתיק מלא והתשלום התקבל.
         </p>
 
         <div className="bg-card rounded-xl p-6 border border-border mb-6 text-right">
@@ -28,12 +28,12 @@ export default function IntakeSuccessPage() {
           </div>
           <ol className="space-y-2 text-sm text-muted-foreground list-decimal list-inside">
             <li>השלמת תשלום (אם טרם בוצע)</li>
-            <li>ניתוח הנתונים על ידי הצוות</li>
+            <li>בדיקה מקצועית של הנתונים</li>
             <li>הפקת 3 תמהילים מותאמים אישית</li>
-            <li>שליחה לבנקים וקבלת הצעות</li>
+            <li>פנייה לעד 3 בנקים רלוונטיים והשוואת ההצעות</li>
           </ol>
           <div className="mt-4 bg-gold/10 rounded-lg p-3 text-sm text-gold font-semibold">
-            ⏱️ SLA: 72 שעות מרגע השלמת מסמכים ותשלום
+            חלון הטיפול שלנו: עד 72 שעות מרגע שהתיק מלא והתשלום התקבל
           </div>
         </div>
 

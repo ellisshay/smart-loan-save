@@ -54,10 +54,10 @@ export default function HomeFloatingActions({ blocked }: { blocked: boolean }) {
       className={`home-floating-actions z-40 flex items-center gap-2 rounded-full border border-border bg-card text-card-foreground shadow-card ${visible ? "visible opacity-100 translate-y-0" : "invisible opacity-0 translate-y-1.5 pointer-events-none"}`}
     >
       <Button asChild size="default" className="h-11 w-[92px] md:w-[104px] shrink-0 rounded-full px-2 text-sm motion-reduce:transition-none">
-        <Link to="/mortgage-check" tabIndex={visible ? 0 : -1}>פתיחת תיק</Link>
+        <Link to="/intake" tabIndex={visible ? 0 : -1}>פתיחת תיק</Link>
       </Button>
       <Button asChild variant="ghost" size="default" className="h-11 min-w-0 flex-1 rounded-full px-1 whitespace-normal text-xs md:text-[13px] leading-4 font-medium text-foreground motion-reduce:transition-none">
-        <Link to="/balance-check" tabIndex={visible ? 0 : -1}>בדיקת המשכנתא שלי בחינם</Link>
+        <Link to="/mortgage-check" tabIndex={visible ? 0 : -1}>בדיקת המשכנתא שלי בחינם</Link>
       </Button>
     </nav>
   );

@@ -10,6 +10,7 @@ import { CONSENT_VERSIONS } from "@/lib/privacy";
 import { buildMixes, dtiGrade, ltvGrade, Rates, TRACK_LABEL, Mix, Grade, TrackKey } from "@/lib/quickCheck";
 import { FUNNEL_ICONS } from "@/components/quickcheck/FunnelIcons";
 import { formatAmount, parseAmount, quickCheckContactSchema } from "@/lib/quickCheckContact";
+import { track, trackOnce } from "@/lib/analytics";
 
 type Goal = "first" | "upgrade" | "refi";
 interface A {
@@ -143,7 +144,7 @@ export default function QuickCheckPage() {
 
   const advance = () => { setWhy(false); setI((n) => Math.min(n + 1, steps.length - 1)); };
   const next = () => { if (key === "borrowers" && !a.borrowers) { setErr("יש לבחור מספר לווים"); return; } setErr(""); key === "equity" ? setInterim(true) : advance(); };
-  const pick = (k: keyof A) => (v: string) => { set({ [k]: v } as Partial<A>); if (k === "goal") { setWhy(false); setI(1); } else setTimeout(advance, 150); };
+  const pick = (k: keyof A) => (v: string) => { set({ [k]: v } as Partial<A>); if (k === "goal") { setWhy(false); setI(1); trackOnce("quick_check_start", "quick_check_start"); } else setTimeout(advance, 150); };
 
   const showResult = async () => {
     if (!consent) return;
@@ -167,6 +168,7 @@ export default function QuickCheckPage() {
       localStorage.setItem(STORE, JSON.stringify({ token, answers }));
       await new Promise((res) => setTimeout(res, 300));
       setResult({ token, rates: r as unknown as Rates, updated: (r as { updated_at?: string }).updated_at });
+      track("quick_check_completed");
       window.scrollTo({ top: 0 });
     } catch {
       setErr("לא הצלחנו להציג את התוצאה כרגע. נסו שוב בעוד רגע.");
@@ -216,7 +218,7 @@ export default function QuickCheckPage() {
   return (
     <div className="container py-8 md:py-14 max-w-2xl space-y-6 pb-28 md:pb-14">
       <header className="text-center space-y-2">
-        <span className="inline-block px-3 py-1 rounded-full bg-success/15 text-foreground text-sm font-bold">חינם · בלי הרשמה</span>
+        <span className="inline-block px-3 py-1 rounded-full bg-success/15 text-foreground text-sm font-bold">חינם · כ-2 דקות</span>
         <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">בדיקת המשכנתא שלי</h1>
       </header>
       <div className="space-y-2" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="התקדמות בבדיקה">
