@@ -63,12 +63,18 @@ serve(async (req) => {
 
     const { data: caseRow, error: caseErr } = await admin
       .from("cases")
-      .select("case_number")
+      .select("case_number, payment_succeeded")
       .eq("id", caseId)
       .single();
     if (caseErr || !caseRow) {
       return new Response(JSON.stringify({ error: "case_not_found" }), {
         status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // Never open a second payment page for a case that is already paid.
+    if (caseRow.payment_succeeded) {
+      return new Response(JSON.stringify({ error: "already_paid" }), {
+        status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -104,7 +110,7 @@ serve(async (req) => {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || data.ResponseCode !== 0) {
-      console.error("cardcom Create failed", res.status, data);
+      console.error("cardcom Create failed", res.status, data?.ResponseCode ?? null);
       return new Response(JSON.stringify({ error: "cardcom_create_failed", description: data.Description ?? "" }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -115,8 +121,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("cardcom-payment-create error", err);
-    return new Response(JSON.stringify({ error: String(err) }), {
+    console.error("cardcom-payment-create error", err instanceof Error ? err.name : "error");
+    return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
