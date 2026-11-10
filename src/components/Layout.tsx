@@ -12,6 +12,7 @@ import MarketTicker from "@/components/MarketTicker";
 import speedMarketLogo from "@/assets/credits/speedmarket.png";
 import aboutDigitalLogo from "@/assets/credits/aboutdigital.png";
 import BrandLogo from "@/components/BrandLogo";
+import { CONTACT_EMAIL } from "@/lib/contactEmail";
 import { RouteSeoHead, RouteSeoFooterContent } from "@/components/seo/RouteSeo";
 
 const navLinks = [
@@ -298,7 +299,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <p className="container pb-6 text-center text-xs text-primary-foreground/70">
-          אליס שירותי ייעוץ, ע.מ 049025836 · טרומפלדור 11, כפר סבא · <a href="tel:+972559961997" dir="ltr">055-996-1997</a> · <a href="mailto:info@easymorte.co.il" dir="ltr">info@easymorte.co.il</a>
+          אליס שירותי ייעוץ, ע.מ 049025836 · טרומפלדור 11, כפר סבא · <a href="tel:+972559961997" dir="ltr">055-996-1997</a> · <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr">{CONTACT_EMAIL}</a>
         </p>
       </footer>
     </div>

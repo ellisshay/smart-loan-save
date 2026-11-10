@@ -1,7 +1,26 @@
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
-export const CONTACT_EMAIL = "info@easymorte.co.il";
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+/** Public inbox. Shown in mail, used as Reply-To, and the destination for team notifications. */
+const OFFICIAL_EMAIL = "info@easymorte.co.il";
+/**
+ * Mailbox signed in to the Gmail connector. A From address that is not this
+ * account (or a verified Send-as alias) is rejected and the message is not sent.
+ * Override with the GMAIL_SENDING_MAILBOX secret only after that mailbox is info@.
+ */
+const AUTHENTICATED_MAILBOX = "easymorte.il@gmail.com";
+
+function configuredMailbox(name: string, fallback: string) {
+  try {
+    const value = Deno.env.get(name)?.trim() ?? "";
+    return EMAIL_RE.test(value) ? value : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export const CONTACT_EMAIL = configuredMailbox("CONTACT_EMAIL", OFFICIAL_EMAIL);
 export const ADMIN_EMAIL = CONTACT_EMAIL;
-const SENDING_MAILBOX = "info@easymorte.co.il";
+const SENDING_MAILBOX = configuredMailbox("GMAIL_SENDING_MAILBOX", AUTHENTICATED_MAILBOX);
 export const SITE_URL = "https://www.easymorte.co.il";
 const CONTACT_PHONE = "055-996-1997";
 const CONTACT_PHONE_LINK = "tel:+972559961997";
@@ -54,13 +73,14 @@ ${ctaText && ctaUrl ? `<table role="presentation" cellpadding="0" cellspacing="0
 </td></tr></table></body></html>`;
 }
 
-export async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(to: string, subject: string, html: string, replyTo?: string) {
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   const GMAIL_KEY = Deno.env.get("GOOGLE_MAIL_API_KEY_2") || Deno.env.get("GOOGLE_MAIL_API_KEY");
   if (!LOVABLE_API_KEY || !GMAIL_KEY) throw new Error("Email credentials not configured");
+  const reply = EMAIL_RE.test(replyTo?.trim() ?? "") ? replyTo!.trim() : CONTACT_EMAIL;
   const raw = [
     `From: ${header("EasyMorte")} <${SENDING_MAILBOX}>`,
-    `Reply-To: ${CONTACT_EMAIL}`,
+    `Reply-To: ${reply}`,
     `To: ${to}`,
     `Subject: ${header(subject)}`,
     "MIME-Version: 1.0",

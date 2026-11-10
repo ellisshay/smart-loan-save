@@ -158,6 +158,7 @@ export default function QuickCheckPage() {
       const work = (async () => {
         const { data: token, error } = await supabase.rpc("save_quick_check_inquiry", { _answers: answers, _consent_version: CONSENT_VERSIONS.quick_check, _ua: navigator.userAgent });
         if (error || !token) throw new Error("create");
+        await supabase.functions.invoke("notify-quick-inquiry", { body: { token } }).catch((e) => console.error("quick inquiry notify", e));
         const { data: r } = await supabase.from("market_rates").select("prime,fixed_not_linked,fixed_linked,variable_5,cpi_annual,updated_at").order("updated_at", { ascending: false }).limit(1).maybeSingle();
         if (!r) throw new Error("rates");
         return { token, r };
