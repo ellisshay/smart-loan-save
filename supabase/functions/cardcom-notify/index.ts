@@ -161,12 +161,14 @@ serve(async (req) => {
     if (evErr) console.error("case_events insert failed", evErr);
 
     // Notify the client and admin by email (best-effort)
+    // invoke() returns HTTP errors instead of throwing; log the status so a failed email is visible.
     try {
-      await admin.functions.invoke("case-email", {
+      const { error: mailErr } = await admin.functions.invoke("case-email", {
         body: { case_id: caseId, event: "payment_confirmed" },
       });
+      if (mailErr) console.error("cardcom-notify: payment email failed", mailErr.name);
     } catch (e) {
-      console.error("case-email invoke failed", e);
+      console.error("cardcom-notify: payment email failed", e instanceof Error ? e.name : "error");
     }
 
     console.log("cardcom-notify: marked paid", { caseId, previousStatus: caseRow.status, lowProfileId });

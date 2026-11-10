@@ -55,3 +55,21 @@ describe("cardcom-notify (webhook)", () => {
     expect(notify).not.toMatch(/String\(err\)/);
   });
 });
+
+describe("payment confirmation email", () => {
+  const caseEmail = readFileSync("supabase/functions/case-email/index.ts", "utf8");
+  it("case-email accepts the server's service-role call from cardcom-notify", () => {
+    expect(caseEmail).toMatch(/const trustedServer = !!serviceKey && token === serviceKey;/);
+    // Everyone else still needs a signed-in user with access to the case.
+    expect(caseEmail).toMatch(/if \(!trustedServer && !user\) return json\(\{ error: "Unauthorized" \}, 401\);/);
+    expect(caseEmail).toMatch(/if \(!trustedServer\) \{[\s\S]*Forbidden/);
+  });
+  it("is sent at most once per case (emails_sent flags)", () => {
+    expect(caseEmail).toMatch(/!sent\.client_payment/);
+    expect(caseEmail).toMatch(/!sent\.admin_payment/);
+  });
+  it("cardcom-notify logs a failed email instead of ignoring it", () => {
+    expect(notify).toMatch(/const \{ error: mailErr \} = await admin\.functions\.invoke\("case-email"/);
+    expect(notify).toMatch(/if \(mailErr\) console\.error/);
+  });
+});
