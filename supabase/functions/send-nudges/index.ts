@@ -162,7 +162,8 @@ Deno.serve(async (req: Request) => {
             }
           } catch (err) {
             status = "failed";
-            errorMessage = err instanceof Error ? err.message : String(err);
+            // Error type only: a failed fetch message contains the webhook URL.
+            errorMessage = err instanceof Error ? err.name : "error";
             console.error(`Nudge webhook error for ${userId}:`, errorMessage);
           }
         } else {
@@ -200,10 +201,9 @@ Deno.serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("Unexpected error:", err);
-    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("Unexpected error:", err instanceof Error ? err.name : "error");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Unexpected error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

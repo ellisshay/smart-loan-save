@@ -123,8 +123,22 @@ describe("webhook-handler: outbound data and logging", () => {
       expect(src()).not.toMatch(new RegExp(k));
     }
   });
+  it("does not send offer terms (rate, monthly payment, period) to the external automation", () => {
+    for (const k of ["interest_rate", "monthly_payment", "loan_period"]) expect(src()).not.toMatch(new RegExp(k));
+  });
   it("stores only the operational payload in case_events", () => {
     expect(src()).toMatch(/case_events"\)\.insert\(\{ case_id, event_name, payload: base \}\)/);
+  });
+});
+
+describe("webhook URLs never reach the logs", () => {
+  it("functions that call a secret webhook URL log only the error type", () => {
+    for (const name of ["notify-on-intake-complete", "send-nudges"]) {
+      const src = fns.find((f) => f.name === name)!.src;
+      // A failed fetch's message contains the URL; raw error objects and messages must not be logged.
+      expect(src, name).not.toMatch(/console\.(log|error|warn)\([^)]*,\s*(error|err|e)\)/);
+      expect(src, name).not.toMatch(/err\.message/);
+    }
   });
 });
 

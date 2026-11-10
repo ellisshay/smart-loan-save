@@ -75,7 +75,8 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("notify-on-intake-complete error:", error);
+    // Error type only: a failed fetch message contains the webhook URL, which acts as a secret.
+    console.error("notify-on-intake-complete error:", error instanceof Error ? error.name : "error");
     return new Response(
       JSON.stringify({ error: "Request failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

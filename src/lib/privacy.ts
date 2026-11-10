@@ -7,7 +7,7 @@ export const CONTROLLER = {
 };
 
 export const CONSENT_VERSIONS = {
-  privacy_notice: "2026-11-v3",
+  privacy_notice: "2026-11-v4",
   bank_data_transfer: "2026-10-v2",
   automated_processing: "2026-10-v2",
   quick_check: "2026-10-contact-v3",

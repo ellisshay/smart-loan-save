@@ -21,8 +21,12 @@ describe("public privacy policy matches implementation", () => {
   it("does not claim that every action is logged", () => {
     expect(PRIVACY).not.toMatch(/כל צפייה, העלאה, שינוי סטטוס והעברה/);
   });
-  it("AI disclosure matches behavior: identity data and signatures are not sent", () => {
-    expect(PRIVACY).toMatch(/מסמכי זיהוי, מספרי תעודת זהות, תאריכי לידה, פרטי קשר וחתימות אינם מועברים/);
+  it("AI disclosure matches behavior: ID documents and signatures are not sent; other documents are sent whole", () => {
+    expect(PRIVACY).toMatch(/מסמכי זיהוי \(תעודת זהות וספח\) וחתימות אינם מועברים לכלי בינה מלאכותית/);
+    expect(PRIVACY).toMatch(/מספר תעודת\nזהות, תאריך לידה ופרטי קשר מהשאלון אינם נשלחים/);
+    // analyze-document sends non-ID documents as images, so the policy must not claim ID numbers never reach AI.
+    expect(PRIVACY).toMatch(/נשלח לבדיקה כפי שהוא/);
+    expect(PRIVACY).not.toMatch(/מספרי תעודת זהות, תאריכי לידה, פרטי קשר וחתימות אינם מועברים/);
   });
   it("chat disclosure says the customer's chat messages are sent to the AI provider", () => {
     expect(PRIVACY).toMatch(/נשלחים תוכן ההודעות שכתבת בצ'אט/);

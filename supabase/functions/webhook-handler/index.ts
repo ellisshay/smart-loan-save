@@ -111,7 +111,8 @@ function buildNotifications(
     case "offer_submitted":
       return {
         whatsapp: {
-          body: `💰 ${name}, קיבלת הצעת משכנתא חדשה!\nבנק: ${data.payload?.bank_name || ""}\nריבית: ${data.payload?.interest_rate || ""}%\nהחזר חודשי: ₪${data.payload?.monthly_payment || ""}\n\nהיכנס/י לדשבורד כדי להשוות הצעות.`,
+          // Offer terms (rate, payment, period) stay in the dashboard; they are not sent to the external automation.
+          body: `💰 ${name}, קיבלת הצעת משכנתא חדשה!\nבנק: ${data.payload?.bank_name || ""}\n\nהפרטים המלאים מחכים לך בדשבורד, שם אפשר גם להשוות הצעות.`,
         },
         email: {
           subject: `הצעת משכנתא חדשה – ${data.payload?.bank_name || ""}`,
@@ -119,12 +120,9 @@ function buildNotifications(
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">הצעת משכנתא חדשה! 💰</h2>
               <p>שלום ${nameH},</p>
-              <p>התקבלה הצעה חדשה עבורך:</p>
+              <p>התקבלה הצעה חדשה עבורך. הפרטים המלאים מחכים לך בדשבורד.</p>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f9fa;border-radius:8px;">
                 <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">בנק</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">${data.payload?.bank_name || ""}</td></tr>
-                <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">ריבית</td><td style="padding:12px;border-bottom:1px solid #eee;">${data.payload?.interest_rate || ""}%</td></tr>
-                <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">החזר חודשי</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">₪${data.payload?.monthly_payment || ""}</td></tr>
-                <tr><td style="padding:12px;color:#666;">תקופה</td><td style="padding:12px;">${data.payload?.loan_period || "—"} שנים</td></tr>
               </table>
               <a href="https://www.easymorte.co.il/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">השוואת הצעות →</a>
             </div>`,
@@ -250,8 +248,7 @@ serve(async (req) => {
         new_status: str(safePayload.new_status),
         payload: {
           file_name: str(safePayload.file_name), doc_type: str(safePayload.doc_type),
-          bank_name: str(safePayload.bank_name), interest_rate: str(safePayload.interest_rate),
-          monthly_payment: str(safePayload.monthly_payment), loan_period: str(safePayload.loan_period),
+          bank_name: str(safePayload.bank_name),
         },
       });
       outbound = webhookOutboundPayload(base, message, {
