@@ -13,6 +13,7 @@ const fns = readdirSync(DIR).filter((d) => !d.startsWith("_") && existsSync(join
 const PUBLIC_OR_INTERNAL: Record<string, string> = {
   "public-chat": "no customer data; message length limits",
   "cancel-request": "writes a cancellation request only; validated input",
+  "contact-message": "public contact form: validated input, honeypot, salted-IP + global rate limit, writes only contact_messages, emails info@ only (verified in contactForm.test.tsx)",
   "send-quick-result": "requires a completed quick-check session token + consent",
   "fetch-market-rates": "public market data only (P1: move behind isTrustedJobCaller)",
   "tranzila-notify": "provider secret token (payment integration: audit only, not changed)",
