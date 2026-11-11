@@ -1,5 +1,11 @@
 # Roadmap
 
+## Scoped SEO batch
+- [ ] Prerender mortgage-check and private route shells; repair sitemap lastmod fallback
+- [ ] Official brand spelling in copy and metadata only
+- [ ] Contact help section and five blog-to-guide links
+- [ ] Run existing tests and verify generated public/private HTML
+
 ## סרגל פעולות צף בדף הבית
 - [x] אישור הצעה למחשב ולטלפון
 - [x] יישום סרגל קומפקטי לאחר החלק העליון, ללא חפיפה ל־WhatsApp ולנגישות
