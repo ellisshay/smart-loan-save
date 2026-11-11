@@ -12,11 +12,11 @@ export { PRIVATE_PREFIXES as privateShellRoutes } from "./seo/config";
 
 /** Every public, indexable URL. Private areas are never listed here. */
 export function getPublicRoutes() {
-  return [
+  return ([
     ...staticPages.map((p) => ({ path: p.path, changefreq: p.changefreq, priority: p.priority, lastmod: undefined as string | undefined })),
     ...knowledgeArticles.map((a) => ({ path: `/knowledge/${a.slug}`, changefreq: "monthly" as const, priority: a.isPillar ? "0.8" : "0.6", lastmod: a.updatedDate })),
     ...articlesData.map((a) => ({ path: `/blog/${a.slug}`, changefreq: "monthly" as const, priority: "0.5", lastmod: a.publishDate })),
-  ];
+  ]).filter((r) => !(r.path in redirects));
 }
 
 export function render(url: string): Promise<{ html: string; head: string }> {
