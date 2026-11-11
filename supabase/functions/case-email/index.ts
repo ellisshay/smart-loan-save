@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         await mark("admin_opened"); results.push("admin_opened");
       }
       if (to && !sent.client_opened) {
-        await sendEmail(to, "התיק שלך ב-EasyMorte נפתח", wrapClient(`שלום ${name}, התיק שלך נפתח`, `<p>מספר תיק: <b>${esc(c.case_number)}</b></p><p>כל הפרטים שתזין נשמרים אוטומטית. אפשר לחזור בכל עת ולהמשיך מאותה נקודה.</p><p>לאחר השלמת הפרטים והמסמכים ותשלום, התיק ייבדק תוך עד 72 שעות.</p>`, "להמשך השלמת התיק", `${SITE_URL}/dashboard`));
+        await sendEmail(to, "התיק שלך ב-EASY MORTE נפתח", wrapClient(`שלום ${name}, התיק שלך נפתח`, `<p>מספר תיק: <b>${esc(c.case_number)}</b></p><p>כל הפרטים שתזין נשמרים אוטומטית. אפשר לחזור בכל עת ולהמשיך מאותה נקודה.</p><p>לאחר השלמת הפרטים והמסמכים ותשלום, התיק ייבדק תוך עד 72 שעות.</p>`, "להמשך השלמת התיק", `${SITE_URL}/dashboard`));
         await mark("client_opened"); results.push("client_opened");
       }
     }

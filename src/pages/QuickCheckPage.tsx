@@ -238,7 +238,7 @@ export default function QuickCheckPage() {
         {last && (
           <label className="flex items-start gap-3 cursor-pointer rounded-xl bg-muted/50 p-3">
             <Checkbox checked={consent} onCheckedChange={(v) => setConsent(v === true)} className="mt-1" />
-            <span className="text-sm text-foreground">אני מאשר/ת ל-EasyMorte לשמור את פרטי הקשר והנתונים שמסרתי כפנייה ראשונית, לעבד אותם לצורך הצגת התוצאה וליצור איתי קשר בנוגע לבדיקה, בהתאם ל<Link to="/privacy" target="_blank" className="text-primary underline">מדיניות הפרטיות</Link>.</span>
+            <span className="text-sm text-foreground">אני מאשר/ת ל-EASY MORTE לשמור את פרטי הקשר והנתונים שמסרתי כפנייה ראשונית, לעבד אותם לצורך הצגת התוצאה וליצור איתי קשר בנוגע לבדיקה, בהתאם ל<Link to="/privacy" target="_blank" className="text-primary underline">מדיניות הפרטיות</Link>.</span>
           </label>
         )}
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
@@ -282,7 +282,7 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
   const dti = a.income > 0 ? ((basePay + a.obligations) / a.income) * 100 : null;
   const [detail, setDetail] = useState<Mix | null>(null);
   const [email, setEmail] = useState(""); const [mkt, setMkt] = useState(false); const [mail, setMail] = useState(""); const [openMail, setOpenMail] = useState(false);
-  useEffect(() => { document.title = "התוצאה שלכם | EasyMorte"; }, []);
+  useEffect(() => { document.title = "התוצאה שלכם | EASY MORTE"; }, []);
 
   const sendMail = async () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setMail("כתובת מייל לא תקינה");

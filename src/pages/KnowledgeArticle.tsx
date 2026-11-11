@@ -158,7 +158,7 @@ const KnowledgeArticlePage = () => {
   return (
     <>
       <Seo
-        title={`${article.metaTitle ?? article.title} | EasyMorte`}
+        title={`${article.metaTitle ?? article.title} | EASY MORTE`}
         description={article.metaDescription}
         path={path}
         type="article"

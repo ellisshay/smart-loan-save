@@ -19,7 +19,7 @@ const plans = [
     featured: false,
   },
   {
-    name: "EasyMorte מלא",
+    name: "EASY MORTE מלא",
     price: "₪3,450",
     desc: "תהליך מקצועי מקצה לקצה במחיר קבוע",
     features: [
@@ -102,7 +102,7 @@ export default function PricingPage() {
         <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mt-8">
           {[
             { icon: FileSearch, title: "לא משלמים על סימולציה", text: "אפשר לבדוק ולהבין את הכיוון לפני פתיחת התיק המלא." },
-            { icon: Landmark, title: "לא מוכרים ליד", text: "EasyMorte מנהלת את התהליך ומרכזת את העבודה מול הבנקים." },
+            { icon: Landmark, title: "לא מוכרים ליד", text: "EASY MORTE מנהלת את התהליך ומרכזת את העבודה מול הבנקים." },
             { icon: Headphones, title: "72 שעות שלנו", text: "ה-SLA מתחיל רק אחרי שהתיק מלא והתשלום התקבל. זמן הבנק עצמו משתנה." },
           ].map((item) => (
             <div key={item.title} className="rounded-xl border border-border bg-card/80 p-4">

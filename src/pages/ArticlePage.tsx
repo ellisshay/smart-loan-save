@@ -6,6 +6,14 @@ import { ArrowLeft, Clock, BookOpen, CheckCircle2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { articlesData } from "@/data/articlesData";
 
+const expandedGuides: Record<string, string> = {
+  "refinance-guide": "/knowledge/refinance-guide",
+  "mortgage-mix-explained": "/knowledge/mix-guide",
+  "early-repayment": "/knowledge/early-repayment-fee",
+  "what-is-prime": "/knowledge/prime-track-explained",
+  "first-apartment": "/knowledge/first-mortgage-guide",
+};
+
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const article = articlesData.find((a) => a.slug === slug);
@@ -40,7 +48,7 @@ export default function ArticlePage() {
   return (
     <>
       <Seo
-        title={`${article.title} | EasyMorte`}
+        title={`${article.title} | EASY MORTE`}
         description={article.metaDescription}
         path={`/blog/${article.slug}`}
         type="article"
@@ -54,7 +62,7 @@ export default function ArticlePage() {
           datePublished: article.publishDate,
           dateModified: article.publishDate,
           mainEntityOfPage: `${SITE_URL}/blog/${article.slug}`,
-          author: { "@type": "Organization", name: "EasyMorte" },
+          author: { "@type": "Organization", name: "EASY MORTE" },
           publisher: organizationSchema,
         }]}
       />
@@ -194,6 +202,11 @@ export default function ArticlePage() {
                 ))}
               </div>
             </div>
+          )}
+          {expandedGuides[article.slug] && (
+            <p className="mt-10">
+              <Link to={expandedGuides[article.slug]} className="text-primary underline underline-offset-4">למדריך המורחב</Link>
+            </p>
           )}
         </div>
       </article>

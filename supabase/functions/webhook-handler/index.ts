@@ -29,14 +29,14 @@ function buildNotifications(
     case "case_created":
       return {
         whatsapp: {
-          body: `שלום ${name} 👋\nהתיק שלך נפתח בהצלחה ב-EasyMorte!\nמספר תיק: ${caseNumber}\nסוג: ${caseType}\n\nהשלם/י את השאלון כדי להשלים את התיק הדיגיטלי.`,
+          body: `שלום ${name} 👋\nהתיק שלך נפתח בהצלחה ב-EASY MORTE!\nמספר תיק: ${caseNumber}\nסוג: ${caseType}\n\nהשלם/י את השאלון כדי להשלים את התיק הדיגיטלי.`,
         },
         email: {
           subject: `התיק שלך נפתח בהצלחה – ${caseNumber}`,
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">שלום ${nameH} 👋</h2>
-              <p>התיק שלך נפתח בהצלחה ב-<strong>EasyMorte</strong>!</p>
+              <p>התיק שלך נפתח בהצלחה ב-<strong>EASY MORTE</strong>!</p>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">מספר תיק</td><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">${caseNumber}</td></tr>
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">סוג</td><td style="padding:8px;border-bottom:1px solid #eee;">${caseType}</td></tr>
@@ -91,7 +91,7 @@ function buildNotifications(
     case "lead_created":
       return {
         whatsapp: {
-          body: `📢 תיק חדש ב-EasyMorte\nאזור: ${data.property_area || "לא צוין"}\nמטרה: ${data.purpose || caseType}\nטווח הכנסה: ${data.income_range || "לא צוין"}\n\nיש לעבור על התיק במערכת התפעול.`,
+          body: `📢 תיק חדש ב-EASY MORTE\nאזור: ${data.property_area || "לא צוין"}\nמטרה: ${data.purpose || caseType}\nטווח הכנסה: ${data.income_range || "לא צוין"}\n\nיש לעבור על התיק במערכת התפעול.`,
         },
         email: {
           subject: `ליד חדש זמין – ${data.property_area || caseType}`,

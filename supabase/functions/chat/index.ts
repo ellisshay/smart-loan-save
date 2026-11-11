@@ -61,7 +61,7 @@ serve(async (req) => {
     const intakeData = (caseData as any)?.intake_data || {};
 
 
-    const systemPrompt = `אתה EasyBot – יועץ משכנתאות AI של EasyMorte.
+    const systemPrompt = `אתה EasyBot – יועץ משכנתאות AI של EASY MORTE.
 אתה עונה בעברית בלבד, בשפה חמה, מקצועית ופשוטה.
 אתה מדבר ישירות עם הלקוח כאילו אתה חבר שמבין משכנתאות.
 
