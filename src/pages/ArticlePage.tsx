@@ -5,9 +5,9 @@ import { SITE_URL, organizationSchema } from "@/seo/config";
 import { ArrowLeft, Clock, BookOpen, CheckCircle2, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { articlesData } from "@/data/articlesData";
+import { redirects } from "@/seo/pages";
 
 const expandedGuides: Record<string, string> = {
-  "refinance-guide": "/knowledge/refinance-guide",
   "mortgage-mix-explained": "/knowledge/mix-guide",
   "early-repayment": "/knowledge/early-repayment-fee",
   "what-is-prime": "/knowledge/prime-track-explained",
@@ -186,7 +186,7 @@ export default function ArticlePage() {
                 {related.map((r) => (
                   <Link
                     key={r.slug}
-                    to={`/blog/${r.slug}`}
+                    to={redirects[`/blog/${r.slug}`] ?? `/blog/${r.slug}`}
                     className="flex items-start gap-4 bg-card rounded-xl p-5 border border-border hover:border-primary/20 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

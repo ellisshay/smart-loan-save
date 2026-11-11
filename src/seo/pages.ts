@@ -118,6 +118,7 @@ export const redirects: Record<string, string> = {
   "/legal/privacy": "/privacy",
   "/legal/terms": "/terms",
   "/blog": "/knowledge",
+  "/blog/refinance-guide": "/knowledge/refinance-guide",
   "/legal/cookies": "/cookies",
   "/legal/accessibility": "/accessibility",
 };
