@@ -1,5 +1,9 @@
 # Roadmap
 
+## ניקוי מדריך מחזור משכנתא
+- [x] הסרת כל סוגי המקפים מהטקסט העברי במאמר refinance-guide בלבד
+- [x] אימות שתלויות הפיתוח מוחזרות אוטומטית על ידי Lovable, בדיקות ובנייה ללא פרסום
+
 ## Scoped SEO batch
 - [x] Prerender mortgage-check and private route shells; repair sitemap lastmod fallback
 - [x] Official brand spelling in copy and metadata only
