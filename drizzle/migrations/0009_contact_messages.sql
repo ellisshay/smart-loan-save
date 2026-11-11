@@ -21,7 +21,9 @@ CREATE INDEX IF NOT EXISTS contact_messages_created_idx ON public.contact_messag
 -- Written only by the contact-message Edge Function (service role). Staff read through the admin role.
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.contact_messages FROM anon, authenticated;
-GRANT SELECT, UPDATE ON public.contact_messages TO authenticated;
+-- Admins may only mark a message handled; the message itself and its email status are not editable.
+GRANT SELECT ON public.contact_messages TO authenticated;
+GRANT UPDATE (handled_at) ON public.contact_messages TO authenticated;
 GRANT ALL ON public.contact_messages TO service_role;
 DROP POLICY IF EXISTS "admins read contact messages" ON public.contact_messages;
 CREATE POLICY "admins read contact messages" ON public.contact_messages
