@@ -8,12 +8,14 @@ import { advisorArticles } from "./articles/advisor";
 import { documentsArticles } from "./articles/documents";
 import { bankAuctionArticles } from "./articles/bankAuction";
 import { aiQuestions2027Articles } from "./articles/aiQuestions2027";
+import { newGuideArticles } from "./articles/newGuides";
+import { applyArticleExtras } from "./extras";
 
 export * from "./types";
 export { clusters, getCluster } from "./clusters";
 export { knowledgeImages } from "./images";
 
-export const knowledgeArticles: KnowledgeArticle[] = [
+export const knowledgeArticles: KnowledgeArticle[] = applyArticleExtras([
   ...firstMortgageArticles,
   ...refinanceArticles,
   ...mixRateArticles,
@@ -23,7 +25,8 @@ export const knowledgeArticles: KnowledgeArticle[] = [
   ...documentsArticles,
   ...bankAuctionArticles,
   ...aiQuestions2027Articles,
-];
+  ...newGuideArticles,
+]);
 
 export const getArticle = (slug: string): KnowledgeArticle | undefined =>
   knowledgeArticles.find((a) => a.slug === slug);

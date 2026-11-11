@@ -29,6 +29,13 @@ export default function CalculatorsHub() {
       <div className="container max-w-4xl">
         <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground">מחשבוני משכנתא</h1>
         <p className="text-muted-foreground mt-2 max-w-xl">שאלה אחת, תשובה מיידית. בלי הרשמה. כל התוצאות הן הערכה ולא הצעה של בנק.</p>
+        <p className="text-foreground/90 leading-[1.9] mt-6 max-w-3xl">
+          המחשבונים עוזרים לענות על שתי השאלות הנפוצות ביותר. מי שקונה דירה יכול להתחיל ב
+          <Link to="/mortgage-calculator" className="text-primary underline underline-offset-4">מחשבון משכנתא לפי החזר חודשי</Link>
+          , שמראה החזר משוער, סך ריבית ויחס החזר מההכנסה לפי סכום, ריבית ותקופה. מי שכבר משלם משכנתא יכול לבדוק ב
+          <Link to="/refinance-calculator" className="text-primary underline underline-offset-4">מחשבון מחזור משכנתא</Link>
+          {" "}אם ריבית אחרת מורידה את ההחזר אחרי עמלות ועלויות, ומתי מגיעה נקודת האיזון. שני הכלים פועלים כסימולטור ראשוני בלבד: הם מניחים ריבית ממוצעת אחת ואינם כוללים הצמדה למדד, ולכן ההצעה בפועל של הבנק תלויה בתמהיל ובנתוני התיק. אחרי הבדיקה כדאי להשוות הצעות אמיתיות.
+        </p>
         {groups.map((g) => (
           <div key={g.title} className="mt-8">
             <h2 className="font-display text-lg font-bold text-foreground mb-3">{g.title}</h2>
