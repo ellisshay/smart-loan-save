@@ -20,8 +20,12 @@ Deno.serve(async (req) => {
     const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
     if (!token) return json({ error: "Unauthorized" }, 401);
-    const { data: { user } } = await admin.auth.getUser(token);
-    if (!user) return json({ error: "Unauthorized" }, 401);
+    // Server-to-server calls (cardcom-notify after a verified payment) use the service-role key.
+    // They are trusted and not tied to a user; every other caller must be a signed-in user.
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const trustedServer = !!serviceKey && token === serviceKey;
+    const user = trustedServer ? null : (await admin.auth.getUser(token)).data.user;
+    if (!trustedServer && !user) return json({ error: "Unauthorized" }, 401);
 
     const parsed = Body.safeParse(await req.json());
     if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
@@ -29,8 +33,10 @@ Deno.serve(async (req) => {
 
     const { data: c } = await admin.from("cases").select("*").eq("id", case_id).single();
     if (!c) return json({ error: "Case not found" }, 404);
-    const { data: isAdmin } = await admin.rpc("has_role", { _user_id: user.id, _role: "admin" });
-    if (c.user_id !== user.id && !isAdmin && c.assigned_advisor_id !== user.id) return json({ error: "Forbidden" }, 403);
+    if (!trustedServer) {
+      const { data: isAdmin } = await admin.rpc("has_role", { _user_id: user!.id, _role: "admin" });
+      if (c.user_id !== user!.id && !isAdmin && c.assigned_advisor_id !== user!.id) return json({ error: "Forbidden" }, 403);
+    }
 
     const { data: profile } = await admin.from("profiles").select("*").eq("user_id", c.user_id).maybeSingle();
     const sent = (c.emails_sent || {}) as Record<string, any>;
