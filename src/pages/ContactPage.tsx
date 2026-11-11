@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -95,6 +96,17 @@ export default function ContactPage() {
             )}
           </motion.div>
         </div>
+        <section className="mt-12 space-y-4 text-foreground" aria-labelledby="contact-help-title">
+          <h2 id="contact-help-title" className="font-display text-2xl font-bold">במה אפשר לעזור?</h2>
+          <p className="text-muted-foreground leading-relaxed">אפשר לפנות אלינו כשמתלבטים לקראת רכישת דירה, כשבוחנים את המשכנתא הקיימת או כשיש שאלה במהלך הכנת התיק. כדי למקד את הפנייה, כדאי לציין באיזה שלב אתם נמצאים ומה הנושא שתרצו לברר. בעמודים הבאים תמצאו מידע שיכול לעזור לעשות סדר לפני השיחה:</p>
+          <ul className="list-disc ps-5 space-y-2 text-muted-foreground leading-relaxed">
+            <li><Link to="/mortgage" className="text-primary underline">משכנתא חדשה</Link> — שאלות על ההון העצמי, ההחזר החודשי והנתונים הנדרשים לקראת רכישת נכס.</li>
+            <li><Link to="/mortgage-refinance" className="text-primary underline">מחזור משכנתא</Link> — בירור לגבי המשכנתא הקיימת, מסלולים, יתרות ועלויות שיש להביא בחשבון.</li>
+            <li><Link to="/mortgage-tender" className="text-primary underline">מכרז בנקים</Link> — שאלות על הכנת תיק אחיד ועל השוואת הצעות שהתקבלו מהבנקים.</li>
+            <li><Link to="/balance-check" className="text-primary underline">בדיקת המשכנתא שלי</Link> — מידע על דוח יתרות לסילוק ועל הנתונים המשמשים לבדיקה הראשונית.</li>
+            <li><Link to="/faq" className="text-primary underline">שאלות על התיק</Link> — פרטים חסרים, מסמכים והמשך התהליך; אפשר לעיין גם בשאלות הנפוצות.</li>
+          </ul>
+        </section>
       </div>
     </section>
   );

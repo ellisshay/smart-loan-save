@@ -52,6 +52,7 @@ export default function Seo({ title, description, path, type = "website", image 
 export function NoIndex() {
   return (
     <Helmet>
+      <title>אזור אישי | EASY MORTE</title>
       <meta name="robots" content="noindex,nofollow" />
     </Helmet>
   );

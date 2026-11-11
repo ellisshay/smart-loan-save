@@ -188,7 +188,7 @@ export default function MortgageCheckPage() {
 
       <section className="space-y-4">
         <h2 className="font-display text-2xl font-bold text-foreground">איך מורידים דוח יתרות לסילוק בכל בנק</h2>
-        <p className="text-muted-foreground text-sm">הדוח ניתן בחינם באזור האישי באתר או באפליקציית הבנק. שמרו אותו כקובץ PDF והעלו אותו לאזור האישי ב-EasyMorte.</p>
+        <p className="text-muted-foreground text-sm">הדוח ניתן בחינם באזור האישי באתר או באפליקציית הבנק. שמרו אותו כקובץ PDF והעלו אותו לאזור האישי ב-EASY MORTE.</p>
         <div className="grid md:grid-cols-2 gap-3">
           {BANKS.map((b) => (
             <div key={b.name} className="bg-card border border-border rounded-xl p-4">

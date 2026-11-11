@@ -63,7 +63,7 @@ export default function DashboardPayment() {
   // Link the client opens on their own device (after signing in) to pay for this case.
   const clientPayLink = `${window.location.origin}/dashboard/payment?caseId=${caseId}`;
   const clientPhone = String(borrower.phone || "").replace(/\D/g, "").replace(/^0/, "972");
-  const waLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(`שלום${borrower.firstName ? " " + borrower.firstName : ""}, זה הקישור לתשלום עבור התיק שלך ב-EasyMorte (₪3,450): ${clientPayLink}`)}`;
+  const waLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(`שלום${borrower.firstName ? " " + borrower.firstName : ""}, זה הקישור לתשלום עבור התיק שלך ב-EASY MORTE (₪3,450): ${clientPayLink}`)}`;
 
   // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
   useEffect(() => {
@@ -343,7 +343,7 @@ export default function DashboardPayment() {
                     )}
                   </div>
                 )}
-                <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · פרטי הכרטיס אינם נשמרים ב-EasyMorte</p>
+                <p className="text-[10px] text-muted-foreground mt-3">תשלום מאובטח · פרטי הכרטיס אינם נשמרים ב-EASY MORTE</p>
               </>
             ) : (
               <>

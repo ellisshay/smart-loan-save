@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
   catch (e) { console.error("admin mail failed", e); }
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.contact)) {
     try {
-      await sendEmail(d.contact, "קיבלנו את בקשת הביטול שלך – EasyMorte",
+      await sendEmail(d.contact, "קיבלנו את בקשת הביטול שלך – EASY MORTE",
         wrapClient("קיבלנו את בקשת הביטול", `שלום ${esc(d.full_name)},<br>בקשת הביטול התקבלה ב-${new Date(data.created_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" })}. נחזור אליך בהקדם.<br><br>${rows}`));
       mail.client = true;
     } catch (e) { console.error("client mail failed", e); mail.client = false; }
