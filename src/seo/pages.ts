@@ -20,6 +20,9 @@ export const HOME_DESCRIPTION =
 
 export const staticPages: StaticPageMeta[] = [
   { path: "/", title: HOME_TITLE, description: HOME_DESCRIPTION, label: "בית", changefreq: "weekly", priority: "1.0" },
+  { path: "/mortgage-check", label: "בדיקת משכנתא", priority: "0.9", changefreq: "monthly",
+    title: "בדיקת משכנתא מהירה וחינמית | EASY MORTE",
+    description: "בדיקת משכנתא חינמית ללא הרשמה: מזינים נתוני נכס, הון עצמי והכנסות או נתוני משכנתא קיימת, ומקבלים הערכת מימון, יחס החזר ותמהילים משוערים לאחר הסכמה." },
   // Core service pages
   { path: "/first-mortgage", label: "משכנתא ראשונה", service: true, priority: "0.9", changefreq: "monthly",
     title: "משכנתא ראשונה: מדריך ותהליך דיגיטלי מלא | EASY MORTE",

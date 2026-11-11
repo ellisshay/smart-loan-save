@@ -1,4 +1,4 @@
-// Build-time prerender for PUBLIC routes only. Runs after `vite build` + SSR build.
+// Build-time public prerender plus empty, noindex app shells. Runs after Vite builds.
 // Writes dist/<route>/index.html with full HTML + head tags, plus sitemap.xml.
 // Never fails the build: on any error the SPA build stays intact.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
@@ -22,8 +22,8 @@ function writeSitemap(routes) {
     .filter((r) => !seen.has(r.path) && seen.add(r.path))
     .map((r) => {
       const loc = r.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${r.path}`;
-      const lm = r.lastmod && /^\d{4}-\d{2}-\d{2}$/.test(r.lastmod) ? r.lastmod : new Date().toISOString().slice(0, 10);
-      const lastmod = `\n    <lastmod>${lm}</lastmod>`;
+      const lastmod = r.lastmod && /^\d{4}-\d{2}-\d{2}$/.test(r.lastmod)
+        ? `\n    <lastmod>${r.lastmod}</lastmod>` : "";
       const cf = r.changefreq ? `\n    <changefreq>${r.changefreq}</changefreq>` : "";
       const pr = r.priority ? `\n    <priority>${r.priority}</priority>` : "";
       return `  <url>\n    <loc>${escapeXml(loc)}</loc>${lastmod}${cf}${pr}\n  </url>`;
@@ -38,6 +38,7 @@ function stripDefaultHead(tpl) {
   return tpl
     .replace(/<title>[\s\S]*?<\/title>\s*/i, "")
     .replace(/<meta\s+name="description"[^>]*>\s*/gi, "")
+    .replace(/<meta\s+name="robots"[^>]*>\s*/gi, "")
     .replace(/<meta\s+property="og:(title|description|url|image|type)"[^>]*>\s*/gi, "")
     .replace(/<meta\s+name="twitter:(card|title|description|image)"[^>]*>\s*/gi, "")
     .replace(/<link\s+rel="canonical"[^>]*>\s*/gi, "");
@@ -51,10 +52,17 @@ async function main() {
   const entry = join(SSR_DIR, "entry-server.js");
   if (!existsSync(entry)) { console.warn("[prerender] SSR bundle missing, skipping"); return; }
   const template = readFileSync(join(DIST, "index.html"), "utf8");
-  // Keep an untouched SPA shell for private/unknown routes.
-  writeFileSync(join(DIST, "spa.html"), template);
   const base = stripDefaultHead(template);
-  const { render, getPublicRoutes, redirects } = await import(pathToFileURL(entry).href);
+  const privateBase = base.replace(/<script\b[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>\s*/gi, "");
+  const privateShell = privateBase.replace("</head>", '<title>אזור אישי | EASY MORTE</title>\n<meta name="robots" content="noindex,nofollow">\n</head>');
+  // No data-prerendered marker: the unchanged client entry renders the app fresh.
+  writeFileSync(join(DIST, "spa.html"), privateShell);
+  const { render, getPublicRoutes, redirects, privateShellRoutes } = await import(pathToFileURL(entry).href);
+  for (const path of privateShellRoutes) {
+    const file = outFile(path);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, privateShell);
+  }
   const routes = getPublicRoutes();
   writeSitemap(routes);
 
@@ -80,7 +88,7 @@ async function main() {
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, `<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>הועבר</title><link rel="canonical" href="${target}"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${to}"><script>location.replace(${JSON.stringify(to)})</script></head><body><a href="${to}">המשך לעמוד</a></body></html>`);
   }
-  console.log(`[prerender] ${ok} pages prerendered, ${failed} failed, ${Object.keys(redirects).length} redirects`);
+  console.log(`[prerender] ${ok} pages prerendered, ${failed} failed, ${privateShellRoutes.length} private shells, ${Object.keys(redirects).length} redirects`);
   rmSync(SSR_DIR, { recursive: true, force: true });
 }
 
