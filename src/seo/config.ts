@@ -1,6 +1,6 @@
 /** Single source of truth for the production domain used in canonical/og URLs. */
 export const SITE_URL = "https://easymorte.co.il";
-export const SITE_NAME = "EasyMorte";
+export const SITE_NAME = "EASY MORTE";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og/easymorte-default.jpg`;
 export const LOGO_URL = `${SITE_URL}/logo.png`;
 
@@ -10,7 +10,7 @@ export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": `${SITE_URL}/#organization`,
-  name: "EasyMorte",
+  name: "EASY MORTE",
   alternateName: "EASY MORTE",
   legalName: "אליס שירותי ייעוץ",
   url: `${SITE_URL}/`,
@@ -30,7 +30,7 @@ export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "@id": `${SITE_URL}/#website`,
-  name: "EasyMorte",
+  name: "EASY MORTE",
   url: `${SITE_URL}/`,
   inLanguage: "he-IL",
   publisher: { "@id": `${SITE_URL}/#organization` },

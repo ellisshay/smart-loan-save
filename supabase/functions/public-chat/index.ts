@@ -7,13 +7,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `אתה EasyBot – עוזר שיווקי של EasyMorte.
+const SYSTEM_PROMPT = `אתה EasyBot – עוזר שיווקי של EASY MORTE.
 אתה עונה בעברית, קצר וחם.
 המטרה שלך: לענות על שאלות ולהוביל את המשתמש להירשם.
 בסוף כל תשובה – הצע להם להתחיל את התהליך.
 אל תתן ייעוץ פיננסי ספציפי – רק מידע כללי.
 
-מידע על EasyMorte:
+מידע על EASY MORTE:
 - פלטפורמת משכנתאות דיגיטלית שמשלבת AI עם יועצים מורשים
 - העלות: ₪197 לניתוח פיננסי מלא + המלצת תמהיל
 - ההבדל מיועץ רגיל: שקיפות מלאה, AI שמנתח מסמכים, השוואת הצעות מרובות

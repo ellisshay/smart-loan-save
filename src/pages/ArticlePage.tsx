@@ -40,7 +40,7 @@ export default function ArticlePage() {
   return (
     <>
       <Seo
-        title={`${article.title} | EasyMorte`}
+        title={`${article.title} | EASY MORTE`}
         description={article.metaDescription}
         path={`/blog/${article.slug}`}
         type="article"
@@ -54,7 +54,7 @@ export default function ArticlePage() {
           datePublished: article.publishDate,
           dateModified: article.publishDate,
           mainEntityOfPage: `${SITE_URL}/blog/${article.slug}`,
-          author: { "@type": "Organization", name: "EasyMorte" },
+          author: { "@type": "Organization", name: "EASY MORTE" },
           publisher: organizationSchema,
         }]}
       />

@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 ${d.ltv !== null ? `אחוז מימון: ${d.ltv.toFixed(0)}%<br>` : ""}${d.dti !== null ? `יחס החזר להכנסה: ${d.dti.toFixed(0)}%<br>` : ""}
 <ul>${rows}</ul><small>הערכה לפי ריביות ממוצעות שמפורסמות על ידי בנק ישראל. התנאים הסופיים נקבעים על ידי הבנק.</small>`;
   try {
-    await sendEmail(d.email, "תוצאת בדיקת המשכנתא שלך – EasyMorte", wrapClient("תוצאת בדיקת המשכנתא שלך", body, "מתחילים", `${SITE_URL}/mortgage-check`));
+    await sendEmail(d.email, "תוצאת בדיקת המשכנתא שלך – EASY MORTE", wrapClient("תוצאת בדיקת המשכנתא שלך", body, "מתחילים", `${SITE_URL}/mortgage-check`));
   } catch (e) { console.error(e); return json({ error: "send failed" }, 502); }
   return json({ ok: true });
 });
