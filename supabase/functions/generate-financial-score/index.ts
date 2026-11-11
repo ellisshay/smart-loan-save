@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { canAccessCase } from "../_shared/auth.ts";
+import { financialScorePayload, poolAggregate } from "../_shared/aiPayload.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -179,17 +181,12 @@ serve(async (req) => {
     const { data: caseData } = await admin.from("cases").select("*").eq("id", case_id).single();
     if (!caseData) return json({ error: "Case not found" }, 404);
 
-    const [{ data: profileRole }, { data: roleRows }] = await Promise.all([
-      admin.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
-      admin.from("user_roles").select("role").eq("user_id", user.id),
-    ]);
-    const staffRoles = new Set(["admin", "operations", "mortgage_advisor", "supervisor"]);
-    const isStaff = profileRole?.role === "admin" || (roleRows || []).some((r: any) => staffRoles.has(String(r.role)));
-    if (caseData.user_id !== user.id && !isStaff) return json({ error: "Forbidden" }, 403);
+    // Owner, admin or the assigned advisor only (same rule as the database).
+    // deno-lint-ignore no-explicit-any
+    if (!(await canAccessCase(admin as any, user.id, case_id))) return json({ error: "Forbidden" }, 403);
 
-    const [{ data: profile }, { data: docs }, { data: tracks }, { data: rates }, { data: history }] = await Promise.all([
-      admin.from("profiles").select("*").eq("user_id", caseData.user_id).single(),
-      admin.from("case_documents").select("doc_type, file_name, ai_extracted_data").eq("case_id", case_id).not("ai_extracted_data", "is", null),
+    const [{ data: docs }, { data: tracks }, { data: rates }, { data: history }] = await Promise.all([
+      admin.from("case_documents").select("doc_type, ai_extracted_data").eq("case_id", case_id).not("ai_extracted_data", "is", null),
       admin.from("case_tracks").select("*").eq("case_id", case_id),
       admin.from("market_rates").select("*").order("updated_at", { ascending: false }).limit(1).single(),
       admin.from("market_rates_history").select("captured_on, data").order("captured_on", { ascending: false }).limit(30),
@@ -201,29 +198,16 @@ serve(async (req) => {
       .limit(200);
 
     const pool = poolRows || [];
-    const avg = (k: string) => {
-      const values = pool.map((r: any) => num(r[k])).filter((n) => n > 0);
-      return values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
-    };
-    const poolSummary = {
-      count: pool.length,
-      avg_loan: avg("loan_amount"),
-      avg_property_value: avg("property_value"),
-      avg_ltv: avg("ltv"),
-      avg_dti: avg("dti"),
-      sample: pool.slice(0, 20),
-    };
+    // Aggregates only: individual rows of other customers never leave the database.
+    const poolSummary = poolAggregate(pool);
 
     const intake: any = caseData.intake_data || {};
-    const currentTracks = (tracks?.length ? tracks : intake.current_mortgage?.tracks) || [];
-    const clientProfile = {
-      name: `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim(),
-      case_type: caseData.case_type,
-      goal: caseData.goal,
-      intake_data: intake,
-      existing_tracks: currentTracks,
-    };
-    const documentsAnalysis = (docs || []).map((d: any) => ({ type: d.doc_type, data: d.ai_extracted_data }));
+    // Explicit allow-list: numbers and enumerations only. No name, ID, birth date, contact details,
+    // address, signature, declaration text or values extracted from documents.
+    const clientProfile = financialScorePayload({
+      caseType: caseData.case_type, goal: caseData.goal, intake, tracks: tracks || [], docs: docs || [],
+    });
+    const documentsAnalysis = clientProfile.documents;
 
     const prompt = FINANCIAL_SCORE_PROMPT
       .replace("{client_profile_json}", JSON.stringify(clientProfile))
@@ -243,7 +227,7 @@ serve(async (req) => {
     });
 
     if (!aiResponse.ok) {
-      console.error("AI gateway error", aiResponse.status, await aiResponse.text());
+      console.error("AI gateway error", aiResponse.status);
       return json({ error: aiResponse.status === 429 ? "Rate limit exceeded" : "AI analysis failed" }, aiResponse.status === 429 ? 429 : 502);
     }
 
@@ -285,7 +269,7 @@ serve(async (req) => {
 
     return json({ success: true, analysis });
   } catch (error) {
-    console.error("generate-financial-score error:", error);
-    return json({ error: error instanceof Error ? error.message : "error" }, 500);
+    console.error("generate-financial-score error:", error instanceof Error ? error.name : "error");
+    return json({ error: "Analysis failed" }, 500);
   }
 });

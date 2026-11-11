@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { canAccessCase } from "../_shared/auth.ts";
+import { esc, SITE_URL } from "../_shared/gmail.ts";
+import { CUSTOMER_MESSAGE_EVENTS, webhookBasePayload, webhookOutboundPayload } from "../_shared/aiPayload.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,7 +20,8 @@ function buildNotifications(
   eventName: string,
   data: Record<string, any>
 ): NotificationTemplate | null {
-  const name = data.user?.name || "לקוח/ה";
+  const name = String(data.user?.name || "לקוח/ה");
+  const nameH = esc(name); // HTML-escaped for email bodies
   const caseNumber = data.case_number || data.case_id?.slice(0, 8) || "";
   const caseType = data.case_type === "refi" ? "מיחזור משכנתא" : "משכנתא חדשה";
 
@@ -31,7 +35,7 @@ function buildNotifications(
           subject: `התיק שלך נפתח בהצלחה – ${caseNumber}`,
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
-              <h2 style="color:#1a1a2e;">שלום ${name} 👋</h2>
+              <h2 style="color:#1a1a2e;">שלום ${nameH} 👋</h2>
               <p>התיק שלך נפתח בהצלחה ב-<strong>EASY MORTE</strong>!</p>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                 <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">מספר תיק</td><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">${caseNumber}</td></tr>
@@ -53,7 +57,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">השאלון הושלם בהצלחה! 🎉</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>כל הפרטים התקבלו עבור תיק <strong>${caseNumber}</strong>.</p>
               <h3>מה הלאה?</h3>
               <ol>
@@ -76,8 +80,8 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">מסמך הועלה בהצלחה 📄</h2>
-              <p>שלום ${name},</p>
-              <p>המסמך <strong>${data.payload?.file_name || "מסמך"}</strong> (${data.payload?.doc_type || ""}) הועלה בהצלחה לתיק ${caseNumber}.</p>
+              <p>שלום ${nameH},</p>
+              <p>המסמך <strong>${esc(data.payload?.file_name || "מסמך")}</strong> (${esc(data.payload?.doc_type || "")}) הועלה בהצלחה לתיק ${caseNumber}.</p>
               ${data.missing_docs_count ? `<p style="color:#e67e22;">נותרו <strong>${data.missing_docs_count}</strong> מסמכים להעלאה.</p>` : '<p style="color:#27ae60;font-weight:bold;">כל המסמכים הועלו! ✅</p>'}
               <a href="https://www.easymorte.co.il/dashboard/documents" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">נהל מסמכים →</a>
             </div>`,
@@ -107,20 +111,18 @@ function buildNotifications(
     case "offer_submitted":
       return {
         whatsapp: {
-          body: `💰 ${name}, קיבלת הצעת משכנתא חדשה!\nבנק: ${data.payload?.bank_name || ""}\nריבית: ${data.payload?.interest_rate || ""}%\nהחזר חודשי: ₪${data.payload?.monthly_payment || ""}\n\nהיכנס/י לדשבורד כדי להשוות הצעות.`,
+          // Offer terms (rate, payment, period) stay in the dashboard; they are not sent to the external automation.
+          body: `💰 ${name}, קיבלת הצעת משכנתא חדשה!\nבנק: ${data.payload?.bank_name || ""}\n\nהפרטים המלאים מחכים לך בדשבורד, שם אפשר גם להשוות הצעות.`,
         },
         email: {
           subject: `הצעת משכנתא חדשה – ${data.payload?.bank_name || ""}`,
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">הצעת משכנתא חדשה! 💰</h2>
-              <p>שלום ${name},</p>
-              <p>התקבלה הצעה חדשה עבורך:</p>
+              <p>שלום ${nameH},</p>
+              <p>התקבלה הצעה חדשה עבורך. הפרטים המלאים מחכים לך בדשבורד.</p>
               <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#f8f9fa;border-radius:8px;">
                 <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">בנק</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">${data.payload?.bank_name || ""}</td></tr>
-                <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">ריבית</td><td style="padding:12px;border-bottom:1px solid #eee;">${data.payload?.interest_rate || ""}%</td></tr>
-                <tr><td style="padding:12px;border-bottom:1px solid #eee;color:#666;">החזר חודשי</td><td style="padding:12px;border-bottom:1px solid #eee;font-weight:bold;">₪${data.payload?.monthly_payment || ""}</td></tr>
-                <tr><td style="padding:12px;color:#666;">תקופה</td><td style="padding:12px;">${data.payload?.loan_period || "—"} שנים</td></tr>
               </table>
               <a href="https://www.easymorte.co.il/dashboard/offers" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">השוואת הצעות →</a>
             </div>`,
@@ -137,7 +139,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#27ae60;">התשלום התקבל בהצלחה ✅</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>התשלום עבור תיק <strong>${caseNumber}</strong> התקבל.</p>
               <p>אם כל מסמכי החובה כבר הושלמו, חלון הטיפול של עד <strong>72 שעות</strong> מתחיל כעת. אם חסרים מסמכים, התשלום נשמר והשעון יתחיל לאחר השלמתם.</p>
               <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">מעקב סטטוס →</a>
@@ -155,7 +157,7 @@ function buildNotifications(
           body_html: `
             <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
               <h2 style="color:#1a1a2e;">עדכון סטטוס 🔔</h2>
-              <p>שלום ${name},</p>
+              <p>שלום ${nameH},</p>
               <p>סטטוס תיק <strong>${caseNumber}</strong> עודכן ל: <strong>${data.new_status || data.status || ""}</strong></p>
               <a href="https://www.easymorte.co.il/dashboard/status" style="display:inline-block;background:#D4AF37;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:16px;">צפייה בתיק →</a>
             </div>`,
@@ -176,8 +178,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const webhookUrl = Deno.env.get("WEBHOOK_URL");
-
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const token = req.headers.get("Authorization")?.replace("Bearer ", "");
@@ -216,118 +216,74 @@ serve(async (req) => {
       });
     }
 
-    const [{ data: callerProfile }, { data: callerRoles }] = await Promise.all([
-      supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", user.id),
-    ]);
-    const staffRoles = new Set(["admin", "operations", "mortgage_advisor", "supervisor"]);
-    const isStaff = callerProfile?.role === "admin" || (callerRoles || []).some((r: any) => staffRoles.has(String(r.role)));
-    if (caseData.user_id !== user.id && !isStaff) {
+    // Owner, admin or the assigned advisor only (same rule as the database).
+    // deno-lint-ignore no-explicit-any
+    if (!(await canAccessCase(supabase as any, user.id, case_id))) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { data: profile } = caseData
-      ? await supabase
-          .from("profiles")
-          .select("*")
-          .eq("user_id", caseData.user_id)
-          .single()
-      : { data: null };
-
-    // Build webhook payload
-    const intakeData = (caseData?.intake_data as Record<string, any>) || {};
-    const personal = { ...(intakeData.personal || {}), ...(intakeData.personal?.borrower1 || {}) };
-    const income = intakeData.income || {};
-    const liabilities = intakeData.liabilities || {};
-    const property = intakeData.property || {};
-    const currentMortgage = intakeData.current_mortgage || {};
-
-    const webhookPayload: Record<string, any> = {
-      ...safePayload,
-      payload: safePayload,
-      event_name,
-      timestamp: new Date().toISOString(),
-      case_id,
-      case_number: caseData?.case_number || "",
-      case_type: caseData?.case_type || "unknown",
-      user: {
-        name: `${personal.firstName || profile?.first_name || ""} ${personal.lastName || profile?.last_name || ""}`.trim(),
-        phone: personal.phone || profile?.phone || "",
-        email: personal.email || profile?.email || "",
-        id_last4: personal.idNumber ? personal.idNumber.slice(-4) : "",
-      },
-      goal: caseData?.goal || "",
-      mortgage_amount: property.requestedMortgage || currentMortgage.totalBalance || 0,
-      current_balance: currentMortgage.totalBalance || 0,
-      monthly_payment: currentMortgage.currentMonthlyPayment || 0,
-      income_total: (income.monthlyNetIncome || 0) + (income.b2MonthlyNetIncome || 0),
-      liabilities_monthly: liabilities.existingLoanPayments || 0,
-      ltv: property.purchasePrice
-        ? Math.round(((property.requestedMortgage || 0) / property.purchasePrice) * 100)
-        : 0,
-      dti: 0,
-      risk_level: liabilities.riskLevel || "",
-      missing_docs_list: [],
-      status: caseData?.status || "Draft",
-    };
-
-    // Calculate DTI
-    const totalIncome = webhookPayload.income_total;
-    if (totalIncome > 0) {
-      webhookPayload.dti = Math.round(
-        ((webhookPayload.liabilities_monthly + (liabilities.maxDesiredPayment || 0)) / totalIncome) * 100
-      );
+    // Explicit allow-list (SECURITY-B). The external automation receives an operational payload only:
+    // no financial data, no intake fields, no customer-supplied payload. Contact details are attached
+    // only for events that actually send the customer a message, and only for the channel used.
+    const base = webhookBasePayload(event_name, caseData, SITE_URL);
+    const isCustomerMessage = (CUSTOMER_MESSAGE_EVENTS as readonly string[]).includes(event_name);
+    let outbound: Record<string, unknown> = base;
+    if (isCustomerMessage) {
+      const b1 = (caseData?.intake_data as Record<string, any>)?.personal?.borrower1 || {};
+      const { data: profile } = await supabase
+        .from("profiles").select("first_name, phone, email").eq("user_id", caseData.user_id).maybeSingle();
+      // Template input: first name, case number/type and the event's own display fields only,
+      // coerced to short plain strings (no markup).
+      const str = (v: unknown) =>
+        typeof v === "string" || typeof v === "number" ? String(v).replace(/[<>"'`]/g, "").slice(0, 80) : undefined;
+      const message = buildNotifications(event_name, {
+        user: { name: String(b1.firstName || profile?.first_name || "").trim() },
+        case_number: caseData?.case_number || "",
+        case_id,
+        case_type: caseData?.case_type,
+        status: caseData?.status,
+        new_status: str(safePayload.new_status),
+        payload: {
+          file_name: str(safePayload.file_name), doc_type: str(safePayload.doc_type),
+          bank_name: str(safePayload.bank_name),
+        },
+      });
+      outbound = webhookOutboundPayload(base, message, {
+        phone: b1.phone || profile?.phone, email: b1.email || profile?.email,
+      });
     }
 
-    // Build notification payloads
-    const notifications = buildNotifications(event_name, webhookPayload);
-    if (notifications) {
-      webhookPayload.notifications = {
-        whatsapp: {
-          to: webhookPayload.user.phone,
-          ...notifications.whatsapp,
-        },
-        email: {
-          to: webhookPayload.user.email,
-          ...notifications.email,
-        },
-      };
-    }
+    // Internal event log: the operational payload only (no contact details or message bodies).
+    await supabase.from("case_events").insert({ case_id, event_name, payload: base });
 
-    // Log event to case_events
-    await supabase.from("case_events").insert({
-      case_id,
-      event_name,
-      payload: webhookPayload,
-    });
-
-    // Send to external webhook if configured
+    // Send to the external automation if configured. Never log the URL (it acts as a secret).
+    const webhookUrl = Deno.env.get("WEBHOOK_URL");
     if (webhookUrl) {
       try {
         const response = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(webhookPayload),
+          body: JSON.stringify(outbound),
         });
-        console.log(`Webhook sent to ${webhookUrl}: ${response.status}`);
+        console.log("External webhook sent:", event_name, response.status);
       } catch (webhookError) {
-        console.error("External webhook error:", webhookError);
+        console.error("External webhook error:", event_name, webhookError instanceof Error ? webhookError.name : "error");
       }
     } else {
-      console.log("No WEBHOOK_URL configured, event logged only:", event_name);
+      console.log("No external webhook configured, event logged only:", event_name);
     }
 
     return new Response(
-      JSON.stringify({ success: true, event_name, has_notifications: !!notifications }),
+      JSON.stringify({ success: true, event_name, has_notifications: "notifications" in outbound }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Webhook handler error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Webhook failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
