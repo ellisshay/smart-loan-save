@@ -24,6 +24,7 @@ export default function RefinanceCalculator() {
   const be = r?.breakEven;
   return (
     <CalculatorShell
+      title="מחשבון מחזור משכנתא"
       question="האם מחזור משכנתא יכול להשתלם לי?"
       intro="בדיקה ראשונית: ההחזר היום מול ההחזר בריבית אחרת, אחרי עלויות המחזור."
       inputs={<>

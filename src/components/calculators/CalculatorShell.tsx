@@ -8,15 +8,17 @@ import { cn } from "@/lib/utils";
  * One layout for every calculator: a question, up to 6 inputs, an instant result,
  * one visual, a plain-Hebrew explanation and a CTA that fits the result.
  */
-export function CalculatorShell({ question, intro, inputs, result, visual, explanation, cta, note }: {
-  question: string; intro?: string; inputs: ReactNode; result: ReactNode; visual?: ReactNode;
+export function CalculatorShell({ title, question, intro, inputs, result, visual, explanation, cta, note }: {
+  /** Optional keyword H1; when set, the question becomes the subtitle. */
+  title?: string; question: string; intro?: string; inputs: ReactNode; result: ReactNode; visual?: ReactNode;
   explanation?: ReactNode; cta?: { text?: string; label: string; href: string; secondary?: { label: string; href: string } }; note?: ReactNode;
 }) {
   return (
     <div className="container max-w-5xl py-8 sm:py-12" dir="rtl">
       <header className="mb-6 sm:mb-8">
         <Link to="/calculators" className="text-sm text-muted-foreground hover:text-primary">כל המחשבונים</Link>
-        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mt-2 leading-tight">{question}</h1>
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mt-2 leading-tight">{title ?? question}</h1>
+        {title && <p className="font-display text-lg sm:text-xl font-semibold text-foreground/80 mt-2">{question}</p>}
         {intro && <p className="text-muted-foreground mt-2 max-w-2xl">{intro}</p>}
       </header>
       <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-4 sm:gap-6 items-start">

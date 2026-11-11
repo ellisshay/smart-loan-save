@@ -61,6 +61,15 @@ export function CalculatorSeoContent({ c }: { c: CalculatorContent }) {
         <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-4">דוגמה</h2>
         <p className="text-foreground/90 leading-[1.9]">{c.example}</p>
       </section>
+      {c.guide && (
+        <section>
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-4">{c.guide.h2}</h2>
+          {c.guide.paragraphs.map((p, i) => (
+            <p key={i} className="text-foreground/90 leading-[1.9] mb-4">{p}</p>
+          ))}
+          {c.guide.links && <RelatedLinks links={c.guide.links} title="להמשך קריאה" />}
+        </section>
+      )}
       <FaqList faqs={c.faqs} />
       <RelatedLinks links={c.links} />
     </div>

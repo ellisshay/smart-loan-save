@@ -101,6 +101,21 @@ const BlockRenderer = ({ block }: { block: Block }) => {
         </aside>
       );
     }
+    case "links":
+      return (
+        <nav aria-label={block.title ?? "קישורים קשורים"} className="mb-6 text-right">
+          {block.title && <p className="font-display font-bold text-foreground mb-2">{block.title}</p>}
+          <ul className="flex flex-wrap gap-2">
+            {block.items.map((l) => (
+              <li key={l.href}>
+                <Link to={l.href} className="inline-block px-3 py-1.5 rounded-lg border border-border bg-card text-sm text-primary hover:border-primary transition-colors">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      );
     default:
       return null;
   }

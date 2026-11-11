@@ -5,7 +5,8 @@ export type Block =
   | { type: "list"; items: string[]; ordered?: boolean }
   | { type: "table"; headers: string[]; rows: string[][]; caption?: string }
   | { type: "example"; title: string; text: string }
-  | { type: "note"; variant?: "info" | "warn"; title?: string; text: string };
+  | { type: "note"; variant?: "info" | "warn"; title?: string; text: string }
+  | { type: "links"; title?: string; items: { label: string; href: string }[] };
 
 export interface KnowledgeArticle {
   slug: string;

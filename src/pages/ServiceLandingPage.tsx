@@ -53,6 +53,7 @@ export default function ServiceLandingPage() {
 
         <FaqList faqs={c.faqs} />
         <RelatedLinks links={c.links} />
+        {c.guides && <RelatedLinks links={c.guides} title="מדריכים רלוונטיים" />}
 
         <section className="bg-card border border-border rounded-2xl p-6 md:p-8 text-center">
           <h2 className="font-display text-2xl font-bold text-foreground mb-3">מוכנים להתחיל?</h2>

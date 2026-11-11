@@ -36,6 +36,7 @@ export default function NewMortgageCalculator() {
 
   return (
     <CalculatorShell
+      title="מחשבון משכנתא לפי החזר חודשי"
       question="כמה תעלה לי משכנתא חדשה?"
       intro="הזינו מחיר נכס והון עצמי וקבלו מיד החזר חודשי משוער, אחוז מימון ועלות כוללת."
       inputs={<>
