@@ -4,6 +4,7 @@ import { useAdminCases } from "@/hooks/useAdminCases";
 import { CASE_STATUSES, CaseStatus } from "@/types/admin";
 import { Skeleton } from "@/components/ui/skeleton";
 import EstimatedInquiries from "@/components/quickcheck/EstimatedInquiries";
+import ContactMessages from "@/components/admin/ContactMessages";
 import {
   Briefcase,
   Clock,
@@ -158,6 +159,7 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
+      <ContactMessages />
       <EstimatedInquiries />
     </div>
   );
