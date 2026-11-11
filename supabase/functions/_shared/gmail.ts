@@ -17,12 +17,12 @@ export const esc = (s: unknown) =>
 export function wrap(title: string, body: string, ctaText?: string, ctaUrl?: string) {
   return `<!doctype html><html dir="rtl" lang="he"><body style="margin:0;background:#ffffff;font-family:Arial,sans-serif;color:#0f2a44">
 <div style="max-width:600px;margin:0 auto;padding:24px">
-<div style="font-size:22px;font-weight:bold;color:#0d9488;margin-bottom:16px">EasyMorte</div>
+<div style="font-size:22px;font-weight:bold;color:#0d9488;margin-bottom:16px">EASY MORTE</div>
 <h1 style="font-size:20px;margin:0 0 12px">${esc(title)}</h1>
 <div style="font-size:15px;line-height:1.7">${body}</div>
 ${ctaText && ctaUrl ? `<a href="${ctaUrl}" style="display:inline-block;margin-top:20px;background:#0d9488;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold">${esc(ctaText)}</a>` : ""}
 <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0 12px"/>
-<div style="font-size:12px;color:#64748b">EasyMorte | ${CONTACT_EMAIL}</div>
+<div style="font-size:12px;color:#64748b">EASY MORTE | ${CONTACT_EMAIL}</div>
 </div></body></html>`;
 }
 
@@ -59,7 +59,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
   const GMAIL_KEY = Deno.env.get("GOOGLE_MAIL_API_KEY_2") || Deno.env.get("GOOGLE_MAIL_API_KEY");
   if (!LOVABLE_API_KEY || !GMAIL_KEY) throw new Error("Email credentials not configured");
   const raw = [
-    `From: ${header("EasyMorte")} <${SENDING_MAILBOX}>`,
+    `From: ${header("EASY MORTE")} <${SENDING_MAILBOX}>`,
     `Reply-To: ${CONTACT_EMAIL}`,
     `To: ${to}`,
     `Subject: ${header(subject)}`,

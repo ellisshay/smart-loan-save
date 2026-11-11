@@ -8,6 +8,7 @@ import { knowledgeArticles } from "./data/knowledge";
 import { articlesData } from "./data/articlesData";
 
 export { redirects };
+export { PRIVATE_PREFIXES as privateShellRoutes } from "./seo/config";
 
 /** Every public, indexable URL. Private areas are never listed here. */
 export function getPublicRoutes() {

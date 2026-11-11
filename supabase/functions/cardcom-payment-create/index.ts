@@ -84,7 +84,7 @@ serve(async (req) => {
       Amount: AMOUNT,
       Language: "he",
       ISOCoinId: 1,
-      ProductName: `פתיחת תיק EasyMorte ${String(caseRow.case_number ?? "").slice(0, 30)}`.trim(),
+      ProductName: `פתיחת תיק EASY MORTE ${String(caseRow.case_number ?? "").slice(0, 30)}`.trim(),
       SuccessRedirectUrl: `${origin}/dashboard/payment?paid=1&caseId=${encodeURIComponent(caseId)}`,
       FailedRedirectUrl: `${origin}/dashboard/payment?paid=0&caseId=${encodeURIComponent(caseId)}`,
       WebHookUrl: webhookUrl,

@@ -65,7 +65,7 @@ export default function DashboardPrivacy() {
           <>
             <label className="flex items-start gap-3 cursor-pointer">
               <Checkbox checked={bankChecked} onCheckedChange={(v) => setBankChecked(v === true)} className="mt-1" />
-              <span className="text-sm text-foreground">אני מאשר/ת ל־EasyMorte להעביר את המידע והמסמכים הדרושים לגופים פיננסיים לצורך בדיקת וקבלת הצעות משכנתא.</span>
+              <span className="text-sm text-foreground">אני מאשר/ת ל־EASY MORTE להעביר את המידע והמסמכים הדרושים לגופים פיננסיים לצורך בדיקת וקבלת הצעות משכנתא.</span>
             </label>
             <Button variant="cta" disabled={!bankChecked} onClick={giveBank}>שמירת הסכמה</Button>
             <p className="text-xs text-muted-foreground">בלי הסכמה זו לא נעביר את התיק לאף בנק.</p>

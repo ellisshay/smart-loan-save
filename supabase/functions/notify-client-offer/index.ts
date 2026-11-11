@@ -91,7 +91,7 @@ serve(async (req) => {
           <tr><td style="padding:12px;">תקופה</td><td style="padding:12px;">${esc(loan_period || "—")} שנים</td></tr>
         </table>`, "לצפייה בהצעות", `${SITE_URL}/dashboard/offers`);
 
-    await sendEmail(profile.email, "יש לך הצעה חדשה מ-EasyMorte!", htmlBody);
+    await sendEmail(profile.email, "יש לך הצעה חדשה מ-EASY MORTE!", htmlBody);
 
     return new Response(
       JSON.stringify({ success: true }),

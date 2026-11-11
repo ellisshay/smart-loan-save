@@ -20,7 +20,7 @@ export function RouteSeoHead() {
   return (
     <>
       <Seo title={meta.title} description={meta.description} path={pathname} crumbs={crumbs} jsonLd={jsonLd} />
-      {pathname !== "/" && <Breadcrumbs crumbs={crumbs} />}
+      {pathname !== "/" && pathname !== "/mortgage-check" && <Breadcrumbs crumbs={crumbs} />}
     </>
   );
 }

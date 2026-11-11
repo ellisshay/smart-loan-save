@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { validateContact } from "../../supabase/functions/_shared/contactMessage";
-import ContactPage from "@/pages/ContactPage";
+import ContactPageBase from "@/pages/ContactPage";
+import { MemoryRouter } from "react-router-dom";
+// The page links to other pages, so it renders inside a router.
+const ContactPage = () => <MemoryRouter><ContactPageBase /></MemoryRouter>;
 
 const { invoke } = vi.hoisted(() => ({ invoke: vi.fn() }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { functions: { invoke } } }));
