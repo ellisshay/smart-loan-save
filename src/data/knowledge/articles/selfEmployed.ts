@@ -4,7 +4,7 @@ export const selfEmployedArticles: KnowledgeArticle[] = [
   {
     slug: "self-employed-mortgage",
     clusterId: "self-employed",
-    title: "משכנתא לעצמאיים — מה הבנק באמת רואה?",
+    title: "משכנתא לעצמאיים, מה הבנק באמת רואה?",
     metaDescription:
       "משכנתא לעצמאיים: איך הבנק מתייחס להכנסות עסקיות, מה הבנק מחשיב, מה מפריע לו, ומה צריך להכין מראש כדי שהבקשה תעבור חלק.",
     excerpt:

@@ -6,8 +6,8 @@ export const newGuideArticles: KnowledgeArticle[] = [
   {
     slug: "self-build-mortgage",
     clusterId: "first-mortgage",
-    title: "משכנתא לבנייה עצמית: איך זה עובד ומה חשוב לדעת",
-    metaTitle: "משכנתא לבנייה עצמית: שלבים, הון עצמי ומשיכת כספים",
+    title: "משכנתא לבנייה עצמית: שלבים והון עצמי",
+    metaTitle: "משכנתא לבנייה עצמית: שלבים והון עצמי",
     metaDescription:
       "משכנתא לבנייה עצמית: מה הבנק דורש לפני אישור, איך מושכים את הכסף בשלבים לפי התקדמות הבנייה, הון עצמי ושיעור מימון, ותכנון ההחזר בזמן הבנייה.",
     excerpt:
@@ -138,8 +138,8 @@ export const newGuideArticles: KnowledgeArticle[] = [
   {
     slug: "mortgage-for-pensioners",
     clusterId: "first-mortgage",
-    title: "משכנתא לגמלאים ולמקבלי קצבה: מה הבנק בודק",
-    metaTitle: "משכנתא לגמלאים ולמקבלי קצבה חודשית: מה חשוב לדעת",
+    title: "משכנתא לגמלאים ולמקבלי קצבה: מה לדעת",
+    metaTitle: "משכנתא לגמלאים ולמקבלי קצבה: מה לדעת",
     metaDescription:
       "משכנתא לגמלאים ולמקבלי קצבה חודשית: איך הבנק מתייחס לפנסיה כהכנסה, תקופת ההלוואה והגיל בסופה, ביטוח חיים, לווים נוספים ומה ההבדל ממשכנתא הפוכה.",
     excerpt:

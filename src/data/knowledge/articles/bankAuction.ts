@@ -4,7 +4,7 @@ export const bankAuctionArticles: KnowledgeArticle[] = [
   {
     slug: "bank-auction-guide",
     clusterId: "bank-auction",
-    title: "מכירות פומביות של בנקים — דירות במחיר מוזל, או מלכודת?",
+    title: "מכירות פומביות של בנקים: דירות במחיר מוזל?",
     metaDescription:
       "מכירות פומביות של דירות מבנקים: איך זה עובד, מה הסיכונים (פינוי, עיקולים, מימון), מה כדאי לבדוק לפני, ומתי זה באמת משתלם.",
     excerpt:

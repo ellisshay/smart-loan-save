@@ -108,7 +108,7 @@ export const advisorArticles: KnowledgeArticle[] = [
   {
     slug: "advisor-cost-2027",
     clusterId: "advisor",
-    title: "כמה עולה יועץ משכנתאות, ומה אמור להיות כלול במחיר?",
+    title: "כמה עולה יועץ משכנתאות ומה כלול במחיר",
     metaDescription:
       "כמה עולה ייעוץ משכנתאות בישראל: מודל אחוז מהחיסכון, מודל מחיר קבוע, מה כלול ומה לא, ולמה קיימים פערי מחיר גדולים בין יועצים.",
     excerpt:
@@ -190,7 +190,7 @@ export const advisorArticles: KnowledgeArticle[] = [
   {
     slug: "advisor-vs-bank",
     clusterId: "advisor",
-    title: "יועץ משכנתאות פרטי או הבנק — מה ההבדל באמת?",
+    title: "יועץ משכנתאות פרטי או הבנק, מה ההבדל באמת?",
     metaDescription:
       "ההבדל בין ייעוץ משכנתאות פרטי לבין פקיד המשכנתאות של הבנק: למי הוא מחויב, מה כל אחד משיג, ואיך שניהם עובדים יחד בתהליך נכון.",
     excerpt:

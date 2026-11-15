@@ -4,7 +4,7 @@ export const refinanceArticles: KnowledgeArticle[] = [
   {
     slug: "refinance-guide",
     clusterId: "refinance",
-    title: "מחזור משכנתא: המדריך המלא. מתי משתלם, כמה עולה ואיך עושים את זה נכון",
+    title: "מחזור משכנתא: מתי זה משתלם וכמה זה עולה",
     metaDescription:
       "מדריך מחזור משכנתא: מה זה מחזור, מתי הוא משתלם, עמלת פירעון מוקדם, מחזור פנימי מול חיצוני, וכמה כסף אפשר באמת לחסוך.",
     excerpt:
@@ -127,7 +127,7 @@ export const refinanceArticles: KnowledgeArticle[] = [
         a: "כשהתזרים לוחץ, זה כלי לגיטימי, אבל חשוב לדעת שהארכת תקופה בדרך כלל מגדילה את סך הריבית. מחזור שנועד לחסוך ריבית ומחזור שנועד להקל תזרים הם שתי מטרות שונות.",
       },
     ],
-    calculator: { label: "מחשבון מחזור משכנתא", href: "/calculators/refinance" },
+    calculator: { label: "מחשבון מחזור משכנתא", href: "/refinance-calculator" },
     related: ["early-repayment-fee", "is-refinance-worth-it", "bank-auction-guide"],
   },
   {
@@ -204,7 +204,7 @@ export const refinanceArticles: KnowledgeArticle[] = [
         a: "כמה שרוצים. העמלה משתנה עם ריביות השוק, ולכן כדאי לבדוק שוב אם עבר זמן מאז החישוב הקודם.",
       },
     ],
-    calculator: { label: "מחשבון מחזור משכנתא", href: "/calculators/refinance" },
+    calculator: { label: "מחשבון מחזור משכנתא", href: "/refinance-calculator" },
     related: ["refinance-guide", "is-refinance-worth-it"],
   },
   {
@@ -282,7 +282,7 @@ export const refinanceArticles: KnowledgeArticle[] = [
         a: "מתחילים תמיד בפנייה לבנק הקיים עם הצעות חוץ ביד. אם הוא מתיישר — מחזור פנימי זול ומהיר. אם לא, והפער גדול — מחזור חיצוני עם בנק שמציע תנאים טובים יותר.",
       },
     ],
-    calculator: { label: "מחשבון מחזור משכנתא", href: "/calculators/refinance" },
+    calculator: { label: "מחשבון מחזור משכנתא", href: "/refinance-calculator" },
     related: ["refinance-guide", "early-repayment-fee", "bank-auction-guide"],
   },
 ];

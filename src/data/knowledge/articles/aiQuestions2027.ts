@@ -203,7 +203,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
   {
     slug: "mortgage-rates-israel-2027",
     clusterId: "smart-questions-2027",
-    title: "איפה בודקים ריביות משכנתא מעודכנות ואיך יודעים אם ההצעה טובה?",
+    title: "איפה בודקים ריביות משכנתא מעודכנות?",
     metaDescription:
       "איפה מוצאים ריביות משכנתא מעודכנות ממקור רשמי, מה מפרסם בנק ישראל ואיך משווים הצעה אישית בלי להסתמך על מספר כללי מהאינטרנט.",
     excerpt:
@@ -450,7 +450,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
   {
     slug: "mortgage-documents-speed-checklist-2027",
     clusterId: "smart-questions-2027",
-    title: "אילו מסמכים כדאי להכין מראש כדי לקבל משכנתא מהר?",
+    title: "אילו מסמכים להכין כדי לקבל משכנתא מהר",
     metaDescription:
       "רשימת מסמכים מסודרת לשכירים, עצמאים ורוכשי דירה: מה להכין מראש כדי לצמצם השלמות ולקצר את תהליך המשכנתא.",
     excerpt:

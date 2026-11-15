@@ -4,7 +4,7 @@ export const documentsArticles: KnowledgeArticle[] = [
   {
     slug: "documents-checklist",
     clusterId: "documents",
-    title: "רשימת מסמכים למשכנתא — מה צריך, למה ואיך להכין נכון",
+    title: "רשימת מסמכים למשכנתא: מה צריך ואיך מכינים",
     metaDescription:
       "רשימת מסמכים למשכנתא: תלושי שכר, דפי בנק, תעודות זהות, חוזה, שמאות — מה דרוש לכל סוג לווה (שכיר, עצמאי), וטעויות שמעכבות אישורים.",
     excerpt:
@@ -114,7 +114,7 @@ export const documentsArticles: KnowledgeArticle[] = [
   {
     slug: "documents-validation",
     clusterId: "documents",
-    title: "אימות מסמכים למשכנתא — מה בנק בודק באמת?",
+    title: "אימות מסמכים למשכנתא, מה בנק בודק באמת?",
     metaDescription:
       "אימות מסמכים למשכנתא: איך בנקים בודקים תלושים, דפי בנק ותעודות זהות, מה נחשב מסמך בעייתי, ומה קורה כשהצלבה מעלה סתירה.",
     excerpt:

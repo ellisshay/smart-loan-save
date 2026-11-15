@@ -4,7 +4,7 @@ export const firstMortgageArticles: KnowledgeArticle[] = [
   {
     slug: "first-mortgage-guide",
     clusterId: "first-mortgage",
-    title: "משכנתא ראשונה: המדריך המלא, מההון העצמי ועד מפתחות לבית",
+    title: "משכנתא ראשונה: מההון העצמי ועד המפתחות",
     metaDescription:
       "מדריך צעד אחר צעד למשכנתא ראשונה: כמה הון עצמי צריך, אישור עקרוני, בדיקת יכולת החזר, תמהיל, מכרז בנקים ומסמכים. הכל במקום אחד.",
     excerpt:

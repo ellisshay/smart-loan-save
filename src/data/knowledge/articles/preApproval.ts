@@ -103,7 +103,7 @@ export const preApprovalArticles: KnowledgeArticle[] = [
   {
     slug: "pre-approval-denied",
     clusterId: "pre-approval",
-    title: "סירבו לכם למשכנתא — מה עושים עכשיו?",
+    title: "סירבו לכם למשכנתא, מה עושים עכשיו?",
     metaDescription:
       "סירוב למשכנתא או לאישור עקרוני: הסיבות הנפוצות (יחס החזר, דוח אשראי, ותק, הון עצמי), מה כדאי לתקן קודם, ומתי בנק אחר מאשר.",
     excerpt:

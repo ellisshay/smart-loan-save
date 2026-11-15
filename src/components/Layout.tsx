@@ -226,7 +226,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h4 className="font-display font-bold mb-3">מחשבונים</h4>
               <div className="space-y-2 text-sm text-primary-foreground/70">
                 <Link to="/calculators/waste" className="block hover:text-primary-foreground transition-colors">מדד בזבוז משכנתא</Link>
-                <Link to="/calculators/refinance" className="block hover:text-primary-foreground transition-colors">סימולטור מיחזור</Link>
+                <Link to="/refinance-calculator" className="block hover:text-primary-foreground transition-colors">סימולטור מיחזור</Link>
                 <Link to="/calculators/mix" className="block hover:text-primary-foreground transition-colors">השוואת תמהילים</Link>
                 <Link to="/mortgage-calculator" className="block hover:text-primary-foreground transition-colors">מחשבון משכנתא</Link>
                 <Link to="/refinance-calculator" className="block hover:text-primary-foreground transition-colors">מחשבון מחזור משכנתא</Link>
