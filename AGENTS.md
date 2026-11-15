@@ -19,3 +19,5 @@
 - Intake steps autosave while typing via IntakeAutosaveContext/useStepAutosave (silent update_case_safe, no emails/submit) — explicit "next" remains the only path that completes a case.
 - Admins complete cases by phone through the client dashboard with ?caseId= (staffMode); update_case_safe/submit_case_safe allow is_admin and audit admin edits — one form implementation for client and staff.
 - Edge functions authorize callers via supabase/functions/_shared/auth.ts (user token + case ownership; scheduled jobs and the Cardcom payment webhook use tokens in service-role-only internal_job_tokens) — never trust user_id/case_id from the request body.
+
+- Authentication emails use the managed auth-email-hook SDK and scaffolded templates, not database queues — this project uses platform-managed email delivery.
