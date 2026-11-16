@@ -2,7 +2,7 @@ import { EXTERNAL_ADVISORS_ENABLED } from "@/lib/features";
 import DashboardPrivacy from "./pages/dashboard/DashboardPrivacy";
 import AdminPrivacy from "./pages/admin/AdminPrivacy";
 import ConsentGate from "@/components/privacy/ConsentGate";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -86,11 +86,20 @@ const RobotsGuard = () => {
   return isPrivatePath(pathname) ? <NoIndex /> : null;
 };
 
+/** Removes the prerender hide used when index.html is served for another URL. */
+const RevealFallback = () => {
+  useEffect(() => {
+    document.getElementById("fallback-hide")?.remove();
+  }, []);
+  return null;
+};
+
 export const AppProviders = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <RevealFallback />
       {children}
     </TooltipProvider>
   </QueryClientProvider>

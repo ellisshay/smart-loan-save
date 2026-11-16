@@ -54,10 +54,10 @@ async function main() {
   const template = readFileSync(join(DIST, "index.html"), "utf8");
   const base = stripDefaultHead(template);
   const privateBase = base.replace(/<script\b[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>\s*/gi, "");
-  const privateShell = privateBase.replace("</head>", '<title>אזור אישי | EASY MORTE</title>\n<meta name="robots" content="noindex,nofollow">\n</head>');
+  const { render, getPublicRoutes, redirects, privateShellRoutes, buildFallbackHeadScript, buildFallbackBodyScript, NOT_FOUND_TITLE, PRIVATE_AREA_TITLE } = await import(pathToFileURL(entry).href);
+  const privateShell = privateBase.replace("</head>", `<title>${PRIVATE_AREA_TITLE}</title>\n<meta name="robots" content="noindex,nofollow">\n</head>`);
   // No data-prerendered marker: the unchanged client entry renders the app fresh.
   writeFileSync(join(DIST, "spa.html"), privateShell);
-  const { render, getPublicRoutes, redirects, privateShellRoutes } = await import(pathToFileURL(entry).href);
   for (const path of privateShellRoutes) {
     const file = outFile(path);
     mkdirSync(dirname(file), { recursive: true });
@@ -71,7 +71,13 @@ async function main() {
     try {
       const { html, head } = await render(r.path);
       if (!html.includes("<h1")) throw new Error("no <h1> rendered");
-      const page = base.replace("</head>", `${head}\n</head>`).replace('<div id="root"></div>', `<div id="root" data-prerendered="${r.path}">${html}</div>`);
+      let page = base.replace("</head>", `${head}\n</head>`).replace('<div id="root"></div>', `<div id="root" data-prerendered="${r.path}">${html}</div>`);
+      // index.html is also the host's SPA fallback. Correct homepage head tags when that file is reused.
+      if (r.path === "/") {
+        page = page
+          .replace("</head>", `<script>${buildFallbackHeadScript()}</script>\n</head>`)
+          .replace("</body>", `<script>${buildFallbackBodyScript()}</script>\n</body>`);
+      }
       const file = outFile(r.path);
       mkdirSync(dirname(file), { recursive: true });
       writeFileSync(file, page);
@@ -87,6 +93,24 @@ async function main() {
     const file = outFile(from);
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, `<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>הועבר</title><link rel="canonical" href="${target}"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${to}"><script>location.replace(${JSON.stringify(to)})</script></head><body><a href="${to}">המשך לעמוד</a></body></html>`);
+  }
+  try {
+    const notFound = await render("/404");
+    const hasTitle = notFound.head.includes(NOT_FOUND_TITLE);
+    const hasNoindex = notFound.head.includes("noindex");
+    const hasCanonical = /rel="canonical"|rel='canonical'/i.test(notFound.head);
+    if (!hasTitle || !hasNoindex || hasCanonical || !notFound.html.includes("<h1")) {
+      throw new Error("not-found head must have its own title and noindex, and no canonical");
+    }
+    // No data-prerendered marker: the client renders the real URL, not this placeholder path.
+    const notFoundPage = base
+      .replace("</head>", `${notFound.head}\n</head>`)
+      .replace('<div id="root"></div>', `<div id="root">${notFound.html}</div>`);
+    writeFileSync(join(DIST, "404.html"), notFoundPage);
+    console.log("[prerender] 404.html");
+  } catch (e) {
+    failed++;
+    console.warn(`[prerender] failed 404.html: ${e?.message}`);
   }
   console.log(`[prerender] ${ok} pages prerendered, ${failed} failed, ${privateShellRoutes.length} private shells, ${Object.keys(redirects).length} redirects`);
   rmSync(SSR_DIR, { recursive: true, force: true });

@@ -9,6 +9,7 @@ import { articlesData } from "./data/articlesData";
 
 export { redirects };
 export { PRIVATE_PREFIXES as privateShellRoutes } from "./seo/config";
+export { buildFallbackBodyScript, buildFallbackHeadScript, NOT_FOUND_TITLE, PRIVATE_AREA_TITLE } from "./seo/fallbackHead";
 
 /** Every public, indexable URL. Private areas are never listed here. */
 export function getPublicRoutes() {
