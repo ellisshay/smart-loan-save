@@ -20,7 +20,7 @@ export const clusters: KnowledgeCluster[] = [
   {
     id: "refinance",
     label: "מחזור משכנתא",
-    description: "מתי מחזור משתלם, כמה זה עולה ואיך מחשבים את החיסכון האמיתי.",
+    description: "בדיקת מחזור משכנתא: מתי זה משתלם, מה בודקים בעמלת הפירעון ואיך מחשבים את החיסכון.",
   },
   {
     id: "mix-rates",

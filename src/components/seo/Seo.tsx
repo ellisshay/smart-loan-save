@@ -7,6 +7,7 @@ import {
   organizationSchema,
   type Crumb,
 } from "@/seo/config";
+import { PRIVATE_AREA_TITLE } from "@/seo/fallbackHead";
 
 interface SeoProps {
   title: string;
@@ -52,7 +53,7 @@ export default function Seo({ title, description, path, type = "website", image 
 export function NoIndex() {
   return (
     <Helmet>
-      <title>אזור אישי | EASY MORTE</title>
+      <title>{PRIVATE_AREA_TITLE}</title>
       <meta name="robots" content="noindex,nofollow" />
     </Helmet>
   );
