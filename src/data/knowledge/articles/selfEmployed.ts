@@ -15,7 +15,7 @@ export const selfEmployedArticles: KnowledgeArticle[] = [
     updatedDate: "2026-11-16",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "house",
-    imageAlt: "בית עם גינה, נכס שעצמאיים מממנים במשכנתא שהוכנה היטב",
+    imageAlt: "בית צמוד קרקע לבן עם דלת עץ, שביל אבן ומדשאה",
     isPillar: true,
     blocks: [
       {
