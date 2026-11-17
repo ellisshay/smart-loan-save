@@ -15,7 +15,7 @@ export const documentsArticles: KnowledgeArticle[] = [
     updatedDate: "2026-04-02",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "apartments",
-    imageAlt: "בניין מגורים — נכס שתיק המסמכים שלו חייב להיות שלם לפני מימון",
+    imageAlt: "בנייני מגורים לבנים עם מרפסות ועצים בחזית, תחת שמיים כחולים",
     isPillar: true,
     blocks: [
       {

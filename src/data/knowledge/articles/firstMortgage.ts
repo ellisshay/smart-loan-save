@@ -16,7 +16,7 @@ export const firstMortgageArticles: KnowledgeArticle[] = [
     author: "צוות המומחים של EASY MORTE",
     imageKey: "family",
     imageAlt:
-      "משפחה צעירה עם מפתחות בדלת הדירה החדשה, ברגע קבלת הבעלות על הדירה הראשונה",
+      "זוג עם ילדה קטנה עומדים בפתח דירה חדשה עם קרטוני מעבר, והאב מחזיק מפתח",
     isPillar: true,
     blocks: [
       {

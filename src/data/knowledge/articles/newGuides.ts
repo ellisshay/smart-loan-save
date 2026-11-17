@@ -18,7 +18,7 @@ export const newGuideArticles: KnowledgeArticle[] = [
     updatedDate: "2026-11-11",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "house",
-    imageAlt: "בית צמוד קרקע בבנייה עצמית",
+    imageAlt: "בית צמוד קרקע לבן עם דלת עץ, שביל אבן ומדשאה",
     blocks: [
       {
         type: "p",
@@ -150,7 +150,7 @@ export const newGuideArticles: KnowledgeArticle[] = [
     updatedDate: "2026-11-11",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "family",
-    imageAlt: "בני זוג מבוגרים מתכננים משכנתא",
+    imageAlt: "זוג עם ילדה קטנה עומדים בפתח דירה חדשה עם קרטוני מעבר, והאב מחזיק מפתח",
     blocks: [
       {
         type: "p",
