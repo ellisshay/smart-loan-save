@@ -53,7 +53,6 @@ const text = {
   margin: '0 0 25px',
 }
 const codeStyle = {
-  fontFamily: 'Courier, monospace',
   fontFamily: 'Heebo, Arial, sans-serif',
   fontSize: '22px',
   fontWeight: 'bold' as const,
