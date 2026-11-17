@@ -222,7 +222,7 @@ const KnowledgeArticlePage = () => {
           <div className="container max-w-4xl mx-auto -mt-1">
             <img
               src={image.src}
-              alt={article.imageAlt || article.title}
+              alt={article.imageAlt ?? ""}
               width={image.width}
               height={image.height}
               loading="eager"

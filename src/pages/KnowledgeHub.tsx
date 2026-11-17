@@ -21,7 +21,7 @@ const ArticleCard = ({ article }: { article: KnowledgeArticle }) => {
         <div className="aspect-[16/9] overflow-hidden bg-muted">
           <img
             src={image.src}
-            alt={article.imageAlt || article.title}
+            alt=""
             width={image.width}
             height={image.height}
             loading="lazy"

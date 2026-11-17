@@ -15,7 +15,7 @@ export const refinanceArticles: KnowledgeArticle[] = [
     updatedDate: "2026-11-11",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "apartments",
-    imageAlt: "בנייני מגורים מודרניים בישראל בשמש, נכסים שאפשר למחזר עליהם משכנתא",
+    imageAlt: "בנייני מגורים לבנים עם מרפסות ועצים בחזית, תחת שמיים כחולים",
     isPillar: true,
     blocks: [
       {
