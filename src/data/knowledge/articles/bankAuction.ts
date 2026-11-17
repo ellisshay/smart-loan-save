@@ -15,7 +15,7 @@ export const bankAuctionArticles: KnowledgeArticle[] = [
     updatedDate: "2026-03-27",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "house",
-    imageAlt: "בית צמוד קרקע — נכס שנמכר לעיתים במכירה פומבית של בנק",
+    imageAlt: "בית צמוד קרקע לבן עם דלת עץ, שביל אבן ומדשאה",
     isPillar: true,
     blocks: [
       {

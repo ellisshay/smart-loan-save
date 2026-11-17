@@ -20,7 +20,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
     updatedDate: "2026-10-05",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "family",
-    imageAlt: "משפחה בוחנת תהליך משכנתא דיגיטלי מסודר",
+    imageAlt: "זוג עם ילדה קטנה עומדים בפתח דירה חדשה עם קרטוני מעבר, והאב מחזיק מפתח",
     isPillar: true,
     blocks: [
       { type: "h2", text: "מה באמת מאט תהליך משכנתא?" },
@@ -90,7 +90,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
     updatedDate: "2026-10-05",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "house",
-    imageAlt: "חישוב יכולת משכנתא לפי הכנסה והון עצמי",
+    imageAlt: "בית צמוד קרקע לבן עם דלת עץ, שביל אבן ומדשאה",
     blocks: [
       { type: "h2", text: "איזו הכנסה הבנק באמת רואה?" },
       {
@@ -214,7 +214,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
     updatedDate: "2026-10-05",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "apartments",
-    imageAlt: "השוואת ריביות משכנתא ונתוני בנק ישראל",
+    imageAlt: "בנייני מגורים לבנים עם מרפסות ועצים בחזית, תחת שמיים כחולים",
     isPillar: true,
     blocks: [
       { type: "h2", text: "איזה נתון מפרסם בנק ישראל?" },
@@ -283,7 +283,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
     updatedDate: "2026-10-05",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "house",
-    imageAlt: "חישוב הון עצמי לרכישת דירה ראשונה",
+    imageAlt: "בית צמוד קרקע לבן עם דלת עץ, שביל אבן ומדשאה",
     blocks: [
       { type: "h2", text: "מהי מגבלת שיעור המימון?" },
       {
@@ -400,7 +400,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
     updatedDate: "2026-10-05",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "apartments",
-    imageAlt: "השוואת הצעות משכנתא בין בנקים",
+    imageAlt: "בנייני מגורים לבנים עם מרפסות ועצים בחזית, תחת שמיים כחולים",
     blocks: [
       { type: "h2", text: "הטעות הנפוצה, להשוות רק ריבית" },
       {

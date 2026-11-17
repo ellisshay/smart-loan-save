@@ -271,7 +271,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <span className="inline-flex items-center justify-center h-6 px-1.5 rounded-md bg-black/40 group-hover:bg-black/60 transition-colors duration-300">
                   <img
                     src={speedMarketLogo}
-                    alt="ספיד מרקט"
+                    alt=""
                     style={{ mixBlendMode: "screen" }}
                     className="h-4 w-auto transition-all duration-300"
                   />
@@ -287,7 +287,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <span className="inline-flex items-center justify-center h-6 px-1.5 rounded-md bg-black/40 group-hover:bg-black/60 transition-colors duration-300">
                   <img
                     src={aboutDigitalLogo}
-                    alt="About Digital"
+                    alt=""
                     style={{ mixBlendMode: "screen" }}
                     className="h-4 w-auto transition-all duration-300"
                   />

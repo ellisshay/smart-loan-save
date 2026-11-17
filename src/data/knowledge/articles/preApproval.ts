@@ -15,7 +15,7 @@ export const preApprovalArticles: KnowledgeArticle[] = [
     updatedDate: "2026-03-31",
     author: "צוות המומחים של EASY MORTE",
     imageKey: "apartments",
-    imageAlt: "בנייני מגורים מודרניים — נכס שניתן לאשר עקרונית לפני רכישה",
+    imageAlt: "בנייני מגורים לבנים עם מרפסות ועצים בחזית, תחת שמיים כחולים",
     isPillar: true,
     blocks: [
       {
