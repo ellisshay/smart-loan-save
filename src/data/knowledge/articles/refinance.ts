@@ -41,8 +41,10 @@ export const refinanceArticles: KnowledgeArticle[] = [
         type: "links",
         title: "לפני שמחליטים",
         items: [
+          { label: "בדיקת המשכנתא החינמית לפי דוח יתרות", href: "/balance-check" },
           { label: "בדיקת מחזור משכנתא", href: "/knowledge/is-refinance-worth-it" },
           { label: "מחשבון מחזור משכנתא", href: "/refinance-calculator" },
+          { label: "מחזור משכנתא עם EASY MORTE", href: "/mortgage-refinance" },
         ],
       },
       { type: "h2", text: "מחזור פנימי מול מחזור חיצוני" },
