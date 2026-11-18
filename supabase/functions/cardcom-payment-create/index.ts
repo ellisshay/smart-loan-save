@@ -75,6 +75,14 @@ serve(async (req) => {
     const cardOwnerName = clean([billing.firstName, billing.lastName].filter(Boolean).join(" "), 60);
     const cardOwnerEmail = clean(billing.email, 120);
     const cardOwnerPhone = clean(billing.phone, 20).replace(/[\s-]/g, "");
+    const invoiceName = clean(billing.invoiceName, 80) || cardOwnerName;
+    const taxId = clean(billing.taxId, 9).replace(/\D/g, "");
+    if (!cardOwnerName || !invoiceName || !/^0\d{8,9}$/.test(cardOwnerPhone) ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cardOwnerEmail) || (taxId && !/^\d{5,9}$/.test(taxId))) {
+      return new Response(JSON.stringify({ error: "invalid_billing" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const payload: Record<string, unknown> = {
       TerminalNumber: terminal,
@@ -93,12 +101,13 @@ serve(async (req) => {
       // editable details let checkout collect missing billing information.
       Document: {
         TypeToCreate: "Auto",
-        IsAllowEditDocument: true,
+        IsAllowEditDocument: false,
         IsSendByEmail: true,
         Language: "he",
-        ...(cardOwnerName ? { Name: cardOwnerName } : {}),
-        ...(cardOwnerEmail ? { Email: cardOwnerEmail } : {}),
-        ...(cardOwnerPhone ? { Mobile: cardOwnerPhone } : {}),
+        Name: invoiceName,
+        Email: cardOwnerEmail,
+        Mobile: cardOwnerPhone,
+        ...(taxId ? { TaxId: taxId } : {}),
         Products: [{
           Description: `פתיחת תיק EASY MORTE ${String(caseRow.case_number ?? "").slice(0, 30)}`.trim(),
           Quantity: 1,
@@ -106,10 +115,15 @@ serve(async (req) => {
           TotalLineCost: AMOUNT,
         }],
       },
+      // Billing details are collected on our own page; Cardcom shows only the card fields.
       UIDefinition: {
-        ...(cardOwnerName ? { CardOwnerNameValue: cardOwnerName } : {}),
-        ...(cardOwnerEmail ? { CardOwnerEmailValue: cardOwnerEmail } : {}),
-        ...(cardOwnerPhone ? { CardOwnerPhoneValue: cardOwnerPhone } : {}),
+        CardOwnerNameValue: cardOwnerName,
+        CardOwnerEmailValue: cardOwnerEmail,
+        CardOwnerPhoneValue: cardOwnerPhone,
+        IsHideCardOwnerName: true,
+        IsHideCardOwnerEmail: true,
+        IsHideCardOwnerPhone: true,
+        ...(taxId && taxId.length === 9 ? { CardOwnerIdentityNumberValue: taxId } : {}),
       },
     };
     if (apiPassword) payload.ApiPassword = apiPassword;

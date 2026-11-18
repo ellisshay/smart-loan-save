@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Zap, Shield, CheckCircle2, Loader2, FileUp, XCircle, Hourglass, Phone } from "lucide-react";
 
 
@@ -31,6 +33,59 @@ export default function DashboardPayment() {
   // Billing details for the invoice — prefillable from the borrower questionnaire
   const personal = (intakeData as any)?.personal ?? {};
   const borrower = personal.borrower1 ?? {};
+  type Billing = { firstName: string; lastName: string; invoiceName: string; phone: string; email: string; taxId: string };
+  const [billing, setBilling] = useState<Billing>({ firstName: "", lastName: "", invoiceName: "", phone: "", email: "", taxId: "" });
+  const [billingErrors, setBillingErrors] = useState<Partial<Record<keyof Billing, string>>>({});
+  const touchedRef = useRef<Set<keyof Billing>>(new Set());
+  // Prefill from the case form, then (client only, never staff) the signed-in account profile.
+  // Fields the user already edited are never overwritten.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const fromCase: Partial<Billing> = {
+        firstName: String(borrower.firstName ?? "").trim(),
+        lastName: String(borrower.lastName ?? "").trim(),
+        phone: String(borrower.phone ?? "").trim(),
+        email: String(borrower.email ?? "").trim(),
+        taxId: String(borrower.idNumber ?? borrower.id ?? "").replace(/\D/g, "").slice(0, 9),
+      };
+      let fromProfile: Partial<Billing> = {};
+      if (!staffMode) {
+        const { data: u } = await supabase.auth.getUser();
+        if (u?.user) {
+          const { data: prof } = await supabase.from("profiles").select("first_name,last_name,phone,email").eq("user_id", u.user.id).maybeSingle();
+          fromProfile = { firstName: prof?.first_name ?? "", lastName: prof?.last_name ?? "", phone: prof?.phone ?? "", email: prof?.email || u.user.email || "" };
+        }
+      }
+      if (cancelled) return;
+      setBilling((prev) => {
+        const next = { ...prev };
+        (Object.keys(next) as (keyof Billing)[]).forEach((k) => {
+          if (touchedRef.current.has(k) || next[k]) return;
+          next[k] = String(fromCase[k] || fromProfile[k] || "");
+        });
+        if (!touchedRef.current.has("invoiceName") && !prev.invoiceName) next.invoiceName = [next.firstName, next.lastName].filter(Boolean).join(" ");
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [borrower.firstName, borrower.lastName, borrower.phone, borrower.email, borrower.idNumber, borrower.id, staffMode]);
+  const setField = (k: keyof Billing, v: string) => {
+    touchedRef.current.add(k);
+    setBilling((b) => ({ ...b, [k]: v }));
+    setBillingErrors((e) => ({ ...e, [k]: undefined }));
+  };
+  const validateBilling = () => {
+    const e: Partial<Record<keyof Billing, string>> = {};
+    if (!billing.firstName.trim()) e.firstName = "חובה";
+    if (!billing.lastName.trim()) e.lastName = "חובה";
+    if (!billing.invoiceName.trim()) e.invoiceName = "חובה";
+    if (!/^0\d{8,9}$/.test(billing.phone.replace(/[\s-]/g, ""))) e.phone = "מספר טלפון לא תקין";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email.trim())) e.email = "כתובת מייל לא תקינה";
+    if (billing.taxId && !/^\d{5,9}$/.test(billing.taxId)) e.taxId = "מספר לא תקין";
+    setBillingErrors(e);
+    return Object.keys(e).length === 0;
+  };
   // The payment page URL is created server-side (cardcom-payment-create edge function)
   // so the Cardcom terminal credentials never reach the browser. The client billing
   // details prefill the cardholder fields on the Cardcom page, and up to 4 installments
@@ -39,6 +94,7 @@ export default function DashboardPayment() {
   const creatingRef = useRef(false);
   const createPaymentPage = useCallback(async () => {
     if (creatingRef.current) return false;
+    if (!validateBilling()) return false;
     creatingRef.current = true;
     setCreatingPayment(true);
     setPayError(null);
@@ -48,10 +104,12 @@ export default function DashboardPayment() {
           caseId,
           origin: window.location.origin,
           billing: {
-            firstName: String(borrower.firstName ?? "").trim(),
-            lastName: String(borrower.lastName ?? "").trim(),
-            email: String(borrower.email ?? "").trim(),
-            phone: String(borrower.phone ?? "").trim(),
+            firstName: billing.firstName.trim(),
+            lastName: billing.lastName.trim(),
+            invoiceName: billing.invoiceName.trim(),
+            email: billing.email.trim(),
+            phone: billing.phone.replace(/[\s-]/g, ""),
+            taxId: billing.taxId.trim(),
           },
         },
       });
@@ -70,7 +128,7 @@ export default function DashboardPayment() {
       creatingRef.current = false;
       setCreatingPayment(false);
     }
-  }, [caseId, borrower.firstName, borrower.lastName, borrower.email, borrower.phone]);
+  }, [caseId, billing]);
   // Link the client opens on their own device (after signing in) to pay for this case.
   const clientPayLink = `${window.location.origin}/dashboard/payment?caseId=${caseId}`;
   const clientPhone = String(borrower.phone || "").replace(/\D/g, "").replace(/^0/, "972");
@@ -309,10 +367,14 @@ export default function DashboardPayment() {
               <>
                 {showPayFrame && payUrl ? (
                   <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground text-right">
+                      <span>חשבונית על שם: <b className="text-foreground">{billing.invoiceName}</b></span>
+                      <button type="button" className="text-primary underline underline-offset-4" onClick={() => { setShowPayFrame(false); setPayUrl(null); }}>עריכת פרטים</button>
+                    </div>
                     <iframe
                       title="טופס תשלום מאובטח"
                       src={payUrl}
-                      className="w-full h-[640px] rounded-xl border border-border bg-background"
+                      className="w-full h-[520px] rounded-xl border border-border bg-background"
                       allow="payment"
                     />
                     <a
@@ -326,6 +388,37 @@ export default function DashboardPayment() {
                   </div>
                 ) : (
                   <div className="space-y-4 text-right">
+                    <fieldset className="space-y-3 text-right">
+                      <legend className="text-sm font-bold text-foreground mb-1">פרטים לחשבונית</legend>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {([
+                          ["firstName", "שם פרטי", "text", "given-name"],
+                          ["lastName", "שם משפחה", "text", "family-name"],
+                          ["invoiceName", "שם על החשבונית", "text", "name"],
+                          ["phone", "טלפון", "tel", "tel"],
+                          ["email", "מייל", "email", "email"],
+                          ["taxId", "ת.ז / ח.פ (לא חובה)", "text", "off"],
+                        ] as const).map(([k, label, type, ac]) => (
+                          <div key={k} className={k === "invoiceName" || k === "email" ? "sm:col-span-2 space-y-1" : "space-y-1"}>
+                            <Label htmlFor={`bill-${k}`} className="text-xs">{label}</Label>
+                            <Input
+                              id={`bill-${k}`}
+                              type={type}
+                              autoComplete={ac}
+                              inputMode={k === "phone" || k === "taxId" ? "numeric" : undefined}
+                              dir={k === "email" || k === "phone" || k === "taxId" ? "ltr" : "rtl"}
+                              className={`${k === "email" || k === "phone" || k === "taxId" ? "text-right" : ""} ${billingErrors[k] ? "border-destructive" : ""}`}
+                              value={billing[k]}
+                              maxLength={k === "taxId" ? 9 : k === "email" ? 120 : 80}
+                              aria-invalid={!!billingErrors[k]}
+                              onChange={(e) => setField(k, k === "taxId" ? e.target.value.replace(/\D/g, "") : e.target.value)}
+                            />
+                            {billingErrors[k] && <p className="text-xs text-destructive" role="alert">{billingErrors[k]}</p>}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">החשבונית תישלח למייל שהוזן. בשלב הבא מזינים רק את פרטי הכרטיס ובוחרים עד 4 תשלומים.</p>
+                    </fieldset>
                     <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="cta"
