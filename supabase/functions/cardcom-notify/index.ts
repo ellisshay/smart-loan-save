@@ -63,7 +63,7 @@ serve(async (req) => {
     }
     const lowProfileId = String(payload.LowProfileId ?? payload.lowProfileId ?? "").trim();
     if (!lowProfileId) {
-      console.error("cardcom-notify: missing LowProfileId", raw.slice(0, 300));
+      console.error("cardcom-notify: missing LowProfileId");
       return ack({ ok: false, reason: "missing_low_profile_id" });
     }
 
@@ -91,9 +91,19 @@ serve(async (req) => {
       return ack({ ok: false, reason: "missing_case" });
     }
 
-    const tranzactionInfo = (result.TranzactionInfo ?? {}) as Record<string, unknown>;
-    const amount = pickNumber(tranzactionInfo, ["Amount", "DealAmount", "Sum"]) ??
-      pickNumber(result, ["DealAmount", "Amount"]);
+    // Per Cardcom API v11 (LowProfileResult): the top-level ResponseCode only reports the API call.
+    // The charge itself is approved only when TranzactionInfo.ResponseCode === 0 (ChargeOnly).
+    const tranzactionInfo = (result.TranzactionInfo ?? null) as Record<string, unknown> | null;
+    if (!tranzactionInfo || Number(tranzactionInfo.ResponseCode) !== 0) {
+      console.log("cardcom-notify: transaction not approved", { lowProfileId, code: tranzactionInfo?.ResponseCode ?? null });
+      return ack({ ok: false, reason: "not_approved" });
+    }
+    // The deal must belong to our terminal and be in ILS (CoinId 1).
+    if (Number(tranzactionInfo.TerminalNumber ?? result.TerminalNumber) !== terminal || Number(tranzactionInfo.CoinId ?? 1) !== 1) {
+      console.error("cardcom-notify: terminal or currency mismatch", { lowProfileId });
+      return ack({ ok: false, reason: "terminal_or_currency_mismatch" });
+    }
+    const amount = pickNumber(tranzactionInfo, ["Amount"]);
     if (amount === null || Math.abs(amount - AMOUNT) > 0.01) {
       console.error("cardcom-notify: amount mismatch", amount);
       return ack({ ok: false, reason: "amount_mismatch" });
@@ -114,12 +124,13 @@ serve(async (req) => {
       return ack({ ok: true, already: true });
     }
 
-    const last4 = pickString(tranzactionInfo, /last4|lastfour/i).slice(-4) ||
-      pickString(result, /last4|lastfour/i).slice(-4);
+    const last4 = String(tranzactionInfo.Last4CardDigitsString ?? "").slice(-4) ||
+      String(tranzactionInfo.Last4CardDigits ?? "").padStart(4, "0").slice(-4);
     const numOfPayments = pickNumber(result.UIValues ?? tranzactionInfo, ["NumOfPayments"]);
     const tranzactionId = String(result.TranzactionId ?? "");
 
-    const { error: updateErr } = await admin
+    // Idempotent: only the call that actually flips payment_succeeded continues to the event and email.
+    const { data: updated, error: updateErr } = await admin
       .from("cases")
       .update({
         status: "PaymentSucceeded",
@@ -127,8 +138,13 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       })
       .eq("id", caseId)
-      .eq("payment_succeeded", false);
+      .eq("payment_succeeded", false)
+      .select("id");
     if (updateErr) throw updateErr;
+    if (!updated?.length) {
+      console.log("cardcom-notify: already paid (concurrent)", caseId);
+      return ack({ ok: true, already: true });
+    }
 
     const { error: evErr } = await admin.from("case_events").insert({
       case_id: caseId,
@@ -145,18 +161,20 @@ serve(async (req) => {
     if (evErr) console.error("case_events insert failed", evErr);
 
     // Notify the client and admin by email (best-effort)
+    // invoke() returns HTTP errors instead of throwing; log the status so a failed email is visible.
     try {
-      await admin.functions.invoke("case-email", {
+      const { error: mailErr } = await admin.functions.invoke("case-email", {
         body: { case_id: caseId, event: "payment_confirmed" },
       });
+      if (mailErr) console.error("cardcom-notify: payment email failed", mailErr.name);
     } catch (e) {
-      console.error("case-email invoke failed", e);
+      console.error("cardcom-notify: payment email failed", e instanceof Error ? e.name : "error");
     }
 
     console.log("cardcom-notify: marked paid", { caseId, previousStatus: caseRow.status, lowProfileId });
     return ack({ ok: true });
   } catch (err) {
-    console.error("cardcom-notify error", err);
-    return ack({ ok: false, error: String(err) });
+    console.error("cardcom-notify error", err instanceof Error ? err.name : "error");
+    return ack({ ok: false, error: "internal_error" });
   }
 });
