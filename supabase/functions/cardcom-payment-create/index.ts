@@ -89,6 +89,23 @@ serve(async (req) => {
       FailedRedirectUrl: `${origin}/dashboard/payment?paid=0&caseId=${encodeURIComponent(caseId)}`,
       WebHookUrl: webhookUrl,
       AdvancedDefinition: { MinNumOfPayments: 1, MaxNumOfPayments: 4 },
+      // The terminal requires document data. Auto preserves its configured document type;
+      // editable details let checkout collect missing billing information.
+      Document: {
+        TypeToCreate: "Auto",
+        IsAllowEditDocument: true,
+        IsSendByEmail: true,
+        Language: "he",
+        ...(cardOwnerName ? { Name: cardOwnerName } : {}),
+        ...(cardOwnerEmail ? { Email: cardOwnerEmail } : {}),
+        ...(cardOwnerPhone ? { Mobile: cardOwnerPhone } : {}),
+        Products: [{
+          Description: `פתיחת תיק EASY MORTE ${String(caseRow.case_number ?? "").slice(0, 30)}`.trim(),
+          Quantity: 1,
+          UnitCost: AMOUNT,
+          TotalLineCost: AMOUNT,
+        }],
+      },
       UIDefinition: {
         ...(cardOwnerName ? { CardOwnerNameValue: cardOwnerName } : {}),
         ...(cardOwnerEmail ? { CardOwnerEmailValue: cardOwnerEmail } : {}),
