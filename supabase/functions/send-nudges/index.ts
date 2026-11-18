@@ -29,6 +29,15 @@ Deno.serve(async (req: Request) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // DISABLED FOR LAUNCH (SECURITY-B): these messages are promotional, marketing consent is not
+  // checked and the urgency wording is unsupported. Nothing is read or sent unless the owner
+  // explicitly sets NUDGES_ENABLED=true after the messages and the consent check are fixed.
+  if (Deno.env.get("NUDGES_ENABLED") !== "true") {
+    return new Response(JSON.stringify({ disabled: true, sent: 0 }), {
+      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -153,13 +162,12 @@ Deno.serve(async (req: Request) => {
             }
           } catch (err) {
             status = "failed";
-            errorMessage = err instanceof Error ? err.message : String(err);
+            // Error type only: a failed fetch message contains the webhook URL.
+            errorMessage = err instanceof Error ? err.name : "error";
             console.error(`Nudge webhook error for ${userId}:`, errorMessage);
           }
         } else {
-          console.log(
-            `[DRY RUN] Would send ${nudge.type} nudge to ${profile.phone}: ${message}`
-          );
+          console.log("[DRY RUN] nudge not sent (no webhook configured):", nudge.type);
           status = "sent";
         }
 
@@ -193,10 +201,9 @@ Deno.serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("Unexpected error:", err);
-    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("Unexpected error:", err instanceof Error ? err.name : "error");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Unexpected error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

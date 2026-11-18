@@ -39,13 +39,7 @@ serve(async (req) => {
       );
     }
 
-    // Gather client context
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", user_id)
-      .single();
-
+    // Gather client context (financial summary only; no name or contact details are sent to the AI).
     // Get latest case
     const { data: caseData } = await supabase
       .from("cases")
@@ -66,7 +60,6 @@ serve(async (req) => {
     const aiAnalysis = (caseData as any)?.ai_analysis;
     const intakeData = (caseData as any)?.intake_data || {};
 
-    const clientName = `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || "לקוח";
 
     const systemPrompt = `אתה EasyBot – יועץ משכנתאות AI של EASY MORTE.
 אתה עונה בעברית בלבד, בשפה חמה, מקצועית ופשוטה.
@@ -75,7 +68,6 @@ serve(async (req) => {
 ═══════════════════════════
 פרטי הלקוח שמולך:
 ═══════════════════════════
-שם: ${clientName}
 מחיר נכס: ₪${intakeData.property?.value?.toLocaleString("he-IL") || "לא צוין"}
 הון עצמי: ₪${intakeData.property?.equity?.toLocaleString("he-IL") || "לא צוין"}
 הכנסה חודשית נטו: ₪${intakeData.income?.monthly_income?.toLocaleString("he-IL") || "לא צוין"}
@@ -142,8 +134,7 @@ DTI: ${aiAnalysis?.dti || "בחישוב"}%
     });
 
     if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error("AI gateway error:", aiResponse.status, errText);
+      console.error("AI gateway error:", aiResponse.status);
       if (aiResponse.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded, try again later" }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -173,7 +164,7 @@ DTI: ${aiAnalysis?.dti || "בחישוב"}%
   } catch (error) {
     console.error("chat error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Request failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

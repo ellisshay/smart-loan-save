@@ -14,6 +14,7 @@ import DocumentSummary, { DocStateChip } from "@/components/mortgage/DocumentSum
 import { documentRows } from "@/lib/mortgage/model";
 import { useNavigate } from "react-router-dom";
 import { CASE_STATUSES } from "@/types/admin";
+import { uploadCaseDocument, deleteCaseDocument, UPLOAD_ACCEPT } from "@/lib/uploadDocument";
 
 interface UploadedDoc {
   id: string;
@@ -83,8 +84,7 @@ export default function DashboardDocuments() {
   };
 
   const replaceDoc = async (doc: UploadedDoc) => {
-    await supabase.storage.from("case-documents").remove([doc.file_path]);
-    await supabase.from("case_documents").delete().eq("id", doc.id);
+    if (!(await deleteCaseDocument(doc))) toast({ title: "המסמך כבר נבדק על ידי הצוות ולא ניתן להחליף אותו", description: "אם צריך לעדכן את המסמך, כתבו לנו ונטפל בזה.", variant: "destructive" });
     loadDocs();
   };
 
@@ -110,22 +110,9 @@ export default function DashboardDocuments() {
     if (!caseId) return;
     setUploading(docType);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("נדרשת התחברות מחדש");
-      const safeName = file.name.replace(/[^\w.\-]/g, "_");
-      const filePath = `${user.id}/${caseId}/${docType}/${Date.now()}_${safeName}`;
-      const { error: uploadError } = await supabase.storage.from("case-documents").upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-
       const isRequired = requiredDocs.find(d => d.type === docType)?.required ?? false;
-      const { data: inserted, error: insErr } = await supabase.from("case_documents").insert({
-        case_id: caseId,
-        doc_type: docType,
-        file_name: file.name,
-        file_path: filePath,
-        is_required: isRequired,
-      }).select("id").single();
-      if (insErr) throw insErr;
+      // Validated and stored by the server (type from file bytes, size limit, generated name).
+      const inserted = await uploadCaseDocument({ caseId, docType, file, isRequired });
 
       await supabase.functions.invoke("webhook-handler", {
         body: { event_name: "doc_uploaded", case_id: caseId, payload: { doc_type: docType } },
@@ -135,7 +122,6 @@ export default function DashboardDocuments() {
       await loadDocs();
       if (inserted) verifyDoc(inserted.id);
     } catch (e: any) {
-      console.error("Upload error:", e);
       toast({ title: "שגיאה בהעלאה", description: e.message, variant: "destructive" });
     } finally {
       setUploading(null);
@@ -146,20 +132,7 @@ export default function DashboardDocuments() {
     if (!caseId) return;
     setUploading("general");
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("נדרשת התחברות מחדש");
-      const safeName = file.name.replace(/[^\w.\-]/g, "_");
-      const filePath = `${user.id}/${caseId}/general/${Date.now()}_${safeName}`;
-      const { error: uploadError } = await supabase.storage.from("case-documents").upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { error: insErr } = await supabase.from("case_documents").insert({
-        case_id: caseId,
-        doc_type: "general",
-        file_name: generalLabel.trim() ? `${generalLabel.trim()} — ${file.name}` : file.name,
-        file_path: filePath,
-        is_required: false,
-      });
-      if (insErr) throw insErr;
+      await uploadCaseDocument({ caseId, docType: "general", file, label: generalLabel.trim() || undefined });
       setGeneralLabel("");
       toast({ title: "המסמך נוסף לתיק" });
       await loadDocs();
@@ -171,8 +144,7 @@ export default function DashboardDocuments() {
   };
 
   const removeGeneral = async (doc: UploadedDoc) => {
-    await supabase.storage.from("case-documents").remove([doc.file_path]);
-    await supabase.from("case_documents").delete().eq("id", doc.id);
+    if (!(await deleteCaseDocument(doc))) toast({ title: "המסמך כבר נבדק על ידי הצוות ולא ניתן להחליף אותו", description: "אם צריך לעדכן את המסמך, כתבו לנו ונטפל בזה.", variant: "destructive" });
     loadDocs();
   };
 
@@ -331,7 +303,7 @@ export default function DashboardDocuments() {
               className="flex-1 h-10 rounded-lg border border-input bg-background px-3 text-sm"
             />
             <label className="cursor-pointer">
-              <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+              <input type="file" className="hidden" accept={UPLOAD_ACCEPT}
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleGeneralUpload(f); e.target.value = ""; }} />
               <Button variant="outline" size="sm" className="text-xs pointer-events-none w-full sm:w-auto" disabled={uploading === "general"}>
                 {uploading === "general" ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
@@ -398,7 +370,7 @@ function DocRow({ doc, uploaded, uploading, verifying, deferred, onToggleDeferre
           </div>
         ) : (
           <label className="cursor-pointer">
-            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+            <input type="file" className="hidden" accept={UPLOAD_ACCEPT}
               onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
             <Button variant="outline" size="sm" className="text-xs pointer-events-none" disabled={uploading}>
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}

@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     });
     if (ai.status === 429) return json({ error: "עומס זמני, נסו שוב בעוד רגע" }, 429);
     if (ai.status === 402 || ai.status === 403) return json({ error: "שירות הניתוח אינו זמין כרגע" }, ai.status);
-    if (!ai.ok || !ai.body) { console.error(await ai.text()); return json({ error: "הניתוח נכשל" }, 502); }
+    if (!ai.ok || !ai.body) { console.error("AI gateway error", ai.status); return json({ error: "הניתוח נכשל" }, 502); }
 
     // Read SSE and accumulate output text
     const reader = ai.body.getReader();
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
         try {
           const ev = JSON.parse(l.slice(5).trim());
           if (ev.type === "response.output_text.delta") text += ev.delta;
-          if (ev.type === "error" || ev.type === "response.failed") console.error("stream error", ev);
+          if (ev.type === "error" || ev.type === "response.failed") console.error("stream error", ev.type);
         } catch { /* ignore */ }
       }
     }
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       .slice(0, 12);
     return json({ bank: parsed.bank ?? null, tracks });
   } catch (e) {
-    console.error(e);
+    console.error("parse-balance-report error", e instanceof Error ? e.name : "error");
     return json({ error: "שגיאה בניתוח הדוח" }, 500);
   }
 });
