@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
   const { data: c } = await db.from("consents").select("id").eq("session_token", d.token).eq("consent_type", "quick_check").limit(1);
   // A consented quick-check inquiry deliberately remains incomplete: it is not a full case.
   if (!s?.id || !c?.length) return json({ error: "unknown session" }, 403);
-  const rows = d.mixes.map((m) => `<li><strong>${esc(m.name)}</strong> (סיכון ${esc(m.risk)}): החזר חודשי ${nis(m.monthly)}, החזר כולל ${nis(m.total)}</li>`).join("");
+  const rows = d.mixes.map((m) => `<li><strong>${esc(m.name)}</strong> (חשיפה לשינויים: ${esc(m.risk)}): החזר חודשי ${nis(m.monthly)}, החזר כולל ${nis(m.total)}</li>`).join("");
   const body = `${d.first_name ? `שלום ${esc(d.first_name)},<br>` : ""}
 ${d.ltv !== null ? `אחוז מימון: ${d.ltv.toFixed(0)}%<br>` : ""}${d.dti !== null ? `יחס החזר להכנסה: ${d.dti.toFixed(0)}%<br>` : ""}
 <ul>${rows}</ul><small>הערכה לפי ריביות ממוצעות שמפורסמות על ידי בנק ישראל. התנאים הסופיים נקבעים על ידי הבנק.</small>`;

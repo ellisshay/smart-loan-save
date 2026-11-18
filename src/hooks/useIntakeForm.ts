@@ -56,7 +56,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
           setIntakeData(merged);
           if (Object.keys(prefill).length) {
             await supabase.rpc("update_case_safe", { _case_id: existing.id, _intake_data: merged });
-            localStorage.removeItem("easymort_quiz"); localStorage.removeItem("easymort_quick_check");
+            localStorage.removeItem("easymort_quiz"); localStorage.removeItem("easymort_quick_check"); localStorage.removeItem("easymort_balance_check");
           }
         } else {
           const { data: newCase, error } = await supabase
@@ -75,7 +75,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
           if (Object.keys(prefill).length) {
             setIntakeData(prefill);
             await supabase.rpc("update_case_safe", { _case_id: newCase.id, _intake_data: prefill });
-            localStorage.removeItem("easymort_quiz"); localStorage.removeItem("easymort_quick_check");
+            localStorage.removeItem("easymort_quiz"); localStorage.removeItem("easymort_quick_check"); localStorage.removeItem("easymort_balance_check");
           }
           
           // Fire webhook
@@ -244,7 +244,18 @@ async function fireWebhook(eventName: string, caseId: string, payload: Record<st
 }
 
 // Map the homepage quick questionnaire into intake sections so the user doesn't retype it
-export function quizToIntake(): Record<string, any> {
+/** Prefill for a new case from the quick check / quiz, plus a saved balance check (#52), if any. */
+export function quizToIntake(): ReturnType<typeof quizAnswersToIntake> {
+  const out = quizAnswersToIntake();
+  let bc: { id?: unknown; tracks?: unknown; saved_at?: unknown } | null = null;
+  try { bc = JSON.parse(localStorage.getItem("easymort_balance_check") || "null"); } catch { /* ignore */ }
+  if (bc && typeof bc.id === "string" && Array.isArray(bc.tracks) && bc.tracks.length) {
+    out.balance_check = { id: bc.id, tracks: bc.tracks.slice(0, 12), saved_at: typeof bc.saved_at === "string" ? bc.saved_at : null };
+  }
+  return out;
+}
+
+function quizAnswersToIntake(): Record<string, any> {
   const clean = (o: Record<string, any>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ""));
   let qc: any = null;
   try { qc = JSON.parse(localStorage.getItem("easymort_quick_check") || "null"); } catch { /* ignore */ }
