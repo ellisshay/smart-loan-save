@@ -62,3 +62,10 @@ describe("balance check first look (#52)", () => {
     expect(referenceDates(rates).prime).toBe("2026-10-01T00:00:00Z");
   });
 });
+
+describe("balance check: unidentified track type (#52 stage 2)", () => {
+  it("is incomplete until the user picks a type, never guessed", () => {
+    const r = analyzeBalanceTrack({ type: "unknown", balance: 300000, rate: 4, years: 10 }, rates);
+    expect(r).toMatchObject({ status: "incomplete", missing: ["סוג מסלול"] });
+  });
+});

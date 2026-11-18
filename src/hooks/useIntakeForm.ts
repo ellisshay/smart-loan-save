@@ -247,10 +247,10 @@ async function fireWebhook(eventName: string, caseId: string, payload: Record<st
 /** Prefill for a new case from the quick check / quiz, plus a saved balance check (#52), if any. */
 export function quizToIntake(): ReturnType<typeof quizAnswersToIntake> {
   const out = quizAnswersToIntake();
-  let bc: { id?: unknown; tracks?: unknown; saved_at?: unknown } | null = null;
+  let bc: { id?: unknown; analysis_id?: unknown; report_status?: unknown; tracks?: unknown; saved_at?: unknown } | null = null;
   try { bc = JSON.parse(localStorage.getItem("easymort_balance_check") || "null"); } catch { /* ignore */ }
   if (bc && typeof bc.id === "string" && Array.isArray(bc.tracks) && bc.tracks.length) {
-    out.balance_check = { id: bc.id, tracks: bc.tracks.slice(0, 12), saved_at: typeof bc.saved_at === "string" ? bc.saved_at : null };
+    out.balance_check = { id: bc.id, analysis_id: typeof bc.analysis_id === "string" ? bc.analysis_id : null, report_status: typeof bc.report_status === "string" ? bc.report_status : null, tracks: bc.tracks.slice(0, 12), saved_at: typeof bc.saved_at === "string" ? bc.saved_at : null };
   }
   return out;
 }
