@@ -1,4 +1,5 @@
 import { IntakeAutosaveContext } from "@/components/intake/IntakeAutosave";
+import { householdNetIncome } from "@/lib/householdIncome";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -192,16 +193,7 @@ function IntakeFormFlow({
   const docs = caseType === "new" ? REQUIRED_DOCS_NEW : REQUIRED_DOCS_REFI;
 
   const hasBorrower2 = intakeData.personal?.borrowerCount === "2";
-  const totalIncome =
-    (intakeData.income?.monthlyNetIncome || 0) +
-    (hasBorrower2 ? (intakeData.income?.b2MonthlyNetIncome || 0) : 0) +
-    (intakeData.income?.hasAdditionalIncome === "yes" ? (
-      (intakeData.income?.rentalIncome || 0) +
-      (intakeData.income?.benefitsIncome || 0) +
-      (intakeData.income?.alimonyIncome || 0) +
-      (intakeData.income?.investmentIncome || 0) +
-      (intakeData.income?.otherIncome || 0)
-    ) : 0);
+  const totalIncome = householdNetIncome(intakeData.income, hasBorrower2);
   const totalBalance = intakeData.current_mortgage?.totalBalance || 0;
 
   // Pre-set increase flag for refi_plus
