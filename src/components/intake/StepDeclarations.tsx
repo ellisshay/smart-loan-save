@@ -7,6 +7,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DECLARATION_QUESTIONS } from "@/lib/declarationQuestions";
 
 type DeclarationsData = z.infer<typeof declarationsSchema>;
 
@@ -17,13 +18,7 @@ interface Props {
   saving: boolean;
 }
 
-const questions: { key: keyof Omit<DeclarationsData, "confirmTruthful">; label: string }[] = [
-  { key: "hasExecutionFile", label: "האם קיימים נגד אחד הלווים תיקי הוצאה לפועל פעילים?" },
-  { key: "hasLegalProceedings", label: "האם קיימים הליכים משפטיים מהותיים שעלולים להשפיע על יכולת ההחזר?" },
-  { key: "hasBankruptcy", label: "האם אחד הלווים נמצא או היה לאחרונה בהליך חדלות פירעון / פשיטת רגל?" },
-  { key: "hasRestrictedAccount", label: "האם קיים חשבון מוגבל או הגבלה בנקאית פעילה?" },
-  { key: "hasBouncedChecks", label: "האם חזרו המחאות או הוראות קבע באופן מהותי בתקופה האחרונה?" },
-];
+const questions = DECLARATION_QUESTIONS;
 
 export default function StepDeclarations({ defaultValues, onNext, onBack, saving }: Props) {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DeclarationsData>({
@@ -46,7 +41,9 @@ export default function StepDeclarations({ defaultValues, onNext, onBack, saving
       <div className="space-y-3">
         {questions.map((q) => (
           <div key={q.key} className="rounded-xl border border-border bg-card p-4">
-            <p className="text-sm font-medium mb-3">{q.label}</p>
+            <p className="text-sm font-medium">{q.label}</p>
+            {q.hint && <p className="text-xs text-muted-foreground mt-1 mb-3">{q.hint}</p>}
+            {!q.hint && <div className="mb-3" />}
             <select {...register(q.key)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
               <option value="">בחר...</option>
               <option value="no">לא</option>

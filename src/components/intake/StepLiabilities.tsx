@@ -69,13 +69,6 @@ export default function StepLiabilities({ defaultValues, onNext, onBack, saving,
             <option value="yes">כן</option>
           </select>
         </Field>
-        <Field label="הליכים משפטיים/הוצל״פ? *" error={errors.hasLegalProceedings?.message}>
-          <select {...register("hasLegalProceedings")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
-            <option value="">בחר...</option>
-            <option value="no">לא</option>
-            <option value="yes">כן</option>
-          </select>
-        </Field>
       </div>
 
       <div className="border-t border-border pt-4">

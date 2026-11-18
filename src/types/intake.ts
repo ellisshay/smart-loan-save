@@ -141,7 +141,8 @@ export const liabilitiesSchema = z.object({
   alimonyPaid: optNum(),
   hasGuarantees: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   hasDelinquentDebt: z.enum(["yes", "no"]),
-  hasLegalProceedings: z.enum(["yes", "no"]),
+  // Asked once, in the banking declarations. Kept optional so answers saved before #44 still load.
+  hasLegalProceedings: z.preprocess(blank, z.enum(["yes", "no"]).optional()),
   maxDesiredPayment: z.coerce.number().positive("החזר מקסימלי חובה"),
   mainGoal: z.enum(["lower_payment", "total_savings", "stability", "shorter_term", "combined"], {
     required_error: "בחר יעד מרכזי",
