@@ -20,9 +20,10 @@ Deno.serve(async (req) => {
   if (!p.success) return json({ error: "invalid" }, 400);
   const d = p.data;
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const { data: s } = await db.from("quiz_sessions").select("id, completed").eq("session_token", d.token).maybeSingle();
+  const { data: s } = await db.from("quiz_sessions").select("id").eq("session_token", d.token).maybeSingle();
   const { data: c } = await db.from("consents").select("id").eq("session_token", d.token).eq("consent_type", "quick_check").limit(1);
-  if (!s?.completed || !c?.length) return json({ error: "unknown session" }, 403);
+  // A consented quick-check inquiry deliberately remains incomplete: it is not a full case.
+  if (!s?.id || !c?.length) return json({ error: "unknown session" }, 403);
   const rows = d.mixes.map((m) => `<li><strong>${esc(m.name)}</strong> (סיכון ${esc(m.risk)}): החזר חודשי ${nis(m.monthly)}, החזר כולל ${nis(m.total)}</li>`).join("");
   const body = `${d.first_name ? `שלום ${esc(d.first_name)},<br>` : ""}
 ${d.ltv !== null ? `אחוז מימון: ${d.ltv.toFixed(0)}%<br>` : ""}${d.dti !== null ? `יחס החזר להכנסה: ${d.dti.toFixed(0)}%<br>` : ""}
