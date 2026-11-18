@@ -4,13 +4,15 @@
 // never a verdict on the whole mortgage, and good terms are flagged as worth keeping.
 import { pmt } from "@/lib/quickCheck";
 
-export type BalanceTrackType = "prime" | "fixed_nl" | "fixed_l" | "var5" | "var_l";
+export type BalanceTrackType = "prime" | "fixed_nl" | "fixed_l" | "var5" | "var_l" | "unknown";
 export const BALANCE_TRACK_TYPES: Record<BalanceTrackType, { label: string; rateKey: string; linked: boolean }> = {
   prime: { label: "פריים", rateKey: "prime", linked: false },
   fixed_nl: { label: "קבועה לא צמודה", rateKey: "fixed_not_linked", linked: false },
   fixed_l: { label: "קבועה צמודה", rateKey: "fixed_linked", linked: true },
   var5: { label: "משתנה כל 5 לא צמודה", rateKey: "variable_5", linked: false },
   var_l: { label: "משתנה כל 5 צמודה", rateKey: "variable_5_linked", linked: true },
+  /** Extraction could not tell the rate type or linkage. Never guessed; the user picks it. */
+  unknown: { label: "סוג לא זוהה, נא לבחור", rateKey: "", linked: false },
 };
 
 /** A track as entered or extracted. null means "not known". */
@@ -54,7 +56,7 @@ export const STATUS_TEXT: Record<TrackStatus, string> = {
 export function analyzeBalanceTrack(t: BalanceTrack, rates: Record<string, unknown> | null | undefined): TrackResult {
   const meta = BALANCE_TRACK_TYPES[t.type];
   const balance = pos(t.balance), rate = pos(t.rate), years = pos(t.years);
-  const missing = [balance === null && "יתרה", rate === null && "ריבית", years === null && "תקופה שנותרה"].filter(Boolean) as string[];
+  const missing = [t.type === "unknown" && "סוג מסלול", balance === null && "יתרה", rate === null && "ריבית", years === null && "תקופה שנותרה"].filter(Boolean) as string[];
   if (missing.length) return { status: "incomplete", missing, gap: null, monthlyDiff: null };
   const ref = pos(rates?.[meta.rateKey]);
   if (ref === null) return { status: meta.linked ? "linked_review" : "no_reference", missing: [], gap: null, monthlyDiff: null };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Plus, Trash2, Upload, Lock } from "lucide-react";
+import { REPORT_STATUS_TEXT, type ReportIssue, type ReportStatus } from "@/lib/mortgage/balanceReportView";
 import { analyzeBalanceTrack, BALANCE_CHECK_STORE, BALANCE_TRACK_TYPES, parseInput, referenceDates, STATUS_TEXT, summarizeBalance, type BalanceTrack, type BalanceTrackType, type TrackStatus } from "@/lib/mortgage/balanceCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,8 @@ export default function MortgageCheckPage() {
   const [show, setShow] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [parseMsg, setParseMsg] = useState("");
+  const [sources, setSources] = useState<number[][]>([]);
+  const [analysis, setAnalysis] = useState<{ id: string | null; status: ReportStatus | null; issues: ReportIssue[] } | null>(null);
   const [marketRates, setMarketRates] = useState<MarketRates | null>(null);
 
   const onFile = async (f: File) => {
@@ -49,12 +52,14 @@ export default function MortgageCheckPage() {
         r.onerror = rej;
         r.readAsDataURL(f);
       });
-      const { data, error } = await supabase.functions.invoke("parse-balance-report", { body: { file: b64, mime: f.type, name: f.name } });
+      const { data, error } = await supabase.functions.invoke("parse-balance-report", { body: { file: b64, mime: f.type } });
       if (error || data?.error) throw new Error(data?.error || "הניתוח נכשל");
       if (!data.tracks?.length) { setParseMsg("לא זוהו מסלולים בדוח. אפשר להזין ידנית למטה."); return; }
       setTracks(data.tracks.slice(0, 12).map(fromParsed));
+      setSources(data.tracks.slice(0, 12).map((t: { pages?: unknown }) => (Array.isArray(t.pages) ? t.pages.filter((n): n is number => typeof n === "number") : [])));
+      setAnalysis({ id: typeof data.analysis_id === "string" ? data.analysis_id : null, status: data.status ?? null, issues: Array.isArray(data.issues) ? data.issues : [] });
       setShow(true);
-      setParseMsg(`זוהו ${data.tracks.length} מסלולים${data.bank ? ` (${data.bank})` : ""}. בדקו שהנתונים תואמים לדוח.`);
+      setParseMsg(`זוהו ${data.tracks.length} מסלולים. ${REPORT_STATUS_TEXT[data.status as ReportStatus] ?? "בדקו שהנתונים תואמים לדוח."}`);
     } catch (e: any) {
       setParseMsg(e.message || "הניתוח נכשל, אפשר להזין ידנית");
     } finally { setParsing(false); }
@@ -80,7 +85,7 @@ export default function MortgageCheckPage() {
   const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("he-IL") : null);
   /** Keeps the entered tracks on this device and carries them into the free check, under an id. Nothing goes in the URL. */
   const continueToCheck = () => {
-    try { localStorage.setItem(BALANCE_CHECK_STORE, JSON.stringify({ id: newId(), tracks, saved_at: new Date().toISOString() })); } catch { /* storage blocked */ }
+    try { localStorage.setItem(BALANCE_CHECK_STORE, JSON.stringify({ id: newId(), analysis_id: analysis?.id ?? null, report_status: analysis?.status ?? null, tracks, saved_at: new Date().toISOString() })); } catch { /* storage blocked */ }
     navigate(loggedIn ? "/intake" : "/auth?next=/intake");
   };
   const anyData = tracks.some((t) => t.balance !== null || t.rate !== null || t.years !== null);
@@ -108,7 +113,13 @@ export default function MortgageCheckPage() {
         ) : (
           <Link to="/auth?next=/balance-check"><Button variant="cta">הרשמה והעלאת הדוח</Button></Link>
         )}
-        {parseMsg && <p className="text-sm text-foreground">{parseMsg}</p>}
+        {parseMsg && <p className="text-sm text-foreground" role="status">{parseMsg}</p>}
+        {analysis && analysis.issues.length > 0 && (
+          <ul className="text-right text-sm space-y-1 max-w-xl mx-auto">
+            {analysis.issues.filter((x) => x.severity !== "info").slice(0, 8).map((x, i) => <li key={i} className="text-foreground">• {x.message}</li>)}
+            {analysis.issues.filter((x) => x.severity === "info").slice(0, 4).map((x, i) => <li key={`i${i}`} className="text-muted-foreground">• {x.message}</li>)}
+          </ul>
+        )}
       </section>
 
       <section className="bg-card border border-border rounded-2xl p-5 md:p-7 space-y-4">
@@ -123,7 +134,7 @@ export default function MortgageCheckPage() {
             <label className="text-xs text-muted-foreground">יתרה (₪)<input type="number" className={input} value={t.balance ?? ""} onChange={(e) => upd(i, "balance", e.target.value)} /></label>
             <label className="text-xs text-muted-foreground">ריבית (%)<input type="number" step="0.01" className={input} value={t.rate ?? ""} onChange={(e) => upd(i, "rate", e.target.value)} /></label>
             <label className="text-xs text-muted-foreground">שנים שנותרו<input type="number" step="0.01" className={input} value={t.years ?? ""} onChange={(e) => upd(i, "years", e.target.value)} /></label>
-            <Button variant="ghost" size="icon" aria-label="הסרת מסלול" disabled={tracks.length === 1} onClick={() => setTracks((ts) => ts.filter((_, j) => j !== i))}><Trash2 size={16} /></Button>
+            <Button variant="ghost" size="icon" aria-label="הסרת מסלול" disabled={tracks.length === 1} onClick={() => { setTracks((ts) => ts.filter((_, j) => j !== i)); setSources((ss) => ss.filter((_, j) => j !== i)); }}><Trash2 size={16} /></Button>
           </div>
         ))}
         <div className="flex flex-wrap gap-2 justify-between">
@@ -146,7 +157,7 @@ export default function MortgageCheckPage() {
               <div key={i} className="flex items-start gap-3 border-b border-border pb-3">
                 <span className={`mt-1.5 w-3 h-3 shrink-0 rounded-full ${STATUS_TONE[r.status]}`} aria-hidden="true" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-foreground">{TYPES[t.type].label}{t.balance !== null ? ` · ${nis(t.balance)}` : ""}</p>
+                  <p className="font-bold text-foreground">{TYPES[t.type].label}{t.balance !== null ? ` · ${nis(t.balance)}` : ""}{sources[i]?.length ? <span className="font-normal text-xs text-muted-foreground"> · מקור בדוח: עמ׳ {sources[i].join(", ")}</span> : null}</p>
                   <p className="font-bold text-sm text-foreground">{STATUS_TEXT[r.status]}</p>
                   <p className="text-xs text-muted-foreground">
                     {r.status === "incomplete" ? `חסר: ${r.missing.join(", ")}. נתון חסר לא נספר כאפס.`

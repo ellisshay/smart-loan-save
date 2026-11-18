@@ -51,3 +51,24 @@ describe("BalanceCheckPage (#52)", () => {
     expect(s.textContent).not.toMatch(/תרחיש: באותה יתרה/);
   });
 });
+
+describe("BalanceCheckPage: extracted report (#52 stage 2)", () => {
+  it("shows the reconciliation status, issues and page sources; sends no file name", async () => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const invoke = supabase.functions.invoke as unknown as ReturnType<typeof vi.fn>;
+    invoke.mockResolvedValueOnce({ data: {
+      analysis_id: "a-1", status: "needs_completion",
+      issues: [{ code: "missing_critical", severity: "missing", path: "tracks.1.current_rate", message: "חסר: ריבית נוכחית" }, { code: "negative_fee", severity: "info", path: "x", message: "זיכוי עמלה: סכום שלילי בדוח. זה לא מענק ללקוח" }],
+      tracks: [{ type: "fixed_nl", balance: 250000, rate: 4.1, years: 15.58, pages: [2] }, { type: "unknown", balance: 200000, rate: null, years: 15.58, pages: [2] }],
+    }, error: null });
+    render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
+    const input = (await screen.findByText("בחירת קובץ")).closest("label")!.querySelector("input")!;
+    fireEvent.change(input, { target: { files: [new File(["%PDF"], "private-name.pdf", { type: "application/pdf" })] } });
+    expect(await screen.findByText(/חלק מהנתונים לא נמצאו בדוח/)).toBeTruthy();
+    expect(screen.getByText("• חסר: ריבית נוכחית")).toBeTruthy();
+    expect(JSON.stringify(invoke.mock.calls[0][1])).not.toContain("private-name");
+    const s = (await screen.findByRole("heading", { name: "הבדיקה הראשונית שלכם" })).closest("section")!;
+    expect(within(s).getAllByText(/מקור בדוח: עמ׳ 2/)).toHaveLength(2);
+    expect(within(s).getByText(/חסר: סוג מסלול, ריבית/)).toBeTruthy();
+  });
+});
