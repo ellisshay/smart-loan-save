@@ -244,7 +244,7 @@ async function fireWebhook(eventName: string, caseId: string, payload: Record<st
 }
 
 // Map the homepage quick questionnaire into intake sections so the user doesn't retype it
-function quizToIntake(): Record<string, any> {
+export function quizToIntake(): Record<string, any> {
   const clean = (o: Record<string, any>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ""));
   let qc: any = null;
   try { qc = JSON.parse(localStorage.getItem("easymort_quick_check") || "null"); } catch { /* ignore */ }
@@ -260,7 +260,9 @@ function quizToIntake(): Record<string, any> {
         requestedMortgage: a.value && a.equity ? a.value - a.equity : undefined });
       if (Object.keys(property).length) out.property = property;
     }
-    const income = clean({ monthlyNetIncome: a.income || undefined });
+    // The quick check asks for the household's estimated income. With one borrower it is that borrower's
+    // income; with two it must not land in borrower 1's field, where borrower 2's income would be added to it.
+    const income = clean({ monthlyNetIncome: a.borrowers === "1" ? a.income || undefined : undefined });
     if (Object.keys(income).length) out.income = income;
     out.quick_check = { answers: a, ltv: qc.ltv ?? null, dti: qc.dti ?? null, mixes: qc.mixes || [], saved_at: new Date().toISOString() };
     return out;

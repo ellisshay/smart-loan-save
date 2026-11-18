@@ -266,7 +266,7 @@ function IntakeFormFlow({
         case "personal": return <StepPersonal defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} saving={saving} />;
         case "property": return <StepProperty defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "equity": return <StepEquity defaultValues={defaults} suggestedAmount={intakeData.property?.ownEquity || 0} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
-        case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
+        case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} estimatedHouseholdIncome={Number(intakeData.quick_check?.answers?.income) || undefined} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "mortgage_request": return <StepMortgageRequest defaultValues={defaults} suggestedAmount={intakeData.property?.requestedMortgage || 0} suggestedMaxPayment={intakeData.liabilities?.maxDesiredPayment || 0} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "preferences": return <StepPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
@@ -286,7 +286,7 @@ function IntakeFormFlow({
         }
         case "current_mortgage": return <StepCurrentMortgage defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "refi_property": return <StepRefiProperty defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalBalance={totalBalance} />;
-        case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} />;
+        case "income": return <StepIncome defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} hasBorrower2={hasBorrower2} estimatedHouseholdIncome={Number(intakeData.quick_check?.answers?.income) || undefined} />;
         case "liabilities": return <StepLiabilities defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} totalIncome={totalIncome} />;
         case "refi_preferences": return <StepRefiPreferences defaultValues={defaults} onNext={(d) => nextStep(stepKey, d)} onBack={prevStep} saving={saving} />;
         case "documents": return <StepDocuments {...docsProps(stepKey)} />;

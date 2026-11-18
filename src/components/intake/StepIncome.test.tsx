@@ -40,7 +40,7 @@ describe("household income and second borrower", () => {
   it("a pensioner second borrower is not asked for a workplace", () => {
     render(<StepIncome defaultValues={{ employmentStatus: "salaried", monthlyNetIncome: 20000, hasAdditionalIncome: "no", b2EmploymentStatus: "pensioner", b2MonthlyNetIncome: 8000 }} onNext={() => {}} onBack={() => {}} saving={false} hasBorrower2={true} />);
     expect(screen.queryByText("שם העסק")).toBeNull();
-    expect(container_has_label("הכנסה נטו חודשית (₪)")).toBe(true);
+    expect(container_has_label("הכנסה נטו חודשית של לווה 2 (₪)")).toBe(true);
     expect(container_has_label("מקום עבודה")).toBe(false);
   });
 
@@ -57,3 +57,23 @@ function container_has_label(text: string) {
   const section = heading?.parentElement;
   return !!section && [...section.querySelectorAll("label")].some((l) => l.textContent?.trim() === text);
 }
+
+describe("estimate versus detailed income (#44)", () => {
+  const shown = (c: HTMLElement) => c.textContent?.match(/סה״כ הכנסה נטו משק בית:\s*₪([\d,]+)/)?.[1];
+  it("two borrowers 15,000 + 10,000 with a 25,000 estimate show 25,000 and explain the estimate is replaced", () => {
+    const { container } = render(<StepIncome defaultValues={{ employmentStatus: "salaried", monthlyNetIncome: 15000, hasAdditionalIncome: "no", b2EmploymentStatus: "salaried", b2MonthlyNetIncome: 10000 }} onNext={() => {}} onBack={() => {}} saving={false} hasBorrower2={true} estimatedHouseholdIncome={25000} />);
+    expect(shown(container)).toBe((25000).toLocaleString());
+    expect(container.textContent).toContain("מחליף את האומדן");
+  });
+  it("labels each borrower's own income, not a combined total", () => {
+    render(<StepIncome defaultValues={{}} onNext={() => {}} onBack={() => {}} saving={false} hasBorrower2={true} />);
+    expect(screen.getByText("הכנסה נטו חודשית של לווה 1 (₪) *")).toBeInTheDocument();
+    expect(screen.getByText("הכנסה נטו חודשית של לווה 2 (₪)")).toBeInTheDocument();
+    expect(screen.queryByText(/כוללת/)).toBeNull();
+  });
+  it("flags a missing second borrower income instead of filling it from the estimate", () => {
+    const { container } = render(<StepIncome defaultValues={{ monthlyNetIncome: 15000 }} onNext={() => {}} onBack={() => {}} saving={false} hasBorrower2={true} estimatedHouseholdIncome={25000} />);
+    expect(shown(container)).toBe((15000).toLocaleString());
+    expect(container.textContent).toContain("חסרה הכנסה נטו של לווה 2");
+  });
+});
