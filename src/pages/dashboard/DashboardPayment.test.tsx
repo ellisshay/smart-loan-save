@@ -36,3 +36,63 @@ describe("payment billing details", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 });
+
+describe("embedded payment (#44)", () => {
+  beforeEach(() => invoke.mockClear());
+
+  async function openForm() {
+    render(<MemoryRouter><DashboardPayment /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText("שם על החשבונית")).toHaveValue("דנה לוי"));
+    fireEvent.click(screen.getByRole("button", { name: /לתשלום ₪3,450/ }));
+    return (await screen.findByTitle("טופס תשלום מאובטח של Cardcom")) as HTMLIFrameElement;
+  }
+
+  it("the form opens inside our page with a loading state until the provider page loads", async () => {
+    const frame = await openForm();
+    expect(frame.getAttribute("src")).toBe("https://secure.cardcom.solutions/test");
+    expect(screen.getByText(/טוענים את טופס התשלום/)).toBeInTheDocument();
+    fireEvent.load(frame);
+    await waitFor(() => expect(screen.queryByText(/טוענים את טופס התשלום/)).toBeNull());
+    expect(screen.getByText(/לא מגיעים לשרתים שלנו/)).toBeInTheDocument();
+  });
+
+  it("a forged message does nothing; our own return message starts a server check and never shows paid by itself", async () => {
+    const frame = await openForm();
+    window.dispatchEvent(new MessageEvent("message", { origin: "https://evil.test", source: frame.contentWindow, data: { type: "easymorte:cardcom-return", paid: "1", caseId: "case-1" } }));
+    window.dispatchEvent(new MessageEvent("message", { origin: window.location.origin, source: window, data: { type: "easymorte:cardcom-return", paid: "1", caseId: "case-1" } }));
+    expect(screen.getByTitle("טופס תשלום מאובטח של Cardcom")).toBeInTheDocument();
+    window.dispatchEvent(new MessageEvent("message", { origin: window.location.origin, source: frame.contentWindow, data: { type: "easymorte:cardcom-return", paid: "1", caseId: "case-1" } }));
+    await waitFor(() => expect(screen.queryByTitle("טופס תשלום מאובטח של Cardcom")).toBeNull());
+    expect(screen.queryByText("התשלום אושר בהצלחה")).toBeNull();
+  });
+
+  it("a declined return shows the failure inline with a retry", async () => {
+    const frame = await openForm();
+    window.dispatchEvent(new MessageEvent("message", { origin: window.location.origin, source: frame.contentWindow, data: { type: "easymorte:cardcom-return", paid: "0", caseId: "case-1" } }));
+    expect(await screen.findByText("התשלום לא הושלם")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /נסה שוב לשלם/ })).toBeInTheDocument();
+  });
+
+  it("when an earlier page may already be charged, no new form opens", async () => {
+    invoke.mockResolvedValueOnce({ data: null, error: { context: new Response(JSON.stringify({ error: "payment_pending_verification" }), { status: 409 }) } });
+    render(<MemoryRouter><DashboardPayment /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText("שם על החשבונית")).toHaveValue("דנה לוי"));
+    fireEvent.click(screen.getByRole("button", { name: /לתשלום ₪3,450/ }));
+    await waitFor(() => expect(invoke).toHaveBeenCalled());
+    expect(screen.queryByTitle("טופס תשלום מאובטח של Cardcom")).toBeNull();
+    expect(screen.queryByText("התשלום אושר בהצלחה")).toBeNull();
+  });
+});
+
+describe("while the payment is being checked (#44)", () => {
+  it("does not show the pay button, so the client cannot pay twice", async () => {
+    render(<MemoryRouter><DashboardPayment /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText("שם על החשבונית")).toHaveValue("דנה לוי"));
+    fireEvent.click(screen.getByRole("button", { name: /לתשלום ₪3,450/ }));
+    const frame = (await screen.findByTitle("טופס תשלום מאובטח של Cardcom")) as HTMLIFrameElement;
+    window.dispatchEvent(new MessageEvent("message", { origin: window.location.origin, source: frame.contentWindow, data: { type: "easymorte:cardcom-return", paid: "1", caseId: "case-1" } }));
+    expect(await screen.findByText("בודקים את התשלום מול Cardcom")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /לתשלום ₪3,450/ })).toBeNull();
+    expect(screen.queryByText("התשלום אושר בהצלחה")).toBeNull();
+  });
+});

@@ -146,6 +146,14 @@ serve(async (req) => {
       return ack({ ok: true, already: true });
     }
 
+    // Close the payment page record (#44). Best effort: the case itself is already marked paid.
+    try {
+      await admin.from("payment_attempts").update({ status: "paid", updated_at: new Date().toISOString() })
+        .eq("low_profile_id", lowProfileId);
+    } catch {
+      console.error("cardcom-notify: attempt not updated");
+    }
+
     const { error: evErr } = await admin.from("case_events").insert({
       case_id: caseId,
       event_name: "payment_succeeded",

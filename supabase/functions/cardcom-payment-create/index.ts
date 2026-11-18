@@ -8,6 +8,7 @@ import { adminClient, getCallerId, canAccessCase } from "../_shared/auth.ts";
 
 const AMOUNT = 3450;
 const CREATE_URL = "https://secure.cardcom.solutions/api/v11/LowProfile/Create";
+const RESULT_URL = "https://secure.cardcom.solutions/api/v11/LowProfile/GetLpResult";
 
 const ALLOWED_ORIGIN_RE =
   /^(https:\/\/([a-z0-9-]+\.)?easymorte\.co\.il|https:\/\/easymorte-co-il\.lovable\.app|https:\/\/id-preview--[a-z0-9-]+\.lovable\.app|http:\/\/localhost:8080)$/;
@@ -76,6 +77,24 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "already_paid" }), {
         status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // An earlier page for this case may have been paid while its webhook is still on the way. Ask Cardcom
+    // before opening another one, so the client is never charged twice. If the answer is unclear, stop.
+    const previous = await openAttempt(admin, caseId);
+    if (previous) {
+      const state = await attemptState(previous.low_profile_id, terminal, apiName, apiPassword);
+      if (state === "approved") {
+        return new Response(JSON.stringify({ error: "payment_pending_verification" }), {
+          status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (state === "unknown") {
+        return new Response(JSON.stringify({ error: "payment_status_unknown" }), {
+          status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      await closeAttempt(admin, previous.id);
     }
 
     const cardOwnerName = clean([billing.firstName, billing.lastName].filter(Boolean).join(" "), 60);
@@ -147,6 +166,8 @@ serve(async (req) => {
       });
     }
 
+    await recordAttempt(admin, caseId, String(data.LowProfileId ?? ""));
+
     return new Response(JSON.stringify({ url: data.Url, lowProfileId: data.LowProfileId }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -158,3 +179,49 @@ serve(async (req) => {
     });
   }
 });
+
+// deno-lint-ignore no-explicit-any
+type Admin = any;
+
+// The newest page still marked open for this case, or null. A missing table (migration not applied yet)
+// behaves like no earlier attempt, which is how payments worked before #44.
+async function openAttempt(admin: Admin, caseId: string): Promise<{ id: string; low_profile_id: string } | null> {
+  try {
+    const { data, error } = await admin.from("payment_attempts").select("id, low_profile_id")
+      .eq("case_id", caseId).eq("status", "open").order("created_at", { ascending: false }).limit(1).maybeSingle();
+    return error || !data?.low_profile_id ? null : data;
+  } catch {
+    return null;
+  }
+}
+
+// approved: the charge went through. not_paid: Cardcom answered and there is no approved charge.
+// unknown: no clear answer, so no new page is opened.
+async function attemptState(lowProfileId: string, terminal: number, apiName: string, apiPassword: string): Promise<"approved" | "not_paid" | "unknown"> {
+  try {
+    const res = await fetch(RESULT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ TerminalNumber: terminal, ApiName: apiName, ...(apiPassword ? { ApiPassword: apiPassword } : {}), LowProfileId: lowProfileId }),
+    });
+    if (!res.ok) return "unknown";
+    const r = await res.json().catch(() => null);
+    if (!r || typeof r.ResponseCode !== "number") return "unknown";
+    if (r.ResponseCode !== 0) return "not_paid";
+    const t = r.TranzactionInfo;
+    return t && Number(t.ResponseCode) === 0 ? "approved" : "not_paid";
+  } catch {
+    return "unknown";
+  }
+}
+
+async function closeAttempt(admin: Admin, id: string) {
+  try { await admin.from("payment_attempts").update({ status: "closed", updated_at: new Date().toISOString() }).eq("id", id); }
+  catch { console.error("cardcom-payment-create: attempt not closed"); }
+}
+
+async function recordAttempt(admin: Admin, caseId: string, lowProfileId: string) {
+  if (!lowProfileId) return;
+  try { await admin.from("payment_attempts").insert({ case_id: caseId, low_profile_id: lowProfileId, status: "open" }); }
+  catch { console.error("cardcom-payment-create: attempt not recorded"); }
+}

@@ -4,6 +4,7 @@ import { useDashboardCase } from "@/hooks/useDashboardCase";
 import { supabase } from "@/integrations/supabase/client";
 import { countMissingDocs } from "@/lib/docsComplete";
 import { paymentErrorMessage, readFunctionError } from "@/lib/functionErrors";
+import { buildReturnMessage, readReturnMessage } from "@/lib/paymentFrame";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,13 @@ export default function DashboardPayment() {
   const [paymentSucceeded, setPaymentSucceeded] = useState(false);
 
   // Cardcom redirects back with ?paid=1 (success) or ?paid=0 (failure)
-  const paidParam = searchParams.get("paid");
+  const urlPaid = searchParams.get("paid");
+  // The result reported by our return page inside the payment iframe. It only starts a server check.
+  const [framePaid, setFramePaid] = useState<"1" | "0" | null>(null);
+  const paidParam = urlPaid ?? framePaid;
+  const insideFrame = typeof window !== "undefined" && window.self !== window.top;
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [frameLoading, setFrameLoading] = useState(true);
   const [showPayFrame, setShowPayFrame] = useState(false);
   const [payUrl, setPayUrl] = useState<string | null>(null);
   const [creatingPayment, setCreatingPayment] = useState(false);
@@ -116,10 +123,13 @@ export default function DashboardPayment() {
       if (error || !data?.url) {
         const failure = error ? await readFunctionError(error) : {};
         if (failure.code === "already_paid") setPaymentSucceeded(true);
+        // An earlier page for this case may already be charged: check its status instead of opening another.
+        if (failure.code === "payment_pending_verification") { setFramePaid("1"); return false; }
         setPayError(paymentErrorMessage(failure));
         return false;
       }
       setPayUrl(String(data.url));
+      setFrameLoading(true);
       return true;
     } catch {
       setPayError(paymentErrorMessage({}));
@@ -134,12 +144,32 @@ export default function DashboardPayment() {
   const clientPhone = String(borrower.phone || "").replace(/\D/g, "").replace(/^0/, "972");
   const waLink = `https://wa.me/${clientPhone}?text=${encodeURIComponent(`שלום${borrower.firstName ? " " + borrower.firstName : ""}, זה הקישור לתשלום עבור התיק שלך ב-EASY MORTE (₪3,450): ${clientPayLink}`)}`;
 
-  // When Tranzila redirects back inside the embedded frame, move the whole page to the result.
+  // Cardcom sends the client back to this page inside the payment iframe. Tell the payment step around it
+  // (same origin only) and let it check the result; fall back to moving the whole window.
   useEffect(() => {
-    if (paidParam && window.self !== window.top) {
-      try { if (window.top) window.top.location.href = window.location.href; } catch { /* cross-origin guard */ }
-    }
-  }, [paidParam]);
+    if (!urlPaid || !insideFrame) return;
+    const msg = buildReturnMessage(urlPaid, searchParams.get("caseId"));
+    try {
+      if (msg && window.parent.location.origin === window.location.origin) {
+        window.parent.postMessage(msg, window.location.origin);
+        return;
+      }
+    } catch { /* cross-origin parent */ }
+    try { if (window.top) window.top.location.href = window.location.href; } catch { /* cross-origin guard */ }
+  }, [urlPaid, insideFrame, searchParams]);
+
+  // The payment step listens only to its own iframe, from its own origin, about this case.
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const paid = readReturnMessage(event, { origin: window.location.origin, frame: frameRef.current?.contentWindow, caseId });
+      if (!paid) return;
+      setShowPayFrame(false);
+      setPayUrl(null);
+      setFramePaid(paid);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [caseId]);
 
   // Fetch the case's payment status
   useEffect(() => {
@@ -164,6 +194,11 @@ export default function DashboardPayment() {
     }
   }, [caseId, paidParam]);
 
+  // A retry after a failed attempt starts from the form again.
+  const retryPayment = async () => {
+    if (await createPaymentPage()) { setFramePaid(null); setShowPayFrame(true); navigate(`/dashboard/payment?caseId=${caseId}`); }
+  };
+
   // Check required documents status (verified, in expert review, or deferred by the client)
   useEffect(() => {
     if (!caseId) return;
@@ -178,6 +213,9 @@ export default function DashboardPayment() {
   // A case can be paid before intake; completing intake and documents still gates professional review.
   const paymentReady = Boolean(caseId);
 
+  if (urlPaid && insideFrame) {
+    return <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin text-primary" />מעדכנים את סטטוס התשלום...</div>;
+  }
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   // Payment status: confirmed (webhook landed), failed (Tranzila returned paid=0), pending (paid=1 but not yet confirmed)
@@ -255,9 +293,7 @@ export default function DashboardPayment() {
             size="lg"
             className="w-full"
             disabled={!paymentReady || creatingPayment}
-            onClick={async () => {
-              if (await createPaymentPage()) { setShowPayFrame(true); navigate(`/dashboard/payment?caseId=${caseId}`); }
-            }}
+            onClick={retryPayment}
           >
             {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
             נסה שוב לשלם ₪3,450
@@ -309,9 +345,9 @@ export default function DashboardPayment() {
             <CardContent className="p-4 flex items-center gap-3">
               <Hourglass size={22} className="text-primary shrink-0 animate-pulse" />
               <div className="text-right">
-                <p className="text-sm font-bold text-foreground">התשלום התקבל — ממתין לאישור סופי</p>
+                <p className="text-sm font-bold text-foreground">בודקים את התשלום מול Cardcom</p>
                 <p className="text-xs text-muted-foreground">
-                  אנחנו מאמתים את העסקה מול חברת האשראי. העמוד יתעדכן אוטומטית תוך מספר שניות.
+                  התשלום נחשב שהתקבל רק אחרי אישור מ־Cardcom. העמוד יתעדכן לבד בתוך כמה שניות, ואין צורך לשלם שוב.
                 </p>
               </div>
             </CardContent>
@@ -361,9 +397,13 @@ export default function DashboardPayment() {
           <CardContent className="p-6 text-center">
             <div className="mb-4">
               <span className="text-3xl font-display font-black text-foreground">₪3,450</span>
-              <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · אפשרות חלוקה עד 4 תשלומים</span>
+              <span className="text-xs text-muted-foreground block mt-1">כולל מע"מ · החלוקה לתשלומים נבחרת בטופס המאובטח, לפי האפשרויות שמוצגות בו</span>
             </div>
-            {paymentReady ? (
+            {paymentState === "pending" ? (
+              <p className="text-sm text-muted-foreground" role="status">
+                בזמן הבדיקה טופס התשלום לא מוצג, כדי שלא תשלמו פעמיים. אם העמוד לא התעדכן בתוך דקה, רעננו אותו או התקשרו ל־055-996-1997.
+              </p>
+            ) : paymentReady ? (
               <>
                 {showPayFrame && payUrl ? (
                   <div className="space-y-3">
@@ -371,20 +411,34 @@ export default function DashboardPayment() {
                       <span>חשבונית על שם: <b className="text-foreground">{billing.invoiceName}</b></span>
                       <button type="button" className="text-primary underline underline-offset-4" onClick={() => { setShowPayFrame(false); setPayUrl(null); }}>עריכת פרטים</button>
                     </div>
-                    <iframe
-                      title="טופס תשלום מאובטח"
-                      src={payUrl}
-                      className="w-full h-[520px] rounded-xl border border-border bg-background"
-                      allow="payment"
-                    />
-                    <a
-                      href={payUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-sm text-primary underline underline-offset-4"
-                    >
-                      הטופס לא נטען? פתחו את דף התשלום בחלון חדש
-                    </a>
+                    <div className="relative">
+                      {frameLoading && (
+                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-xl bg-background/90 text-sm text-muted-foreground" role="status">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                          טוענים את טופס התשלום המאובטח...
+                        </div>
+                      )}
+                      <iframe
+                        ref={frameRef}
+                        title="טופס תשלום מאובטח של Cardcom"
+                        src={payUrl}
+                        onLoad={() => setFrameLoading(false)}
+                        className="block w-full h-[560px] sm:h-[520px] rounded-xl border border-border bg-background"
+                        allow="payment"
+                      />
+                    </div>
+                    <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                      <Shield size={14} className="text-primary" aria-hidden />
+                      פרטי הכרטיס מוזנים בטופס של Cardcom ולא מגיעים לשרתים שלנו.
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
+                      <button type="button" className="text-primary underline underline-offset-4" disabled={creatingPayment} onClick={retryPayment}>
+                        הטופס פג תוקף? פתחו טופס חדש
+                      </button>
+                      <a href={payUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground underline underline-offset-4">
+                        הטופס לא נטען? פתחו בחלון חדש
+                      </a>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4 text-right">
@@ -417,7 +471,7 @@ export default function DashboardPayment() {
                           </div>
                         ))}
                       </div>
-                      <p className="text-[11px] text-muted-foreground">החשבונית תישלח למייל שהוזן. בשלב הבא מזינים רק את פרטי הכרטיס ובוחרים עד 4 תשלומים.</p>
+                      <p className="text-[11px] text-muted-foreground">החשבונית תישלח למייל שהוזן. בשלב הבא מזינים רק את פרטי הכרטיס, ובוחרים מספר תשלומים מתוך האפשרויות שהטופס מציג.</p>
                     </fieldset>
                     <div className="flex flex-col sm:flex-row gap-3">
                     <Button

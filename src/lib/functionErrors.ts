@@ -10,6 +10,12 @@ export function paymentErrorMessage({ status, code }: PaymentFailure): string {
   if (status === 403 || code === "forbidden") {
     return "לחשבון שמחובר עכשיו אין גישה לתיק הזה. התחברו עם החשבון שפתח את התיק.";
   }
+  if (code === "payment_pending_verification") {
+    return "נראה שתשלום קודם עבור התיק כבר עבר ומחכה לאישור. אנחנו בודקים את הסטטוס, ואין צורך לשלם שוב.";
+  }
+  if (code === "payment_status_unknown") {
+    return "לא הצלחנו לבדוק את ניסיון התשלום הקודם, ולכן לא פתחנו טופס חדש כדי למנוע חיוב כפול. נסו שוב בעוד כמה דקות או התקשרו ל־055-996-1997.";
+  }
   if (status === 409 || code === "already_paid") {
     return "התשלום עבור התיק כבר התקבל, ואין צורך לשלם שוב.";
   }

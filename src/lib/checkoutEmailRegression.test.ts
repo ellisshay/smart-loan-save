@@ -64,19 +64,20 @@ describe("quick-check email authorization", () => {
 });
 
 describe("Cardcom checkout document", () => {
-  it("includes required editable document data at 3,450 ILS and keeps 1 to 4 installments", async () => {
+  it("includes the required document data at 3,450 ILS and keeps 1 to 4 installments", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ResponseCode: 0, Url: "https://example.test/checkout", LowProfileId: "mock" })));
     const handler = loadHandler("supabase/functions/cardcom-payment-create/index.ts", {
       adminClient: () => ({ from: (table: string) => query(table === "cases" ? { case_number: "TEST" } : { token: "test-only" }) }),
       getCallerId: async () => "owner", canAccessCase: async () => true, fetch: fetchMock,
       Deno: { env: { get: (name: string) => name === "CARDCOM_TERMINAL_NUMBER" ? "1000" : "test-only" } },
     });
-    const response = await handler(new Request("https://example.test", { method: "POST", body: JSON.stringify({ caseId: "test-case", origin: "http://localhost:8080" }) }));
+    const response = await handler(new Request("https://example.test", { method: "POST", body: JSON.stringify({ caseId: "test-case", origin: "http://localhost:8080", billing: { firstName: "Test", lastName: "Client", invoiceName: "Test Client", email: "client@example.test", phone: "0501234567" } }) }));
     expect(response.status).toBe(200);
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(payload.Amount).toBe(3450);
     expect(payload.Document.TypeToCreate).toBe("Auto");
-    expect(payload.Document.IsAllowEditDocument).toBe(true);
+    // Invoice details are collected and validated on our page (93e809a), so Cardcom shows card fields only.
+    expect(payload.Document.IsAllowEditDocument).toBe(false);
     expect(payload.Document.Products).toEqual([{ Description: "פתיחת תיק EASY MORTE TEST", Quantity: 1, UnitCost: 3450, TotalLineCost: 3450 }]);
     expect(payload.AdvancedDefinition).toEqual({ MinNumOfPayments: 1, MaxNumOfPayments: 4 });
     expect(payload.Operation).toBe("ChargeOnly");
