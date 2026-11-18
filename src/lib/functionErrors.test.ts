@@ -57,3 +57,21 @@ describe("quickResultMailMessage", () => {
     expect(quickResultMailMessage({})).toBe("השליחה נכשלה, נסו שוב");
   });
 });
+
+describe("quick result request saved on failure (#44)", () => {
+  it("says the request was saved when the server kept it, without claiming it was sent", () => {
+    const m = quickResultMailMessage({ status: 502, code: "send failed", saved: true });
+    expect(m).toContain("הבקשה נשמרה");
+    expect(m).not.toContain("נשלחה");
+  });
+  it("does not claim it was saved when the server did not say so", () => {
+    expect(quickResultMailMessage({ status: 502, code: "send failed" })).not.toContain("נשמרה");
+  });
+  it("explains the attempt limit", () => {
+    expect(quickResultMailMessage({ status: 429, code: "too many attempts" })).toContain("כמה פעמים");
+  });
+  it("reads the saved flag from the response", async () => {
+    const res = new Response(JSON.stringify({ error: "send failed", saved: true }), { status: 502 });
+    expect(await readFunctionError({ context: res })).toEqual({ status: 502, code: "send failed", saved: true });
+  });
+});
