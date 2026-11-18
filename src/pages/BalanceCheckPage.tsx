@@ -5,6 +5,7 @@ import { REPORT_STATUS_TEXT, type ReportIssue, type ReportStatus } from "@/lib/m
 import { analyzeBalanceTrack, BALANCE_CHECK_STORE, BALANCE_TRACK_TYPES, parseInput, referenceDates, STATUS_TEXT, summarizeBalance, type BalanceTrack, type BalanceTrackType, type TrackStatus } from "@/lib/mortgage/balanceCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ExistingAlternatives } from "@/components/mortgage/ExistingAlternatives";
 
 type TrackType = BalanceTrackType;
 const TYPES = BALANCE_TRACK_TYPES;
@@ -162,7 +163,7 @@ export default function MortgageCheckPage() {
                   <p className="text-xs text-muted-foreground">
                     {r.status === "incomplete" ? `חסר: ${r.missing.join(", ")}. נתון חסר לא נספר כאפס.`
                       : r.gap === null ? (TYPES[t.type].linked ? "אין לנו נתון ייחוס למסלול הצמוד הזה. במסלול צמוד הקרן משתנה לפי המדד, ולכן הבדיקה נעשית מול דוח היתרות המלא." : "לא ניתן להשוות כרגע.")
-                      : `פער מול נתון הייחוס: ${r.gap > 0 ? "+" : ""}${r.gap.toFixed(2)} נקודות.`}
+                      : `פער מול נתון הייחוס: \u2066${r.gap > 0 ? "+" : ""}${r.gap.toFixed(2)}\u2069 נקודות.`}
                     {r.status === "linked_review" && r.gap !== null ? " במסלול צמוד הקרן משתנה לפי המדד, ולכן לא חישבנו הפרש בשקלים לפי הריבית בלבד." : ""}
                     {r.status === "keep_terms" ? " מחזור מלא עלול לוותר על התנאי הזה." : ""}
                   </p>
@@ -178,6 +179,7 @@ export default function MortgageCheckPage() {
             {summary.notComputed > 0 && <p className="text-sm text-muted-foreground">{summary.notComputed === 1 ? "מסלול אחד לא חושב" : `${summary.notComputed} מסלולים לא חושבו`} בגלל נתון חסר, הצמדה למדד או היעדר נתון ייחוס. הם לא נספרים כאפס.</p>}
             {summary.keep > 0 && <p className="text-sm text-muted-foreground">יש מסלולים בתנאים שכדאי לשמור. לא כל משכנתה צריכה מחזור, ולפעמים מספיק שינוי חלקי.</p>}
           </div>
+          <ExistingAlternatives tracks={tracks} rates={marketRates} />
           <p className="text-xs text-muted-foreground">זו בדיקה אוטומטית ראשונית בלבד. היא לא כוללת עמלת פירעון מוקדם, הצמדה למדד, תחנות שינוי, עלויות מעבר או שינויים עתידיים בריבית, ואינה ייעוץ או הצעת בנק. הקטנת החזר באמצעות הארכת תקופה אינה חיסכון ועלולה להגדיל את העלות הכוללת.</p>
           <div className="rounded-xl bg-primary/10 p-4 space-y-3">
             <p className="font-bold text-foreground">{summary.notComputed > 0 || !anyData ? "נשלים יחד את הנתונים החסרים ונבדוק את כל המשכנתה, כולל הצמדה ועמלות." : "בבדיקה המלאה נבחן את כל המשכנתה, כולל עמלות, הצמדה והשפעה על העלות הכוללת."}</p>

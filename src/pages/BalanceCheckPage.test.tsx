@@ -72,3 +72,23 @@ describe("BalanceCheckPage: extracted report (#52 stage 2)", () => {
     expect(within(s).getByText(/חסר: סוג מסלול, ריבית/)).toBeTruthy();
   });
 });
+
+describe("BalanceCheckPage: alternatives against the baseline (#52 stage 3)", () => {
+  it("shows the baseline first, flags extension as not a saving, and keeps unknown costs unknown", async () => {
+    render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
+    await screen.findByText("בחירת קובץ");
+    fireEvent.change(screen.getByLabelText("סוג מסלול"), { target: { value: "fixed_nl" } });
+    fireEvent.change(screen.getByLabelText("יתרה (₪)"), { target: { value: "500000" } });
+    fireEvent.change(screen.getByLabelText("ריבית (%)"), { target: { value: "6.2" } });
+    fireEvent.change(screen.getByLabelText("שנים שנותרו"), { target: { value: "20" } });
+    const s = await results();
+    const items = within(s).getAllByRole("listitem").filter((li) => li.className.includes("border-2"));
+    expect(within(items[0]).getByText("המשך המשכנתה הקיימת")).toBeTruthy();
+    const ext = items.find((li) => li.textContent!.includes("הארכת התקופה"))!;
+    expect(ext.textContent).toMatch(/זה לא חיסכון/);
+    expect(ext.textContent).toMatch(/עלות כוללת גבוהה לפחות ב־/);
+    const full = items.find((li) => li.textContent!.includes("מחזור מלא"))!;
+    expect(full.textContent).toMatch(/לא ניתן לקבוע \(חסר: עמלת פירעון מוקדם, עלויות מעבר/);
+    expect(s.textContent).not.toMatch(/חיסכון של/);
+  });
+});
