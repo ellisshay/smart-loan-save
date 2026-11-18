@@ -298,7 +298,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <p className="container pb-6 text-center text-xs text-primary-foreground/70">
-          אליס שירותי ייעוץ, ע.מ 049025836 · <a href="tel:+972559961997" dir="ltr">055-996-1997</a> · <a href="mailto:info@easymorte.co.il" dir="ltr">info@easymorte.co.il</a>
+          EASY MORTE · <a href="tel:+972559961997" dir="ltr">055-996-1997</a> · <a href="mailto:info@easymorte.co.il" dir="ltr">info@easymorte.co.il</a>
         </p>
       </footer>
     </div>
