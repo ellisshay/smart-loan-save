@@ -1,5 +1,5 @@
 // Quick-check estimation logic (pure, unit-tested).
-import { schedule } from "@/lib/mortgage/amortization";
+import { BASE_ASSUMPTIONS, fromQuickMix, runPlan, stressOf, STRESS } from "@/lib/mortgage/engine";
 
 /** Market reference rates. A missing or non-positive value means "unknown", never zero. */
 export interface Rates {
@@ -35,11 +35,12 @@ export interface Mix {
   total: number;
   /** Share of the loan in variable-rate tracks plus half the CPI-linked share (0..1). */
   exposure: number;
-  /** First monthly payment if every variable-rate track were 2 points higher from the start. */
+  /** Highest monthly payment in the first five years of the stress test (variable rates +2 points, CPI +1 point). */
   stressMonthly: number;
 }
 
-export const STRESS_RATE_POINTS = 2;
+export const STRESS_RATE_POINTS = STRESS.rate;
+export const STRESS_CPI_POINTS = STRESS.cpi;
 
 export const pmt = (balance: number, annualRate: number, years: number) => {
   const n = years * 12, m = annualRate / 1200;
@@ -93,17 +94,14 @@ export function compositionExposure(tracks: { key: TrackKey; amount: number }[])
 /** Absolute thresholds, so a label never depends on which other mixes are shown. */
 export const exposureLabel = (score: number): Exposure => (score < 0.45 ? "נמוך" : score < 0.7 ? "בינוני" : "גבוה");
 
-function costTracks(tracks: MixTrack[], r: Rates, rateDelta = 0) {
+/** Base and stress runs on the shared engine (#52): linked principal indexed monthly, prime shifted
+ * from month 1, 5-year tracks from their first reset, CPI +1 point under stress. */
+function costTracks(tracks: MixTrack[], r: Rates) {
   const cpi = knownCpi(r.cpi_annual) ?? 0;
-  let monthly = 0, total = 0;
-  for (const t of tracks) {
-    const linked = LINKED_KEYS.includes(t.key);
-    const delta = VARIABLE_KEYS.includes(t.key) ? rateDelta : 0;
-    // Linked tracks: the track rate applies to a principal indexed monthly by the CPI assumption.
-    const s = schedule(t.amount, (linked ? t.rate - cpi : t.rate) + delta, t.years * 12, 0, linked ? cpi : 0);
-    monthly += s.monthly; total += s.totalPaid;
-  }
-  return { monthly, total };
+  const engineTracks = fromQuickMix(tracks, cpi);
+  const base = runPlan(engineTracks, BASE_ASSUMPTIONS(cpi));
+  const stress = runPlan(engineTracks, stressOf(BASE_ASSUMPTIONS(cpi)));
+  return { monthly: base.firstPayment, total: base.totalPaid, stressMax: stress.peakPayment };
 }
 
 /**
@@ -123,10 +121,9 @@ export function buildMixes(loan: number, years: number, rates: Rates | null | un
       tracks.push({ key, amount: Math.round(loan * s), years, rate });
     }
     if (!ok) continue;
-    const base = costTracks(tracks, rates);
-    const stress = costTracks(tracks, rates, STRESS_RATE_POINTS);
+    const cost = costTracks(tracks, rates);
     const exposure = compositionExposure(tracks);
-    out.push({ name, tracks, monthly: base.monthly, total: base.total, exposure, risk: exposureLabel(exposure), stressMonthly: stress.monthly });
+    out.push({ name, tracks, monthly: cost.monthly, total: cost.total, exposure, risk: exposureLabel(exposure), stressMonthly: cost.stressMax });
   }
   // Display order: by exposure, lowest first. Cost plays no part in order or label.
   return out.sort((x, y) => x.exposure - y.exposure);

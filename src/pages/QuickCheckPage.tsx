@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CONSENT_VERSIONS } from "@/lib/privacy";
-import { buildMixes, dtiGrade, ltvGrade, missingRates, Rates, TRACK_LABEL, Mix, Grade, TrackKey, STRESS_RATE_POINTS } from "@/lib/quickCheck";
+import { buildMixes, dtiGrade, ltvGrade, missingRates, Rates, TRACK_LABEL, Mix, Grade, TrackKey, STRESS_RATE_POINTS, STRESS_CPI_POINTS } from "@/lib/quickCheck";
+import { dtiBand, LTV_CAP } from "@/lib/mortgage/affordability";
 import { FUNNEL_ICONS } from "@/components/quickcheck/FunnelIcons";
 import { formatAmount, parseAmount, quickCheckContactSchema } from "@/lib/quickCheckContact";
 
@@ -311,6 +312,7 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
         <Metric title="אחוז מימון (LTV)" value={ltv} g={ltv !== null ? ltvGrade(ltv) : undefined} line={ltv !== null ? GRADE_LINE.ltv[ltvGrade(ltv)] : ""} empty="לא חושב במחזור ללא שווי נכס" />
         <Metric title="יחס החזר להכנסה (DTI)" value={dti} g={dti !== null ? dtiGrade(dti) : undefined} line={dti !== null ? GRADE_LINE.dti[dtiGrade(dti)] : ""} empty={a.income > 0 ? "חסרים נתוני ריבית לחישוב" : "נדרשת הכנסה לחישוב"} />
       </div>
+      {!refi && ltv !== null && a.goal === "upgrade" && ltv > LTV_CAP.upgrade * 100 && <p className="rounded-xl bg-muted p-4 text-sm text-foreground">במשפרי דיור תקרת המימון של בנק ישראל היא {LTV_CAP.upgrade * 100}% כל עוד הדירה הקיימת לא נמכרה. בנתונים שהזנתם המימון גבוה יותר, ונבדוק יחד את המשמעות.</p>}
       {refi && <p className="text-sm text-foreground">ההחזר החודשי היום: {nis(a.currentPayment)}. התמהילים למטה הם תרחישים לדוגמה, לפני עמלות פירעון ועלויות מעבר, ולא הוכחה שמחזור משתלם.</p>}
       <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2">
         {mixes.map((m) => (
@@ -320,7 +322,8 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
               <div className="flex items-center justify-between gap-2"><h2 className="font-display font-bold text-lg text-foreground">{m.name}</h2><span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-foreground">{EXPOSURE_TEXT[m.risk]}</span></div>
               <div><p className="text-xs text-muted-foreground">החזר חודשי משוער</p><p className="font-display text-3xl font-black text-foreground">{nis(m.monthly)}</p></div>
               <p className="text-sm text-muted-foreground">החזר כולל משוער: <strong className="text-foreground">{nis(m.total)}</strong></p>
-              <p className="text-sm text-muted-foreground">אם הריבית המשתנה תעלה ב־{STRESS_RATE_POINTS} נקודות: <strong className="text-foreground">{nis(m.stressMonthly)}</strong> בחודש</p>
+              <p className="text-sm text-muted-foreground">בתרחיש לחץ (ריבית משתנה {"\u2066"}+{STRESS_RATE_POINTS}{"\u2069"} נקודות, מדד {"\u2066"}+{STRESS_CPI_POINTS}{"\u2069"}): עד <strong className="text-foreground">{nis(m.stressMonthly)}</strong> בחודש בחמש השנים הראשונות</p>
+              {a.income > 0 && (() => { const b = dtiBand((m.stressMonthly + a.obligations) / a.income); return b ? <p className="text-xs text-muted-foreground">ביחס להכנסה בתרחיש הלחץ: {b.short}</p> : null; })()}
               <Button variant="outline" className="mt-auto" onClick={() => setDetail(m)}>לפירוט התמהיל</Button>
             </div>
           </article>
