@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CONSENT_VERSIONS } from "@/lib/privacy";
-import { buildMixes, dtiGrade, ltvGrade, Rates, TRACK_LABEL, Mix, Grade, TrackKey } from "@/lib/quickCheck";
+import { buildMixes, dtiGrade, ltvGrade, missingRates, Rates, TRACK_LABEL, Mix, Grade, TrackKey, STRESS_RATE_POINTS } from "@/lib/quickCheck";
 import { FUNNEL_ICONS } from "@/components/quickcheck/FunnelIcons";
 import { formatAmount, parseAmount, quickCheckContactSchema } from "@/lib/quickCheckContact";
 
@@ -70,12 +70,14 @@ const GRADE_LINE = {
   ltv: { "מצוין": "מימון נמוך – הבנקים יציעו את התנאים הטובים ביותר.", "אפשרי": "בטווח המקובל; עד 75% בדירה יחידה.", "גבולי": "מעל המימון המקובל – כדאי להגדיל הון עצמי." },
   dti: { "מצוין": "החזר נוח ביחס להכנסה.", "אפשרי": "בטווח שהבנקים מאשרים בדרך כלל.", "גבולי": "גבוה – הבנקים יבחנו את התיק בזהירות." },
 } as const;
-const RISK_BAR: Record<Mix["risk"], string> = { "נמוך": "bg-success", "בינוני": "bg-warning", "גבוה": "bg-destructive" };
+const RISK_BAR: Record<Mix["risk"], string> = { "נמוך": "bg-navy", "בינוני": "bg-primary", "גבוה": "bg-warning" };
+/** Exposure to rate and CPI changes, from the mix composition. Not a price ranking. */
+const EXPOSURE_TEXT: Record<Mix["risk"], string> = { "נמוך": "חשיפה נמוכה יחסית", "בינוני": "חשיפה בינונית", "גבוה": "חשיפה גבוהה יחסית" };
 const TRACK_DOT: Record<TrackKey, string> = { prime: "bg-primary", fixed_not_linked: "bg-navy", fixed_linked: "bg-warning", variable_5: "bg-success" };
 const PROS_CONS: Record<Mix["risk"], { pros: string[]; cons: string[] }> = {
-  "נמוך": { pros: ["החזר צפוי לאורך זמן", "פחות חשיפה לשינויי ריבית"], cons: ["עלות כוללת גבוהה יותר", "עמלת פירעון מוקדם אפשרית במסלול קבוע"] },
+  "נמוך": { pros: ["החזר צפוי לאורך זמן", "פחות חשיפה לשינויי ריבית"], cons: ["אם הריבית תרד, רוב ההחזר לא ירד איתה", "עמלת פירעון מוקדם אפשרית במסלול קבוע"] },
   "בינוני": { pros: ["איזון בין יציבות לגמישות", "אפשרות לפירעון חלקי בחלק מהמסלולים"], cons: ["חלק מההחזר עשוי להשתנות", "דורש מעקב אחרי תחנות יציאה"] },
-  "גבוה": { pros: ["עלות כוללת נמוכה יותר בתנאים הנוכחיים", "גמישות גבוהה לפירעון מוקדם"], cons: ["ההחזר עלול לעלות אם הריבית תעלה", "פחות ודאות לאורך השנים"] },
+  "גבוה": { pros: ["אם הריבית תרד, ההחזר יכול לרדת", "גמישות גבוהה לפירעון מוקדם"], cons: ["ההחזר עלול לעלות אם הריבית תעלה", "פחות ודאות לאורך השנים"] },
 };
 
 function GradePill({ g }: { g: Grade }) {
@@ -276,8 +278,10 @@ export default function QuickCheckPage() {
 function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loan: number; years: number; refi: boolean; rates: Rates; updated?: string; token: string }) {
   const mixes: Mix[] = useMemo(() => buildMixes(loan, years, rates), [loan, years, rates]);
   const ltv = !refi && a.value > 0 ? (loan / a.value) * 100 : null;
-  const basePay = mixes[1]?.monthly ?? 0;
-  const dti = a.income > 0 ? ((basePay + a.obligations) / a.income) * 100 : null;
+  const balanced = mixes.find((m) => m.risk === "בינוני") ?? mixes[0];
+  const basePay = balanced?.monthly ?? 0;
+  const missing = useMemo(() => missingRates(["prime", "fixed_not_linked", "fixed_linked", "variable_5"], rates), [rates]);
+  const dti = a.income > 0 && balanced ? ((basePay + a.obligations) / a.income) * 100 : null;
   const [detail, setDetail] = useState<Mix | null>(null);
   const [email, setEmail] = useState(""); const [mkt, setMkt] = useState(false); const [mail, setMail] = useState(""); const [openMail, setOpenMail] = useState(false);
   useEffect(() => { document.title = "התוצאה שלכם | EASY MORTE"; }, []);
@@ -305,23 +309,26 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
       <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground text-center">{a.firstName.trim() ? `${a.firstName.trim()}, זו התוצאה שלך` : "התוצאה שלכם"}</h1>
       <div className="grid md:grid-cols-2 gap-4">
         <Metric title="אחוז מימון (LTV)" value={ltv} g={ltv !== null ? ltvGrade(ltv) : undefined} line={ltv !== null ? GRADE_LINE.ltv[ltvGrade(ltv)] : ""} empty="לא חושב במחזור ללא שווי נכס" />
-        <Metric title="יחס החזר להכנסה (DTI)" value={dti} g={dti !== null ? dtiGrade(dti) : undefined} line={dti !== null ? GRADE_LINE.dti[dtiGrade(dti)] : ""} empty="נדרשת הכנסה לחישוב" />
+        <Metric title="יחס החזר להכנסה (DTI)" value={dti} g={dti !== null ? dtiGrade(dti) : undefined} line={dti !== null ? GRADE_LINE.dti[dtiGrade(dti)] : ""} empty={a.income > 0 ? "חסרים נתוני ריבית לחישוב" : "נדרשת הכנסה לחישוב"} />
       </div>
-      {refi && <p className="text-sm text-foreground">ההחזר החודשי היום: {nis(a.currentPayment)}. השוו אותו להחזר בתמהילים למטה.</p>}
+      {refi && <p className="text-sm text-foreground">ההחזר החודשי היום: {nis(a.currentPayment)}. התמהילים למטה הם תרחישים לדוגמה, לפני עמלות פירעון ועלויות מעבר, ולא הוכחה שמחזור משתלם.</p>}
       <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2">
         {mixes.map((m) => (
           <article key={m.name} className="snap-center shrink-0 w-[80%] md:w-auto bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
             <div className={`h-2 ${RISK_BAR[m.risk]}`} aria-hidden="true" />
             <div className="p-5 space-y-3 flex-1 flex flex-col">
-              <div className="flex items-center justify-between gap-2"><h2 className="font-display font-bold text-lg text-foreground">{m.name}</h2><span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-foreground">סיכון {m.risk}</span></div>
+              <div className="flex items-center justify-between gap-2"><h2 className="font-display font-bold text-lg text-foreground">{m.name}</h2><span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-bold text-foreground">{EXPOSURE_TEXT[m.risk]}</span></div>
               <div><p className="text-xs text-muted-foreground">החזר חודשי משוער</p><p className="font-display text-3xl font-black text-foreground">{nis(m.monthly)}</p></div>
               <p className="text-sm text-muted-foreground">החזר כולל משוער: <strong className="text-foreground">{nis(m.total)}</strong></p>
+              <p className="text-sm text-muted-foreground">אם הריבית המשתנה תעלה ב־{STRESS_RATE_POINTS} נקודות: <strong className="text-foreground">{nis(m.stressMonthly)}</strong> בחודש</p>
               <Button variant="outline" className="mt-auto" onClick={() => setDetail(m)}>לפירוט התמהיל</Button>
             </div>
           </article>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">הערכה לפי ריביות ממוצעות שמפורסמות על ידי בנק ישראל{updated ? ` (עודכן ${new Date(updated).toLocaleDateString("he-IL")})` : ""}. התנאים הסופיים נקבעים על ידי הבנק.</p>
+      {!mixes.length && <p className="rounded-xl bg-muted p-4 text-sm text-foreground">אין לנו כרגע את כל נתוני הריבית הדרושים כדי להציג תמהילים לדוגמה{missing.length ? ` (חסר: ${missing.join(", ")})` : ""}. לא נציג חישוב עם ריבית חסרה. אפשר להמשיך לבדיקה מלאה ללא עלות.</p>}
+      {mixes.length > 0 && missing.length > 0 && <p className="text-xs text-muted-foreground">חלק מהתמהילים לא מוצגים כי חסר נתון: {missing.join(", ")}.</p>}
+      <p className="text-xs text-muted-foreground">תרחישים לדוגמה לפי ריביות ממוצעות שמפורסמות על ידי בנק ישראל{updated ? ` (עודכן ${new Date(updated).toLocaleDateString("he-IL")})` : ""}, ולא הצעה אישית. רמת החשיפה נקבעת לפי הרכב התמהיל: חלק המסלולים בריבית משתנה וחלק המסלולים הצמודים למדד, ולא לפי המחיר. בתמהיל עם מסלול צמוד ההחזר הכולל כולל הנחת מדד קבועה. התנאים הסופיים נקבעים על ידי הבנק.</p>
 
       <section className="bg-navy text-primary-foreground rounded-2xl p-6 md:p-8 space-y-4">
         <h2 className="font-display text-2xl font-bold">את המכרז מול הבנקים אנחנו סוגרים בשבילכם.</h2>
@@ -348,7 +355,7 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
       <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
         <DialogContent dir="rtl" className="max-w-lg">
           {detail && <>
-            <DialogHeader><DialogTitle className="font-display text-right">{detail.name} · סיכון {detail.risk}</DialogTitle><DialogDescription className="text-right">החזר חודשי משוער {nis(detail.monthly)} · החזר כולל {nis(detail.total)}</DialogDescription></DialogHeader>
+            <DialogHeader><DialogTitle className="font-display text-right">{detail.name} · {EXPOSURE_TEXT[detail.risk]}</DialogTitle><DialogDescription className="text-right">החזר חודשי משוער {nis(detail.monthly)} · החזר כולל {nis(detail.total)}</DialogDescription></DialogHeader>
             <Tabs defaultValue="tracks" dir="rtl">
               <TabsList className="w-full"><TabsTrigger value="tracks" className="flex-1">מסלולים</TabsTrigger><TabsTrigger value="pc" className="flex-1">יתרונות וחסרונות</TabsTrigger></TabsList>
               <TabsContent value="tracks">

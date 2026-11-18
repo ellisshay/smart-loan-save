@@ -1,27 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus, Trash2, Upload, Lock } from "lucide-react";
+import { analyzeBalanceTrack, BALANCE_CHECK_STORE, BALANCE_TRACK_TYPES, parseInput, referenceDates, STATUS_TEXT, summarizeBalance, type BalanceTrack, type BalanceTrackType, type TrackStatus } from "@/lib/mortgage/balanceCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
-type TrackType = "prime" | "fixed_nl" | "fixed_l" | "var5" | "var_l";
-const TYPES: Record<TrackType, { label: string; rateKey: string | null }> = {
-  prime: { label: "פריים", rateKey: "prime" },
-  fixed_nl: { label: "קבועה לא צמודה", rateKey: "fixed_not_linked" },
-  fixed_l: { label: "קבועה צמודה", rateKey: "fixed_linked" },
-  var5: { label: "משתנה כל 5 לא צמודה", rateKey: "variable_5" },
-  var_l: { label: "משתנה כל 5 צמודה", rateKey: null },
-};
-
-interface MarketRates {
-  prime?: number;
-  fixed_not_linked?: number;
-  fixed_linked?: number;
-  variable_5?: number;
-  updated_at?: string;
-  source?: string;
-}
-interface Track { type: TrackType; balance: number; rate: number; years: number }
+type TrackType = BalanceTrackType;
+const TYPES = BALANCE_TRACK_TYPES;
+type MarketRates = Record<string, unknown>;
+type Track = BalanceTrack;
 
 const BANKS = [
   { name: "לאומי", path: "אתר/אפליקציית לאומי ← משכנתאות ← המשכנתא שלי ← דוח יתרות לסילוק ← הורדת PDF" },
@@ -32,28 +19,21 @@ const BANKS = [
   { name: "ירושלים", path: "אתר בנק ירושלים ← משכנתאות ← האזור האישי ← בקשת דוח יתרות לסילוק" },
 ];
 
-const pmt = (b: number, r: number, y: number) => {
-  const n = y * 12, m = r / 1200;
-  return m ? (b * m) / (1 - Math.pow(1 + m, -n)) : b / n;
-};
 const nis = (v: number) => `${Math.round(v).toLocaleString("he-IL")} ₪`;
-
-function analyze(t: Track, rates: MarketRates | null) {
-  const key = TYPES[t.type].rateKey;
-  const market = key && rates ? Number((rates as any)[key]) : 0;
-  if (!market || !t.rate || !t.balance || !t.years) {
-    return { color: "bg-muted-foreground", tone: "text-muted-foreground", label: "נדרשים עוד נתונים", gap: null as number | null, saving: 0 };
-  }
-  const gap = t.rate - market;
-  const saving = Math.max(0, pmt(t.balance, t.rate, t.years) - pmt(t.balance, market, t.years));
-  if (gap >= 0.8) return { color: "bg-destructive", tone: "text-destructive", label: "פוטנציאל משמעותי לבדיקה", gap, saving };
-  if (gap >= 0.3) return { color: "bg-warning", tone: "text-warning", label: "כדאי לבדוק", gap, saving };
-  return { color: "bg-success", tone: "text-success", label: "נראה יעיל כרגע", gap, saving };
-}
+const STATUS_TONE: Record<TrackStatus, string> = {
+  incomplete: "bg-muted-foreground", no_reference: "bg-muted-foreground", linked_review: "bg-warning",
+  worth_checking_strong: "bg-warning", worth_checking: "bg-warning", near_reference: "bg-primary", keep_terms: "bg-navy",
+};
+const fromParsed = (t: any): Track => ({
+  type: (t?.type in BALANCE_TRACK_TYPES ? t.type : "prime") as TrackType,
+  balance: parseInput(String(t?.balance ?? "")), rate: parseInput(String(t?.rate ?? "")), years: parseInput(String(t?.years ?? "")),
+});
+const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `bc-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
 export default function MortgageCheckPage() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
-  const [tracks, setTracks] = useState<Track[]>([{ type: "prime", balance: 0, rate: 0, years: 0 }]);
+  const navigate = useNavigate();
+  const [tracks, setTracks] = useState<Track[]>([{ type: "prime", balance: null, rate: null, years: null }]);
   const [show, setShow] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [parseMsg, setParseMsg] = useState("");
@@ -72,7 +52,7 @@ export default function MortgageCheckPage() {
       const { data, error } = await supabase.functions.invoke("parse-balance-report", { body: { file: b64, mime: f.type, name: f.name } });
       if (error || data?.error) throw new Error(data?.error || "הניתוח נכשל");
       if (!data.tracks?.length) { setParseMsg("לא זוהו מסלולים בדוח. אפשר להזין ידנית למטה."); return; }
-      setTracks(data.tracks.slice(0, 12));
+      setTracks(data.tracks.slice(0, 12).map(fromParsed));
       setShow(true);
       setParseMsg(`זוהו ${data.tracks.length} מסלולים${data.bank ? ` (${data.bank})` : ""}. בדקו שהנתונים תואמים לדוח.`);
     } catch (e: any) {
@@ -81,7 +61,7 @@ export default function MortgageCheckPage() {
   };
 
   useEffect(() => {
-    supabase.from("market_rates").select("prime,fixed_not_linked,fixed_linked,variable_5,updated_at,source")
+    supabase.from("market_rates").select("*")
       .order("updated_at", { ascending: false }).limit(1).maybeSingle()
       .then(({ data }) => setMarketRates((data as MarketRates | null) ?? null));
   }, []);
@@ -93,18 +73,26 @@ export default function MortgageCheckPage() {
   }, []);
 
   const upd = (i: number, k: keyof Track, v: string) =>
-    setTracks((ts) => ts.map((t, j) => (j === i ? { ...t, [k]: k === "type" ? v : Number(v) } : t)));
-  const results = tracks.map((t) => analyze(t, marketRates));
-  const total = results.reduce((a, r) => a + r.saving, 0);
+    setTracks((ts) => ts.map((t, j) => (j === i ? { ...t, [k]: k === "type" ? v : parseInput(v) } : t)));
+  const results = tracks.map((t) => analyzeBalanceTrack(t, marketRates));
+  const summary = summarizeBalance(results);
+  const dates = referenceDates(marketRates);
+  const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("he-IL") : null);
+  /** Keeps the entered tracks on this device and carries them into the free check, under an id. Nothing goes in the URL. */
+  const continueToCheck = () => {
+    try { localStorage.setItem(BALANCE_CHECK_STORE, JSON.stringify({ id: newId(), tracks, saved_at: new Date().toISOString() })); } catch { /* storage blocked */ }
+    navigate(loggedIn ? "/intake" : "/auth?next=/intake");
+  };
+  const anyData = tracks.some((t) => t.balance !== null || t.rate !== null || t.years !== null);
   const input = "w-full h-10 rounded-lg border border-input bg-background px-3 text-sm";
 
   return (
     <div className="container py-10 md:py-14 max-w-4xl space-y-10">
       <header className="text-center space-y-3">
         <span className="inline-block px-3 py-1 rounded-full bg-success/15 text-success text-sm font-bold">חינם · ללא התחייבות</span>
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">בדיקת המשכנתא שלי: דוח יתרות והמלצה חינם</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">בדיקת המשכנתא שלי: דוח יתרות ובדיקה ראשונית חינם</h1>
         <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-          הזינו את המסלולים מדוח היתרות לסילוק וקבלו לכל מסלול המלצה ברורה: להשאיר, לתקן בבנק הנוכחי או למחזר. הבדיקה חינמית ודורשת הרשמה קצרה בלבד.
+          הזינו את המסלולים מדוח היתרות לסילוק וקבלו בדיקה ראשונית לכל מסלול: מה כדאי לבדוק לעומק ומה כדאי לשמור. זו לא מסקנה על כל המשכנתה, וממנה ממשיכים לבדיקה מלאה ללא עלות.
         </p>
       </header>
 
@@ -132,15 +120,15 @@ export default function MortgageCheckPage() {
                 {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>
             </label>
-            <label className="text-xs text-muted-foreground">יתרה (₪)<input type="number" className={input} value={t.balance || ""} onChange={(e) => upd(i, "balance", e.target.value)} /></label>
-            <label className="text-xs text-muted-foreground">ריבית (%)<input type="number" step="0.01" className={input} value={t.rate || ""} onChange={(e) => upd(i, "rate", e.target.value)} /></label>
-            <label className="text-xs text-muted-foreground">שנים שנותרו<input type="number" className={input} value={t.years || ""} onChange={(e) => upd(i, "years", e.target.value)} /></label>
+            <label className="text-xs text-muted-foreground">יתרה (₪)<input type="number" className={input} value={t.balance ?? ""} onChange={(e) => upd(i, "balance", e.target.value)} /></label>
+            <label className="text-xs text-muted-foreground">ריבית (%)<input type="number" step="0.01" className={input} value={t.rate ?? ""} onChange={(e) => upd(i, "rate", e.target.value)} /></label>
+            <label className="text-xs text-muted-foreground">שנים שנותרו<input type="number" step="0.01" className={input} value={t.years ?? ""} onChange={(e) => upd(i, "years", e.target.value)} /></label>
             <Button variant="ghost" size="icon" aria-label="הסרת מסלול" disabled={tracks.length === 1} onClick={() => setTracks((ts) => ts.filter((_, j) => j !== i))}><Trash2 size={16} /></Button>
           </div>
         ))}
         <div className="flex flex-wrap gap-2 justify-between">
-          <Button variant="outline" size="sm" disabled={tracks.length >= 12} onClick={() => setTracks((ts) => [...ts, { type: "fixed_nl", balance: 0, rate: 0, years: 0 }])}><Plus size={16} /> הוספת מסלול</Button>
-          <Button variant="cta" onClick={() => setShow(true)}>קבלו המלצה חינם</Button>
+          <Button variant="outline" size="sm" disabled={tracks.length >= 12} onClick={() => setTracks((ts) => [...ts, { type: "fixed_nl", balance: null, rate: null, years: null }])}><Plus size={16} /> הוספת מסלול</Button>
+          <Button variant="cta" onClick={() => setShow(true)}>לבדיקה הראשונית</Button>
         </div>
       </section>
 
@@ -148,41 +136,52 @@ export default function MortgageCheckPage() {
         <section className="bg-card border border-border rounded-2xl p-5 md:p-7 space-y-4">
           <h2 className="font-display text-xl font-bold text-foreground">הבדיקה הראשונית שלכם</h2>
           <p className="text-xs text-muted-foreground">
-            ההשוואה משתמשת בנתוני הריבית השמורים במערכת{marketRates?.updated_at ? `, שעודכנו ב-${new Date(marketRates.updated_at).toLocaleDateString("he-IL")}` : ""}. זו נקודת ייחוס בלבד ולא הצעת בנק.
+            ההשוואה היא מול נתוני ייחוס כלליים, לא מול הצעה אישית של בנק.
+            {fmtDate(dates.prime) ? ` ריבית הפריים עודכנה ב-${fmtDate(dates.prime)}.` : ""}
+            {fmtDate(dates.others) ? ` שאר נתוני הייחוס עודכנו ב-${fmtDate(dates.others)}.` : ""}
           </p>
-          {tracks.map((t, i) => (
-            <div key={i} className="flex items-center gap-3 border-b border-border pb-3">
-              <span className={`w-3 h-3 rounded-full ${results[i].color}`} aria-hidden="true" />
-              <div className="flex-1">
-                <p className="font-bold text-foreground">{TYPES[t.type].label} · {nis(t.balance)}</p>
-                <p className="text-xs text-muted-foreground">
-                  {results[i].gap === null ? "אין כרגע נתון השוואה אמין למסלול הזה" : `פער מול נתון הייחוס במערכת: ${results[i].gap.toFixed(2)}%`}
-                </p>
+          {tracks.map((t, i) => {
+            const r = results[i];
+            return (
+              <div key={i} className="flex items-start gap-3 border-b border-border pb-3">
+                <span className={`mt-1.5 w-3 h-3 shrink-0 rounded-full ${STATUS_TONE[r.status]}`} aria-hidden="true" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-foreground">{TYPES[t.type].label}{t.balance !== null ? ` · ${nis(t.balance)}` : ""}</p>
+                  <p className="font-bold text-sm text-foreground">{STATUS_TEXT[r.status]}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {r.status === "incomplete" ? `חסר: ${r.missing.join(", ")}. נתון חסר לא נספר כאפס.`
+                      : r.gap === null ? (TYPES[t.type].linked ? "אין לנו נתון ייחוס למסלול הצמוד הזה. במסלול צמוד הקרן משתנה לפי המדד, ולכן הבדיקה נעשית מול דוח היתרות המלא." : "לא ניתן להשוות כרגע.")
+                      : `פער מול נתון הייחוס: ${r.gap > 0 ? "+" : ""}${r.gap.toFixed(2)} נקודות.`}
+                    {r.status === "linked_review" && r.gap !== null ? " במסלול צמוד הקרן משתנה לפי המדד, ולכן לא חישבנו הפרש בשקלים לפי הריבית בלבד." : ""}
+                    {r.status === "keep_terms" ? " מחזור מלא עלול לוותר על התנאי הזה." : ""}
+                  </p>
+                  {r.monthlyDiff !== null && <p className="text-xs text-muted-foreground">תרחיש: באותה יתרה ותקופה בריבית הייחוס, ההחזר היה נמוך בכ־{nis(r.monthlyDiff)} בחודש, לפני עמלת פירעון מוקדם ועלויות מעבר.</p>}
+                </div>
               </div>
-              <div className="text-left">
-                <p className={`font-bold text-sm ${results[i].tone}`}>{results[i].label}</p>
-                {results[i].saving > 0 && <p className="text-xs text-muted-foreground">חיסכון משוער {nis(results[i].saving)}/חודש</p>}
-              </div>
+            );
+          })}
+          <div className="space-y-1">
+            {summary.knownMonthlyDiff !== null && summary.knownMonthlyDiff >= 1
+              ? <p className="font-display font-bold text-lg text-foreground">הפרש חודשי בתרחיש, במסלולים שחושבו: כ־{nis(summary.knownMonthlyDiff)}</p>
+              : <p className="font-display font-bold text-lg text-foreground">לא חישבנו סכום חיסכון</p>}
+            {summary.notComputed > 0 && <p className="text-sm text-muted-foreground">{summary.notComputed === 1 ? "מסלול אחד לא חושב" : `${summary.notComputed} מסלולים לא חושבו`} בגלל נתון חסר, הצמדה למדד או היעדר נתון ייחוס. הם לא נספרים כאפס.</p>}
+            {summary.keep > 0 && <p className="text-sm text-muted-foreground">יש מסלולים בתנאים שכדאי לשמור. לא כל משכנתה צריכה מחזור, ולפעמים מספיק שינוי חלקי.</p>}
+          </div>
+          <p className="text-xs text-muted-foreground">זו בדיקה אוטומטית ראשונית בלבד. היא לא כוללת עמלת פירעון מוקדם, הצמדה למדד, תחנות שינוי, עלויות מעבר או שינויים עתידיים בריבית, ואינה ייעוץ או הצעת בנק. הקטנת החזר באמצעות הארכת תקופה אינה חיסכון ועלולה להגדיל את העלות הכוללת.</p>
+          <div className="rounded-xl bg-primary/10 p-4 space-y-3">
+            <p className="font-bold text-foreground">{summary.notComputed > 0 || !anyData ? "נשלים יחד את הנתונים החסרים ונבדוק את כל המשכנתה, כולל הצמדה ועמלות." : "בבדיקה המלאה נבחן את כל המשכנתה, כולל עמלות, הצמדה והשפעה על העלות הכוללת."}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="cta" onClick={continueToCheck}>{summary.notComputed > 0 || !anyData ? "השלימו איתנו את הבדיקה בחינם" : "בדקו מה אפשר לשפר במשכנתה שלי, ללא עלות"}</Button>
+              <Link to="/dashboard/documents"><Button variant="outline"><Upload size={16} /> העלאת דוח יתרות לאזור האישי</Button></Link>
             </div>
-          ))}
-          <p className="font-display font-bold text-lg text-foreground">חיסכון חודשי משוער: {nis(total)}</p>
-          <p className="text-xs text-muted-foreground">זו בדיקה אוטומטית ראשונית בלבד. היא אינה כוללת בהכרח עמלת פירעון מוקדם, הצמדה, תחנות שינוי, עלויות מעבר או שינויים עתידיים בריבית ואינה מהווה ייעוץ או הצעת בנק. לפני ביצוע מחזור נדרשת בדיקה מקצועית של דוח היתרות המלא.</p>
-          {total > 0 && (
-            <div className="rounded-xl bg-primary/10 p-4 space-y-3">
-              <p className="font-bold text-foreground">זיהינו פוטנציאל לשיפור – רוצים שנבנה חלופת מחזור ונוציא את הבנקים למכרז?</p>
-              <div className="flex flex-wrap gap-2">
-                <Link to="/intake"><Button variant="cta">מחזור משכנתא מלא – 3,450 ₪ מחיר קבוע</Button></Link>
-                <Link to="/dashboard/documents"><Button variant="outline"><Upload size={16} /> העלאת דוח יתרות לאזור האישי</Button></Link>
-              </div>
-            </div>
-          )}
+          </div>
         </section>
       ) : (
         <section className="bg-card border border-primary/40 rounded-2xl p-6 text-center space-y-3">
           <Lock className="mx-auto text-primary" />
-          <h2 className="font-display text-xl font-bold text-foreground">ההמלצה מוכנה – נשאר רק להירשם</h2>
+          <h2 className="font-display text-xl font-bold text-foreground">הבדיקה הראשונית מוכנה, נשאר רק להירשם</h2>
           <p className="text-sm text-muted-foreground">הרשמה קצרה (או כניסה עם Google) שומרת את התוצאות באזור האישי שלכם. חינם לגמרי.</p>
-          <Link to="/auth"><Button variant="cta">הרשמה וקבלת ההמלצה</Button></Link>
+          <Link to="/auth?next=/balance-check"><Button variant="cta">הרשמה וצפייה בבדיקה</Button></Link>
         </section>
       ))}
 
