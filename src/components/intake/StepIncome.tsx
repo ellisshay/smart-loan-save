@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
+import { householdNetIncome } from "@/lib/householdIncome";
 
 type IncomeData = z.infer<typeof incomeSchema>;
 
@@ -30,17 +31,8 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
   const employmentStatus = watch("employmentStatus");
   const hasAdditional = watch("hasAdditionalIncome");
   const b2HasAdditional = watch("b2HasAdditionalIncome");
-  const income1 = Number(watch("monthlyNetIncome")) || 0;
-  const income2 = hasBorrower2 ? (Number(watch("b2MonthlyNetIncome")) || 0) : 0;
-  
-  // Sum all additional income sources
-  const rentalIncome = hasAdditional === "yes" ? (Number(watch("rentalIncome")) || 0) : 0;
-  const benefitsIncome = hasAdditional === "yes" ? (Number(watch("benefitsIncome")) || 0) : 0;
-  const alimonyIncome = hasAdditional === "yes" ? (Number(watch("alimonyIncome")) || 0) : 0;
-  const investmentIncome = hasAdditional === "yes" ? (Number(watch("investmentIncome")) || 0) : 0;
-  const otherIncome = hasAdditional === "yes" ? (Number(watch("otherIncome")) || 0) : 0;
-  const b2AdditionalIncome = b2HasAdditional === "yes" ? (Number(watch("b2AdditionalIncomeAmount")) || 0) : 0;
-  const totalIncome = income1 + income2 + rentalIncome + benefitsIncome + alimonyIncome + investmentIncome + otherIncome + b2AdditionalIncome;
+  const b2EmploymentStatus = watch("b2EmploymentStatus");
+  const totalIncome = householdNetIncome(watch(), hasBorrower2);
 
   const employmentOptions = [
     { value: "salaried", label: "שכיר/ה" },
@@ -51,6 +43,9 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
   ];
 
   const isSalaried = employmentStatus === "salaried" || employmentStatus === "company_owner";
+  const b2SelfEmployed = b2EmploymentStatus === "self_employed" || b2EmploymentStatus === "company_owner";
+  // Workplace and seniority are asked only of a second borrower who works.
+  const b2Works = b2EmploymentStatus !== "pensioner" && b2EmploymentStatus !== "unemployed";
   const isSelfEmployed = employmentStatus === "self_employed" || employmentStatus === "company_owner";
 
   const { formRef, onInvalid, validationAlert } = useIntakeValidation(errors);
@@ -226,15 +221,15 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
             <Field label="תחום עיסוק">
               <Input {...register("b2Occupation")} />
             </Field>
-            <Field label="מקום עבודה">
+            {b2Works && <Field label={b2SelfEmployed ? "שם העסק" : "מקום עבודה"}>
               <Input {...register("b2Employer")} />
-            </Field>
+            </Field>}
             <Field label="הכנסה נטו חודשית (₪)">
               <Input {...register("b2MonthlyNetIncome", { valueAsNumber: true })} type="number" dir="ltr" />
             </Field>
-            <Field label="ותק (חודשים)">
+            {b2Works && <Field label={b2SelfEmployed ? "ותק עסק (חודשים)" : "ותק (חודשים)"}>
               <Input {...register("b2WorkSeniority", { valueAsNumber: true })} type="number" dir="ltr" />
-            </Field>
+            </Field>}
             <Field label="הכנסות נוספות?">
               <select {...register("b2HasAdditionalIncome")} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
                 <option value="">בחר...</option>
@@ -265,7 +260,7 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
 
       <div className="flex gap-3 pt-4">
         <Button type="button" variant="outline" size="lg" onClick={onBack}>← חזרה</Button>
-        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "סיים שלב וקבל תוצאה ←"}</Button>
+        <Button type="submit" variant="cta" size="lg" disabled={saving}>{saving ? "שומר..." : "המשך לשלב ההתחייבויות ←"}</Button>
       </div>
     </motion.form>
   );
