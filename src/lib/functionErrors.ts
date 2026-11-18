@@ -36,3 +36,15 @@ export async function readFunctionError(error: unknown): Promise<PaymentFailure>
   }
   return { status: res.status, code };
 }
+
+/** Message for a failed send-quick-result call. The result itself stays on screen either way. */
+export function quickResultMailMessage({ status, code }: PaymentFailure): string {
+  if (status === 400 || code === "invalid") return "לא הצלחנו לקבל את כתובת המייל. בדקו שהיא נכונה ונסו שוב.";
+  if (status === 403 || code === "unknown session") {
+    return "לא מצאנו את הבדיקה שלכם. רעננו את הדף, מלאו את הבדיקה שוב ונסו לשלוח.";
+  }
+  if (status === 502 || code === "send failed") {
+    return "המייל לא נשלח בגלל תקלה אצלנו. התוצאה עדיין מוצגת כאן, ואפשר לנסות שוב בעוד כמה דקות.";
+  }
+  return "השליחה נכשלה, נסו שוב";
+}

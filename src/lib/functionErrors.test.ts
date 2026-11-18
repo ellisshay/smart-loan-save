@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { paymentErrorMessage, readFunctionError } from "./paymentErrors";
+import { paymentErrorMessage, readFunctionError } from "./functionErrors";
 
 const res = (status: number, body: unknown) =>
   new Response(typeof body === "string" ? body : JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -41,5 +41,19 @@ describe("readFunctionError", () => {
   it("handles a network error without a response", async () => {
     expect(await readFunctionError(new Error("Failed to fetch"))).toEqual({});
     expect(await readFunctionError(null)).toEqual({});
+  });
+});
+
+import { quickResultMailMessage } from "./functionErrors";
+describe("quickResultMailMessage", () => {
+  it("separates a bad address, a lost session and a provider failure", () => {
+    expect(quickResultMailMessage({ status: 400, code: "invalid" })).toContain("כתובת המייל");
+    expect(quickResultMailMessage({ status: 403, code: "unknown session" })).toContain("לא מצאנו את הבדיקה");
+    const provider = quickResultMailMessage({ status: 502, code: "send failed" });
+    expect(provider).toContain("תקלה אצלנו");
+    expect(provider).not.toContain("נשלח למייל");
+  });
+  it("keeps the generic message when nothing is known", () => {
+    expect(quickResultMailMessage({})).toBe("השליחה נכשלה, נסו שוב");
   });
 });

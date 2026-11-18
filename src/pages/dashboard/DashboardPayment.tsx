@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
 import { supabase } from "@/integrations/supabase/client";
 import { countMissingDocs } from "@/lib/docsComplete";
-import { paymentErrorMessage, readFunctionError } from "@/lib/paymentErrors";
+import { paymentErrorMessage, readFunctionError } from "@/lib/functionErrors";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
