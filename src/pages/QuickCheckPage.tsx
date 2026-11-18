@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { quickResultMailMessage, readFunctionError } from "@/lib/functionErrors";
 import { Link } from "react-router-dom";
 import { ChevronRight, Check, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -286,7 +287,8 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
     setMail("שולח...");
     if (mkt) await supabase.rpc("record_session_consent" as never, { _token: token, _type: "marketing", _version: CONSENT_VERSIONS.marketing, _ua: navigator.userAgent } as never);
     const { data, error } = await supabase.functions.invoke("send-quick-result", { body: { token, email, first_name: a.firstName, ltv, dti, mixes: mixes.map((m) => ({ name: m.name, risk: m.risk, monthly: m.monthly, total: m.total })) } });
-    setMail(error || !data?.ok ? "השליחה נכשלה, נסו שוב" : "התוצאה נשלחה למייל");
+    if (error || !data?.ok) return setMail(quickResultMailMessage(error ? await readFunctionError(error) : {}));
+    setMail("התוצאה נשלחה למייל");
   };
 
   const Metric = ({ title, value, g, line, empty }: { title: string; value: number | null; g?: Grade; line?: string; empty: string }) => (

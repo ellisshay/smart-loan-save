@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDashboardCase } from "@/hooks/useDashboardCase";
 import { supabase } from "@/integrations/supabase/client";
 import { countMissingDocs } from "@/lib/docsComplete";
+import { paymentErrorMessage, readFunctionError } from "@/lib/functionErrors";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,11 @@ export default function DashboardPayment() {
   // so the Cardcom terminal credentials never reach the browser. The client billing
   // details prefill the cardholder fields on the Cardcom page, and up to 4 installments
   // are offered (AdvancedDefinition.MaxNumOfPayments).
+  // A ref, not only state: two fast clicks can both run before the disabled state renders.
+  const creatingRef = useRef(false);
   const createPaymentPage = useCallback(async () => {
+    if (creatingRef.current) return false;
+    creatingRef.current = true;
     setCreatingPayment(true);
     setPayError(null);
     try {
@@ -50,13 +55,19 @@ export default function DashboardPayment() {
           },
         },
       });
-      if (error || !data?.url) throw new Error(error?.message || "no_url");
+      if (error || !data?.url) {
+        const failure = error ? await readFunctionError(error) : {};
+        if (failure.code === "already_paid") setPaymentSucceeded(true);
+        setPayError(paymentErrorMessage(failure));
+        return false;
+      }
       setPayUrl(String(data.url));
       return true;
     } catch {
-      setPayError("לא הצלחנו לפתוח את טופס התשלום. נסו שוב בעוד רגע.");
+      setPayError(paymentErrorMessage({}));
       return false;
     } finally {
+      creatingRef.current = false;
       setCreatingPayment(false);
     }
   }, [caseId, borrower.firstName, borrower.lastName, borrower.email, borrower.phone]);
@@ -193,6 +204,7 @@ export default function DashboardPayment() {
             {creatingPayment ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
             נסה שוב לשלם ₪3,450
           </Button>
+          {payError && <p className="text-xs text-destructive text-center" role="alert">{payError}</p>}
           <Button variant="outline" className="w-full" onClick={() => navigate("/dashboard")}>
             ← חזרה לדשבורד
           </Button>
@@ -339,7 +351,7 @@ export default function DashboardPayment() {
                     </Button>
                     </div>
                     {payError && (
-                      <p className="text-xs text-destructive text-center">{payError}</p>
+                      <p className="text-xs text-destructive text-center" role="alert">{payError}</p>
                     )}
                   </div>
                 )}
