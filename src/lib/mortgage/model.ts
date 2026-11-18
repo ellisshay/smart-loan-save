@@ -1,6 +1,7 @@
 // Builds the read-only "Mortgage Command Center" model from data that already exists.
 // Pure function: no fetching, no fabricated values. Missing data stays null.
 import { completedIntakeSteps } from "@/lib/intakeCompletion";
+import { hasSecondBorrower, householdNetIncome } from "@/lib/householdIncome";
 import { levelOf, isDocSettled } from "@/lib/docValidation";
 import { REQUIRED_DOCS_NEW, REQUIRED_DOCS_REFI, NEW_CASE_STEPS, REFI_CASE_STEPS } from "@/types/intake";
 import { buildMixes, type Rates } from "@/lib/quickCheck";
@@ -129,8 +130,7 @@ export function buildMortgageModel(raw: RawCaseData): MortgageModel {
 
   // Income: both borrowers' net income plus reported additional income.
   const inc = d.income || {};
-  const incomeSum = ["monthlyNetIncome", "b2MonthlyNetIncome", "rentalIncome", "benefitsIncome", "alimonyIncome", "investmentIncome", "otherIncome", "b2AdditionalIncomeAmount"]
-    .reduce((s, k) => s + num(inc[k]), 0);
+  const incomeSum = householdNetIncome(inc, hasSecondBorrower(d.personal?.borrowerCount, inc));
   const income = incomeSum > 0 ? incomeSum : null;
   const liab = d.liabilities || {};
   const obligations = num(liab.existingLoanPayments) + num(liab.creditCardMonthly) + num(liab.alimonyPaid);

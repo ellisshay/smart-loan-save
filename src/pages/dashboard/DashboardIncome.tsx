@@ -27,6 +27,7 @@ export default function DashboardIncome() {
       onBack={() => window.history.back()}
       saving={saving}
       hasBorrower2={hasBorrower2}
+      estimatedHouseholdIncome={Number(intakeData.quick_check?.answers?.income) || undefined}
     />
   );
 }

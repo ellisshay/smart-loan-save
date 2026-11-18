@@ -1,5 +1,5 @@
 import { useDashboardCase } from "@/hooks/useDashboardCase";
-import { householdNetIncome } from "@/lib/householdIncome";
+import { hasSecondBorrower, householdNetIncome } from "@/lib/householdIncome";
 import { showCompletionToast } from "@/lib/completionToast";
 import StepLiabilities from "@/components/intake/StepLiabilities";
 import { Loader2 } from "lucide-react";
@@ -9,7 +9,7 @@ export default function DashboardLiabilities() {
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
-  const totalIncome = householdNetIncome(intakeData.income, intakeData.personal?.borrowerCount === "2");
+  const totalIncome = householdNetIncome(intakeData.income, hasSecondBorrower(intakeData.personal?.borrowerCount, intakeData.income));
 
   const handleNext = async (data: any) => {
     const ok = await saveStep("liabilities", data);

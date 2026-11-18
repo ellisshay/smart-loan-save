@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
-import { householdNetIncome } from "@/lib/householdIncome";
+import { householdIncomeSummary } from "@/lib/householdIncome";
 
 type IncomeData = z.infer<typeof incomeSchema>;
 
@@ -19,9 +19,11 @@ interface Props {
   onBack: () => void;
   saving: boolean;
   hasBorrower2: boolean;
+  /** The household estimate from the quick check, shown for reference only. */
+  estimatedHouseholdIncome?: number;
 }
 
-export default function StepIncome({ defaultValues, onNext, onBack, saving, hasBorrower2 }: Props) {
+export default function StepIncome({ defaultValues, onNext, onBack, saving, hasBorrower2, estimatedHouseholdIncome }: Props) {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<IncomeData>({
     resolver: zodResolver(incomeSchema),
     defaultValues: defaultValues as any,
@@ -32,7 +34,8 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
   const hasAdditional = watch("hasAdditionalIncome");
   const b2HasAdditional = watch("b2HasAdditionalIncome");
   const b2EmploymentStatus = watch("b2EmploymentStatus");
-  const totalIncome = householdNetIncome(watch(), hasBorrower2);
+  const incomeSummary = householdIncomeSummary(watch(), hasBorrower2, estimatedHouseholdIncome);
+  const totalIncome = incomeSummary.source === "detailed" ? incomeSummary.total : 0;
 
   const employmentOptions = [
     { value: "salaried", label: "שכיר/ה" },
@@ -171,7 +174,7 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
           </div>
         )}
 
-        <Field label="הכנסה נטו חודשית כוללת (₪) *" error={errors.monthlyNetIncome?.message}>
+        <Field label={hasBorrower2 ? "הכנסה נטו חודשית של לווה 1 (₪) *" : "הכנסה נטו חודשית (₪) *"} error={errors.monthlyNetIncome?.message}>
           <Input {...register("monthlyNetIncome", { valueAsNumber: true })} type="number" dir="ltr" placeholder="15,000" />
         </Field>
 
@@ -224,7 +227,7 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
             {b2Works && <Field label={b2SelfEmployed ? "שם העסק" : "מקום עבודה"}>
               <Input {...register("b2Employer")} />
             </Field>}
-            <Field label="הכנסה נטו חודשית (₪)">
+            <Field label="הכנסה נטו חודשית של לווה 2 (₪)">
               <Input {...register("b2MonthlyNetIncome", { valueAsNumber: true })} type="number" dir="ltr" />
             </Field>
             {b2Works && <Field label={b2SelfEmployed ? "ותק עסק (חודשים)" : "ותק (חודשים)"}>
@@ -256,6 +259,15 @@ export default function StepIncome({ defaultValues, onNext, onBack, saving, hasB
         <span className="text-sm font-semibold text-foreground">סה״כ הכנסה נטו משק בית:</span>
         <span className="font-display text-2xl font-black text-gold mr-3">₪{totalIncome.toLocaleString()}</span>
         <span className="text-xs text-muted-foreground mr-2">(מחושב אוטומטית)</span>
+      
+        {estimatedHouseholdIncome ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            בבדיקה המהירה מסרתם אומדן של ₪{Number(estimatedHouseholdIncome).toLocaleString()} לכל משק הבית. הסכום כאן מחושב רק מההכנסות שפירטתם בשלב הזה ומחליף את האומדן, ולא מתווסף אליו.
+          </p>
+        ) : null}
+        {incomeSummary.missing.includes("borrower2") && (
+          <p className="mt-1 text-xs text-[hsl(var(--warning))]">חסרה הכנסה נטו של לווה 2. בלעדיה הסכום חלקי.</p>
+        )}
       </div>
 
       <div className="flex gap-3 pt-4">

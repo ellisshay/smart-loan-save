@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { hasSecondBorrower, householdNetIncome } from "../_shared/householdIncome.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -263,7 +264,7 @@ serve(async (req) => {
       mortgage_amount: property.requestedMortgage || currentMortgage.totalBalance || 0,
       current_balance: currentMortgage.totalBalance || 0,
       monthly_payment: currentMortgage.currentMonthlyPayment || 0,
-      income_total: (income.monthlyNetIncome || 0) + (income.b2MonthlyNetIncome || 0),
+      income_total: householdNetIncome(income, hasSecondBorrower(intakeData.personal?.borrowerCount, income)),
       liabilities_monthly: liabilities.existingLoanPayments || 0,
       ltv: property.purchasePrice
         ? Math.round(((property.requestedMortgage || 0) / property.purchasePrice) * 100)
