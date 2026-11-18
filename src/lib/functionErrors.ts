@@ -13,6 +13,9 @@ export function paymentErrorMessage({ status, code }: PaymentFailure): string {
   if (status === 409 || code === "already_paid") {
     return "התשלום עבור התיק כבר התקבל, ואין צורך לשלם שוב.";
   }
+  if (code === "invalid_billing") {
+    return "יש לבדוק את פרטי החשבונית: שם, טלפון ומייל תקינים.";
+  }
   if (status === 404 || code === "case_not_found") {
     return "לא מצאנו את התיק. רעננו את הדף ונסו שוב.";
   }
