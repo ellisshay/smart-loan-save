@@ -7,6 +7,7 @@ import { showCompletionToast } from "@/lib/completionToast";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DECLARATION_QUESTIONS } from "@/lib/declarationQuestions";
 import { motion } from "framer-motion";
 import { Loader2, Shield, AlertTriangle } from "lucide-react";
 
@@ -36,13 +37,7 @@ function DeclarationsForm({ defaults, saving, onSubmit }: { defaults: Partial<De
     defaultValues: defaults as any,
   });
 
-  const questions = [
-    { key: "hasExecutionFile" as const, label: "האם נפתח נגדך תיק הוצאה לפועל?" },
-    { key: "hasLegalProceedings" as const, label: "האם יש הליך משפטי תלוי ועומד?" },
-    { key: "hasBankruptcy" as const, label: "האם הכרזת על חדלות פירעון?" },
-    { key: "hasRestrictedAccount" as const, label: "האם יש לך חשבון מוגבל?" },
-    { key: "hasBouncedChecks" as const, label: "האם יש צ'קים חוזרים ב-12 חודשים אחרונים?" },
-  ];
+  const questions = DECLARATION_QUESTIONS;
 
   const confirmTruthful = watch("confirmTruthful");
 
@@ -59,7 +54,10 @@ function DeclarationsForm({ defaults, saving, onSubmit }: { defaults: Partial<De
       <div className="space-y-4">
         {questions.map((q) => (
           <div key={q.key} className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
-            <span className="text-sm font-medium text-foreground">{q.label}</span>
+            <span className="text-sm font-medium text-foreground">
+              {q.label}
+              {q.hint && <span className="block text-xs font-normal text-muted-foreground mt-1">{q.hint}</span>}
+            </span>
             <select
               {...register(q.key)}
               className="w-24 h-9 px-2 rounded-md border border-input bg-background text-sm"
