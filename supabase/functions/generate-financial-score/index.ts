@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { hasSecondBorrower, householdNetIncome } from "../_shared/householdIncome.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -253,7 +252,14 @@ serve(async (req) => {
     try { analysis = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? raw); }
     catch { analysis = {}; }
 
-    const totalIncome = householdNetIncome(intake.income, hasSecondBorrower(intake.personal?.borrowerCount, intake.income));
+    const totalIncome =
+      num(intake.income?.monthlyNetIncome) +
+      num(intake.income?.b2MonthlyNetIncome) +
+      num(intake.income?.rentalIncome) +
+      num(intake.income?.benefitsIncome) +
+      num(intake.income?.alimonyIncome) +
+      num(intake.income?.investmentIncome) +
+      num(intake.income?.otherIncome);
 
     const existingPayments = num(intake.liabilities?.existingLoanPayments);
     const amount = caseData.case_type === "refi"
