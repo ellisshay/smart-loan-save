@@ -32,20 +32,40 @@ const fromParsed = (t: any): Track => ({
   type: (t?.type in BALANCE_TRACK_TYPES ? t.type : "prime") as TrackType,
   balance: parseInput(String(t?.balance ?? "")), rate: parseInput(String(t?.rate ?? "")), years: parseInput(String(t?.years ?? "")),
 });
+const DRAFT_KEY = "easymort_balance_draft";
+type Draft = { tracks: Track[]; show: boolean; goal: Goal | null };
+/** Restores (once) what was entered before signup. Invalid or foreign content is ignored. */
+function readDraft(): Draft | null {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(DRAFT_KEY);
+    const d = JSON.parse(raw) as Partial<Draft>;
+    if (!Array.isArray(d.tracks) || !d.tracks.length) return null;
+    const tracks = d.tracks.slice(0, 12).map(fromParsed);
+    const goal = typeof d.goal === "string" && d.goal in GOAL_TEXT ? (d.goal as Goal) : null;
+    return { tracks, show: d.show === true, goal };
+  } catch { return null; }
+}
+function saveDraft(d: Draft) {
+  try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch { /* storage blocked: the form simply starts empty */ }
+}
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `bc-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
 export default function MortgageCheckPage() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const navigate = useNavigate();
-  const [tracks, setTracks] = useState<Track[]>([{ type: "prime", balance: null, rate: null, years: null }]);
-  const [show, setShow] = useState(false);
+  // Entered data survives the trip to signup and back (kept on this device for this tab only, never in the URL).
+  const [draft] = useState(readDraft);
+  const [tracks, setTracks] = useState<Track[]>(draft?.tracks ?? [{ type: "prime", balance: null, rate: null, years: null }]);
+  const [show, setShow] = useState(!!draft?.show);
   const [parsing, setParsing] = useState(false);
   const [parseMsg, setParseMsg] = useState("");
   const [sources, setSources] = useState<number[][]>([]);
   const [analysis, setAnalysis] = useState<{ id: string | null; status: ReportStatus | null; issues: ReportIssue[] } | null>(null);
   const [marketRates, setMarketRates] = useState<MarketRates | null>(null);
   const [lastPaymentTotal, setLastPaymentTotal] = useState<number | null>(null);
-  const [goal, setGoal] = useState<Goal | null>(null);
+  const [goal, setGoal] = useState<Goal | null>(draft?.goal ?? null);
   const resultRef = useRef<HTMLElement | null>(null);
 
   const onFile = async (f: File) => {
@@ -128,7 +148,7 @@ export default function MortgageCheckPage() {
             <span className="inline-flex items-center gap-2 h-10 px-5 rounded-lg bg-primary text-primary-foreground font-bold cursor-pointer">{parsing ? "מנתח את הדוח..." : analysis ? "החלפת קובץ" : "בחירת קובץ"}</span>
           </label>
         ) : (
-          <Link to="/auth?next=/balance-check"><Button variant="cta">הרשמה והעלאת הדוח</Button></Link>
+          <Link to="/auth?next=/balance-check" onClick={() => saveDraft({ tracks, show, goal })}><Button variant="cta">הרשמה והעלאת הדוח</Button></Link>
         )}
         {parseMsg && <p className="text-sm text-foreground" role="status">{parseMsg}</p>}
         {analysis && analysis.issues.length > 0 && (
@@ -227,7 +247,8 @@ export default function MortgageCheckPage() {
           <Lock className="mx-auto text-primary" />
           <h2 className="font-display text-xl font-bold text-foreground">הבדיקה הראשונית מוכנה, נשאר רק להירשם</h2>
           <p className="text-sm text-muted-foreground">הרשמה קצרה (או כניסה עם Google) שומרת את התוצאות באזור האישי שלכם. חינם לגמרי.</p>
-          <Link to="/auth?next=/balance-check"><Button variant="cta">הרשמה וצפייה בבדיקה</Button></Link>
+          <Link to="/auth?next=/balance-check" onClick={() => saveDraft({ tracks, show: true, goal })}><Button variant="cta">הרשמה וצפייה בבדיקה</Button></Link>
+          <p className="text-xs text-muted-foreground">הנתונים שהזנתם נשמרים בדפדפן הזה ויחכו לכם אחרי ההרשמה.</p>
         </section>
       ))}
 
