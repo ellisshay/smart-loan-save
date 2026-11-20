@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Trash2, Upload, Lock } from "lucide-react";
+import { Plus, Trash2, Upload } from "lucide-react";
 import { REPORT_STATUS_TEXT, type ReportIssue, type ReportStatus } from "@/lib/mortgage/balanceReportView";
 import { analyzeBalanceTrack, BALANCE_CHECK_STORE, BALANCE_TRACK_TYPES, parseInput, referenceDates, STATUS_TEXT, summarizeBalance, type BalanceTrack, type BalanceTrackType, type TrackStatus } from "@/lib/mortgage/balanceCheck";
 import { supabase } from "@/integrations/supabase/client";
@@ -161,7 +161,7 @@ export default function MortgageCheckPage() {
       </section>
 
 
-      {show && (loggedIn ? (
+      {show && (
         <section ref={resultRef} className="bg-card border border-border rounded-2xl p-5 md:p-7 space-y-5 scroll-mt-24">
           <h2 className="font-display text-xl font-bold text-foreground">הבדיקה הראשונית שלכם</h2>
           <p className="font-display text-lg font-bold text-foreground">{diag.headline}</p>
@@ -199,6 +199,12 @@ export default function MortgageCheckPage() {
           <div className="rounded-xl bg-primary/10 p-4 space-y-3">
             <p className="font-bold text-foreground">{needsCompletion || !anyData ? "נשלים יחד את הנתונים החסרים ונבדוק את כל המשכנתה, כולל הצמדה ועמלות." : "בבדיקה המלאה נבחן את כל המשכנתה לפי המטרה שבחרתם, כולל עמלות, הצמדה והשפעה על העלות הכוללת."}</p>
             <p className="text-xs text-muted-foreground">הנתונים והמטרה עוברים איתכם. אין צורך להעלות את הדוח או להזין שוב.</p>
+            {!loggedIn && (
+              <p className="text-xs text-muted-foreground">
+                כדי לשמור את הבדיקה, לפתוח אותה שוב או להמשיך לתיק נדרשת הרשמה קצרה, והנתונים יחכו לכם אחריה.{" "}
+                <Link to="/auth?next=/balance-check" onClick={() => saveDraft({ tracks, show: true, goal })} className="underline text-primary">שמירת הבדיקה באזור האישי</Link>
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               <Button variant="cta" onClick={continueToCheck}>{needsCompletion || !anyData ? "השלימו איתנו את הבדיקה בחינם" : "בדקו איתנו מה אפשר לשפר, ללא עלות"}</Button>
             </div>
@@ -242,17 +248,9 @@ export default function MortgageCheckPage() {
           <p className="text-xs text-muted-foreground">זו בדיקה אוטומטית ראשונית בלבד. היא לא כוללת עמלת פירעון מוקדם, הצמדה למדד, תחנות שינוי, עלויות מעבר או שינויים עתידיים בריבית, ואינה ייעוץ או הצעת בנק. הקטנת החזר באמצעות הארכת תקופה אינה חיסכון ועלולה להגדיל את העלות הכוללת.</p>
           <Link to="/dashboard/documents" className="inline-flex items-center gap-2 text-sm text-primary underline"><Upload size={16} /> שמירת דוח היתרות באזור האישי</Link>
         </section>
-      ) : (
-        <section className="bg-card border border-primary/40 rounded-2xl p-6 text-center space-y-3">
-          <Lock className="mx-auto text-primary" />
-          <h2 className="font-display text-xl font-bold text-foreground">הבדיקה הראשונית מוכנה, נשאר רק להירשם</h2>
-          <p className="text-sm text-muted-foreground">הרשמה קצרה (או כניסה עם Google) שומרת את התוצאות באזור האישי שלכם. חינם לגמרי.</p>
-          <Link to="/auth?next=/balance-check" onClick={() => saveDraft({ tracks, show: true, goal })}><Button variant="cta">הרשמה וצפייה בבדיקה</Button></Link>
-          <p className="text-xs text-muted-foreground">הנתונים שהזנתם נשמרים בדפדפן הזה ויחכו לכם אחרי ההרשמה.</p>
-        </section>
-      ))}
+      )}
 
-      {show && loggedIn ? (
+      {show ? (
         <details className="bg-card border border-border rounded-2xl p-5 md:p-7">
           <summary className="cursor-pointer font-display font-bold text-foreground">צפייה ועריכת הנתונים ({tracks.length === 1 ? "מסלול אחד" : `${tracks.length} מסלולים`})</summary>
           <div className="space-y-4 mt-4">

@@ -14,17 +14,22 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: {
 
 describe("balance check: entered data survives signup (#52)", () => {
   beforeEach(() => { sessionStorage.clear(); session = null; });
-  it("anonymous visitor enters tracks, goes to signup, and comes back to the result with the same data", async () => {
+  it("anonymous visitor sees the summary first; signup only to save, reopen or continue; data survives it", async () => {
     render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
-    await screen.findByText("הרשמה והעלאת הדוח");
+    await screen.findByText("הרשמה והעלאת הדוח"); // report upload stays behind login
     fireEvent.change(screen.getByLabelText("סוג מסלול"), { target: { value: "fixed_l" } });
     fireEvent.change(screen.getByLabelText("יתרה (₪)"), { target: { value: "420000" } });
     fireEvent.change(screen.getByLabelText("ריבית (%)"), { target: { value: "3.4" } });
     fireEvent.change(screen.getByLabelText("שנים שנותרו"), { target: { value: "18.5" } });
     fireEvent.click(screen.getByRole("button", { name: "לבדיקה הראשונית" }));
-    const signup = await screen.findByRole("link", { name: "הרשמה וצפייה בבדיקה" });
-    expect(signup.getAttribute("href")).toBe("/auth?next=/balance-check"); // nothing in the URL
-    fireEvent.click(signup);
+    // The summary is visible without signing up.
+    expect(await screen.findByRole("heading", { name: "הבדיקה הראשונית שלכם" })).toBeTruthy();
+    expect(screen.getByText(/המשכנתה שלכם: כ־420,000/)).toBeTruthy();
+    expect(screen.queryByText("הבדיקה הראשונית מוכנה, נשאר רק להירשם")).toBeNull();
+    // Saving needs signup; the data waits on this device, nothing in the URL.
+    const save = screen.getByRole("link", { name: "שמירת הבדיקה באזור האישי" });
+    expect(save.getAttribute("href")).toBe("/auth?next=/balance-check");
+    fireEvent.click(save);
     expect(JSON.parse(sessionStorage.getItem("easymort_balance_draft")!)).toMatchObject({ show: true, tracks: [{ type: "fixed_l", balance: 420000, rate: 3.4, years: 18.5 }] });
     cleanup();
 
@@ -32,8 +37,22 @@ describe("balance check: entered data survives signup (#52)", () => {
     render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
     expect(await screen.findByRole("heading", { name: "הבדיקה הראשונית שלכם" })).toBeTruthy();
     expect(screen.getByLabelText("יתרה (₪)")).toHaveProperty("value", "420000");
-    expect(screen.getByText(/המשכנתה שלכם: כ־420,000/)).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "שמירת הבדיקה באזור האישי" })).toBeNull();
     expect(sessionStorage.getItem("easymort_balance_draft")).toBeNull(); // used once
+  });
+  it("continuing to the full check as an anonymous visitor goes through signup and carries tracks and goal", async () => {
+    localStorage.clear();
+    render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
+    await screen.findByText("הרשמה והעלאת הדוח");
+    fireEvent.change(screen.getByLabelText("סוג מסלול"), { target: { value: "prime" } });
+    fireEvent.change(screen.getByLabelText("יתרה (₪)"), { target: { value: "500000" } });
+    fireEvent.change(screen.getByLabelText("ריבית (%)"), { target: { value: "5.8" } });
+    fireEvent.change(screen.getByLabelText("שנים שנותרו"), { target: { value: "20" } });
+    fireEvent.click(screen.getByRole("button", { name: "לבדיקה הראשונית" }));
+    await screen.findByRole("heading", { name: "הבדיקה הראשונית שלכם" });
+    fireEvent.click(screen.getByRole("button", { name: "לסיים מוקדם יותר" }));
+    fireEvent.click(screen.getByRole("button", { name: /ללא עלות|בחינם/ }));
+    expect(JSON.parse(localStorage.getItem("easymort_balance_check")!)).toMatchObject({ goal: "early_payoff", tracks: [{ type: "prime", balance: 500000 }] });
   });
   it("a broken draft is ignored and the form starts empty", async () => {
     sessionStorage.setItem("easymort_balance_draft", "{not json");
