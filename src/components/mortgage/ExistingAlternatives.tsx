@@ -18,8 +18,11 @@ const TONE: Record<Evaluated["outcome"], string> = {
  * Existing mortgage: snapshot on three axes and alternatives against the baseline (#52 stage 3).
  * Rates for new tracks are general reference data, so every alternative is a scenario, never an offer.
  */
-export function ExistingAlternatives({ tracks, rates }: { tracks: BalanceTrack[]; rates: Record<string, unknown> | null }) {
-  const [goal, setGoal] = useState<Goal>("not_sure");
+/** goal/onGoalChange: when the page already asks for the goal (summary), pass it in and the picker here is hidden. */
+export function ExistingAlternatives({ tracks, rates, goal: goalProp, onGoalChange }: { tracks: BalanceTrack[]; rates: Record<string, unknown> | null; goal?: Goal; onGoalChange?: (g: Goal) => void }) {
+  const [ownGoal, setOwnGoal] = useState<Goal>("not_sure");
+  const goal = goalProp ?? ownGoal;
+  const setGoal = onGoalChange ?? setOwnGoal;
   const [costs, setCosts] = useState("");
   const [prepayAmt, setPrepayAmt] = useState("");
   const [income, setIncome] = useState("");
@@ -52,7 +55,7 @@ export function ExistingAlternatives({ tracks, rates }: { tracks: BalanceTrack[]
           <p className="text-xs text-muted-foreground">עלות</p>
           {snap.cost.weightedGap === null ? <p className="text-sm text-foreground">אין נתון ייחוס להשוואה</p> : <>
             <p className="font-bold text-foreground">{snap.cost.weightedGap >= 0.3 ? "מעל נתוני הייחוס" : snap.cost.weightedGap <= -0.3 ? "מתחת לנתוני הייחוס" : "קרוב לנתוני הייחוס"}</p>
-            <p className="text-xs text-muted-foreground">פער משוקלל {ltr(`${snap.cost.weightedGap > 0 ? "+" : ""}${snap.cost.weightedGap.toFixed(2)}`)} נקודות{snap.cost.belowShare > 0 ? ` · ${pctTxt(snap.cost.belowShare)} מהיתרה בתנאים שכדאי לשמור` : ""}</p>
+            <p className="text-xs text-muted-foreground">פער משוקלל {ltr(`${snap.cost.weightedGap > 0 ? "+" : ""}${snap.cost.weightedGap.toFixed(2)}`)} נקודות{snap.cost.belowShare > 0 ? ` · ${pctTxt(snap.cost.belowShare)} מהיתרה בריבית נמוכה מנתון הייחוס` : ""}</p>
           </>}
         </div>
         <div className="rounded-xl border border-border p-4 space-y-1">
@@ -67,7 +70,7 @@ export function ExistingAlternatives({ tracks, rates }: { tracks: BalanceTrack[]
         </div>
       </div>
 
-      <fieldset className="space-y-2">
+      {goalProp === undefined && <fieldset className="space-y-2">
         <legend className="text-sm font-bold text-foreground">מה הכי חשוב לכם עכשיו?</legend>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(GOAL_TEXT) as Goal[]).map((g) => (
@@ -75,7 +78,7 @@ export function ExistingAlternatives({ tracks, rates }: { tracks: BalanceTrack[]
               className={`rounded-full border px-3 py-1.5 text-sm ${goal === g ? "border-primary bg-primary/10 text-foreground font-bold" : "border-border text-foreground"}`}>{GOAL_TEXT[g]}</button>
           ))}
         </div>
-      </fieldset>
+      </fieldset>}
       <div className="grid gap-3 md:grid-cols-2">
         <label className="text-xs text-muted-foreground">עלויות מעבר משוערות בש״ח (שמאות, פתיחת תיק, עו״ד). ריק = לא ידוע<input inputMode="numeric" className={input} value={costs} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="text-xs text-muted-foreground">סכום לפירעון חלקי (לא חובה)<input inputMode="numeric" className={input} value={prepayAmt} onChange={(e) => setPrepayAmt(e.target.value)} /></label>

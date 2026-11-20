@@ -89,12 +89,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className={`hidden ${isHome ? "xl:flex" : "md:flex"} items-center gap-1`}>
+          <nav className={`hidden xl:flex items-center gap-1`}>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className={`${isHome ? "px-2.5 py-2" : "px-4 py-2 rounded-lg"} text-sm font-medium transition-colors ${
+                className={`${isHome ? "px-2.5 py-2" : "px-3 py-2 rounded-lg"} whitespace-nowrap text-sm font-medium transition-colors ${
                   location.pathname === link.href
                     ? isHome ? "text-foreground underline decoration-primary underline-offset-8" : "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -105,7 +105,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className={`hidden ${isHome ? "xl:flex" : "md:flex"} items-center gap-2`}>
+          <div className={`hidden xl:flex items-center gap-2`}>
             <ThemeToggle />
             {isAdmin && (
               <Link to="/admin">
@@ -134,7 +134,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             variant="ghost" size="icon" aria-label={mobileOpen ? "סגירת תפריט" : "פתיחת תפריט"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`${isHome ? "xl:hidden" : "md:hidden"} p-2 rounded-lg hover:bg-muted text-foreground`}
+            className={`xl:hidden p-2 rounded-lg hover:bg-muted text-foreground`}
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </Button>
@@ -147,7 +147,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className={`${isHome ? "xl:hidden" : "md:hidden"} overflow-hidden bg-card border-b border-border`}
+              className={`xl:hidden overflow-hidden bg-card border-b border-border`}
             >
               <div className="container py-4 space-y-2">
                 {navLinks.map((link) => (

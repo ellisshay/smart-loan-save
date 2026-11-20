@@ -2,10 +2,11 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import HomeFloatingActions from "@/components/home/HomeFloatingActions";
 
-const HIDDEN = ["/mortgage-check", "/intake", "/auth", "/dashboard", "/admin", "/advisor"];
+// /balance-check has its own in-page next step; a floating button there covered the result and led to another flow (#52).
+const HIDDEN = ["/mortgage-check", "/balance-check", "/intake", "/auth", "/dashboard", "/admin", "/advisor"];
 
 // Routes where the free mortgage check is the more relevant primary action
-const CHECK_FIRST = ["/balance-check", "/calculators", "/savings", "/refinance", "/mix", "/affordability", "/waste"];
+const CHECK_FIRST = ["/calculators", "/savings", "/refinance", "/mix", "/affordability", "/waste"];
 
 export default function FloatingApplyButton({ blocked = false }: { blocked?: boolean }) {
   const { pathname } = useLocation();
