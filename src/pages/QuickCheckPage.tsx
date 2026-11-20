@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CONSENT_VERSIONS } from "@/lib/privacy";
 import { buildMixes, dtiGrade, ltvGrade, missingRates, Rates, TRACK_LABEL, Mix, Grade, TrackKey, STRESS_RATE_POINTS, STRESS_CPI_POINTS } from "@/lib/quickCheck";
 import { dtiBand, LTV_CAP } from "@/lib/mortgage/affordability";
+import { newMortgageNeeds } from "@/lib/mortgage/engine";
 import { FUNNEL_ICONS } from "@/components/quickcheck/FunnelIcons";
 import { formatAmount, parseAmount, quickCheckContactSchema } from "@/lib/quickCheckContact";
 
@@ -276,9 +277,15 @@ export default function QuickCheckPage() {
   );
 }
 
-function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loan: number; years: number; refi: boolean; rates: Rates; updated?: string; token: string }) {
-  const mixes: Mix[] = useMemo(() => buildMixes(loan, years, rates), [loan, years, rates]);
-  const ltv = !refi && a.value > 0 ? (loan / a.value) * 100 : null;
+export function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loan: number; years: number; refi: boolean; rates: Rates; updated?: string; token: string }) {
+  // New mortgage: purchase costs and a target payment (unknown until entered, never assumed).
+  const [costsIn, setCostsIn] = useState(""); const [targetIn, setTargetIn] = useState("");
+  const num = (v: string) => { const n = parseAmount(v); return n !== null && n > 0 ? n : null; };
+  const purchaseCosts = num(costsIn), targetPayment = num(targetIn);
+  const needs = useMemo(() => (refi ? null : newMortgageNeeds({ price: a.value, equity: a.equity, purchaseCosts, purpose: a.goal === "upgrade" ? "upgrade" : "single", netIncome: a.income || null, obligations: a.obligations, targetPayment, years })), [refi, a.value, a.equity, a.goal, a.income, a.obligations, purchaseCosts, targetPayment, years]);
+  const loanUsed = needs ? needs.loan : loan;
+  const mixes: Mix[] = useMemo(() => buildMixes(loanUsed, years, rates), [loanUsed, years, rates]);
+  const ltv = !refi && a.value > 0 ? (loanUsed / a.value) * 100 : null;
   const balanced = mixes.find((m) => m.risk === "בינוני") ?? mixes[0];
   const basePay = balanced?.monthly ?? 0;
   const missing = useMemo(() => missingRates(["prime", "fixed_not_linked", "fixed_linked", "variable_5"], rates), [rates]);
@@ -314,6 +321,20 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
       </div>
       {!refi && ltv !== null && a.goal === "upgrade" && ltv > LTV_CAP.upgrade * 100 && <p className="rounded-xl bg-muted p-4 text-sm text-foreground">במשפרי דיור תקרת המימון של בנק ישראל היא {LTV_CAP.upgrade * 100}% כל עוד הדירה הקיימת לא נמכרה. בנתונים שהזנתם המימון גבוה יותר, ונבדוק יחד את המשמעות.</p>}
       {refi && <p className="text-sm text-foreground">ההחזר החודשי היום: {nis(a.currentPayment)}. התמהילים למטה הם תרחישים לדוגמה, לפני עמלות פירעון ועלויות מעבר, ולא הוכחה שמחזור משתלם.</p>}
+      {!refi && needs && (
+        <section className="bg-card border border-border rounded-2xl p-5 space-y-3" aria-labelledby="fit-title">
+          <h2 id="fit-title" className="font-display font-bold text-lg text-foreground">התאמה אישית: יעד החזר ועלויות רכישה</h2>
+          <div className="grid md:grid-cols-2 gap-3">
+            <label className="text-sm text-muted-foreground">החזר חודשי שנוח לכם (₪)
+              <input inputMode="numeric" className="mt-1 w-full h-10 rounded-lg border border-input bg-background px-3 text-foreground" value={targetIn} onChange={(e) => setTargetIn(e.target.value)} placeholder="לא חובה" /></label>
+            <label className="text-sm text-muted-foreground">עלויות רכישה מתוך ההון העצמי (₪): מס רכישה, עו״ד, תיווך, שמאות
+              <input inputMode="numeric" className="mt-1 w-full h-10 rounded-lg border border-input bg-background px-3 text-foreground" value={costsIn} onChange={(e) => setCostsIn(e.target.value)} placeholder="לא ידוע" /></label>
+          </div>
+          <p className="text-sm text-foreground">סכום המימון בחישוב: <strong>{nis(needs.loan)}</strong>{needs.costsIncluded ? ` (כולל ${nis(purchaseCosts!)} עלויות רכישה שיוצאות מההון העצמי)` : ""}</p>
+          {!needs.costsIncluded && <p className="text-xs text-muted-foreground">עלויות הרכישה עוד לא ידועות ולא נכללו. אם הן משולמות מההון העצמי, סכום המימון הנדרש יהיה גבוה יותר.</p>}
+          {needs.overLtv && <p className="text-sm text-foreground">אחוז המימון ({Math.round((needs.ltv ?? 0) * 100)}%) מעל התקרה לסוג העסקה ({Math.round(needs.ltvCap * 100)}%). במצב כזה הבנק לא יאשר את כל הסכום, ונבדוק יחד איך לסגור את הפער.</p>}
+        </section>
+      )}
       <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2">
         {mixes.map((m) => (
           <article key={m.name} className="snap-center shrink-0 w-[80%] md:w-auto bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
@@ -324,6 +345,7 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
               <p className="text-sm text-muted-foreground">החזר כולל משוער: <strong className="text-foreground">{nis(m.total)}</strong></p>
               <p className="text-sm text-muted-foreground">בתרחיש לחץ (ריבית משתנה {"\u2066"}+{STRESS_RATE_POINTS}{"\u2069"} נקודות, מדד {"\u2066"}+{STRESS_CPI_POINTS}{"\u2069"}): עד <strong className="text-foreground">{nis(m.stressMonthly)}</strong> בחודש בחמש השנים הראשונות</p>
               {a.income > 0 && (() => { const b = dtiBand((m.stressMonthly + a.obligations) / a.income); return b ? <p className="text-xs text-muted-foreground">ביחס להכנסה בתרחיש הלחץ: {b.short}</p> : null; })()}
+              {targetPayment !== null && <p className="text-xs font-bold text-foreground">{m.stressMonthly <= targetPayment ? "בתוך היעד שלכם גם בתרחיש הלחץ" : m.monthly <= targetPayment ? "בתוך היעד היום, אבל חורג ממנו בתרחיש הלחץ" : "מעל היעד שלכם כבר היום"}</p>}
               <Button variant="outline" className="mt-auto" onClick={() => setDetail(m)}>לפירוט התמהיל</Button>
             </div>
           </article>
@@ -340,7 +362,7 @@ function ResultView({ a, loan, years, refi, rates, updated, token }: { a: A; loa
         </ul>
         <p className="text-lg font-bold">₪3,450 כולל מע"מ · עד 4 תשלומים</p>
         <div className="fixed md:static bottom-0 inset-x-0 z-30 p-3 md:p-0 bg-background/95 md:bg-transparent border-t md:border-0 border-border">
-          <Link to="/auth?next=/intake" onClick={() => { try { const prev = JSON.parse(localStorage.getItem(STORE) || "{}"); localStorage.setItem(STORE, JSON.stringify({ ...prev, answers: a, ltv, dti, mixes: mixes.map((m) => ({ name: m.name, risk: m.risk, monthly: Math.round(m.monthly), total: Math.round(m.total), tracks: m.tracks })) })); } catch { /* ignore */ } }} className="block md:inline-block"><Button variant="cta" size="lg" className="w-full md:w-auto">מתחילים</Button></Link>
+          <Link to="/auth?next=/intake" onClick={() => { try { const prev = JSON.parse(localStorage.getItem(STORE) || "{}"); localStorage.setItem(STORE, JSON.stringify({ ...prev, answers: { ...a, purchaseCosts, targetPayment }, ltv, dti, mixes: mixes.map((m) => ({ name: m.name, risk: m.risk, monthly: Math.round(m.monthly), total: Math.round(m.total), tracks: m.tracks })) })); } catch { /* ignore */ } }} className="block md:inline-block"><Button variant="cta" size="lg" className="w-full md:w-auto">מתחילים</Button></Link>
         </div>
         <div>
           <button type="button" className="text-sm underline text-primary-foreground/90" aria-expanded={openMail} onClick={() => setOpenMail((o) => !o)}>שלחו לי את התוצאה למייל</button>

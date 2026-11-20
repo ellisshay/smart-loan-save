@@ -275,6 +275,8 @@ function quizAnswersToIntake(): Record<string, any> {
     // income; with two it must not land in borrower 1's field, where borrower 2's income would be added to it.
     const income = clean({ monthlyNetIncome: a.borrowers === "1" ? a.income || undefined : undefined });
     if (Object.keys(income).length) out.income = income;
+    // A target payment from the quick check prefills the same question in the liabilities step (asked once).
+    if (typeof a.targetPayment === "number" && a.targetPayment > 0) out.liabilities = { maxDesiredPayment: a.targetPayment };
     out.quick_check = { answers: a, ltv: qc.ltv ?? null, dti: qc.dti ?? null, mixes: qc.mixes || [], saved_at: new Date().toISOString() };
     return out;
   }
