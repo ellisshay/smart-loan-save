@@ -125,3 +125,24 @@ describe("balance report: second reading of doubtful fields", () => {
     expect(checkReport(report).status).toBe("needs_completion");
   });
 });
+
+describe("balance report: RTL repair is decided per line, not per page (#57 item 2)", () => {
+  it("a correct number table on a page with reversed Hebrew lines is not flipped", () => {
+    const page = ["יתרת קרן 00.000,052", "250,000.00 | 200,000.00 | 150,000.00", "ריבית במועד החישוב 01.4"].join("\n");
+    const r = repairRtlDigits(page);
+    expect(r).toMatchObject({ reversed: true, ambiguous: false });
+    expect(r.text.split("\n")).toEqual(["יתרת קרן 250,000.00", "250,000.00 | 200,000.00 | 150,000.00", "ריבית במועד החישוב 4.10"]);
+  });
+  it("a correct Hebrew line next to a reversed Hebrew line keeps its numbers", () => {
+    const page = ["תאריך הדוח 01/11/2026", "יתרת קרן 00.000,052"].join("\n");
+    expect(repairRtlDigits(page).text.split("\n")).toEqual(["תאריך הדוח 01/11/2026", "יתרת קרן 250,000.00"]);
+  });
+  it("when Hebrew lines disagree, a signal-less Hebrew line with a direction-sensitive number is ambiguous", () => {
+    const page = ["תאריך הדוח 01/11/2026", "יתרת קרן 00.000,052", "חודשים שנותרו 781"].join("\n");
+    expect(repairRtlDigits(page).ambiguous).toBe(true);
+  });
+  it("palindromes and single digits never make a line ambiguous", () => {
+    const page = ["תאריך הדוח 01/11/2026", "יתרת קרן 00.000,052", "מסלול 1 תקופה 111"].join("\n");
+    expect(repairRtlDigits(page).ambiguous).toBe(false);
+  });
+});
