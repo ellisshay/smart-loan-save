@@ -111,20 +111,39 @@ function orientation(tok: string): "ok" | "reversed" | "neutral" {
 }
 
 /**
- * pdf.js text extraction of Hebrew pages often reverses digit runs ("600,000.00" -> "00.000,006").
- * Detects the orientation per page from unambiguous tokens (grouped amounts, dates) and repairs
- * every numeric token on a reversed page. Mixed signals make the page ambiguous: the caller must
- * not trust its numbers (fall back to reading the original file).
+ * pdf.js text extraction of Hebrew lines often reverses digit runs ("600,000.00" -> "00.000,006").
+ * The decision is made per line, never for a whole page:
+ * - A line whose unambiguous tokens (grouped amounts, dates) are all reversed is repaired, token by token.
+ * - A line whose unambiguous tokens are all correct is left alone.
+ * - A line with both is ambiguous: its numbers must not be trusted.
+ * - A line without any unambiguous token is repaired only if it contains Hebrew and every Hebrew line
+ *   with a signal on the page was reversed. A line without Hebrew (a plain number table) is never flipped.
+ *   If Hebrew lines on the page disagree, such a line is ambiguous when it has a direction-sensitive number.
+ * The caller must not trust an ambiguous page's numbers (fall back to reading the original file).
  */
 export function repairRtlDigits(page: string): { text: string; reversed: boolean; ambiguous: boolean } {
-  let ok = 0, reversed = 0;
-  for (const m of page.matchAll(NUM_TOKEN)) {
-    const o = orientation(m[0]);
-    if (o === "ok") ok++; else if (o === "reversed") reversed++;
-  }
-  if (reversed && ok) return { text: page, reversed: false, ambiguous: true };
-  if (!reversed) return { text: page, reversed: false, ambiguous: false };
-  return { text: page.replace(NUM_TOKEN, (t) => rev(t)), reversed: true, ambiguous: false };
+  const HEB = /[\u0590-\u05FF]/;
+  const lines = page.split("\n").map((line) => {
+    let ok = 0, reversed = 0, sensitive = 0;
+    for (const m of line.matchAll(NUM_TOKEN)) {
+      const o = orientation(m[0]);
+      if (o === "ok") ok++; else if (o === "reversed") reversed++;
+      if (m[0].length > 1 && rev(m[0]) !== m[0]) sensitive++;
+    }
+    return { line, ok, reversed, sensitive, hebrew: HEB.test(line) };
+  });
+  const hebrewReversed = lines.some((l) => l.hebrew && l.reversed && !l.ok);
+  const hebrewOk = lines.some((l) => l.hebrew && l.ok && !l.reversed);
+  let flipped = false, ambiguous = false;
+  const out = lines.map((l) => {
+    if (l.ok && l.reversed) { ambiguous = true; return l.line; }
+    const flip = l.reversed > 0 || (!l.ok && l.hebrew && hebrewReversed && !hebrewOk);
+    if (!l.ok && !l.reversed && l.hebrew && l.sensitive && hebrewReversed && hebrewOk) ambiguous = true;
+    if (!flip || !l.sensitive) return l.line;
+    flipped = true;
+    return l.line.replace(NUM_TOKEN, (t) => rev(t));
+  });
+  return { text: out.join("\n"), reversed: flipped, ambiguous };
 }
 
 // ---------- normalisation of the model output ----------
