@@ -193,6 +193,7 @@ export const firstMortgageArticles: KnowledgeArticle[] = [
         type: "links",
         title: "הצעד הבא",
         items: [
+          { label: "משכנתא ראשונה: התהליך והבדיקה החינמית", href: "/first-mortgage" },
           { label: "מחשבון יכולת רכישה לפי ההכנסה", href: "/calculators/affordability" },
           { label: "רשימת המסמכים למשכנתא", href: "/knowledge/documents-checklist" },
           { label: "מדריך המשכנתא הראשונה", href: "/knowledge/first-mortgage-guide" },
