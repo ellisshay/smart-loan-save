@@ -34,9 +34,9 @@ describe("BalanceCheckPage (#52)", () => {
     fireEvent.change(screen.getByLabelText("ריבית (%)"), { target: { value: "3.1" } });
     fireEvent.change(screen.getByLabelText("שנים שנותרו"), { target: { value: "15.5" } });
     const s = await results();
-    expect(within(s).getByText("הריבית נמוכה מנתון הייחוס, תנאי שכדאי לשמור")).toBeTruthy();
+    expect(within(s).getByText("הריבית נמוכה מנתון הייחוס")).toBeTruthy();
     expect(within(s).getByText("לא חישבנו סכום חיסכון")).toBeTruthy();
-    expect(within(s).getByRole("button", { name: "בדקו מה אפשר לשפר במשכנתה שלי, ללא עלות" })).toBeTruthy();
+    expect(within(s).getByRole("button", { name: "בדקו איתנו מה אפשר לשפר, ללא עלות" })).toBeTruthy();
     expect(s.textContent).not.toMatch(/3,450/);
   });
   it("linked track: asks for a linkage review instead of a shekel figure", async () => {
@@ -90,5 +90,30 @@ describe("BalanceCheckPage: alternatives against the baseline (#52 stage 3)", ()
     const full = items.find((li) => li.textContent!.includes("מחזור מלא"))!;
     expect(full.textContent).toMatch(/לא ניתן לקבוע \(חסר: עמלת פירעון מוקדם, עלויות מעבר/);
     expect(s.textContent).not.toMatch(/חיסכון של/);
+  });
+});
+
+describe("BalanceCheckPage: personal summary first (#52 owner feedback)", () => {
+  it("summary, cards and findings come before the per-track detail; the goal travels with the free check", async () => {
+    render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
+    await screen.findByText("בחירת קובץ");
+    fireEvent.change(screen.getByLabelText("סוג מסלול"), { target: { value: "prime" } });
+    fireEvent.change(screen.getByLabelText("יתרה (₪)"), { target: { value: "600000" } });
+    fireEvent.change(screen.getByLabelText("ריבית (%)"), { target: { value: "5.8" } });
+    fireEvent.change(screen.getByLabelText("שנים שנותרו"), { target: { value: "22" } });
+    const s = await results();
+    const text = s.textContent!;
+    expect(text.indexOf("המשכנתה שלכם:")).toBeLessThan(text.indexOf("פירוט לפי מסלול"));
+    expect(within(s).getByText("חלק בריבית משתנה")).toBeTruthy();
+    const findings = within(s).getByRole("list", { name: "ממצאים עיקריים" });
+    expect(within(findings).getAllByRole("listitem").length).toBeLessThanOrEqual(3);
+    expect(findings.textContent).toMatch(/בריבית משתנה/);
+    // The data editor is folded once the result is shown.
+    expect(screen.getByText(/צפייה ועריכת הנתונים/).closest("details")).toBeTruthy();
+    fireEvent.click(within(s).getByRole("button", { name: "לסיים מוקדם יותר" }));
+    fireEvent.click(within(s).getByRole("button", { name: "בדקו איתנו מה אפשר לשפר, ללא עלות" }));
+    const saved = JSON.parse(localStorage.getItem("easymort_balance_check")!);
+    expect(saved).toMatchObject({ goal: "early_payoff", tracks: [{ type: "prime", balance: 600000, rate: 5.8, years: 22 }] });
+    expect(window.location.search).toBe("");
   });
 });

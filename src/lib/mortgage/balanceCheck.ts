@@ -50,7 +50,7 @@ export const STATUS_TEXT: Record<TrackStatus, string> = {
   worth_checking_strong: "פער גדול מנתון הייחוס, כדאי לבדוק",
   worth_checking: "יש פער, כדאי לבדוק",
   near_reference: "הריבית קרובה לנתון הייחוס",
-  keep_terms: "הריבית נמוכה מנתון הייחוס, תנאי שכדאי לשמור",
+  keep_terms: "הריבית נמוכה מנתון הייחוס",
 };
 
 export function analyzeBalanceTrack(t: BalanceTrack, rates: Record<string, unknown> | null | undefined): TrackResult {
