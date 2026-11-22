@@ -56,16 +56,24 @@ export default function MortgageCheckPage() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const navigate = useNavigate();
   // Entered data survives the trip to signup and back (kept on this device for this tab only, never in the URL).
-  const [draft] = useState(readDraft);
-  const [tracks, setTracks] = useState<Track[]>(draft?.tracks ?? [{ type: "prime", balance: null, rate: null, years: null }]);
-  const [show, setShow] = useState(!!draft?.show);
+  // The page is prerendered, so the draft is read only after hydration: reading it during the first render made the
+  // client differ from the server HTML, React re-rendered from scratch, and the already-removed draft was lost.
+  const [tracks, setTracks] = useState<Track[]>([{ type: "prime", balance: null, rate: null, years: null }]);
+  const [show, setShow] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [parseMsg, setParseMsg] = useState("");
   const [sources, setSources] = useState<number[][]>([]);
   const [analysis, setAnalysis] = useState<{ id: string | null; status: ReportStatus | null; issues: ReportIssue[] } | null>(null);
   const [marketRates, setMarketRates] = useState<MarketRates | null>(null);
   const [lastPaymentTotal, setLastPaymentTotal] = useState<number | null>(null);
-  const [goal, setGoal] = useState<Goal | null>(draft?.goal ?? null);
+  const [goal, setGoal] = useState<Goal | null>(null);
+  useEffect(() => {
+    const draft = readDraft();
+    if (!draft) return;
+    setTracks(draft.tracks);
+    setShow(draft.show);
+    setGoal(draft.goal);
+  }, []);
   const resultRef = useRef<HTMLElement | null>(null);
 
   const onFile = async (f: File) => {
