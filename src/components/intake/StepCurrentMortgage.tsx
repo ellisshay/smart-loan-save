@@ -114,6 +114,7 @@ export default function StepCurrentMortgage({ defaultValues, onNext, onBack, sav
               <div key={field.id} className="rounded-xl border border-border p-3 grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
                 <Field label="מסלול" className="col-span-2 md:col-span-2">
                   <select {...register(`tracks.${index}.trackType`)} className="w-full h-10 px-2 rounded-md border border-input bg-background text-sm">
+                    <option value="">בחרו סוג מסלול...</option>
                     <option value="prime">פריים</option>
                     <option value="fixed_nl">קבועה לא צמודה</option>
                     <option value="fixed_l">קבועה צמודה</option>
@@ -136,6 +137,7 @@ export default function StepCurrentMortgage({ defaultValues, onNext, onBack, sav
                   <div className="flex-1">
                     <Field label="צמוד למדד?">
                       <select {...register(`tracks.${index}.isIndexed`)} className="w-full h-10 px-2 rounded-md border border-input bg-background text-sm">
+                        <option value="">בחרו...</option>
                         <option value="no">לא</option>
                         <option value="yes">כן</option>
                       </select>

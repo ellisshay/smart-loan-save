@@ -193,10 +193,10 @@ export const currentMortgageSchema = z.object({
   exitPenaltyEstimate: optNum(),
   // Dynamic tracks table
   tracks: z.array(z.object({
-    trackType: z.string(),
+    trackType: z.string().min(1, "בחרו סוג מסלול"),
     principalBalance: z.coerce.number(),
     interestRate: z.coerce.number(),
-    isIndexed: z.enum(["yes", "no"]),
+    isIndexed: z.enum(["yes", "no"], { errorMap: () => ({ message: "ציינו אם המסלול צמוד למדד" }) }),
     remainingYears: z.coerce.number(),
     exitDate: z.string().optional(),
     exitPenalty: optNum(),
