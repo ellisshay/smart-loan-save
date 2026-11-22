@@ -1,10 +1,27 @@
 import { MessageCircle } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const WHATSAPP_NUMBER = "972559961997";
-const WHATSAPP_MESSAGE = "שלום, אשמח לקבל מידע נוסף על שירותי EASY MORTE";
+const GENERIC = "שלום, אשמח לקבל מידע נוסף על שירותי EASY MORTE";
+
+// Service pages name their topic, so the request arrives with its context.
+const TOPICS: [string, string][] = [
+  ["/mortgage-refinance", "מחזור משכנתא"],
+  ["/refinance-calculator", "מחזור משכנתא"],
+  ["/first-mortgage", "משכנתא ראשונה"],
+  ["/mortgage-advisor", "ייעוץ משכנתא"],
+  ["/mortgage-tender", "מכרז בנקים למשכנתא"],
+  ["/mortgage", "משכנתא חדשה לרכישת דירה"],
+];
+
+export function whatsappMessageFor(pathname: string): string {
+  const topic = TOPICS.find(([p]) => pathname === p || pathname.startsWith(`${p}/`))?.[1];
+  return topic ? `שלום, הגעתי מעמוד ${topic} ב EASY MORTE ואשמח לקבל מידע.` : GENERIC;
+}
 
 export default function FloatingWhatsApp() {
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  const { pathname } = useLocation();
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessageFor(pathname))}`;
 
   return (
     <a
