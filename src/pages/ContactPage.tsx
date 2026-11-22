@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { trackGenerateLead } from "@/lib/analytics";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -10,6 +11,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSent(true);
+    trackGenerateLead({ form_name: "contact" });
   };
 
   return (

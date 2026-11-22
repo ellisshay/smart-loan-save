@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { CaseType } from "@/types/intake";
+import { trackGenerateLead } from "@/lib/analytics";
 
 export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null) {
   const [caseId, setCaseId] = useState<string | null>(null);
@@ -193,6 +194,7 @@ export function useIntakeForm(caseType: CaseType, existingCaseId?: string | null
       await supabase.rpc("update_case_safe", { _case_id: caseId, _intake_data: intakeData });
       const { error: submitErr } = await supabase.rpc("submit_case_safe" as any, { _case_id: caseId, _goal: goal });
       if (submitErr) throw submitErr;
+      trackGenerateLead({ form_name: "intake" });
       supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
       supabase.functions.invoke("generate-financial-score", { body: { case_id: caseId } }).catch(console.error);
       // Side notifications must never block the client
