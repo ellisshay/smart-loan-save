@@ -322,7 +322,7 @@ export const aiQuestions2027Articles: KnowledgeArticle[] = [
       { q: "למה צריך להשאיר כסף בצד?", a: "כדי לכסות הוצאות עסקה ולהימנע ממצב שבו כל הנזילות נעלמת ביום הרכישה." },
     ],
     calculator: { label: "מחשבון יכולת רכישה", href: "/calculators/affordability" },
-    related: ["first-mortgage-guide", "how-much-mortgage-by-income-2027", "pre-approval-explained"],
+    related: ["how-much-equity-first-apartment", "first-mortgage-guide", "how-much-mortgage-by-income-2027"],
     sources: [
       { label: "בנק ישראל, מגבלות שיעור מימון והסבר על LTV", url: BOI_MORTGAGE_REFORM },
     ],
