@@ -251,7 +251,43 @@ export function quizToIntake(): ReturnType<typeof quizAnswersToIntake> {
   try { bc = JSON.parse(localStorage.getItem("easymort_balance_check") || "null"); } catch { /* ignore */ }
   if (bc && typeof bc.id === "string" && Array.isArray(bc.tracks) && bc.tracks.length) {
     out.balance_check = { id: bc.id, analysis_id: typeof bc.analysis_id === "string" ? bc.analysis_id : null, report_status: typeof bc.report_status === "string" ? bc.report_status : null, goal: typeof bc.goal === "string" ? bc.goal.slice(0, 20) : null, tracks: bc.tracks.slice(0, 12), saved_at: typeof bc.saved_at === "string" ? bc.saved_at : null };
+    const cm = balanceTracksToCurrentMortgage(bc.tracks.slice(0, 12));
+    if (cm) out.current_mortgage = cm;
   }
+  return out;
+}
+
+// Balance check track type -> intake track type. "unknown" is not guessed: the user picks it in the intake.
+const BALANCE_TO_INTAKE_TRACK: Record<string, string> = { prime: "prime", fixed_nl: "fixed_nl", fixed_l: "fixed_l", var5: "variable_nl", var_l: "variable_l" };
+const LINKED_INTAKE_TRACKS = new Set(["fixed_l", "variable_l"]);
+
+/**
+ * Prefill the intake "current mortgage" step from the tracks the user already entered in the balance check (#52),
+ * so they are not typed twice. Only known values are filled; a missing value stays empty, never 0.
+ * The total balance is filled only when every track's balance is known. The monthly payment and the bank are not
+ * collected by the balance check, so they stay for the user to fill.
+ */
+export function balanceTracksToCurrentMortgage(tracks: unknown[]): Record<string, any> | null {
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : undefined);
+  const rows = tracks
+    .filter((t): t is Record<string, unknown> => !!t && typeof t === "object")
+    .map((t) => {
+      const trackType = typeof t.type === "string" ? BALANCE_TO_INTAKE_TRACK[t.type] : undefined;
+      return {
+        trackType: trackType ?? "",
+        principalBalance: num(t.balance),
+        interestRate: num(t.rate),
+        isIndexed: trackType ? (LINKED_INTAKE_TRACKS.has(trackType) ? "yes" : "no") : undefined,
+        remainingYears: num(t.years),
+      };
+    })
+    .filter((r) => r.trackType || r.principalBalance !== undefined || r.interestRate !== undefined || r.remainingYears !== undefined);
+  if (!rows.length) return null;
+  const balances = rows.map((r) => r.principalBalance);
+  const years = rows.map((r) => r.remainingYears).filter((y): y is number => y !== undefined);
+  const out: Record<string, any> = { tracks: rows.map((r) => Object.fromEntries(Object.entries(r).filter(([, v]) => v !== undefined))) };
+  if (balances.every((b) => b !== undefined)) out.totalBalance = balances.reduce((s, b) => s + (b as number), 0);
+  if (years.length) out.remainingYears = Math.max(...years);
   return out;
 }
 
