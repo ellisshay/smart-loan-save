@@ -44,7 +44,7 @@ describe("plan 0001 refinance cluster", () => {
     const article = getArticle("is-refinance-worth-it");
     expect(article?.title.startsWith("בדיקת מחזור משכנתא")).toBe(true);
     expect(article?.metaDescription).toContain("בדיקת מחזור משכנתא");
-    expect(article?.updatedDate).toBe("2026-11-16");
+    expect(article?.updatedDate).toBe("2026-11-24");
     expect(article?.directAnswer).toContain("בדיקת מחזור משכנתא");
     expect(JSON.stringify(article)).not.toMatch(/[—–]/);
     const linked = JSON.stringify(article?.blocks);
