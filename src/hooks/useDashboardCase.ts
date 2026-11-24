@@ -5,6 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { isDocSettled } from "@/lib/docValidation";
 import { IntakeAutosaveContext } from "@/components/intake/IntakeAutosave";
 import type { CaseStatus } from "@/types/admin";
+import { trackGenerateLead } from "@/lib/analytics";
 
 function useDashboardCaseState() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ function useDashboardCaseState() {
         if (!subErr) {
           setIntakeComplete(true);
           if (status === "Draft") setStatus("WaitingForPayment");
+          trackGenerateLead({ form_name: "dashboard_case" });
           supabase.functions.invoke("case-email", { body: { case_id: caseId, event: "intake_complete" } }).catch(console.error);
           supabase.functions.invoke("generate-financial-score", { body: { case_id: caseId } }).catch(console.error);
         }

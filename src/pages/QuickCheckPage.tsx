@@ -13,6 +13,7 @@ import { dtiBand, LTV_CAP } from "@/lib/mortgage/affordability";
 import { newMortgageNeeds } from "@/lib/mortgage/engine";
 import { FUNNEL_ICONS } from "@/components/quickcheck/FunnelIcons";
 import { formatAmount, parseAmount, quickCheckContactSchema } from "@/lib/quickCheckContact";
+import { trackGenerateLead } from "@/lib/analytics";
 
 type Goal = "first" | "upgrade" | "refi";
 interface A {
@@ -163,6 +164,7 @@ export default function QuickCheckPage() {
       const work = (async () => {
         const { data: token, error } = await supabase.rpc("save_quick_check_inquiry", { _answers: answers, _consent_version: CONSENT_VERSIONS.quick_check, _ua: navigator.userAgent });
         if (error || !token) throw new Error("create");
+        trackGenerateLead({ form_name: "quick_check" });
         const { data: r } = await supabase.from("market_rates").select("prime,fixed_not_linked,fixed_linked,variable_5,cpi_annual,updated_at").order("updated_at", { ascending: false }).limit(1).maybeSingle();
         if (!r) throw new Error("rates");
         return { token, r };
@@ -301,6 +303,7 @@ export function ResultView({ a, loan, years, refi, rates, updated, token }: { a:
     const { data, error } = await supabase.functions.invoke("send-quick-result", { body: { token, email, first_name: a.firstName, ltv, dti, mixes: mixes.map((m) => ({ name: m.name, risk: m.risk, monthly: m.monthly, total: m.total })) } });
     if (error || !data?.ok) return setMail(quickResultMailMessage(error ? await readFunctionError(error) : {}));
     setMail("התוצאה נשלחה למייל");
+    trackGenerateLead({ form_name: "quick_check_email" });
   };
 
   const Metric = ({ title, value, g, line, empty }: { title: string; value: number | null; g?: Grade; line?: string; empty: string }) => (
