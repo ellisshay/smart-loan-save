@@ -34,12 +34,12 @@ const fromParsed = (t: any): Track => ({
 });
 const DRAFT_KEY = "easymort_balance_draft";
 type Draft = { tracks: Track[]; show: boolean; goal: Goal | null };
-/** Restores (once) what was entered before signup. Invalid or foreign content is ignored. */
+/** Reads what was entered before signup, refresh or back. Reading never deletes it: the draft is the only copy until
+ * the check is saved for the case (continueToCheck) or the visitor clears it. Invalid or foreign content is ignored. */
 function readDraft(): Draft | null {
   try {
     const raw = sessionStorage.getItem(DRAFT_KEY);
     if (!raw) return null;
-    sessionStorage.removeItem(DRAFT_KEY);
     const d = JSON.parse(raw) as Partial<Draft>;
     if (!Array.isArray(d.tracks) || !d.tracks.length) return null;
     const tracks = d.tracks.slice(0, 12).map(fromParsed);
@@ -49,6 +49,9 @@ function readDraft(): Draft | null {
 }
 function saveDraft(d: Draft) {
   try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch { /* storage blocked: the form simply starts empty */ }
+}
+function clearDraft() {
+  try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* storage blocked */ }
 }
 const newId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `bc-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
@@ -67,13 +70,22 @@ export default function MortgageCheckPage() {
   const [marketRates, setMarketRates] = useState<MarketRates | null>(null);
   const [lastPaymentTotal, setLastPaymentTotal] = useState<number | null>(null);
   const [goal, setGoal] = useState<Goal | null>(null);
+  const [restored, setRestored] = useState(false);
   useEffect(() => {
     const draft = readDraft();
-    if (!draft) return;
-    setTracks(draft.tracks);
-    setShow(draft.show);
-    setGoal(draft.goal);
+    if (draft) {
+      setTracks(draft.tracks);
+      setShow(draft.show);
+      setGoal(draft.goal);
+    }
+    setRestored(true);
   }, []);
+  // Keep the draft current, so a refresh, the back button or a trip to signup returns exactly what was entered
+  // (missing values stay missing). Only after the first restore, so the empty first render never overwrites it.
+  useEffect(() => {
+    if (!restored) return;
+    if (tracks.some((t) => t.balance !== null || t.rate !== null || t.years !== null) || show) saveDraft({ tracks, show, goal });
+  }, [restored, tracks, show, goal]);
   const resultRef = useRef<HTMLElement | null>(null);
 
   const onFile = async (f: File) => {
@@ -122,8 +134,19 @@ export default function MortgageCheckPage() {
   const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("he-IL") : null);
   /** Keeps the entered tracks on this device and carries them into the free check, under an id. Nothing goes in the URL. */
   const continueToCheck = () => {
-    try { localStorage.setItem(BALANCE_CHECK_STORE, JSON.stringify({ id: newId(), analysis_id: analysis?.id ?? null, report_status: analysis?.status ?? null, goal: chosenGoal, tracks, saved_at: new Date().toISOString() })); } catch { /* storage blocked */ }
+    try {
+      const payload = JSON.stringify({ id: newId(), analysis_id: analysis?.id ?? null, report_status: analysis?.status ?? null, goal: chosenGoal, tracks, saved_at: new Date().toISOString() });
+      localStorage.setItem(BALANCE_CHECK_STORE, payload);
+      // The draft is removed only once the check is verifiably saved for the case.
+      if (localStorage.getItem(BALANCE_CHECK_STORE) === payload) clearDraft();
+    } catch { /* storage blocked: the draft stays */ }
     navigate(loggedIn ? "/intake" : "/auth?next=/intake");
+  };
+  const resetCheck = () => {
+    clearDraft();
+    setTracks([{ type: "prime", balance: null, rate: null, years: null }]);
+    setShow(false);
+    setGoal(null);
   };
   const diag = diagnose(tracks, marketRates, { lastPaymentTotal });
   const chosenGoal: Goal = goal ?? diag.suggestedGoal;
@@ -278,6 +301,7 @@ export default function MortgageCheckPage() {
         ))}
         <div className="flex flex-wrap gap-2 justify-between">
           <Button variant="outline" size="sm" disabled={tracks.length >= 12} onClick={() => setTracks((ts) => [...ts, { type: "fixed_nl", balance: null, rate: null, years: null }])}><Plus size={16} /> הוספת מסלול</Button>
+          {anyData && <Button variant="ghost" size="sm" onClick={resetCheck}>ניקוי הנתונים</Button>}
           <Button variant="cta" onClick={() => setShow(true)}>לבדיקה הראשונית</Button>
         </div>
           </div>
@@ -300,6 +324,7 @@ export default function MortgageCheckPage() {
         ))}
         <div className="flex flex-wrap gap-2 justify-between">
           <Button variant="outline" size="sm" disabled={tracks.length >= 12} onClick={() => setTracks((ts) => [...ts, { type: "fixed_nl", balance: null, rate: null, years: null }])}><Plus size={16} /> הוספת מסלול</Button>
+          {anyData && <Button variant="ghost" size="sm" onClick={resetCheck}>ניקוי הנתונים</Button>}
           <Button variant="cta" onClick={() => setShow(true)}>לבדיקה הראשונית</Button>
         </div>
         </section>

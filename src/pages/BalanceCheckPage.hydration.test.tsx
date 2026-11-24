@@ -12,4 +12,8 @@ describe("balance check draft is read after hydration", () => {
   it("restores the draft inside an effect", () => {
     expect(src).toMatch(/useEffect\(\(\) => \{\s*const draft = readDraft\(\);/);
   });
+  it("never deletes the draft while reading it", () => {
+    const read = src.slice(src.indexOf("function readDraft"), src.indexOf("function saveDraft"));
+    expect(read).not.toMatch(/removeItem/);
+  });
 });

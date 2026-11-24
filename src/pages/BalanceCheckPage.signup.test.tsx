@@ -38,7 +38,8 @@ describe("balance check: entered data survives signup (#52)", () => {
     expect(await screen.findByRole("heading", { name: "הבדיקה הראשונית שלכם" })).toBeTruthy();
     expect(screen.getByLabelText("יתרה (₪)")).toHaveProperty("value", "420000");
     expect(screen.queryByRole("link", { name: "שמירת הבדיקה באזור האישי" })).toBeNull();
-    expect(sessionStorage.getItem("easymort_balance_draft")).toBeNull(); // used once
+    // Reading the draft does not delete it: a refresh or back still finds it until the check is saved or cleared.
+    expect(sessionStorage.getItem("easymort_balance_draft")).not.toBeNull();
   });
   it("continuing to the full check as an anonymous visitor goes through signup and carries tracks and goal", async () => {
     localStorage.clear();
@@ -53,6 +54,17 @@ describe("balance check: entered data survives signup (#52)", () => {
     fireEvent.click(screen.getByRole("button", { name: "לסיים מוקדם יותר" }));
     fireEvent.click(screen.getByRole("button", { name: /ללא עלות|בחינם/ }));
     expect(JSON.parse(localStorage.getItem("easymort_balance_check")!)).toMatchObject({ goal: "early_payoff", tracks: [{ type: "prime", balance: 500000 }] });
+    // Saved for the case: only now is the draft removed.
+    expect(sessionStorage.getItem("easymort_balance_draft")).toBeNull();
+  });
+  it("keeps missing values missing across a refresh, and clears only on an explicit action", async () => {
+    render(<MemoryRouter><BalanceCheckPage /></MemoryRouter>);
+    await screen.findByText("הרשמה והעלאת הדוח");
+    fireEvent.change(screen.getByLabelText("ריבית (%)"), { target: { value: "4.1" } });
+    const saved = JSON.parse(sessionStorage.getItem("easymort_balance_draft")!);
+    expect(saved.tracks[0]).toMatchObject({ balance: null, rate: 4.1, years: null });
+    fireEvent.click(screen.getByRole("button", { name: "ניקוי הנתונים" }));
+    expect(sessionStorage.getItem("easymort_balance_draft")).toBeNull();
   });
   it("a broken draft is ignored and the form starts empty", async () => {
     sessionStorage.setItem("easymort_balance_draft", "{not json");
