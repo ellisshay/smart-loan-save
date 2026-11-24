@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import BalanceCheckPage from "./BalanceCheckPage";
 
 const rates = { prime: 6, fixed_not_linked: 5, fixed_linked: 3, variable_5: 5, variable_5_linked: 3, updated_at: "2026-10-01T00:00:00Z" };
@@ -15,6 +15,8 @@ const results = async () => {
   fireEvent.click(screen.getByRole("button", { name: "לבדיקה הראשונית" }));
   return (await screen.findByRole("heading", { name: "הבדיקה הראשונית שלכם" })).closest("section")!;
 };
+
+beforeEach(() => sessionStorage.clear());
 
 describe("BalanceCheckPage (#52)", () => {
   it("with no data: no ₪0 saving, missing fields named, a free completion CTA", async () => {
