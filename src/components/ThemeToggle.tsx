@@ -3,22 +3,26 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem("theme");
-    if (stored) return stored === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  // Pages are prerendered: the first render must match the server HTML, so the saved preference is read after mount.
+  const [dark, setDark] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let stored: string | null = null;
+    try { stored = localStorage.getItem("theme"); } catch { /* storage blocked */ }
+    setDark(stored ? stored === "dark" : window.matchMedia?.("(prefers-color-scheme: dark)").matches === true);
+    setReady(true);
+  }, []);
 
   useEffect(() => {
+    if (!ready) return; // never overwrite the saved preference with the initial default
     const root = document.documentElement;
     if (dark) {
       root.classList.add("dark");
     } else {
       root.classList.remove("dark");
     }
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
+    try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch { /* storage blocked */ }
+  }, [dark, ready]);
 
   return (
     <Button
